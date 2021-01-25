@@ -1,0 +1,13 @@
+apiVersion: keycloak.org/v1alpha1
+kind: Keycloak
+metadata:
+  name: example-keycloak
+  namespace: managed-service-registry
+  labels:
+    app: sso
+spec:
+  extensions:
+  - https://github.com/aerogear/keycloak-metrics-spi/releases/download/1.0.4/keycloak-metrics-spi-1.0.4.jar
+  externalAccess:
+    enabled: true
+  instances: 1

@@ -1,0 +1,107 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tenant-manager
+  labels:
+    app: tenant-manager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tenant-manager
+  template:
+    metadata:
+      labels:
+        app: tenant-manager
+    spec:
+      containers:
+        - image: quay.io/apicurio/apicurio-registry-tenant-manager-api:multitenant-sr-demo-snapshot
+          imagePullPolicy: Always
+          name: tenant-manager
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          env:
+            - name: DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: apicurio-registry-configmap
+                  key: pg-ds-url
+            - name: DATASOURCE_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: apicurio-registry-configmap
+                  key: pg-user
+            - name: DATASOURCE_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: apicurio-registry-configmap
+                  key: pg-pwd
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 1300Mi
+            requests:
+              cpu: 200m
+              memory: 600Mi
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          terminationMessagePath: /dev/termination-log
+  strategy:
+    type: Recreate
+---
+# Services for the components
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: tenant-manager
+    template: tenant-manager
+  name: tenant-manager
+spec:
+  selector:
+    app: tenant-manager
+  ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+  sessionAffinity: None
+status:
+  loadBalancer: {}
+
+---
+# Route
+apiVersion: v1
+kind: Route
+metadata:
+  name: tenant-manager
+  labels:
+    app: tenant-manager
+    template: tenant-manager
+spec:
+  to:
+    kind: Service
+    name: tenant-manager
+    weight: 100
+  wildcardPolicy: None
+
+---

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: apicurio-registry-configmap
+data:
+  pg-user: apicurio-registry
+  pg-pwd: password
+  pg-ds-url: jdbc:postgresql://apicurio-registry-postgresql:5432/apicurio-registry-database
+  pg-database-name: apicurio-registry-database
+  keycloak-url: https://{KEYCLOAK_ROUTE_PLACEHOLDER}/auth
+  keycloak-default-realm: registry
