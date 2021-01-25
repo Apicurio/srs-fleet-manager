@@ -46,6 +46,7 @@ public class CreateRegistryDeploymentWorker implements Worker {
         RegistryDeployment deployment = RegistryDeployment.builder()
                 .status(status)
                 .tenantManagerUrl(task.getRegistryDeployment().getTenantManagerUrl())
+                .registryDeploymentUrl(task.getRegistryDeployment().getRegistryDeploymentUrl())
                 .build();
 
         storage.createOrUpdateRegistryDeployment(deployment);
