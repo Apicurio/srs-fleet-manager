@@ -8,8 +8,11 @@ import io.bf2fc6cc711aee1a0c2a.execution.tasks.impl.RegistryHeartbeatTask;
 import io.bf2fc6cc711aee1a0c2a.spi.TenantManagerClient;
 import io.bf2fc6cc711aee1a0c2a.spi.model.Tenant;
 import io.bf2fc6cc711aee1a0c2a.spi.model.TenantManager;
+import io.bf2fc6cc711aee1a0c2a.spi.model.TenantRequest;
 import io.bf2fc6cc711aee1a0c2a.storage.ResourceStorage;
 import io.bf2fc6cc711aee1a0c2a.storage.sqlPanacheImpl.model.Registry;
+import io.bf2fc6cc711aee1a0c2a.storage.sqlPanacheImpl.model.RegistryDeployment;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,14 +49,26 @@ public class ProvisionRegistryTenantWorker implements Worker {
         ProvisionRegistryTenantTask provisionRegistryTenantTask = (ProvisionRegistryTenantTask) task;
 
         Optional<Registry> registryOptional = storage.getRegistryById(provisionRegistryTenantTask.getRegistryId());
-        if (registryOptional.isEmpty())
+        if (registryOptional.isEmpty()) {
             throw new IllegalStateException("Registry not found.");
+        }
         Registry registry = registryOptional.get();
 
-        TenantManager tenantManager = TenantManager.builder().tenantManagerUrl(registry.getRegistryDeployment().getTenantManagerUrl()).build();
-        //Tenant tenant = Tenant.builder().id("tenant-" + registry.getId()).build();
+        //TODO perform appropiate configurations to auth server
+        //TODO fill with info from auth configuration
+        TenantRequest tenantRequest = TenantRequest.builder()
+                .authServerUrl(null)
+                .authClientId(null)
+                .build();
 
-        Tenant tenant = tmClient.createTenant(tenantManager);
+
+        RegistryDeployment registryDeployment = registry.getRegistryDeployment();
+        TenantManager tenantManager = TenantManager.builder()
+                .tenantManagerUrl(registryDeployment.getTenantManagerUrl())
+                .registryDeploymentUrl(registryDeployment.getRegistryDeploymentUrl())
+                .build();
+
+        Tenant tenant = tmClient.createTenant(tenantManager, tenantRequest);
 
         registry.setAppUrl(tenant.getTenantApiUrl());
         registry.getStatus().setLastUpdated(Instant.now());

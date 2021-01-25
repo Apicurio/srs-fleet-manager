@@ -17,5 +17,7 @@ public class RegistryDeploymentRest {
 
     private String tenantManagerUrl;
 
+    private String registryDeploymentUrl;
+
     private RegistryDeploymentStatusRest status;
 }

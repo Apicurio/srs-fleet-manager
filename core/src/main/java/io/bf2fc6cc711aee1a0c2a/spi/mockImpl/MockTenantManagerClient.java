@@ -3,6 +3,7 @@ package io.bf2fc6cc711aee1a0c2a.spi.mockImpl;
 import io.bf2fc6cc711aee1a0c2a.spi.TenantManagerClient;
 import io.bf2fc6cc711aee1a0c2a.spi.model.Tenant;
 import io.bf2fc6cc711aee1a0c2a.spi.model.TenantManager;
+import io.bf2fc6cc711aee1a0c2a.spi.model.TenantRequest;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,9 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import javax.enterprise.context.ApplicationScoped;
 
-@ApplicationScoped
 public class MockTenantManagerClient implements TenantManagerClient {
 
     private final Map<TenantManager, Set<Tenant>> testData = new HashMap<>();
@@ -23,7 +22,7 @@ public class MockTenantManagerClient implements TenantManagerClient {
     }
 
     @Override
-    public Tenant createTenant(TenantManager tm) {
+    public Tenant createTenant(TenantManager tm, TenantRequest req) {
         String tenantID = "tenant-" + UUID.randomUUID();
         Tenant tenant = Tenant.builder().id(tenantID).tenantApiUrl("https://registry.app.example.com/" + tenantID).build();
         init(tm);

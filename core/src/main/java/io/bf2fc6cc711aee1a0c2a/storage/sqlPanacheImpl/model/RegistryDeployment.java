@@ -31,6 +31,8 @@ public class RegistryDeployment {
 
     private String tenantManagerUrl;
 
+    private String registryDeploymentUrl;
+
     @OneToOne(cascade = {CascadeType.ALL})
     private RegistryDeploymentStatus status;
 }
