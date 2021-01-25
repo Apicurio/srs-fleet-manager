@@ -1,0 +1,131 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apicurio-registry
+  labels:
+    app: apicurio-registry
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: registry
+  template:
+    metadata:
+      labels:
+        app: apicurio-registry
+        name: registry
+    spec:
+      containers:
+        - image: quay.io/apicurio/apicurio-registry-sql:multitenant-sr-demo-snapshot
+          imagePullPolicy: Always
+          name: apicurio-registry
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          env:
+            - name: REGISTRY_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: apicurio-registry-configmap
+                  key: pg-ds-url
+            - name: REGISTRY_DATASOURCE_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: apicurio-registry-configmap
+                  key: pg-user
+            - name: REGISTRY_DATASOURCE_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: apicurio-registry-configmap
+                  key: pg-pwd
+            - name: AUTH_ENABLED
+              value: "true"
+
+              # default tenant config
+            - name: KEYCLOAK_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: apicurio-registry-configmap
+                  key: keycloak-url
+            - name: KEYCLOAK_REALM
+              valueFrom:
+                configMapKeyRef:
+                  name: apicurio-registry-configmap
+                  key: keycloak-default-realm
+
+              # workaround
+            - name: QUARKUS_OIDC_TLS_VERIFICATION
+              value: none
+
+            - name: LOG_LEVEL
+              value: DEBUG
+            - name: QUARKUS_PROFILE
+              value: prod
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 1300Mi
+            requests:
+              cpu: 200m
+              memory: 600Mi
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          terminationMessagePath: /dev/termination-log
+  strategy:
+    type: Recreate
+---
+# Services for the components
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: apicurio-registry
+    template: apicurio-registry
+  name: apicurio-registry
+spec:
+  selector:
+    app: apicurio-registry
+  ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+  sessionAffinity: None
+status:
+  loadBalancer: {}
+
+---
+# Route
+apiVersion: v1
+kind: Route
+metadata:
+  name: apicurio-registry
+  labels:
+    app: apicurio-registry
+    template: apicurio-registry
+spec:
+  to:
+    kind: Service
+    name: apicurio-registry
+    weight: 100
+  wildcardPolicy: None
+
+---

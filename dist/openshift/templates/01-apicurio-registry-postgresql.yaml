@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: apicurio-registry-postgresql
+  name: apicurio-registry-postgresql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apicurio-registry-postgresql
+  template:
+    metadata:
+      labels:
+        app: apicurio-registry-postgresql
+    spec:
+      containers:
+        - name: apicurio-registry-postgresql
+          image: centos/postgresql-10-centos7
+          env:
+            - name: POSTGRESQL_ADMIN_PASSWORD
+              value: admin1234
+            - name: POSTGRESQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: apicurio-registry-configmap
+                  key: pg-database-name
+            - name: POSTGRESQL_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: apicurio-registry-configmap
+                  key: pg-pwd
+            - name: POSTGRESQL_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: apicurio-registry-configmap
+                  key: pg-user
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          readinessProbe:
+            tcpSocket:
+              port: 5432
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 5432
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          volumeMounts:
+            - mountPath: /var/lib/pgsql/data
+              name: apicurio-registry-postgresql
+          resources:
+            limits:
+              cpu: 500m
+              memory: 2000Mi
+            # requests:
+            #   cpu: 200m
+            #   memory: 600Mi
+      volumes:
+        - name: apicurio-registry-postgresql
+          persistentVolumeClaim:
+            claimName: apicurio-registry-postgresql
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: apicurio-registry-postgresql
+  name: apicurio-registry-postgresql
+spec:
+  ports:
+    - port: 5432
+      protocol: TCP
+      targetPort: 5432
+  selector:
+    app: apicurio-registry-postgresql
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    name: apicurio-registry-postgresql
+  name: apicurio-registry-postgresql
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
