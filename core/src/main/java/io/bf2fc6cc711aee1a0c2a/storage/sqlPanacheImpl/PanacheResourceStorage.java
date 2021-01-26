@@ -26,8 +26,9 @@ public class PanacheResourceStorage implements ResourceStorage {
     public boolean createOrUpdateRegistry(Registry registry) {
         requireNonNull(registry);
         Optional<Registry> existing = Optional.empty();
-        if (registry.getId() != null)
+        if (registry.getId() != null) {
             existing = registryRepository.findByIdOptional(registry.getId());
+        }
         registryRepository.persistAndFlush(registry);
         return existing.isEmpty();
     }
@@ -55,8 +56,9 @@ public class PanacheResourceStorage implements ResourceStorage {
     public boolean createOrUpdateRegistryDeployment(RegistryDeployment rd) {
         requireNonNull(rd);
         Optional<RegistryDeployment> existing = Optional.empty();
-        if (rd.getId() != null)
+        if (rd.getId() != null) {
             existing = rdRepository.findByIdOptional(rd.getId());
+        }
         rdRepository.persistAndFlush(rd);
         return existing.isEmpty();
     }

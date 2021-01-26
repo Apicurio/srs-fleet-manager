@@ -5,8 +5,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import javax.enterprise.context.ApplicationScoped;
-
 import io.apicurio.multitenant.client.TenantManagerClientImpl;
 import io.apicurio.multitenant.datamodel.NewRegistryTenantRequest;
 import io.apicurio.multitenant.datamodel.RegistryTenant;
@@ -15,7 +13,6 @@ import io.bf2fc6cc711aee1a0c2a.spi.model.Tenant;
 import io.bf2fc6cc711aee1a0c2a.spi.model.TenantManager;
 import io.bf2fc6cc711aee1a0c2a.spi.model.TenantRequest;
 
-@ApplicationScoped
 public class RestClientTenantManagerClientImpl implements TenantManagerClient {
 
     private Map<String, TenantManagerClientImpl> pool = new ConcurrentHashMap<String, TenantManagerClientImpl>();
@@ -65,9 +62,9 @@ public class RestClientTenantManagerClientImpl implements TenantManagerClient {
     }
 
     @Override
-    public void deleteTenant(TenantManager tm, Tenant tenant) {
+    public void deleteTenant(TenantManager tm, String tenantId) {
         var client = getClient(tm);
-        client.deleteTenant(tenant.getId());
+        client.deleteTenant(tenantId);
     }
 
     @Override
@@ -77,7 +74,7 @@ public class RestClientTenantManagerClientImpl implements TenantManagerClient {
     }
 
     @Override
-    public boolean pingTenant(TenantManager tm, Tenant tenant) {
+    public boolean pingTenant(TenantManager tm, String tenantId) {
         // TODO implement
         return true;
     }

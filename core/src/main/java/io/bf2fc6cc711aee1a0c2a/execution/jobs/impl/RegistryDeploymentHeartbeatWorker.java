@@ -52,7 +52,10 @@ public class RegistryDeploymentHeartbeatWorker implements Worker {
         }
         RegistryDeployment deployment = deploymentOptional.get();
 
-        TenantManager tenantManager = TenantManager.builder().tenantManagerUrl(deployment.getTenantManagerUrl()).build();
+        TenantManager tenantManager = TenantManager.builder()
+                .tenantManagerUrl(deployment.getTenantManagerUrl())
+                .registryDeploymentUrl(deployment.getRegistryDeploymentUrl())
+                .build();
 
         boolean ok = tmClient.pingTenantManager(tenantManager);
 

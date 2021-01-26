@@ -57,8 +57,8 @@ public class ProvisionRegistryTenantWorker implements Worker {
         //TODO perform appropiate configurations to auth server
         //TODO fill with info from auth configuration
         TenantRequest tenantRequest = TenantRequest.builder()
-                .authServerUrl(null)
-                .authClientId(null)
+                .authServerUrl("fixme")
+                .authClientId("fixme")
                 .build();
 
 
@@ -70,6 +70,7 @@ public class ProvisionRegistryTenantWorker implements Worker {
 
         Tenant tenant = tmClient.createTenant(tenantManager, tenantRequest);
 
+        registry.setTenantId(tenant.getId());
         registry.setAppUrl(tenant.getTenantApiUrl());
         registry.getStatus().setLastUpdated(Instant.now());
         registry.getStatus().setStatus("AVAILABLE"); // TODO maybe wait for heartbeat

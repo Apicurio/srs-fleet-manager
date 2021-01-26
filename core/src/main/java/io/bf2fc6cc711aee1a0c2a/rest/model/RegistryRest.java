@@ -19,6 +19,8 @@ public class RegistryRest {
 
     private Long id;
 
+    private String name;
+
     private String appUrl;
 
     private RegistryStatusRest status;

@@ -4,6 +4,7 @@ import io.bf2fc6cc711aee1a0c2a.execution.jobs.Worker;
 import io.bf2fc6cc711aee1a0c2a.execution.manager.TaskManager;
 import io.bf2fc6cc711aee1a0c2a.execution.tasks.Task;
 import io.bf2fc6cc711aee1a0c2a.execution.tasks.TaskType;
+import io.bf2fc6cc711aee1a0c2a.execution.tasks.impl.CreateRegistryTask;
 import io.bf2fc6cc711aee1a0c2a.execution.tasks.impl.ScheduleRegistryTask;
 import io.bf2fc6cc711aee1a0c2a.storage.ResourceStorage;
 import io.bf2fc6cc711aee1a0c2a.storage.sqlPanacheImpl.model.Registry;
@@ -31,6 +32,7 @@ public class CreateRegistryWorker implements Worker {
     @Transactional
     @Override
     public void execute(Task task) {
+        CreateRegistryTask createRegistryTask = (CreateRegistryTask) task;
 
         RegistryStatus status = RegistryStatus.builder()
                 .status("PROVISIONING")
@@ -38,6 +40,7 @@ public class CreateRegistryWorker implements Worker {
                 .build();
 
         Registry storageRegistry = Registry.builder()
+                .name(createRegistryTask.getRegistry().getName())
                 .status(status)
                 .build();
 

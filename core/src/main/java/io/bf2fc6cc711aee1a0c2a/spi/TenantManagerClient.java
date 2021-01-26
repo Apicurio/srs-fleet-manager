@@ -12,11 +12,11 @@ public interface TenantManagerClient {
 
     List<Tenant> getAllTenants(TenantManager tm);
 
-    void deleteTenant(TenantManager tm, Tenant tenant);
+    void deleteTenant(TenantManager tm, String tenantId);
 
     /////
 
     boolean pingTenantManager(TenantManager tm);
 
-    boolean pingTenant(TenantManager tm, Tenant tenant);
+    boolean pingTenant(TenantManager tm, String tenantId);
 }

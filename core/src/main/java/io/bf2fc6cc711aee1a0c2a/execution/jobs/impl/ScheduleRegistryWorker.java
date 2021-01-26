@@ -43,8 +43,9 @@ public class ScheduleRegistryWorker implements Worker {
         ScheduleRegistryTask task = (ScheduleRegistryTask) aTask;
 
         Optional<Registry> registryOptional = storage.getRegistryById(task.getRegistryId());
-        if (registryOptional.isEmpty())
+        if (registryOptional.isEmpty()) {
             throw new IllegalStateException("Registry not found.");
+        }
         Registry registry = registryOptional.get();
 
         List<RegistryDeployment> registryDeployments = storage.getAllRegistryDeployments();

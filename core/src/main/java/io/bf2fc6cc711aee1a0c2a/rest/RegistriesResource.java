@@ -3,6 +3,7 @@ package io.bf2fc6cc711aee1a0c2a.rest;
 import io.bf2fc6cc711aee1a0c2a.execution.manager.TaskManager;
 import io.bf2fc6cc711aee1a0c2a.execution.tasks.impl.CreateRegistryTask;
 import io.bf2fc6cc711aee1a0c2a.rest.convert.ConvertRegistry;
+import io.bf2fc6cc711aee1a0c2a.rest.model.CreateRegistryRest;
 import io.bf2fc6cc711aee1a0c2a.rest.model.RegistryRest;
 import io.bf2fc6cc711aee1a0c2a.storage.ResourceStorage;
 
@@ -35,7 +36,7 @@ public class RegistriesResource {
     ConvertRegistry convertRegistry;
 
     @POST
-    public void createRegistry(RegistryRest registry) {
+    public void createRegistry(CreateRegistryRest registry) {
         tasks.submit(CreateRegistryTask.builder()
                 .registry(registry)
                 .build());

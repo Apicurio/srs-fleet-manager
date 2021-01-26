@@ -17,6 +17,7 @@ public class ConvertRegistry {
     public RegistryRest convert(Registry registry) {
         return RegistryRest.builder()
                 .id(registry.getId())
+                .name(registry.getName())
                 .appUrl(registry.getAppUrl())
                 .status(convertRegistryStatus.convert(registry.getStatus()))
                 .build();
