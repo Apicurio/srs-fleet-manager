@@ -1,5 +1,6 @@
 package io.bf2fc6cc711aee1a0c2a.execution.jobs.impl;
 
+import io.bf2fc6cc711aee1a0c2a.auth.AuthService;
 import io.bf2fc6cc711aee1a0c2a.execution.jobs.Worker;
 import io.bf2fc6cc711aee1a0c2a.execution.manager.TaskManager;
 import io.bf2fc6cc711aee1a0c2a.execution.tasks.Task;
@@ -13,6 +14,8 @@ import io.bf2fc6cc711aee1a0c2a.storage.ResourceStorage;
 import io.bf2fc6cc711aee1a0c2a.storage.sqlPanacheImpl.model.Registry;
 import io.bf2fc6cc711aee1a0c2a.storage.sqlPanacheImpl.model.RegistryDeployment;
 
+import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.representations.idm.RealmRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +41,9 @@ public class ProvisionRegistryTenantWorker implements Worker {
     @Inject
     TaskManager tasks;
 
+    @Inject
+    AuthService authService;
+
     @Override
     public boolean supports(Task task) {
         return task.getTaskType() == PROVISION_REGISTRY_TENANT;
@@ -53,6 +59,8 @@ public class ProvisionRegistryTenantWorker implements Worker {
             throw new IllegalStateException("Registry not found.");
         }
         Registry registry = registryOptional.get();
+
+        final RealmResource authResource = authService.createTenantAuthResources(registry.getId().toString());
 
         //TODO perform appropiate configurations to auth server
         //TODO fill with info from auth configuration
