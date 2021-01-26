@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: service-api-postgresql
+  name: service-api-postgresql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service-api-postgresql
+  template:
+    metadata:
+      labels:
+        app: service-api-postgresql
+    spec:
+      containers:
+        - name: service-api-postgresql
+          image: centos/postgresql-10-centos7
+          env:
+            - name: POSTGRESQL_ADMIN_PASSWORD
+              value: admin1234
+            - name: POSTGRESQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: service-api-configmap
+                  key: pg-database-name
+            - name: POSTGRESQL_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: service-api-configmap
+                  key: pg-pwd
+            - name: POSTGRESQL_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: service-api-configmap
+                  key: pg-user
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          readinessProbe:
+            tcpSocket:
+              port: 5432
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 5432
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          volumeMounts:
+            - mountPath: /var/lib/pgsql/data
+              name: service-api-postgresql
+          resources:
+            limits:
+              cpu: 500m
+              memory: 2000Mi
+            # requests:
+            #   cpu: 200m
+            #   memory: 600Mi
+      volumes:
+        - name: service-api-postgresql
+          persistentVolumeClaim:
+            claimName: service-api-postgresql
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: service-api-postgresql
+  name: service-api-postgresql
+spec:
+  ports:
+    - port: 5432
+      protocol: TCP
+      targetPort: 5432
+  selector:
+    app: service-api-postgresql
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    name: service-api-postgresql
+  name: service-api-postgresql
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi

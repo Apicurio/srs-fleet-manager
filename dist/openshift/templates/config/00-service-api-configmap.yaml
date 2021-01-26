@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: service-api-configmap
+data:
+  pg-user: service-api
+  pg-pwd: password
+  pg-ds-url: jdbc:postgresql://service-api-postgresql:5432/service-api-database
+  pg-database-name: service-api-database

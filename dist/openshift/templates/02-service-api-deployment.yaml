@@ -2,45 +2,47 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: tenant-manager
+  name: service-api
   labels:
-    app: tenant-manager
+    app: service-api
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: tenant-manager
+      app: service-api
   template:
     metadata:
       labels:
-        app: tenant-manager
+        app: service-api
     spec:
       containers:
-        - image: quay.io/apicurio/apicurio-registry-tenant-manager-api:multitenant-sr-demo-snapshot
+        - image: quay.io/famargon/control-plane-service-api:latest
           imagePullPolicy: Always
-          name: tenant-manager
+          name: service-api
           ports:
             - containerPort: 8080
               protocol: TCP
           env:
-            - name: DATASOURCE_URL
+            - name: SERVICE_API_DATASOURCE_URL
               valueFrom:
                 configMapKeyRef:
-                  name: apicurio-registry-configmap
+                  name: service-api-configmap
                   key: pg-ds-url
-            - name: DATASOURCE_USERNAME
+            - name: SERVICE_API_DATASOURCE_USERNAME
               valueFrom:
                 configMapKeyRef:
-                  name: apicurio-registry-configmap
+                  name: service-api-configmap
                   key: pg-user
-            - name: DATASOURCE_PASSWORD
+            - name: SERVICE_API_DATASOURCE_PASSWORD
               valueFrom:
                 configMapKeyRef:
-                  name: apicurio-registry-configmap
+                  name: service-api-configmap
                   key: pg-pwd
 
-            - name: QUARKUS_LOG_LEVEL
+            - name: LOG_LEVEL
               value: DEBUG
+            # - name: QUARKUS_PROFILE
+              # value: prod
           resources:
             limits:
               cpu: 1000m
@@ -77,12 +79,12 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: tenant-manager
-    template: tenant-manager
-  name: tenant-manager
+    app: service-api
+    template: service-api
+  name: service-api
 spec:
   selector:
-    app: tenant-manager
+    app: service-api
   ports:
     - port: 8080
       protocol: TCP
@@ -96,14 +98,14 @@ status:
 apiVersion: v1
 kind: Route
 metadata:
-  name: tenant-manager
+  name: service-api
   labels:
-    app: tenant-manager
-    template: tenant-manager
+    app: service-api
+    template: service-api
 spec:
   to:
     kind: Service
-    name: tenant-manager
+    name: service-api
     weight: 100
   wildcardPolicy: None
 

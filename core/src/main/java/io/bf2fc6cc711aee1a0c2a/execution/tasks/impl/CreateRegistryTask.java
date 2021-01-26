@@ -1,7 +1,7 @@
 package io.bf2fc6cc711aee1a0c2a.execution.tasks.impl;
 
 import io.bf2fc6cc711aee1a0c2a.execution.tasks.TaskType;
-import io.bf2fc6cc711aee1a0c2a.rest.model.RegistryRest;
+import io.bf2fc6cc711aee1a0c2a.rest.model.CreateRegistryRest;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,10 +12,10 @@ import lombok.ToString;
 @ToString(callSuper = true)
 public class CreateRegistryTask extends AbstractTask {
 
-    private RegistryRest registry;
+    private CreateRegistryRest registry;
 
     @Builder
-    public CreateRegistryTask(RegistryRest registry) {
+    public CreateRegistryTask(CreateRegistryRest registry) {
         super(TaskType.CREATE_REGISTRY);
         this.registry = registry;
     }

@@ -5,7 +5,6 @@ import io.bf2fc6cc711aee1a0c2a.execution.manager.TaskManager;
 import io.bf2fc6cc711aee1a0c2a.execution.tasks.Task;
 import io.bf2fc6cc711aee1a0c2a.execution.tasks.impl.RegistryHeartbeatTask;
 import io.bf2fc6cc711aee1a0c2a.spi.TenantManagerClient;
-import io.bf2fc6cc711aee1a0c2a.spi.model.Tenant;
 import io.bf2fc6cc711aee1a0c2a.spi.model.TenantManager;
 import io.bf2fc6cc711aee1a0c2a.storage.ResourceStorage;
 import io.bf2fc6cc711aee1a0c2a.storage.sqlPanacheImpl.model.Registry;
@@ -53,12 +52,12 @@ public class RegistryHeartbeatWorker implements Worker {
         }
         Registry registry = registryOptional.get();
 
-        TenantManager tenantManager = TenantManager.builder().tenantManagerUrl(registry.getRegistryDeployment().getTenantManagerUrl()).build();
-        Tenant tenant = Tenant.builder().tenantApiUrl(registry.getAppUrl())
-                .id(registry.getAppUrl().substring(registry.getAppUrl().lastIndexOf("/") + 1)) // TODO This is a temporary hack:(
+        TenantManager tenantManager = TenantManager.builder()
+                .tenantManagerUrl(registry.getRegistryDeployment().getTenantManagerUrl())
+                .registryDeploymentUrl(registry.getRegistryDeployment().getRegistryDeploymentUrl())
                 .build();
 
-        boolean ok = tmClient.pingTenant(tenantManager, tenant);
+        boolean ok = tmClient.pingTenant(tenantManager, registry.getTenantId());
 
         registry.getStatus().setLastUpdated(Instant.now());
 

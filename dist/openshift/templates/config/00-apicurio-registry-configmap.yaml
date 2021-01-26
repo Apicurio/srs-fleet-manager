@@ -8,4 +8,4 @@ data:
   pg-ds-url: jdbc:postgresql://apicurio-registry-postgresql:5432/apicurio-registry-database
   pg-database-name: apicurio-registry-database
   keycloak-url: https://{KEYCLOAK_ROUTE_PLACEHOLDER}/auth
-  keycloak-default-realm: registry
+  keycloak-default-realm: master

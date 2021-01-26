@@ -6,19 +6,17 @@ import io.bf2fc6cc711aee1a0c2a.spi.model.TenantManager;
 import io.bf2fc6cc711aee1a0c2a.spi.model.TenantRequest;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MockTenantManagerClient implements TenantManagerClient {
 
-    private final Map<TenantManager, Set<Tenant>> testData = new HashMap<>();
+    private final Map<TenantManager, Map<String, Tenant>> testData = new ConcurrentHashMap<>();
 
     private void init(TenantManager tm) {
-        testData.computeIfAbsent(tm, s -> new HashSet<>());
+        testData.computeIfAbsent(tm, s -> new ConcurrentHashMap<>());
     }
 
     @Override
@@ -26,20 +24,20 @@ public class MockTenantManagerClient implements TenantManagerClient {
         String tenantID = "tenant-" + UUID.randomUUID();
         Tenant tenant = Tenant.builder().id(tenantID).tenantApiUrl("https://registry.app.example.com/" + tenantID).build();
         init(tm);
-        testData.get(tm).add(tenant);
+        testData.get(tm).put(tenantID, tenant);
         return tenant;
     }
 
     @Override
     public List<Tenant> getAllTenants(TenantManager tm) {
         init(tm);
-        return new ArrayList<>(testData.get(tm));
+        return new ArrayList<>(testData.get(tm).values());
     }
 
     @Override
-    public void deleteTenant(TenantManager tm, Tenant tenant) {
+    public void deleteTenant(TenantManager tm, String tenantId) {
         init(tm);
-        testData.get(tm).remove(tenant);
+        testData.get(tm).remove(tenantId);
     }
 
     @Override
@@ -48,8 +46,8 @@ public class MockTenantManagerClient implements TenantManagerClient {
     }
 
     @Override
-    public boolean pingTenant(TenantManager tm, Tenant tenant) {
+    public boolean pingTenant(TenantManager tm, String tenantId) {
         init(tm);
-        return testData.get(tm).contains(tenant);
+        return testData.get(tm).containsKey(tenantId);
     }
 }
