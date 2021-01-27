@@ -25,6 +25,7 @@ public class AuthService {
     Keycloak keycloak;
 
     private static final String AUTH_SERVER_PLACEHOLDER = "%s/realms/%s";
+    private static final String REDIRECT_URI_PLACEHOLDER = "%s/*";
 
     @PostConstruct
     public void init() {
@@ -39,16 +40,17 @@ public class AuthService {
                 .build();
     }
 
-    public AuthResource createTenantAuthResources(String tenantId) {
+    public AuthResource createTenantAuthResources(String tenantId, String registryAppUrl) {
 
         final RealmRepresentation realmRepresentation = new RealmRepresentation();
         final String realmTenantId = authConfig.getTenantIdPrefix().concat("-").concat(tenantId);
 
         realmRepresentation.setDisplayName(realmTenantId);
         realmRepresentation.setRealm(realmTenantId);
+        realmRepresentation.setEnabled(true);
 
         realmRepresentation.setRoles(buildRealmRoles());
-        realmRepresentation.setClients(buildRealmClients());
+        realmRepresentation.setClients(buildRealmClients(registryAppUrl));
 
         keycloak.realms()
                 .create(realmRepresentation);
@@ -64,14 +66,18 @@ public class AuthService {
         return String.format(AUTH_SERVER_PLACEHOLDER, authConfig.getAuthServerUrl(), realm);
     }
 
-    private List<ClientRepresentation> buildRealmClients() {
+    private List<ClientRepresentation> buildRealmClients(String registryAppUrl) {
 
         final ClientRepresentation uiClient = new ClientRepresentation();
         uiClient.setClientId(authConfig.getUiClientId());
         uiClient.setName(authConfig.getUiClientId());
+        uiClient.setRedirectUris(List.of(String.format(REDIRECT_URI_PLACEHOLDER, registryAppUrl)));
+        uiClient.setPublicClient(true);
+
         final ClientRepresentation apiClient = new ClientRepresentation();
         apiClient.setClientId(authConfig.getApiClientId());
         apiClient.setName(authConfig.getApiClientId());
+        apiClient.setBearerOnly(true);
 
         return List.of(uiClient, apiClient);
     }

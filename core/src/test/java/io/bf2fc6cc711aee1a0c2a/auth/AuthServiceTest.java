@@ -39,7 +39,7 @@ public class AuthServiceTest {
     Keycloak keycloak;
 
     @PostConstruct
-    public void setup() {
+    public void init() {
 
         keycloak = KeycloakBuilder.builder()
                 .serverUrl(authConfig.getAuthServerUrl())
@@ -57,7 +57,7 @@ public class AuthServiceTest {
         final String realm = "test-tenant-id";
         final String realmId = authConfig.getTenantIdPrefix() + "-" + realm;
 
-        final AuthResource tenantAuthResource = authService.createTenantAuthResources(realm);
+        final AuthResource tenantAuthResource = authService.createTenantAuthResources(realm, "http://localhost:8080");
 
         final RealmResource tenantRealmResource = keycloak.realms()
                 .realm(realmId);
