@@ -59,7 +59,7 @@ public class ProvisionRegistryTenantWorker implements Worker {
         }
         Registry registry = registryOptional.get();
 
-        final AuthResource authResource = authService.createTenantAuthResources(registry.getId().toString());
+        final AuthResource authResource = authService.createTenantAuthResources(registry.getId().toString(), registry.getAppUrl());
 
         TenantRequest tenantRequest = TenantRequest.builder()
                 .authServerUrl(authResource.getServerUrl())
