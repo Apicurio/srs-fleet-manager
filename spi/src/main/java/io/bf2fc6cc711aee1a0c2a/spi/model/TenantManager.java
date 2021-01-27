@@ -5,7 +5,11 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-//@NoArgsConstructor
+/**
+ * Represents information about given Tenant Manager, one for every Registry Deployment.
+ *
+ * @author Jakub Senko <jsenko@redhat.com>
+ */
 @Builder
 @Getter
 @EqualsAndHashCode
