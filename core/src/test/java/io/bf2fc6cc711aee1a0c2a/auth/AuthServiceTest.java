@@ -32,10 +32,6 @@ public class AuthServiceTest {
     @Inject
     AuthConfig authConfig;
 
-    @Inject
-    @ConfigProperty(name = "auth.realm.roles")
-    List<String> roles;
-
     Keycloak keycloak;
 
     @PostConstruct
@@ -67,7 +63,7 @@ public class AuthServiceTest {
                 .stream()
                 .map(RoleRepresentation::getName)
                 .collect(Collectors.toList())
-                .containsAll(roles));
+                .containsAll(authConfig.getRoles()));
 
         final List<String> clients = List.of(authConfig.getUiClientId(), authConfig.getApiClientId());
 

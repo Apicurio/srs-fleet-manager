@@ -15,7 +15,6 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Slf4j
 @ApplicationScoped
 public class AuthService {
 
