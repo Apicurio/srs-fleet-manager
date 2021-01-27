@@ -1,5 +1,6 @@
 package io.bf2fc6cc711aee1a0c2a.execution.jobs.impl;
 
+import io.bf2fc6cc711aee1a0c2a.auth.AuthResource;
 import io.bf2fc6cc711aee1a0c2a.auth.AuthService;
 import io.bf2fc6cc711aee1a0c2a.execution.jobs.Worker;
 import io.bf2fc6cc711aee1a0c2a.execution.manager.TaskManager;
@@ -14,8 +15,6 @@ import io.bf2fc6cc711aee1a0c2a.storage.ResourceStorage;
 import io.bf2fc6cc711aee1a0c2a.storage.sqlPanacheImpl.model.Registry;
 import io.bf2fc6cc711aee1a0c2a.storage.sqlPanacheImpl.model.RegistryDeployment;
 
-import org.keycloak.admin.client.resource.RealmResource;
-import org.keycloak.representations.idm.RealmRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,13 +59,11 @@ public class ProvisionRegistryTenantWorker implements Worker {
         }
         Registry registry = registryOptional.get();
 
-        final RealmResource authResource = authService.createTenantAuthResources(registry.getId().toString());
+        final AuthResource authResource = authService.createTenantAuthResources(registry.getId().toString());
 
-        //TODO perform appropiate configurations to auth server
-        //TODO fill with info from auth configuration
         TenantRequest tenantRequest = TenantRequest.builder()
-                .authServerUrl("fixme")
-                .authClientId("fixme")
+                .authServerUrl(authResource.getServerUrl())
+                .authClientId(authResource.getClientId())
                 .build();
 
 

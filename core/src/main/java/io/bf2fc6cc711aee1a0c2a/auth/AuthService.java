@@ -4,7 +4,6 @@ import io.bf2fc6cc711aee1a0c2a.auth.config.AuthConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
-import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.RealmRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
@@ -16,14 +15,16 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@ApplicationScoped
 @Slf4j
+@ApplicationScoped
 public class AuthService {
 
     @Inject
     AuthConfig authConfig;
 
     Keycloak keycloak;
+
+    private static final String AUTH_SERVER_PLACEHOLDER = "%s/realms/%s";
 
     @PostConstruct
     public void init() {
@@ -38,33 +39,44 @@ public class AuthService {
                 .build();
     }
 
-    public RealmResource createTenantAuthResources(String tenantId) {
+    public AuthResource createTenantAuthResources(String tenantId) {
 
         final RealmRepresentation realmRepresentation = new RealmRepresentation();
-
         final String realmTenantId = authConfig.getTenantIdPrefix().concat("-").concat(tenantId);
 
         realmRepresentation.setDisplayName(realmTenantId);
-        realmRepresentation.setRoles(buildRealmRoles());
         realmRepresentation.setRealm(realmTenantId);
 
-        final ClientRepresentation uiClient = new ClientRepresentation();
-        uiClient.setClientId("apicurio-registry");
-        final ClientRepresentation apiClient = new ClientRepresentation();
-        apiClient.setClientId("registry-api");
-
-        realmRepresentation.setClients(List.of(uiClient, apiClient));
+        realmRepresentation.setRoles(buildRealmRoles());
+        realmRepresentation.setClients(buildRealmClients());
 
         keycloak.realms()
                 .create(realmRepresentation);
 
-
-        return keycloak.realms()
-                .realm(realmTenantId);
+        return AuthResource.builder()
+                .clientId(authConfig.getApiClientId())
+                .serverUrl(buildAuthServerUrl(realmTenantId))
+                .build();
     }
 
+    private String buildAuthServerUrl(String realm) {
 
-    public RolesRepresentation buildRealmRoles() {
+        return String.format(AUTH_SERVER_PLACEHOLDER, authConfig.getAuthServerUrl(), realm);
+    }
+
+    private List<ClientRepresentation> buildRealmClients() {
+
+        final ClientRepresentation uiClient = new ClientRepresentation();
+        uiClient.setClientId(authConfig.getUiClientId());
+        uiClient.setName(authConfig.getUiClientId());
+        final ClientRepresentation apiClient = new ClientRepresentation();
+        apiClient.setClientId(authConfig.getApiClientId());
+        apiClient.setName(authConfig.getApiClientId());
+
+        return List.of(uiClient, apiClient);
+    }
+
+    private RolesRepresentation buildRealmRoles() {
 
         final RolesRepresentation rolesRepresentation = new RolesRepresentation();
 
