@@ -7,11 +7,8 @@
     <groupId>io.bf2fc6cc711aee1a0c2a</groupId>
     <artifactId>service-registry-managed-service-api</artifactId>
     <version>0.1.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
 
-    <modules>
-        <module>core</module>
-    </modules>
+    <packaging>pom</packaging>
 
     <properties>
         <surefire-plugin.version>2.22.1</surefire-plugin.version>
@@ -26,15 +23,20 @@
         <compiler-plugin.version>3.8.1</compiler-plugin.version>
         <maven.compiler.parameters>true</maven.compiler.parameters>
 
+        <enforcer-plugin.version>3.0.0-M3</enforcer-plugin.version>
+        <properties-maven-plugin.version>1.0.0</properties-maven-plugin.version>
+
         <!-- Quarkus -->
         <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
         <quarkus.platform.artifact-id>quarkus-universe-bom</quarkus.platform.artifact-id>
         <quarkus.platform.version>1.10.5.Final</quarkus.platform.version>
 
-        <quarkus-plugin.version>1.10.5.Final</quarkus-plugin.version>
+        <quarkus-plugin.version>${quarkus.platform.version}</quarkus-plugin.version>
 
         <!-- Other -->
         <lombok.version>1.18.16</lombok.version>
+        <apicurio-registry-tenant-manager-client.version>2.0.0-SNAPSHOT
+        </apicurio-registry-tenant-manager-client.version>
 
     </properties>
 
@@ -49,10 +51,31 @@
                 <scope>import</scope>
             </dependency>
 
+            <!-- Module artifacts -->
+
+            <dependency>
+                <groupId>io.bf2fc6cc711aee1a0c2a</groupId>
+                <artifactId>service-registry-managed-service-api-spi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.bf2fc6cc711aee1a0c2a</groupId>
+                <artifactId>service-registry-managed-service-api-tenant-manager-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- Other -->
+
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.apicurio</groupId>
+                <artifactId>apicurio-registry-tenant-manager-client</artifactId>
+                <version>${apicurio-registry-tenant-manager-client.version}</version>
             </dependency>
 
         </dependencies>
@@ -82,6 +105,16 @@
                     <version>${compiler-plugin.version}</version>
                 </plugin>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>${enforcer-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>properties-maven-plugin</artifactId>
+                    <version>${properties-maven-plugin.version}</version>
+                </plugin>
+                <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${surefire-plugin.version}</version>
                     <configuration>
@@ -97,6 +130,55 @@
     </build>
 
     <profiles>
+
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>spi</module>
+                <module>core</module>
+                <module>tenant-manager-client</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>dev</id>
+            <activation>
+                <property>
+                    <name>dev</name>
+                </property>
+            </activation>
+            <modules>
+                <module>spi</module>
+                <module>core</module>
+            </modules>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>properties-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>set-system-properties</goal>
+                                </goals>
+                                <configuration>
+                                    <properties>
+                                        <property>
+                                            <name>quarkus.profile</name>
+                                            <value>dev</value>
+                                        </property>
+                                    </properties>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
         <profile>
             <id>native</id>
             <activation>

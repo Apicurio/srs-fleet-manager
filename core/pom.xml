@@ -14,6 +14,7 @@
 
     <dependencies>
 
+
         <!-- Quarkus -->
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -71,12 +72,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>io.apicurio</groupId>
-            <artifactId>apicurio-registry-tenant-manager-client</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
-        </dependency>
-
     </dependencies>
 
     <build>
@@ -89,12 +84,75 @@
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>enforce-jdk-version</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireJavaVersion>
+                                    <version>[11,12)</version>
+                                    <message>
+                                        See https://github.com/quarkusio/quarkus/issues/13871 .
+                                        Because of this issue, even though the compile settings target Java 11,
+                                        if you compile with JDK version > 11, you'll get java.lang.UnsupportedClassVersionError
+                                        when you execute with older JVM versions. Therefore this rule forces the JDK
+                                        version until the issue is resolved.
+                                    </message>
+                                </requireJavaVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
 
     <profiles>
+
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <dependencies>
+                <!-- Modules -->
+                <dependency>
+                    <groupId>io.bf2fc6cc711aee1a0c2a</groupId>
+                    <artifactId>service-registry-managed-service-api-spi</artifactId>
+                </dependency>
+                <dependency>
+                    <groupId>io.bf2fc6cc711aee1a0c2a</groupId>
+                    <artifactId>service-registry-managed-service-api-tenant-manager-client</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <profile>
+            <id>dev</id>
+            <activation>
+                <property>
+                    <name>dev</name>
+                </property>
+            </activation>
+
+            <dependencies>
+                <!-- Modules -->
+                <dependency>
+                    <groupId>io.bf2fc6cc711aee1a0c2a</groupId>
+                    <artifactId>service-registry-managed-service-api-spi</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+
         <profile>
             <id>native</id>
             <activation>

@@ -5,17 +5,28 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-//@NoArgsConstructor
+/**
+ * Tenant information received from the Tenant Manager.
+ *
+ * @author Jakub Senko <jsenko@redhat.com>
+ */
 @Builder
 @Getter
 @EqualsAndHashCode
 @ToString
 public class Tenant {
 
+    /**
+     * Tenant ID, unique per Registry Deployment.
+     */
     String id;
 
+    /**
+     * URL of the Registry API endpoint for the given Tenant.
+     */
     String tenantApiUrl;
 
     String authServerUrl;
+
     String authClientId;
 }
