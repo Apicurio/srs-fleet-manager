@@ -32,6 +32,12 @@ public class AuthConfig {
     @ConfigProperty(name = "auth.tenant-id.prefix")
     String tenantIdPrefix;
 
+    @ConfigProperty(name = "auth.api.client-id")
+    String apiClientId;
+
+    @ConfigProperty(name = "auth.ui.client-id")
+    String uiClientId;
+
     @Inject
     @ConfigProperty(name = "auth.realm.roles")
     List<String> roles;
