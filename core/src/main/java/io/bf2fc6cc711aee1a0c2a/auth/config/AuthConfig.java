@@ -6,6 +6,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Optional;
 
 @ApplicationScoped
 @Getter
@@ -41,4 +42,8 @@ public class AuthConfig {
     @Inject
     @ConfigProperty(name = "auth.realm.roles")
     List<String> roles;
+
+    @Inject
+    @ConfigProperty(name = "auth.admin.disable.tls.verification")
+    Optional<Boolean> disableTlsVerification;
 }

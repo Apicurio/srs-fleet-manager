@@ -17,9 +17,10 @@ spec:
         name: registry
     spec:
       containers:
-        - image: quay.io/apicurio/apicurio-registry-sql:multitenant-sr-demo-snapshot
+        - name: apicurio-registry
+          # image: quay.io/apicurio/apicurio-registry-sql:multitenant-sr-demo-snapshot
+          image: quay.io/famargon/apicurio-registry-sql:latest-multitenant
           imagePullPolicy: Always
-          name: apicurio-registry
           ports:
             - containerPort: 8080
               protocol: TCP
