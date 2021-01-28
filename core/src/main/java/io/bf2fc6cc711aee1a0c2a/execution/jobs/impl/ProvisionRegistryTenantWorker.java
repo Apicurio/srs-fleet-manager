@@ -8,7 +8,6 @@ import io.bf2fc6cc711aee1a0c2a.execution.tasks.Task;
 import io.bf2fc6cc711aee1a0c2a.execution.tasks.impl.ProvisionRegistryTenantTask;
 import io.bf2fc6cc711aee1a0c2a.execution.tasks.impl.RegistryHeartbeatTask;
 import io.bf2fc6cc711aee1a0c2a.spi.TenantManagerClient;
-import io.bf2fc6cc711aee1a0c2a.spi.model.Tenant;
 import io.bf2fc6cc711aee1a0c2a.spi.model.TenantManager;
 import io.bf2fc6cc711aee1a0c2a.spi.model.TenantRequest;
 import io.bf2fc6cc711aee1a0c2a.storage.ResourceStorage;
@@ -59,24 +58,29 @@ public class ProvisionRegistryTenantWorker implements Worker {
         }
         Registry registry = registryOptional.get();
 
+        RegistryDeployment registryDeployment = registry.getRegistryDeployment();
+
+        //TODO use this after fixing the registry tenant's url mapping, for now we only allow for tenantId in the headers
+        //String appUrl = registryDeployment.getRegistryDeploymentUrl() + "/t/" + registry.getTenantId();
+        String appUrl = registryDeployment.getRegistryDeploymentUrl();
+        registry.setAppUrl(appUrl);
+
         final AuthResource authResource = authService.createTenantAuthResources(registry.getId().toString(), registry.getAppUrl());
 
         TenantRequest tenantRequest = TenantRequest.builder()
+                .tenantId(registry.getTenantId())
                 .authServerUrl(authResource.getServerUrl())
                 .authClientId(authResource.getClientId())
                 .build();
 
 
-        RegistryDeployment registryDeployment = registry.getRegistryDeployment();
         TenantManager tenantManager = TenantManager.builder()
                 .tenantManagerUrl(registryDeployment.getTenantManagerUrl())
                 .registryDeploymentUrl(registryDeployment.getRegistryDeploymentUrl())
                 .build();
 
-        Tenant tenant = tmClient.createTenant(tenantManager, tenantRequest);
+        tmClient.createTenant(tenantManager, tenantRequest);
 
-        registry.setTenantId(tenant.getId());
-        registry.setAppUrl(tenant.getTenantApiUrl());
         registry.getStatus().setLastUpdated(Instant.now());
         registry.getStatus().setStatus("AVAILABLE"); // TODO maybe wait for heartbeat
 

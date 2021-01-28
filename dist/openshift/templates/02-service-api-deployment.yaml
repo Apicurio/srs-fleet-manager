@@ -81,8 +81,8 @@ spec:
               # value: prod
           resources:
             limits:
-              cpu: 1000m
-              memory: 1300Mi
+              cpu: 500m
+              memory: 1000Mi
             requests:
               cpu: 200m
               memory: 600Mi

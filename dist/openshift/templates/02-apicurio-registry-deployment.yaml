@@ -18,8 +18,7 @@ spec:
     spec:
       containers:
         - name: apicurio-registry
-          # image: quay.io/apicurio/apicurio-registry-sql:multitenant-sr-demo-snapshot
-          image: quay.io/famargon/apicurio-registry-sql:latest-multitenant
+          image: quay.io/apicurio/apicurio-registry-sql:multitenant-sr-demo-snapshot
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -59,6 +58,8 @@ spec:
             - name: QUARKUS_OIDC_TLS_VERIFICATION
               value: none
 
+            - name: REGISTRY_LOG_LEVEL
+              value: DEBUG
             - name: LOG_LEVEL
               value: DEBUG
             - name: QUARKUS_PROFILE

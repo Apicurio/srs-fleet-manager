@@ -11,7 +11,19 @@ import lombok.ToString;
 @ToString
 public class TenantRequest {
 
+    /**
+     * TenantId is specified by the control-plane
+     */
+    String tenantId;
+
+    /**
+     * Auth server url (including realm), required by apicurio-registry for the authentication
+     */
     String authServerUrl;
+
+    /**
+     * ClientId in the tenant's realm, used by apicurio-registry to validate incoming tokens
+     */
     String authClientId;
 
 }

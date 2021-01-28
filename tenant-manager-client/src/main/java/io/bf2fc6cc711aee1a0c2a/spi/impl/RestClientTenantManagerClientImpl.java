@@ -31,6 +31,7 @@ public class RestClientTenantManagerClientImpl implements TenantManagerClient {
         req.setDeploymentFlavor("small"); //TODO
         req.setOrganizationId("unknown"); //TODO pick from authentication details?
 
+        req.setTenantId(tenantRequest.getTenantId());
         req.setAuthServerUrl(tenantRequest.getAuthServerUrl());
         req.setClientId(tenantRequest.getAuthClientId());
 
@@ -38,10 +39,8 @@ public class RestClientTenantManagerClientImpl implements TenantManagerClient {
 
         return Tenant.builder()
                 .id(tenant.getTenantId())
-
-                //TODO because we are not using a proxy yet, we just return the deployment url, in the future tenant-manager will return the configured url in the proxy
-                .tenantApiUrl(tm.getRegistryDeploymentUrl())
-
+                .authServerUrl(tenant.getAuthServerUrl())
+                .authClientId(tenant.getAuthClientId())
                 .build();
     }
 
@@ -53,10 +52,6 @@ public class RestClientTenantManagerClientImpl implements TenantManagerClient {
                                 .id(t.getTenantId())
                                 .authServerUrl(t.getAuthServerUrl())
                                 .authClientId(t.getAuthClientId())
-
-                                //TODO tenant manager will provide this info
-                                .tenantApiUrl(tm.getRegistryDeploymentUrl())
-
                                 .build())
                     .collect(Collectors.toList());
     }

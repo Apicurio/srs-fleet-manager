@@ -53,8 +53,8 @@ spec:
               name: service-api-postgresql
           resources:
             limits:
-              cpu: 300m
-              memory: 1000Mi
+              cpu: 350m
+              memory: 1500Mi
             # requests:
             #   cpu: 200m
             #   memory: 600Mi
