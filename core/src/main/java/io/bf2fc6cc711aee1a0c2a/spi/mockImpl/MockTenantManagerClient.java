@@ -22,7 +22,7 @@ public class MockTenantManagerClient implements TenantManagerClient {
     @Override
     public Tenant createTenant(TenantManager tm, TenantRequest req) {
         String tenantID = "tenant-" + UUID.randomUUID();
-        Tenant tenant = Tenant.builder().id(tenantID).tenantApiUrl("https://registry.app.example.com/" + tenantID).build();
+        Tenant tenant = Tenant.builder().id(tenantID).build();
         init(tm);
         testData.get(tm).put(tenantID, tenant);
         return tenant;

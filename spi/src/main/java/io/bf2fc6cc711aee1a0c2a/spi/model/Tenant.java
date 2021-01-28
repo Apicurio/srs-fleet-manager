@@ -22,11 +22,12 @@ public class Tenant {
     String id;
 
     /**
-     * URL of the Registry API endpoint for the given Tenant.
+     * Auth server url (including realm), required by apicurio-registry for the authentication
      */
-    String tenantApiUrl;
-
     String authServerUrl;
 
+    /**
+     * ClientId in the tenant's realm, used by apicurio-registry to validate incoming tokens
+     */
     String authClientId;
 }

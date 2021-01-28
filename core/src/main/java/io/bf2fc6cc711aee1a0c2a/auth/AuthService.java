@@ -18,6 +18,7 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -66,6 +67,7 @@ public class AuthService {
 
         realmRepresentation.setDisplayName(realmTenantId);
         realmRepresentation.setRealm(realmTenantId);
+        realmRepresentation.setAttributes(Map.of("sr-tenant-id", tenantId));
         realmRepresentation.setEnabled(true);
 
         realmRepresentation.setRoles(buildRealmRoles());

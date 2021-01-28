@@ -11,12 +11,19 @@ import io.bf2fc6cc711aee1a0c2a.storage.sqlPanacheImpl.model.Registry;
 import io.bf2fc6cc711aee1a0c2a.storage.sqlPanacheImpl.model.RegistryStatus;
 
 import java.time.Instant;
+import java.util.UUID;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @ApplicationScoped
 public class CreateRegistryWorker implements Worker {
+
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     @Inject
     ResourceStorage storage;
@@ -41,10 +48,13 @@ public class CreateRegistryWorker implements Worker {
 
         Registry storageRegistry = Registry.builder()
                 .name(createRegistryTask.getRegistry().getName())
+                .tenantId(UUID.randomUUID().toString())
                 .status(status)
                 .build();
 
         storage.createOrUpdateRegistry(storageRegistry);
+
+        log.info("Registry {} created. id: {}", storageRegistry.getName(), storageRegistry.getId());
 
         tasks.submit(ScheduleRegistryTask.builder().registryId(storageRegistry.getId()).build());
     }

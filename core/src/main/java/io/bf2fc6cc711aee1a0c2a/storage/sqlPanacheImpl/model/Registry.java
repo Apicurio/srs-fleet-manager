@@ -31,6 +31,7 @@ public class Registry {
     private Long id;
 
     private String name;
+
     private String appUrl;
 
     private String tenantId;
