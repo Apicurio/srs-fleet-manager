@@ -1,0 +1,1 @@
+http http://$(oc get route service-api --template='{{ .spec.host }}')/api/v1/admin/registry-deployments
