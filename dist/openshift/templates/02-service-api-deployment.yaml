@@ -39,6 +39,42 @@ spec:
                   name: service-api-configmap
                   key: pg-pwd
 
+            - name: AUTH_ADMIN_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: service-api-configmap
+                  key: keycloak-url
+            - name: AUTH_ADMIN_REALM
+              valueFrom:
+                configMapKeyRef:
+                  name: service-api-configmap
+                  key: keycloak-default-realm
+            - name: AUTH_ADMIN_CLIENT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: service-api-configmap
+                  key: keycloak-admin-client-id
+            - name: AUTH_ADMIN_GRANT_TYPE
+              valueFrom:
+                configMapKeyRef:
+                  name: service-api-configmap
+                  key: keycloak-admin-grant-type
+
+            - name: AUTH_ADMIN_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: credential-example-keycloak
+                  key: ADMIN_USERNAME
+            - name: AUTH_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: credential-example-keycloak
+                  key: ADMIN_PASSWORD
+
+              # workaround auth.admin.disable.tls.verification
+            - name: AUTH_ADMIN_DISABLE_TLS_VERIFICATION
+              value: "true"
+
             - name: LOG_LEVEL
               value: DEBUG
             # - name: QUARKUS_PROFILE

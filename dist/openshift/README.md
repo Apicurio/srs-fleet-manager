@@ -17,7 +17,7 @@ Wait until keycloak is running. And then update the configmap with the keycloak 
 
 ```
 sed s,{KEYCLOAK_ROUTE_PLACEHOLDER},$(oc get route keycloak --template='{{ .spec.host }}'),g templates/config/00-apicurio-registry-configmap.yaml | oc apply -f -
-oc apply -f templates/config/00-service-api-configmap.yaml
+sed s,{KEYCLOAK_ROUTE_PLACEHOLDER},$(oc get route keycloak --template='{{ .spec.host }}'),g templates/config/00-service-api-configmap.yaml | oc apply -f -
 ```
 
 Now you can apply the rest of the manifests.
