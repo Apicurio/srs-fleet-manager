@@ -60,9 +60,7 @@ public class ProvisionRegistryTenantWorker implements Worker {
 
         RegistryDeployment registryDeployment = registry.getRegistryDeployment();
 
-        //TODO use this after fixing the registry tenant's url mapping, for now we only allow for tenantId in the headers
-        //String appUrl = registryDeployment.getRegistryDeploymentUrl() + "/t/" + registry.getTenantId();
-        String appUrl = registryDeployment.getRegistryDeploymentUrl();
+        String appUrl = registryDeployment.getRegistryDeploymentUrl() + "/t/" + registry.getTenantId();
         registry.setAppUrl(appUrl);
 
         final AuthResource authResource = authService.createTenantAuthResources(registry.getId().toString(), registry.getAppUrl());
