@@ -45,6 +45,7 @@ public class PanacheResourceStorage implements ResourceStorage {
     }
 
     @Override
+    @Transactional
     public void deleteRegistry(Registry registry) {
         requireNonNull(registry);
         registryRepository.delete(registry);
@@ -75,6 +76,7 @@ public class PanacheResourceStorage implements ResourceStorage {
     }
 
     @Override
+    @Transactional
     public void deleteRegistryDeployment(RegistryDeployment rd) {
         requireNonNull(rd);
         rdRepository.delete(rd);

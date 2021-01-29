@@ -41,6 +41,8 @@ spec:
                   key: pg-pwd
             - name: AUTH_ENABLED
               value: "true"
+            - name: REGISTRY_ENABLE_MULTITENANCY
+              value: "true"
 
               # default tenant config
             - name: KEYCLOAK_URL
