@@ -25,4 +25,8 @@ Now you can apply the rest of the manifests.
 oc apply -f templates
 ```
 
-To be continued...
+To run demo
+
+```
+source scripts/demo/env.sh
+```
