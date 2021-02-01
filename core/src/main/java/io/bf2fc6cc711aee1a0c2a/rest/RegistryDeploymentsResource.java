@@ -4,6 +4,7 @@ import io.bf2fc6cc711aee1a0c2a.execution.manager.TaskManager;
 import io.bf2fc6cc711aee1a0c2a.execution.tasks.impl.CreateRegistryDeploymentTask;
 import io.bf2fc6cc711aee1a0c2a.rest.convert.ConvertRegistryDeployment;
 import io.bf2fc6cc711aee1a0c2a.rest.model.RegistryDeploymentRest;
+import io.bf2fc6cc711aee1a0c2a.storage.RegistryDeploymentNotFoundException;
 import io.bf2fc6cc711aee1a0c2a.storage.ResourceStorage;
 
 import java.util.List;
@@ -59,7 +60,7 @@ public class RegistryDeploymentsResource { // TODO interface?
 
     @DELETE
     @Path("/{id}")
-    public void deleteRegistryDeployment(@PathParam("id") Long id) {
+    public void deleteRegistryDeployment(@PathParam("id") Long id) throws RegistryDeploymentNotFoundException {
         storage.deleteRegistryDeployment(id);
     }
 }
