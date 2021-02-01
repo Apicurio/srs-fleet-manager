@@ -1,6 +1,6 @@
 package io.bf2fc6cc711aee1a0c2a.storage;
 
-public class RegistryNotFoundException extends RuntimeException {
+public class RegistryNotFoundException extends Exception {
 
     /**
      *

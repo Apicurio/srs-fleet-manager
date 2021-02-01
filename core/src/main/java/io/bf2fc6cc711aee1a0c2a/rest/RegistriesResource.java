@@ -5,6 +5,7 @@ import io.bf2fc6cc711aee1a0c2a.execution.tasks.impl.CreateRegistryTask;
 import io.bf2fc6cc711aee1a0c2a.rest.convert.ConvertRegistry;
 import io.bf2fc6cc711aee1a0c2a.rest.model.CreateRegistryRest;
 import io.bf2fc6cc711aee1a0c2a.rest.model.RegistryRest;
+import io.bf2fc6cc711aee1a0c2a.storage.RegistryNotFoundException;
 import io.bf2fc6cc711aee1a0c2a.storage.ResourceStorage;
 
 import java.util.List;
@@ -61,7 +62,7 @@ public class RegistriesResource {
 
     @DELETE
     @Path("/{id}")
-    public void deleteRegistry(@PathParam("id") Long id) {
+    public void deleteRegistry(@PathParam("id") Long id) throws RegistryNotFoundException {
         storage.deleteRegistry(id);
     }
 }
