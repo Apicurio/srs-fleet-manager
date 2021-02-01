@@ -60,6 +60,6 @@ public class RegistryDeploymentsResource { // TODO interface?
     @DELETE
     @Path("/{id}")
     public void deleteRegistryDeployment(@PathParam("id") Long id) {
-        storage.getRegistryDeploymentById(id).ifPresent(storage::deleteRegistryDeployment); // TODO we need a task here
+        storage.deleteRegistryDeployment(id);
     }
 }

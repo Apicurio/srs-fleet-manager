@@ -1,5 +1,7 @@
 package io.bf2fc6cc711aee1a0c2a.storage.sqlPanacheImpl;
 
+import io.bf2fc6cc711aee1a0c2a.storage.RegistryDeploymentNotFoundException;
+import io.bf2fc6cc711aee1a0c2a.storage.RegistryNotFoundException;
 import io.bf2fc6cc711aee1a0c2a.storage.ResourceStorage;
 import io.bf2fc6cc711aee1a0c2a.storage.sqlPanacheImpl.model.Registry;
 import io.bf2fc6cc711aee1a0c2a.storage.sqlPanacheImpl.model.RegistryDeployment;
@@ -46,8 +48,9 @@ public class PanacheResourceStorage implements ResourceStorage {
 
     @Override
     @Transactional
-    public void deleteRegistry(Registry registry) {
-        requireNonNull(registry);
+    public void deleteRegistry(Long id) throws RegistryNotFoundException {
+        Registry registry = getRegistryById(id)
+            .orElseThrow(() -> RegistryNotFoundException.create(id));
         registryRepository.delete(registry);
     }
 
@@ -77,8 +80,9 @@ public class PanacheResourceStorage implements ResourceStorage {
 
     @Override
     @Transactional
-    public void deleteRegistryDeployment(RegistryDeployment rd) {
-        requireNonNull(rd);
+    public void deleteRegistryDeployment(Long id) throws RegistryDeploymentNotFoundException {
+        RegistryDeployment rd = getRegistryDeploymentById(id)
+                .orElseThrow(() -> RegistryDeploymentNotFoundException.create(id));
         rdRepository.delete(rd);
     }
 

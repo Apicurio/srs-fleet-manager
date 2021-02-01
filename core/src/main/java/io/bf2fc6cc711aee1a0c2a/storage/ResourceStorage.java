@@ -17,7 +17,7 @@ public interface ResourceStorage {
 
     List<Registry> getAllRegistries();
 
-    void deleteRegistry(Registry registry);
+    void deleteRegistry(Long id) throws RegistryNotFoundException;
 
     ///// RegistryDeployment
 
@@ -27,5 +27,5 @@ public interface ResourceStorage {
 
     Optional<RegistryDeployment> getRegistryDeploymentById(Long id);
 
-    void deleteRegistryDeployment(RegistryDeployment rd);
+    void deleteRegistryDeployment(Long id) throws RegistryDeploymentNotFoundException;
 }

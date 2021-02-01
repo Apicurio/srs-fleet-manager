@@ -62,6 +62,6 @@ public class RegistriesResource {
     @DELETE
     @Path("/{id}")
     public void deleteRegistry(@PathParam("id") Long id) {
-        storage.getRegistryById(id).ifPresent(storage::deleteRegistry); // TODO create a Task
+        storage.deleteRegistry(id);
     }
 }
