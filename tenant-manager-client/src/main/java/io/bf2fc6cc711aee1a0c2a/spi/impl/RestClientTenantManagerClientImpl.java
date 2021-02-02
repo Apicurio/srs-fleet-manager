@@ -6,8 +6,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import io.apicurio.multitenant.client.TenantManagerClientImpl;
-import io.apicurio.multitenant.datamodel.NewRegistryTenantRequest;
-import io.apicurio.multitenant.datamodel.RegistryTenant;
+import io.apicurio.multitenant.api.datamodel.NewRegistryTenantRequest;
+import io.apicurio.multitenant.api.datamodel.RegistryTenant;
 import io.bf2fc6cc711aee1a0c2a.spi.TenantManagerClient;
 import io.bf2fc6cc711aee1a0c2a.spi.model.Tenant;
 import io.bf2fc6cc711aee1a0c2a.spi.model.TenantManager;
@@ -28,7 +28,6 @@ public class RestClientTenantManagerClientImpl implements TenantManagerClient {
         var client = getClient(tm);
 
         NewRegistryTenantRequest req = new NewRegistryTenantRequest();
-        req.setDeploymentFlavor("small"); //TODO
         req.setOrganizationId("unknown"); //TODO pick from authentication details?
 
         req.setTenantId(tenantRequest.getTenantId());

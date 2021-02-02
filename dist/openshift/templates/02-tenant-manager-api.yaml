@@ -1,4 +1,35 @@
 ---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tenant-manager
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  creationTimestamp: null
+  name: tenant-manager-ocp-read
+rules:
+  - apiGroups:
+      - route.openshift.io
+    resources:
+      - routes
+    verbs:
+      - 'get'
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: tenant-manager
+subjects:
+- kind: ServiceAccount
+  name: tenant-manager
+roleRef:
+  kind: Role
+  name: tenant-manager-ocp-read
+  apiGroup: rbac.authorization.k8s.io
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -15,10 +46,11 @@ spec:
       labels:
         app: tenant-manager
     spec:
+      serviceAccountName: tenant-manager
       containers:
-        - image: quay.io/apicurio/apicurio-registry-tenant-manager-api:multitenant-sr-demo-snapshot
+        - name: tenant-manager
+          image: quay.io/apicurio/apicurio-registry-tenant-manager-api:multitenant-sr-demo-snapshot
           imagePullPolicy: Always
-          name: tenant-manager
           ports:
             - containerPort: 8080
               protocol: TCP
@@ -38,6 +70,9 @@ spec:
                 configMapKeyRef:
                   name: apicurio-registry-configmap
                   key: pg-pwd
+
+            - name: REGISTRY_ROUTE_NAME
+              value: apicurio-registry
 
             - name: QUARKUS_LOG_LEVEL
               value: DEBUG

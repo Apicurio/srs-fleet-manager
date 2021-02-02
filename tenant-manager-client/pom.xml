@@ -18,6 +18,11 @@
     <dependencies>
 
         <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-arc</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>io.bf2fc6cc711aee1a0c2a</groupId>
             <artifactId>service-registry-managed-service-api-spi</artifactId>
         </dependency>
@@ -29,13 +34,13 @@
 
     </dependencies>
 
-      <repositories>
+    <repositories>
         <repository>
-          <id>github</id>
-          <name>GitHub OWNER Apache Maven Packages</name>
-          <url>https://maven.pkg.github.com/Apicurio/apicurio-registry</url>
+            <id>github</id>
+            <name>GitHub OWNER Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/Apicurio/apicurio-registry</url>
         </repository>
-      </repositories>
+    </repositories>
 
     <build>
         <plugins>
