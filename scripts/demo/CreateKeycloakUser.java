@@ -3,6 +3,7 @@
 
 import static java.lang.System.out;
 
+import java.lang.System;
 import java.util.Arrays;
 
 import javax.ws.rs.core.Response;
@@ -27,18 +28,18 @@ public class CreateKeycloakUser {
             throw new IllegalStateException("Control plane tenant id is mandatory");
         }
 
-        // String authserverurl = System.getenv("AUTH_SERVER_URL");
-        String authserverurl = args[1];
+        String authserverurl = System.getenv("AUTH_SERVER_URL");
+        // String authserverurl = args[1];
         if (authserverurl == null) {
             throw new IllegalStateException("auth server url is mandatory");
         }
-        // String adminuser = System.getenv("ADMIN_USERNAME");
-        String adminuser = args[2];
+        String adminuser = System.getenv("ADMIN_USERNAME");
+        // String adminuser = args[2];
         if (adminuser == null) {
             throw new IllegalStateException("admin username is mandatory");
         }
-        // String adminpassword = System.getenv("ADMIN_PASSWORD");
-        String adminpassword = args[3];
+        String adminpassword = System.getenv("ADMIN_PASSWORD");
+        // String adminpassword = args[3];
         if (adminpassword == null) {
             throw new IllegalStateException("admin password is mandatory");
         }
