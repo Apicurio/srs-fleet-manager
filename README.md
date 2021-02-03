@@ -116,3 +116,8 @@ curl http://localhost:8080/api/v1/registries
 ```shell script
 curl http://localhost:8080/api/v1/admin/tasks
 ```
+
+## Didact demo
+
+Open VSCode on this project, go to `demo/demo.didact.md` file and use ` Ctrl + Shift + V ` to open the Didact view.
+You need to be logged to an Openshift 4 cluster to run the demo.
