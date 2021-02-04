@@ -7,6 +7,9 @@ import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 
+/**
+ * @author Jakub Senko <jsenko@redhat.com>
+ */
 @ApplicationScoped
 public class ObjectMapperProducer {
 

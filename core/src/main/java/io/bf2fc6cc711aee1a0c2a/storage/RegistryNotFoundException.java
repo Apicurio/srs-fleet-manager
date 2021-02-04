@@ -1,10 +1,7 @@
 package io.bf2fc6cc711aee1a0c2a.storage;
 
-public class RegistryNotFoundException extends Exception {
+public class RegistryNotFoundException extends StorageException {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 3830931257679125603L;
 
     public RegistryNotFoundException() {

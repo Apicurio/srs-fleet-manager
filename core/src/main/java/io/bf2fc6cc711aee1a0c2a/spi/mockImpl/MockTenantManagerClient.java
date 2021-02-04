@@ -8,8 +8,9 @@ import io.bf2fc6cc711aee1a0c2a.spi.model.TenantRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static java.util.Objects.requireNonNull;
 
 public class MockTenantManagerClient implements TenantManagerClient {
 
@@ -21,10 +22,16 @@ public class MockTenantManagerClient implements TenantManagerClient {
 
     @Override
     public Tenant createTenant(TenantManager tm, TenantRequest req) {
-        String tenantID = "tenant-" + UUID.randomUUID();
-        Tenant tenant = Tenant.builder().id(tenantID).build();
+        requireNonNull(tm);
+        requireNonNull(req);
+
+        Tenant tenant = Tenant.builder()
+                .id(req.getTenantId())
+                .authServerUrl(req.getAuthServerUrl())
+                .authClientId(req.getAuthClientId())
+                .build();
         init(tm);
-        testData.get(tm).put(tenantID, tenant);
+        testData.get(tm).put(tenant.getId(), tenant);
         return tenant;
     }
 
@@ -36,17 +43,22 @@ public class MockTenantManagerClient implements TenantManagerClient {
 
     @Override
     public void deleteTenant(TenantManager tm, String tenantId) {
+        requireNonNull(tm);
+        requireNonNull(tenantId);
         init(tm);
         testData.get(tm).remove(tenantId);
     }
 
     @Override
     public boolean pingTenantManager(TenantManager tm) {
+        requireNonNull(tm);
         return true;
     }
 
     @Override
     public boolean pingTenant(TenantManager tm, String tenantId) {
+        requireNonNull(tm);
+        requireNonNull(tenantId);
         init(tm);
         return testData.get(tm).containsKey(tenantId);
     }

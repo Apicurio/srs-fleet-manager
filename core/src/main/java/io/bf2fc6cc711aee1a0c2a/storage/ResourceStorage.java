@@ -5,27 +5,32 @@ import io.bf2fc6cc711aee1a0c2a.storage.sqlPanacheImpl.model.RegistryDeployment;
 
 import java.util.List;
 import java.util.Optional;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
-// TODO Decouple model classes?
+/**
+ * @author Jakub Senko <jsenko@redhat.com>
+ */
+// TODO: Unify Exception vs. Optional?
 public interface ResourceStorage {
 
-    ///// Registry
+    //*** Registry
 
-    boolean createOrUpdateRegistry(Registry registry);
+    boolean createOrUpdateRegistry(@Valid Registry registry) throws StorageConflictException;
 
-    Optional<Registry> getRegistryById(Long id);
+    Optional<Registry> getRegistryById(@NotNull Long id);
 
     List<Registry> getAllRegistries();
 
-    void deleteRegistry(Long id) throws RegistryNotFoundException;
+    void deleteRegistry(@NotNull Long id) throws RegistryNotFoundException;
 
-    ///// RegistryDeployment
+    //*** RegistryDeployment
 
-    boolean createOrUpdateRegistryDeployment(RegistryDeployment rd);
+    boolean createOrUpdateRegistryDeployment(@Valid RegistryDeployment rd) throws StorageConflictException;
 
     List<RegistryDeployment> getAllRegistryDeployments();
 
-    Optional<RegistryDeployment> getRegistryDeploymentById(Long id);
+    Optional<RegistryDeployment> getRegistryDeploymentById(@NotNull Long id);
 
-    void deleteRegistryDeployment(Long id) throws RegistryDeploymentNotFoundException;
+    void deleteRegistryDeployment(@NotNull Long id) throws RegistryDeploymentNotFoundException;
 }
