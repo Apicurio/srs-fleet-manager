@@ -9,36 +9,64 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import javax.validation.constraints.NotNull;
 
+import static lombok.AccessLevel.PACKAGE;
+
+/**
+ * @author Jakub Senko <jsenko@redhat.com>
+ */
 @Entity
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(access = PACKAGE)
+@Builder
 @Getter
 @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString
 public class Registry {
 
+    /**
+     * (Optional when new)
+     */
     @Id
     @GeneratedValue
     @EqualsAndHashCode.Include
     private Long id;
 
+    /**
+     * (Optional)
+     */
     private String name;
 
-    private String appUrl;
+    /**
+     * (Optional*)
+     */
+    @Column(unique = true)
+    private String registryUrl;
 
+    /**
+     * (Optional*)
+     */
+    @Column(unique = true)
     private String tenantId;
 
+    /**
+     * (Optional*)
+     */
     @ManyToOne
     private RegistryDeployment registryDeployment;
 
+    /**
+     * (Required)
+     */
     @OneToOne(cascade = {CascadeType.ALL})
+    @NotNull
     private RegistryStatus status;
 }

@@ -1,6 +1,7 @@
 package io.bf2fc6cc711aee1a0c2a.spi.impl;
 
 import io.bf2fc6cc711aee1a0c2a.spi.TenantManagerClient;
+import io.quarkus.arc.profile.UnlessBuildProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,6 +13,7 @@ public class TenantManagerClientProducer {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
+    @UnlessBuildProfile("test")
     @Produces
     @ApplicationScoped
     public TenantManagerClient produce() {

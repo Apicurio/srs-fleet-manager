@@ -1,17 +1,17 @@
 package io.bf2fc6cc711aee1a0c2a.spi.impl;
 
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-
 import io.apicurio.multitenant.client.TenantManagerClientImpl;
-import io.apicurio.multitenant.api.datamodel.NewRegistryTenantRequest;
-import io.apicurio.multitenant.api.datamodel.RegistryTenant;
+import io.apicurio.multitenant.datamodel.NewRegistryTenantRequest;
+import io.apicurio.multitenant.datamodel.RegistryTenant;
 import io.bf2fc6cc711aee1a0c2a.spi.TenantManagerClient;
 import io.bf2fc6cc711aee1a0c2a.spi.model.Tenant;
 import io.bf2fc6cc711aee1a0c2a.spi.model.TenantManager;
 import io.bf2fc6cc711aee1a0c2a.spi.model.TenantRequest;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class RestClientTenantManagerClientImpl implements TenantManagerClient {
 
@@ -47,12 +47,12 @@ public class RestClientTenantManagerClientImpl implements TenantManagerClient {
     public List<Tenant> getAllTenants(TenantManager tm) {
         var client = getClient(tm);
         return client.listTenants().stream()
-                    .map(t -> Tenant.builder()
-                                .id(t.getTenantId())
-                                .authServerUrl(t.getAuthServerUrl())
-                                .authClientId(t.getAuthClientId())
-                                .build())
-                    .collect(Collectors.toList());
+                .map(t -> Tenant.builder()
+                        .id(t.getTenantId())
+                        .authServerUrl(t.getAuthServerUrl())
+                        .authClientId(t.getAuthClientId())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     @Override

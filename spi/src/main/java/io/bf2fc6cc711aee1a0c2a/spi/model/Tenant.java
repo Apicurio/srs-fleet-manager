@@ -1,15 +1,21 @@
 package io.bf2fc6cc711aee1a0c2a.spi.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
+
+import static lombok.AccessLevel.PACKAGE;
 
 /**
  * Tenant information received from the Tenant Manager.
  *
  * @author Jakub Senko <jsenko@redhat.com>
  */
+@NoArgsConstructor
+@AllArgsConstructor(access = PACKAGE)
 @Builder
 @Getter
 @EqualsAndHashCode
