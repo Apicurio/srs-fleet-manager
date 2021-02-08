@@ -1,6 +1,15 @@
 # Managed Multi-Tenant Service Registry - The Demo!
 
-## Preconditions
+## Pre-requisites
+
+#### Tools
+
+This demo guide uses several tools that may not be installed in your machine:
+* [httpie](https://httpie.io/)
+* [jbang](https://www.jbang.dev/)
+* [Openshift client](https://docs.openshift.com/container-platform/4.6/cli_reference/openshift_cli/getting-started-cli.html)
+
+### Deployment on Openshift
 
 For this demo you need an Openshift cluster and to provision all the components and infrastructure that make the Managed Multi-Tenant Service Registry.
 
@@ -11,7 +20,7 @@ oc new-project managed-service-registry
 ```
 [[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$oc%20new-project%20managed-service-registry "Opens a new terminal and sends the command above"){.didact}
 
-### 1. Keycloak
+#### 1. Keycloak
 
 For this demo we are deploying a Keycloak instance that will be used by the Service Registry for the authentication of the tenants. Deploy the Keycloak instance with this commands:
 
@@ -39,7 +48,7 @@ oc get pod | grep keycloak
 ```
 [[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$oc%20get%20pod%20%7C%20grep%20keycloak "Opens a new terminal and sends the command above"){.didact}
 
-### 2. Managed Multi-Tenant Service Registry infrastucture components
+#### 2. Managed Multi-Tenant Service Registry infrastucture components
 
 Once we have the keycloak instance we can deploy the rest of the infrastructure components that make the Managed Multi-Tenant Service Registry.
 
@@ -95,6 +104,8 @@ http $SERVICE_API_URL/api/v1/admin/registry-deployments
 
 
 ## The Demo!
+
+![architecture diagram](./img/architecture.png)
 
 We currently have all the components in place that conform a Managed Multi-Tenant Service Registry platform. 
 The "control-plane" is represented by the "service-api" pods plus it's postgresql database. The control plane receives the requests for provisioning
@@ -160,6 +171,12 @@ This created a user `sr-admin-tenant-$ID_TENANT_A` with password `password` in t
 ### 3. Tenant-a uses the registry
 
 Now tenant-a can authenticate to the Service Registry, let's verify it queriying the registry for artifacts.
+
+Just for fun, let's check first if the authentication layer actually works. Try this command:
+```
+curl -i $URL_TENANT_A/api/artifacts
+```
+[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$curl%20-i%20%24URL_TENANT_A%2Fapi%2Fartifacts "Opens a new terminal and sends the command above"){.didact}
 
 First of all you need to get an access token to authenticate against the registry:
 ```
