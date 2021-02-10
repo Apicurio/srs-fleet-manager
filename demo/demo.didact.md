@@ -5,9 +5,15 @@
 #### Tools
 
 This demo guide uses several tools that may not be installed in your machine:
-* [httpie](https://httpie.io/)
+* [jq](https://stedolan.github.io/jq/)
 * [jbang](https://www.jbang.dev/)
 * [Openshift client](https://docs.openshift.com/container-platform/4.6/cli_reference/openshift_cli/getting-started-cli.html)
+
+For having fancy outputs in this demo we are going to alias the `curl` command:
+```
+alias curl="curl -s -D \"/dev/stderr\""
+```
+[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$alias%20curl%3D%22curl%20-s%20-D%20%5C%22%2Fdev%2Fstderr%5C%22%22 "Opens a new terminal and sends the command above"){.didact}
 
 ### Deployment on Openshift
 
@@ -92,15 +98,15 @@ oc get route
 
 Execute this command to register the Service Registry deployment in the control plane:
 ```
-http $SERVICE_API_URL/api/v1/admin/registry-deployments tenantManagerUrl=$TENANT_MANAGER_URL registryDeploymentUrl=$REGISTRY_URL
+curl --header "Content-Type: application/json" --request POST --data '{"tenantManagerUrl":"'$TENANT_MANAGER_URL'", "registryDeploymentUrl":"'$REGISTRY_URL'"}' $SERVICE_API_URL/api/v1/admin/registry-deployments
 ```
-[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$http%20%24SERVICE_API_URL%2Fapi%2Fv1%2Fadmin%2Fregistry-deployments%20tenantManagerUrl%3D%24TENANT_MANAGER_URL%20registryDeploymentUrl%3D%24REGISTRY_URL "Opens a new terminal and sends the command above"){.didact}
+[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$curl%20--header%20%22Content-Type%3A%20application%2Fjson%22%20--request%20POST%20--data%20%27%7B%22tenantManagerUrl%22%3A%22%27%24TENANT_MANAGER_URL%27%22%2C%20%22registryDeploymentUrl%22%3A%22%27%24REGISTRY_URL%27%22%7D%27%20%24SERVICE_API_URL%2Fapi%2Fv1%2Fadmin%2Fregistry-deployments "Opens a new terminal and sends the command above"){.didact}
 
 After this you should be able to see there is one Registry deployment with status AVAILABLE. Execute this command to see it:
 ```
-http $SERVICE_API_URL/api/v1/admin/registry-deployments
+curl $SERVICE_API_URL/api/v1/admin/registry-deployments | jq
 ```
-[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$http%20%24SERVICE_API_URL%2Fapi%2Fv1%2Fadmin%2Fregistry-deployments "Opens a new terminal and sends the command above"){.didact}
+[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$curl%20%24SERVICE_API_URL%2Fapi%2Fv1%2Fadmin%2Fregistry-deployments%20%7C%20jq "Opens a new terminal and sends the command above"){.didact}
 
 
 ## The Demo!
@@ -119,16 +125,16 @@ authenticating and using a shared Multi-Tenant Service Registry deployment.
 
 To start, check there are no Service Registry instances (tenants) created yet. To check it, execute the following command:
 ```
-http $SERVICE_API_URL/api/v1/registries
+curl $SERVICE_API_URL/api/v1/registries | jq
 ```
-[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$http%20%24SERVICE_API_URL%2Fapi%2Fv1%2Fregistries "Opens a new terminal and sends the command above"){.didact}
+[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$curl%20%24SERVICE_API_URL%2Fapi%2Fv1%2Fregistries%20%7C%20jq "Opens a new terminal and sends the command above"){.didact}
 
 
 Create the first Service Registry instance, we are going to call it tenant-a. Execute the following command to create it:
 ```
-http $SERVICE_API_URL/api/v1/registries name=tenant-a
+curl --header "Content-Type: application/json" --request POST --data '{"name":"tenant-a"}' $SERVICE_API_URL/api/v1/registries
 ```
-[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$http%20%24SERVICE_API_URL%2Fapi%2Fv1%2Fregistries%20name%3Dtenant-a "Opens a new terminal and sends the command above"){.didact}
+[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$curl%20--header%20%22Content-Type%3A%20application%2Fjson%22%20--request%20POST%20--data%20%27%7B%22name%22%3A%22tenant-a%22%7D%27%20%24SERVICE_API_URL%2Fapi%2Fv1%2Fregistries "Opens a new terminal and sends the command above"){.didact}
 
 
 After this several things happened:
@@ -141,25 +147,25 @@ After this several things happened:
 
 Execute this command to check the tenant-a is status AVAILABLE:
 ```
-http $SERVICE_API_URL/api/v1/registries | jq -r '.[] | select(.name == "tenant-a")'
+curl $SERVICE_API_URL/api/v1/registries | jq -r '.[] | select(.name == "tenant-a")'
 ```
-[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$http%20%24SERVICE_API_URL%2Fapi%2Fv1%2Fregistries%20%7C%20jq%20-r%20%27.%5B%5D%20%7C%20select%28.name%20%3D%3D%20%22tenant-a%22%29%27 "Opens a new terminal and sends the command above"){.didact}
+[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$curl%20%24SERVICE_API_URL%2Fapi%2Fv1%2Fregistries%20%7C%20jq%20-r%20%27.%5B%5D%20%7C%20select%28.name%20%3D%3D%20%22tenant-a%22%29%27 "Opens a new terminal and sends the command above"){.didact}
 
 
 ### 2. Additional configuration for tenant-a
 
 Execute this command to prepare the env and save the tenant URL:
 ```
-export URL_TENANT_A=$(http $SERVICE_API_URL/api/v1/registries | jq -r '.[] | select(.name == "tenant-a") | .appUrl')
+export URL_TENANT_A=$(curl $SERVICE_API_URL/api/v1/registries | jq -r '.[] | select(.name == "tenant-a") | .appUrl')
 ```
-[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$export%20URL_TENANT_A%3D%24%28http%20%24SERVICE_API_URL%2Fapi%2Fv1%2Fregistries%20%7C%20jq%20-r%20%27.%5B%5D%20%7C%20select%28.name%20%3D%3D%20%22tenant-a%22%29%20%7C%20.appUrl%27%29 "Opens a new terminal and sends the command above"){.didact}
+[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$export%20URL_TENANT_A%3D%24%28curl%20%24SERVICE_API_URL%2Fapi%2Fv1%2Fregistries%20%7C%20jq%20-r%20%27.%5B%5D%20%7C%20select%28.name%20%3D%3D%20%22tenant-a%22%29%20%7C%20.appUrl%27%29 "Opens a new terminal and sends the command above"){.didact}
 
 
 To be able to authenticate and access the registry we need to at least have a user in the recently created keycloak realm. We have a script to do that quickly, execute this commands:
 ```
-export ID_TENANT_A=$(http $SERVICE_API_URL/api/v1/registries | jq -r '.[] | select(.name == "tenant-a") | .id')
+export ID_TENANT_A=$(curl $SERVICE_API_URL/api/v1/registries | jq -r '.[] | select(.name == "tenant-a") | .id')
 ```
-[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$export%20ID_TENANT_A%3D%24%28http%20%24SERVICE_API_URL%2Fapi%2Fv1%2Fregistries%20%7C%20jq%20-r%20%27.%5B%5D%20%7C%20select%28.name%20%3D%3D%20%22tenant-a%22%29%20%7C%20.id%27%29 "Opens a new terminal and sends the command above"){.didact}
+[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$export%20ID_TENANT_A%3D%24%28curl%20%24SERVICE_API_URL%2Fapi%2Fv1%2Fregistries%20%7C%20jq%20-r%20%27.%5B%5D%20%7C%20select%28.name%20%3D%3D%20%22tenant-a%22%29%20%7C%20.id%27%29 "Opens a new terminal and sends the command above"){.didact}
 
 ```
 ./scripts/demo/CreateKeycloakUser.java $ID_TENANT_A
@@ -172,13 +178,13 @@ This created a user `sr-admin-tenant-$ID_TENANT_A` with password `password` in t
 
 Now tenant-a can authenticate to the Service Registry, let's verify it queriying the registry for artifacts.
 
-Just for fun, let's check first if the authentication layer actually works. Try this command:
+Let's check first if the authentication layer actually works. If we don't provide an access token the request should be rejected. Try this command:
 ```
-curl -i $URL_TENANT_A/api/artifacts
+curl $URL_TENANT_A/api/search/artifacts
 ```
-[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$curl%20-i%20%24URL_TENANT_A%2Fapi%2Fartifacts "Opens a new terminal and sends the command above"){.didact}
+[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$curl%20%24URL_TENANT_A%2Fapi%2Fsearch%2Fartifacts "Opens a new terminal and sends the command above"){.didact}
 
-First of all you need to get an access token to authenticate against the registry:
+Then you need to get an access token to authenticate against the registry:
 ```
 export TOKEN_TENANT_A=$(curl -k --location --request POST $AUTH_SERVER_URL/realms/sr-tenant-$ID_TENANT_A/protocol/openid-connect/token \
 --header 'Content-Type: application/x-www-form-urlencoded' \
@@ -192,58 +198,58 @@ export TOKEN_TENANT_A=$(curl -k --location --request POST $AUTH_SERVER_URL/realm
 
 And now we can query the registry using the URL for tenant-a and the token we just requested:
 ```
-curl -i $URL_TENANT_A/api/artifacts --header "Authorization: Bearer $TOKEN_TENANT_A"
+curl $URL_TENANT_A/api/search/artifacts --header "Authorization: Bearer $TOKEN_TENANT_A" | jq
 ```
-[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$curl%20-i%20%24URL_TENANT_A%2Fapi%2Fartifacts%20--header%20%22Authorization%3A%20Bearer%20%24TOKEN_TENANT_A%22 "Opens a new terminal and sends the command above"){.didact}
+[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$curl%20%24URL_TENANT_A%2Fapi%2Fsearch%2Fartifacts%20--header%20%22Authorization%3A%20Bearer%20%24TOKEN_TENANT_A%22%20%7C%20jq "Opens a new terminal and sends the command above"){.didact}
 
 You can see there are no artifacts.
 
 Let's create an artifact:
 ```
-curl --data "@scripts/demo/example-schema.json" -X POST $URL_TENANT_A/api/artifacts --header "Authorization: Bearer $TOKEN_TENANT_A"
+curl --data "@scripts/demo/example-schema.json" -X POST $URL_TENANT_A/api/artifacts --header "Authorization: Bearer $TOKEN_TENANT_A" | jq
 ```
-[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$curl%20--data%20%22%40scripts%2Fdemo%2Fexample-schema.json%22%20-X%20POST%20%24URL_TENANT_A%2Fapi%2Fartifacts%20--header%20%22Authorization%3A%20Bearer%20%24TOKEN_TENANT_A%22 "Opens a new terminal and sends the command above"){.didact}
+[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$curl%20--data%20%22%40scripts%2Fdemo%2Fexample-schema.json%22%20-X%20POST%20%24URL_TENANT_A%2Fapi%2Fartifacts%20--header%20%22Authorization%3A%20Bearer%20%24TOKEN_TENANT_A%22%20%7C%20jq "Opens a new terminal and sends the command above"){.didact}
 
 
 And now we can query the registry again and see the just created artifact:
 ```
-curl -i $URL_TENANT_A/api/artifacts --header "Authorization: Bearer $TOKEN_TENANT_A"
+curl $URL_TENANT_A/api/search/artifacts --header "Authorization: Bearer $TOKEN_TENANT_A" | jq
 ```
-[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$curl%20-i%20%24URL_TENANT_A%2Fapi%2Fartifacts%20--header%20%22Authorization%3A%20Bearer%20%24TOKEN_TENANT_A%22 "Opens a new terminal and sends the command above"){.didact}
+[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$curl%20%24URL_TENANT_A%2Fapi%2Fsearch%2Fartifacts%20--header%20%22Authorization%3A%20Bearer%20%24TOKEN_TENANT_A%22%20%7C%20jq "Opens a new terminal and sends the command above"){.didact}
 
 
 ### 4. Create another Service Registry Instance
 
 Let's provision another Service Registry instance, this time we are going to call it tenant-b. Execute the following command to create it:
 ```
-http $SERVICE_API_URL/api/v1/registries name=tenant-b
+curl --header "Content-Type: application/json" --request POST --data '{"name":"tenant-b"}' $SERVICE_API_URL/api/v1/registries
 ```
-[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$http%20%24SERVICE_API_URL%2Fapi%2Fv1%2Fregistries%20name%3Dtenant-b "Opens a new terminal and sends the command above"){.didact}
+[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$curl%20--header%20%22Content-Type%3A%20application%2Fjson%22%20--request%20POST%20--data%20%27%7B%22name%22%3A%22tenant-b%22%7D%27%20%24SERVICE_API_URL%2Fapi%2Fv1%2Fregistries "Opens a new terminal and sends the command above"){.didact}
 
 
 Again several things were created for this Service Registry instance: a new keycloak realm, some roles and clients in that realm, and a new tenant assigned to our only deployment and registered in the Tenant Manager.
 
 Execute this command to check the tenant-b is status AVAILABLE:
 ```
-http $SERVICE_API_URL/api/v1/registries | jq -r '.[] | select(.name == "tenant-b")'
+curl $SERVICE_API_URL/api/v1/registries | jq -r '.[] | select(.name == "tenant-b")'
 ```
-[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$http%20%24SERVICE_API_URL%2Fapi%2Fv1%2Fregistries%20%7C%20jq%20-r%20%27.%5B%5D%20%7C%20select%28.name%20%3D%3D%20%22tenant-b%22%29%27 "Opens a new terminal and sends the command above"){.didact}
+[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$curl%20%24SERVICE_API_URL%2Fapi%2Fv1%2Fregistries%20%7C%20jq%20-r%20%27.%5B%5D%20%7C%20select%28.name%20%3D%3D%20%22tenant-b%22%29%27 "Opens a new terminal and sends the command above"){.didact}
 
 
 ### 5. Additional configuration for tenant-b
 
 Execute this command to prepare the env and save the tenant URL:
 ```
-export URL_TENANT_B=$(http $SERVICE_API_URL/api/v1/registries | jq -r '.[] | select(.name == "tenant-b") | .appUrl')
+export URL_TENANT_B=$(curl $SERVICE_API_URL/api/v1/registries | jq -r '.[] | select(.name == "tenant-b") | .appUrl')
 ```
-[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$export%20URL_TENANT_B%3D%24%28http%20%24SERVICE_API_URL%2Fapi%2Fv1%2Fregistries%20%7C%20jq%20-r%20%27.%5B%5D%20%7C%20select%28.name%20%3D%3D%20%22tenant-b%22%29%20%7C%20.appUrl%27%29 "Opens a new terminal and sends the command above"){.didact}
+[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$export%20URL_TENANT_B%3D%24%28curl%20%24SERVICE_API_URL%2Fapi%2Fv1%2Fregistries%20%7C%20jq%20-r%20%27.%5B%5D%20%7C%20select%28.name%20%3D%3D%20%22tenant-b%22%29%20%7C%20.appUrl%27%29 "Opens a new terminal and sends the command above"){.didact}
 
 
 To be able to authenticate and access the registry we need to at least have a user in the recently created keycloak realm. We have a script to do that quickly, execute this commands:
 ```
-export ID_TENANT_B=$(http $SERVICE_API_URL/api/v1/registries | jq -r '.[] | select(.name == "tenant-b") | .id')
+export ID_TENANT_B=$(curl $SERVICE_API_URL/api/v1/registries | jq -r '.[] | select(.name == "tenant-b") | .id')
 ```
-[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$export%20ID_TENANT_B%3D%24%28http%20%24SERVICE_API_URL%2Fapi%2Fv1%2Fregistries%20%7C%20jq%20-r%20%27.%5B%5D%20%7C%20select%28.name%20%3D%3D%20%22tenant-b%22%29%20%7C%20.id%27%29 "Opens a new terminal and sends the command above"){.didact}
+[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$export%20ID_TENANT_B%3D%24%28curl%20%24SERVICE_API_URL%2Fapi%2Fv1%2Fregistries%20%7C%20jq%20-r%20%27.%5B%5D%20%7C%20select%28.name%20%3D%3D%20%22tenant-b%22%29%20%7C%20.id%27%29 "Opens a new terminal and sends the command above"){.didact}
 
 ```
 ./scripts/demo/CreateKeycloakUser.java $ID_TENANT_B
@@ -257,9 +263,9 @@ This created a user `sr-admin-tenant-$ID_TENANT_B` with password `password` in t
 After the provisioning of tenant-b now we have two Service Registry Instances provisioned and sharing the same Service Registry deployment.
 Execute this command to see all the Service Registry Instances provisioned:
 ```
-http $SERVICE_API_URL/api/v1/registries
+curl $SERVICE_API_URL/api/v1/registries | jq
 ```
-[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$http%20%24SERVICE_API_URL%2Fapi%2Fv1%2Fregistries "Opens a new terminal and sends the command above"){.didact}
+[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$curl%20%24SERVICE_API_URL%2Fapi%2Fv1%2Fregistries%20%7C%20jq "Opens a new terminal and sends the command above"){.didact}
 
 ### 7. Test tenant-b
 
@@ -279,22 +285,22 @@ export TOKEN_TENANT_B=$(curl -k --location --request POST $AUTH_SERVER_URL/realm
 
 Now you can check there are no artifacts in Service Registry Instance tenant-b:
 ```
-curl -i $URL_TENANT_B/api/artifacts --header "Authorization: Bearer $TOKEN_TENANT_B"
+curl $URL_TENANT_B/api/search/artifacts --header "Authorization: Bearer $TOKEN_TENANT_B" | jq
 ```
-[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$curl%20-i%20%24URL_TENANT_B%2Fapi%2Fartifacts%20--header%20%22Authorization%3A%20Bearer%20%24TOKEN_TENANT_B%22 "Opens a new terminal and sends the command above"){.didact}
+[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$curl%20%24URL_TENANT_B%2Fapi%2Fsearch%2Fartifacts%20--header%20%22Authorization%3A%20Bearer%20%24TOKEN_TENANT_B%22%20%7C%20jq "Opens a new terminal and sends the command above"){.didact}
 
 You can see there are no artifacts.
 
 Try creating several artifacts in Service Registry Instance tenant-b:
 ```
-for i in $(seq 1 5); do curl --data "@scripts/demo/example-schema.json" -X POST $URL_TENANT_B/api/artifacts --header "Authorization: Bearer $TOKEN_TENANT_B" --header "X-Registry-ArtifactId: test-artifact-$i" ; done
+for i in $(seq 1 5); do curl --data "@scripts/demo/example-schema.json" -X POST $URL_TENANT_B/api/artifacts --header "Authorization: Bearer $TOKEN_TENANT_B" --header "X-Registry-ArtifactId: test-artifact-$i" | jq ; done
 ```
-[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$for%20i%20in%20%24%28seq%201%205%29%3B%20do%20curl%20--data%20%22%40scripts%2Fdemo%2Fexample-schema.json%22%20-X%20POST%20%24URL_TENANT_B%2Fapi%2Fartifacts%20--header%20%22Authorization%3A%20Bearer%20%24TOKEN_TENANT_B%22%20--header%20%22X-Registry-ArtifactId%3A%20test-artifact-%24i%22%20%3B%20done "Opens a new terminal and sends the command above"){.didact}
+[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$for%20i%20in%20%24%28seq%201%205%29%3B%20do%20curl%20--data%20%22%40scripts%2Fdemo%2Fexample-schema.json%22%20-X%20POST%20%24URL_TENANT_B%2Fapi%2Fartifacts%20--header%20%22Authorization%3A%20Bearer%20%24TOKEN_TENANT_B%22%20--header%20%22X-Registry-ArtifactId%3A%20test-artifact-%24i%22%20%7C%20jq%20%3B%20done "Opens a new terminal and sends the command above"){.didact}
 
 
 Finally you can see all the artifacts we just created:
 ```
-curl -i $URL_TENANT_B/api/artifacts --header "Authorization: Bearer $TOKEN_TENANT_B"
+curl $URL_TENANT_B/api/search/artifacts --header "Authorization: Bearer $TOKEN_TENANT_B" | jq
 ```
-[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$curl%20-i%20%24URL_TENANT_B%2Fapi%2Fartifacts%20--header%20%22Authorization%3A%20Bearer%20%24TOKEN_TENANT_B%22 "Opens a new terminal and sends the command above"){.didact}
+[[^ execute]](didact://?commandId=vscode.didact.sendNamedTerminalAString&text=sr$$curl%20%24URL_TENANT_B%2Fapi%2Fsearch%2Fartifacts%20--header%20%22Authorization%3A%20Bearer%20%24TOKEN_TENANT_B%22%20%7C%20jq "Opens a new terminal and sends the command above"){.didact}
 
