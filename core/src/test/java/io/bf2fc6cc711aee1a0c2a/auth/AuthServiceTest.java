@@ -76,5 +76,10 @@ public class AuthServiceTest {
 
         final URL authServerUrl = new URL(tenantAuthResource.getServerUrl());
         authServerUrl.toURI();
+
+        authService.deleteResources(realmId);
+
+        assertTrue(keycloak.realms().findAll().stream()
+                .noneMatch(realmRepresentation -> realmRepresentation.getId().equals(realmId)));
     }
 }
