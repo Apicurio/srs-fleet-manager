@@ -135,9 +135,8 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
         // Cleanup orphan tenant
         if (registry != null && registryDeployment != null && task.getRegistryTenantId() != null) {
             tmClient.deleteTenant(createTenantManager(registryDeployment), registry.getTenantId());
+            authService.deleteResources(registry.getId().toString());
         }
-
-        // TODO Cleanup auth resources
 
         // Remove registry entity
         if (registry != null) {
