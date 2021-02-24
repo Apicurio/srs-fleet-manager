@@ -7,6 +7,7 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder.HostnameVerificatio
 import org.jboss.resteasy.client.jaxrs.internal.ResteasyClientBuilderImpl;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
+import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.RealmRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
@@ -127,5 +128,11 @@ public class AuthService {
         rolesRepresentation.setRealm(newRealmRoles);
 
         return rolesRepresentation;
+    }
+
+    public void deleteResources(String realmId) {
+
+        final RealmResource realmRepresentation = keycloak.realm(realmId);
+        realmRepresentation.remove();
     }
 }
