@@ -1,8 +1,8 @@
 package io.bf2fc6cc711aee1a0c2a.spi.impl;
 
+import io.apicurio.multitenant.api.datamodel.NewRegistryTenantRequest;
+import io.apicurio.multitenant.api.datamodel.RegistryTenant;
 import io.apicurio.multitenant.client.TenantManagerClientImpl;
-import io.apicurio.multitenant.datamodel.NewRegistryTenantRequest;
-import io.apicurio.multitenant.datamodel.RegistryTenant;
 import io.bf2fc6cc711aee1a0c2a.spi.TenantManagerClient;
 import io.bf2fc6cc711aee1a0c2a.spi.model.Tenant;
 import io.bf2fc6cc711aee1a0c2a.spi.model.TenantManager;
