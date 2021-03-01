@@ -79,6 +79,12 @@
                 <version>${apicurio-registry-tenant-manager-client.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>io.apicurio</groupId>
+                <artifactId>apicurio-registry-tenant-manager-datamodel</artifactId>
+                <version>${apicurio-registry-tenant-manager-client.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
