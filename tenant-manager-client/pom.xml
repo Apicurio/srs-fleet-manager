@@ -34,14 +34,6 @@
 
     </dependencies>
 
-    <repositories>
-        <repository>
-            <id>github</id>
-            <name>GitHub OWNER Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/Apicurio/apicurio-registry</url>
-        </repository>
-    </repositories>
-
     <build>
         <plugins>
             <plugin>
