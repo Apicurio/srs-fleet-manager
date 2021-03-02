@@ -38,8 +38,8 @@ jobs:
 
       - name: Build SRS Fleet Manager
         run: |
-          mvn -N io.takari:maven:wrapper -Dmaven=3.6.3 install
+          mvn -B install
 
       - name: Build SRS Fleet Manager - Docker
         run: |
-          mvn -N io.takari:maven:wrapper -Dmaven=3.6.3 install -DskipTests -Dquarkus.container-image.build=true
+          mvn -B install -DskipTests -Dquarkus.container-image.build=true

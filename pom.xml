@@ -52,6 +52,44 @@
                 <scope>import</scope>
             </dependency>
 
+            <dependency>
+                <groupId>io.quarkus</groupId>
+                <artifactId>quarkus-resteasy</artifactId>
+                <version>${quarkus.platform.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.github.java-json-tools.jackson-coreutils</groupId>
+                        <artifactId>jackson-coreutils</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.github.java-json-tools.jackson-coreutils</groupId>
+                        <artifactId>jackson-coreutils-equivalence</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.java-json-tools</groupId>
+                <artifactId>jackson-coreutils</artifactId>
+                <version>2.0</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.github.java-json-tools.jackson-coreutils</groupId>
+                        <artifactId>jackson-coreutils</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.github.java-json-tools.jackson-coreutils</groupId>
+                        <artifactId>jackson-coreutils-equivalence</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.java-json-tools</groupId>
+                <artifactId>jackson-coreutils-equivalence</artifactId>
+                <version>1.0</version>
+            </dependency>
+
             <!-- Module artifacts -->
 
             <dependency>
@@ -128,6 +166,7 @@
 
             </plugins>
         </pluginManagement>
+
     </build>
 
     <profiles>
