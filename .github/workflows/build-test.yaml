@@ -29,7 +29,7 @@ jobs:
           cd "${{ github.workspace }}/.."
           git clone https://github.com/Apicurio/apicurio-registry.git -o upstream apicurio-registry.git
           cd apicurio-registry.git
-          git checkout multitenant-sr-demo
+          git checkout master
           make tenant-manager-build
 
       - name: Prepare Build of SRS Fleet Manager
