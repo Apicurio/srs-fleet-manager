@@ -7,6 +7,11 @@
     <groupId>org.bf2</groupId>
     <artifactId>srs-fleet-manager-parent</artifactId>
     <version>0.1.0-SNAPSHOT</version>
+    <modules>
+        <module>account-management-system-client</module>
+        <module>account-management-rest-client</module>
+        <module>account-management-system-rest-client</module>
+    </modules>
     <packaging>pom</packaging>
 
     <properties>
@@ -99,6 +104,11 @@
             <dependency>
                 <groupId>org.bf2</groupId>
                 <artifactId>srs-fleet-manager-tenant-manager-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bf2</groupId>
+                <artifactId>srs-fleet-manager-ams-client</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
