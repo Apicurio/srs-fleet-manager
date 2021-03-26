@@ -183,7 +183,7 @@
                 </dependency>
                 <dependency>
                     <groupId>org.bf2</groupId>
-                    <artifactId>srs-fleet-manager-ams-client</artifactId>
+                    <artifactId>account-management-service-client</artifactId>
                 </dependency>
             </dependencies>
         </profile>
