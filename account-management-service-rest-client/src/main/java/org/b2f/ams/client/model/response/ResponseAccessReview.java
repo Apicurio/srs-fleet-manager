@@ -1,6 +1,8 @@
 package org.b2f.ams.client.model.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,15 +13,20 @@ import lombok.Setter;
 import lombok.ToString;
 import org.b2f.ams.client.model.Action;
 
+import javax.validation.constraints.NotNull;
+
 import static lombok.AccessLevel.PACKAGE;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-        "account_username",
+        "account_id",
         "action",
-        "clusterId",
-        "status",
-        "registry_deployment_id"
+        "allowed",
+        "cluster_id",
+        "cluster_uuid",
+        "organization_id",
+        "resource_type",
+        "subscription_id",
 })
 @NoArgsConstructor
 @AllArgsConstructor(access = PACKAGE)
@@ -30,11 +37,67 @@ import static lombok.AccessLevel.PACKAGE;
 @ToString
 public class ResponseAccessReview {
 
-    String accountUsername;
-    Action action;
+    /**
+     * (Optional)
+     */
+    @JsonProperty("account_id")
+    @JsonPropertyDescription("")
+    @NotNull
+    String accountId;
+
+    /**
+     *
+     */
+    @JsonProperty("account_username")
+    @JsonPropertyDescription("")
+    @NotNull
+    Action accountUsername;
+
+    /**
+     * (Required)
+     */
+    @JsonProperty("allowed")
+    @JsonPropertyDescription("")
+    @NotNull
+    Boolean allowed;
+
+    /**
+     * (Optional)
+     */
+    @JsonProperty("cluster_id")
+    @JsonPropertyDescription("")
+    @NotNull
     String clusterId;
+
+    /**
+     * (Optional)
+     */
+    @JsonProperty("cluster_uuid")
+    @JsonPropertyDescription("")
+    @NotNull
     String clusterUuid;
+
+    /**
+     * (Optional)
+     */
+    @JsonProperty("organization_id")
+    @JsonPropertyDescription("")
+    @NotNull
     String organizationId;
+
+    /**
+     * (Required)
+     */
+    @JsonProperty("resource_type")
+    @JsonPropertyDescription("")
+    @NotNull
     String resourceType;
+
+    /**
+     * (Required)
+     */
+    @JsonProperty("subscription_id")
+    @JsonPropertyDescription("")
+    @NotNull
     String subscriptionId;
 }
