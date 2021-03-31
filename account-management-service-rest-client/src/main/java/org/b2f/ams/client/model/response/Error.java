@@ -1,5 +1,33 @@
 package org.b2f.ams.client.model.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+import static lombok.AccessLevel.PACKAGE;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({
+        "href",
+        "id",
+        "kind",
+        "code",
+        "operationId",
+        "reason"
+})
+@NoArgsConstructor
+@AllArgsConstructor(access = PACKAGE)
+@Builder
+@Getter
+@Setter
+@EqualsAndHashCode
+@ToString
 public class Error {
 
     private String href;
@@ -8,18 +36,6 @@ public class Error {
     private String code;
     private String operationId;
     private String reason;
-
-    public Error() {
-    }
-
-    public Error(String href, String id, String kind, String code, String operationId, String reason) {
-        this.href = href;
-        this.id = id;
-        this.kind = kind;
-        this.code = code;
-        this.operationId = operationId;
-        this.reason = reason;
-    }
 
     public String getHref() {
         return href;

@@ -15,6 +15,7 @@ public class EntitlementsServiceImpl implements EntitlementsService {
     @Override
     public boolean hasEntitlements(AccountInfo accountInfo) {
 
+
         //TODO perform terms review call for requested resource and then,
         //if accepted perform access review call using rest client
 
