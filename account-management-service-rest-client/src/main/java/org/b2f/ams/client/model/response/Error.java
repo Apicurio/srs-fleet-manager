@@ -1,6 +1,8 @@
 package org.b2f.ams.client.model.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +11,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+
+import javax.validation.constraints.NotNull;
 
 import static lombok.AccessLevel.PACKAGE;
 
@@ -30,58 +34,41 @@ import static lombok.AccessLevel.PACKAGE;
 @ToString
 public class Error {
 
+    /**
+     * (Optional)
+     */
+    @JsonProperty("account_id")
+    @JsonPropertyDescription("")
     private String href;
+    /**
+     * (Optional)
+     */
+    @JsonProperty("account_id")
+    @JsonPropertyDescription("")
     private String id;
+    /**
+     * (Optional)
+     */
+    @JsonProperty("account_id")
+    @JsonPropertyDescription("")
+    @NotNull
     private String kind;
+    /**
+     * (Optional)
+     */
+    @JsonProperty("account_id")
+    @JsonPropertyDescription("")
     private String code;
+    /**
+     * (Optional)
+     */
+    @JsonProperty("account_id")
+    @JsonPropertyDescription("")
     private String operationId;
+    /**
+     * (Optional)
+     */
+    @JsonProperty("account_id")
+    @JsonPropertyDescription("")
     private String reason;
-
-    public String getHref() {
-        return href;
-    }
-
-    public void setHref(String href) {
-        this.href = href;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getKind() {
-        return kind;
-    }
-
-    public void setKind(String kind) {
-        this.kind = kind;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public String getOperationId() {
-        return operationId;
-    }
-
-    public void setOperationId(String operationId) {
-        this.operationId = operationId;
-    }
-
-    public String getReason() {
-        return reason;
-    }
-
-    public void setReason(String reason) {
-        this.reason = reason;
-    }
 }

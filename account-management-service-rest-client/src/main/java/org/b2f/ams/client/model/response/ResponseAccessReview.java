@@ -42,15 +42,13 @@ public class ResponseAccessReview {
      */
     @JsonProperty("account_id")
     @JsonPropertyDescription("")
-    @NotNull
     String accountId;
 
     /**
-     *
+     * (Optional)
      */
     @JsonProperty("account_username")
     @JsonPropertyDescription("")
-    @NotNull
     Action accountUsername;
 
     /**
@@ -66,7 +64,6 @@ public class ResponseAccessReview {
      */
     @JsonProperty("cluster_id")
     @JsonPropertyDescription("")
-    @NotNull
     String clusterId;
 
     /**
@@ -74,7 +71,6 @@ public class ResponseAccessReview {
      */
     @JsonProperty("cluster_uuid")
     @JsonPropertyDescription("")
-    @NotNull
     String clusterUuid;
 
     /**
@@ -82,22 +78,19 @@ public class ResponseAccessReview {
      */
     @JsonProperty("organization_id")
     @JsonPropertyDescription("")
-    @NotNull
     String organizationId;
 
     /**
-     * (Required)
+     * (Optional)
      */
     @JsonProperty("resource_type")
     @JsonPropertyDescription("")
-    @NotNull
     String resourceType;
 
     /**
-     * (Required)
+     * (Optional)
      */
     @JsonProperty("subscription_id")
     @JsonPropertyDescription("")
-    @NotNull
     String subscriptionId;
 }
