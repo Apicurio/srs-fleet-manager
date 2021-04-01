@@ -1,4 +1,4 @@
-package org.b2f.ams.client.model.request;
+package org.b2f.ams.client.model.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -11,9 +11,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.b2f.ams.client.model.ObjectReference;
-
-import javax.validation.constraints.NotNull;
 
 import static lombok.AccessLevel.PACKAGE;
 
@@ -25,13 +22,9 @@ import static lombok.AccessLevel.PACKAGE;
         "availability_zone_type",
         "billing_model",
         "byoc",
-        "cluster",
         "count",
-        "created_at",
         "resource_name",
-        "resource_type",
-        "subscription",
-        "updated_at"
+        "resource_type"
 })
 @NoArgsConstructor
 @AllArgsConstructor(access = PACKAGE)
@@ -40,7 +33,7 @@ import static lombok.AccessLevel.PACKAGE;
 @Setter
 @EqualsAndHashCode
 @ToString
-public class ReservedResource {
+public class ExcessResource {
 
     /**
      * (Optional)
@@ -63,9 +56,9 @@ public class ReservedResource {
     /**
      * (Optional)
      */
-    @JsonProperty("availability_zone")
+    @JsonProperty("availability_zone_type")
     @JsonPropertyDescription("")
-    private String availabilityZone;
+    private String availabilityZoneType;
     /**
      * (Optional)
      */
@@ -73,30 +66,17 @@ public class ReservedResource {
     @JsonPropertyDescription("")
     private String billingModel;
     /**
-     * (Required)
+     * (Optional)
      */
     @JsonProperty("byoc")
     @JsonPropertyDescription("")
-    @NotNull
     private Boolean byoc;
-    /**
-     * (Optional)
-     */
-    @JsonProperty("cluster")
-    @JsonPropertyDescription("")
-    private Boolean cluster;
     /**
      * (Optional)
      */
     @JsonProperty("count")
     @JsonPropertyDescription("")
     private Integer count;
-    /**
-     * (Optional)
-     */
-    @JsonProperty("create_at")
-    @JsonPropertyDescription("")
-    private String createdAt;
     /**
      * (Optional)
      */
@@ -109,16 +89,4 @@ public class ReservedResource {
     @JsonProperty("resource_type")
     @JsonPropertyDescription("")
     private String resourceType;
-    /**
-     * (Optional)
-     */
-    @JsonProperty("subscription")
-    @JsonPropertyDescription("")
-    private ObjectReference subscription;
-    /**
-     * (Optional)
-     */
-    @JsonProperty("updated_at")
-    @JsonPropertyDescription("")
-    private String updatedAt;
 }
