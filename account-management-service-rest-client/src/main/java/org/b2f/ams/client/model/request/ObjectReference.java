@@ -18,13 +18,9 @@ import static lombok.AccessLevel.PACKAGE;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-        "account_username",
-        "action",
-        "resource_type",
-        "cluster_id",
-        "cluster_uuid",
-        "organization_id",
-        "subscription_id"
+        "href",
+        "id",
+        "kind"
 })
 @NoArgsConstructor
 @AllArgsConstructor(access = PACKAGE)
@@ -33,58 +29,27 @@ import static lombok.AccessLevel.PACKAGE;
 @Setter
 @EqualsAndHashCode
 @ToString
-public class AccessReview {
+public class ObjectReference {
 
+    /**
+     * (Optional)
+     */
+    @JsonProperty("href")
+    @JsonPropertyDescription("")
+    @NotNull
+    private String href;
     /**
      * (Required)
      */
-    @JsonProperty("account_username")
+    @JsonProperty("id")
     @JsonPropertyDescription("")
     @NotNull
-    String accountUsername;
-
+    private String id;
     /**
      * (Required)
      */
-    @JsonProperty("action")
+    @JsonProperty("kind")
     @JsonPropertyDescription("")
     @NotNull
-    String action;
-
-    /**
-     * (Required)
-     */
-    @JsonProperty("resource_type")
-    @JsonPropertyDescription("")
-    @NotNull
-    String resourceType;
-
-    /**
-     * (Optional)
-     */
-    @JsonProperty("cluster_id")
-    @JsonPropertyDescription("")
-    String clusterId;
-
-    /**
-     * (Optional)
-     */
-    @JsonProperty("cluster_uuid")
-    @JsonPropertyDescription("")
-    String clusterUuid;
-
-    /**
-     * (Optional)
-     */
-    @JsonProperty("organization_id")
-    @JsonPropertyDescription("")
-    String organizationId;
-
-
-    /**
-     * (Optional)
-     */
-    @JsonProperty("subscription_id")
-    @JsonPropertyDescription("")
-    String subscriptionId;
+    private String kind;
 }
