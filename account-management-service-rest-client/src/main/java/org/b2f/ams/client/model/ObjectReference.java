@@ -1,4 +1,4 @@
-package org.b2f.ams.client.model.request;
+package org.b2f.ams.client.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
