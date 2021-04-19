@@ -59,12 +59,12 @@ public class ResponseTermsReview {
     @JsonProperty("terms_available")
     @JsonPropertyDescription("")
     @NotNull
-    String termsAvailable;
+    Boolean termsAvailable;
     /**
      * (Required)
      */
     @JsonProperty("terms_required")
     @JsonPropertyDescription("")
     @NotNull
-    String termsRequired;
+    Boolean termsRequired;
 }
