@@ -1,6 +1,8 @@
 package org.bf2.srs.fleetmanager.spi.impl;
 
 import org.b2f.ams.client.AccountManagementSystemRestClient;
+import org.b2f.ams.client.model.request.TermsReview;
+import org.b2f.ams.client.model.response.ResponseTermsReview;
 import org.bf2.srs.fleetmanager.spi.EntitlementsService;
 import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
 
@@ -14,6 +16,12 @@ public class EntitlementsServiceImpl implements EntitlementsService {
 
     @Override
     public boolean hasEntitlements(AccountInfo accountInfo) {
+
+        final TermsReview termsReview = TermsReview.builder()
+                .accountUsername(accountInfo.getOrganizationId())
+                .build();
+
+        final ResponseTermsReview responseTermsReview = restClient.termsReview(termsReview);
 
 
         //TODO perform terms review call for requested resource and then,
