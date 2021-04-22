@@ -1,5 +1,6 @@
 package org.b2f.ams.client.model.request;
 
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
@@ -18,9 +19,12 @@ import static lombok.AccessLevel.PACKAGE;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-        "account_username",
-        "event_code",
-        "site_code"
+        "action",
+        "resource_type",
+        "cluster_id",
+        "cluster_uuid",
+        "organization_id",
+        "subscription_id"
 })
 @NoArgsConstructor
 @AllArgsConstructor(access = PACKAGE)
@@ -29,29 +33,50 @@ import static lombok.AccessLevel.PACKAGE;
 @Setter
 @EqualsAndHashCode
 @ToString
-public class TermsReview {
+public class SelfAccessReview {
 
     /**
      * (Required)
      */
-    @JsonProperty("account_username")
+    @JsonProperty("action")
     @JsonPropertyDescription("")
     @NotNull
-    String accountUsername;
+    String action;
 
     /**
      * (Required)
      */
-    @JsonProperty("event_code")
+    @JsonProperty("resource_type")
     @JsonPropertyDescription("")
     @NotNull
-    String eventCode;
+    String resourceType;
 
     /**
-     * (Required)
+     * (Optional)
      */
-    @JsonProperty("site_code")
+    @JsonProperty("cluster_id")
     @JsonPropertyDescription("")
-    @NotNull
-    String siteCode;
+    String clusterId;
+
+    /**
+     * (Optional)
+     */
+    @JsonProperty("cluster_uuid")
+    @JsonPropertyDescription("")
+    String clusterUuid;
+
+    /**
+     * (Optional)
+     */
+    @JsonProperty("organization_id")
+    @JsonPropertyDescription("")
+    String organizationId;
+
+
+    /**
+     * (Optional)
+     */
+    @JsonProperty("subscription_id")
+    @JsonPropertyDescription("")
+    String subscriptionId;
 }

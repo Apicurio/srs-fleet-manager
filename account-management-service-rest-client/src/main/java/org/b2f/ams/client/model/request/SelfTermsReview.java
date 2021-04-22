@@ -1,5 +1,6 @@
 package org.b2f.ams.client.model.request;
 
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
@@ -18,7 +19,6 @@ import static lombok.AccessLevel.PACKAGE;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-        "account_username",
         "event_code",
         "site_code"
 })
@@ -29,15 +29,7 @@ import static lombok.AccessLevel.PACKAGE;
 @Setter
 @EqualsAndHashCode
 @ToString
-public class TermsReview {
-
-    /**
-     * (Required)
-     */
-    @JsonProperty("account_username")
-    @JsonPropertyDescription("")
-    @NotNull
-    String accountUsername;
+public class SelfTermsReview {
 
     /**
      * (Required)

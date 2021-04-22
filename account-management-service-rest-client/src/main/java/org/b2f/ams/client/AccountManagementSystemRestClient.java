@@ -5,7 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.b2f.ams.client.auth.Auth;
 import org.b2f.ams.client.exception.AccountManagementSystemClientException;
 import org.b2f.ams.client.model.request.AccessReview;
+import org.b2f.ams.client.model.request.ClusterAuthorization;
+import org.b2f.ams.client.model.request.SelfAccessReview;
+import org.b2f.ams.client.model.request.SelfTermsReview;
 import org.b2f.ams.client.model.request.TermsReview;
+import org.b2f.ams.client.model.response.ClusterAuthorizationResponse;
 import org.b2f.ams.client.model.response.Error;
 import org.b2f.ams.client.model.response.ResponseAccessReview;
 import org.b2f.ams.client.model.response.ResponseTermsReview;
@@ -51,6 +55,15 @@ public class AccountManagementSystemRestClient {
         }
     }
 
+    public ResponseAccessReview selfAccessReview(SelfAccessReview selfAccessReview) {
+        try {
+            return sendRequest(URI.create(endpoint + Paths.SELF_ACCESS_REVIEW_PATH), new TypeReference<ResponseAccessReview>() {
+            }, this.mapper.writeValueAsBytes(selfAccessReview));
+        } catch (IOException e) {
+            throw new AccountManagementSystemClientException(e);
+        }
+    }
+
     public ResponseTermsReview termsReview(TermsReview termsReview) {
         try {
             return sendRequest(URI.create(endpoint + Paths.TERMS_REVIEW_PATH), new TypeReference<ResponseTermsReview>() {
@@ -60,6 +73,23 @@ public class AccountManagementSystemRestClient {
         }
     }
 
+    public ResponseTermsReview selfTermsReview(SelfTermsReview selfTermsReview) {
+        try {
+            return sendRequest(URI.create(endpoint + Paths.SELF_TERMS_REVIEW), new TypeReference<ResponseTermsReview>() {
+            }, this.mapper.writeValueAsBytes(selfTermsReview));
+        } catch (IOException e) {
+            throw new AccountManagementSystemClientException(e);
+        }
+    }
+
+    public ClusterAuthorizationResponse clusterAuthorization(ClusterAuthorization clusterAuthorization) {
+        try {
+            return sendRequest(URI.create(endpoint + Paths.CLUSTER_AUTHORIZATION), new TypeReference<ClusterAuthorizationResponse>() {
+            }, this.mapper.writeValueAsBytes(clusterAuthorization));
+        } catch (IOException e) {
+            throw new AccountManagementSystemClientException(e);
+        }
+    }
 
     public <T> T sendRequest(URI requestPath, TypeReference<T> typeReference, byte[] bodyData) {
         try {

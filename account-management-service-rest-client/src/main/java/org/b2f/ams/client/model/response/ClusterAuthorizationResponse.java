@@ -1,4 +1,4 @@
-package org.b2f.ams.client.model.request;
+package org.b2f.ams.client.model.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -13,14 +13,16 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 import static lombok.AccessLevel.PACKAGE;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-        "account_username",
-        "event_code",
-        "site_code"
+        "allowed",
+        "organization_id",
+        "subscription_id",
+        "excess_resources"
 })
 @NoArgsConstructor
 @AllArgsConstructor(access = PACKAGE)
@@ -29,29 +31,34 @@ import static lombok.AccessLevel.PACKAGE;
 @Setter
 @EqualsAndHashCode
 @ToString
-public class TermsReview {
+public class ClusterAuthorizationResponse {
 
     /**
      * (Required)
      */
-    @JsonProperty("account_username")
+    @JsonProperty("allowed")
     @JsonPropertyDescription("")
     @NotNull
-    String accountUsername;
+    Boolean allowed;
 
     /**
-     * (Required)
+     * (Optional)
      */
-    @JsonProperty("event_code")
+    @JsonProperty("organization_id")
     @JsonPropertyDescription("")
-    @NotNull
-    String eventCode;
+    String organizationId;
 
     /**
-     * (Required)
+     * (Optional)
      */
-    @JsonProperty("site_code")
+    @JsonProperty("subscription_id")
     @JsonPropertyDescription("")
-    @NotNull
-    String siteCode;
+    String subscriptionId;
+
+    /**
+     * (Optional)
+     */
+    @JsonProperty("excess_resources")
+    @JsonPropertyDescription("")
+    List<ExcessResource> excessResources;
 }
