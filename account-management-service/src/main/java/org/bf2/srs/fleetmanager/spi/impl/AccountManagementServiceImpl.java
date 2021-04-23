@@ -2,30 +2,42 @@ package org.bf2.srs.fleetmanager.spi.impl;
 
 import org.b2f.ams.client.AccountManagementSystemRestClient;
 import org.b2f.ams.client.exception.TermsRequiredException;
+import org.b2f.ams.client.model.Action;
 import org.b2f.ams.client.model.request.AccessReview;
+import org.b2f.ams.client.model.request.ClusterAuthorization;
 import org.b2f.ams.client.model.request.TermsReview;
+import org.b2f.ams.client.model.response.ClusterAuthorizationResponse;
 import org.b2f.ams.client.model.response.ResponseAccessReview;
 import org.b2f.ams.client.model.response.ResponseTermsReview;
-import org.bf2.srs.fleetmanager.spi.EntitlementsService;
+import org.bf2.srs.fleetmanager.spi.AccountManagementService;
 import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
 
 /**
  * This service is in charge of check if a given user has the appropriate situation in order to ask for the requested resource
  */
-public class EntitlementsServiceImpl implements EntitlementsService {
+public class AccountManagementServiceImpl implements AccountManagementService {
 
     private final AccountManagementSystemRestClient restClient;
 
-    public EntitlementsServiceImpl(AccountManagementSystemRestClient restClient) {
+    public AccountManagementServiceImpl(AccountManagementSystemRestClient restClient) {
         this.restClient = restClient;
     }
 
-    /**
-     * @param accountInfo    the account information for the terms and access requests
-     * @param resourceType   the requested resource type
-     * @param subscriptionId the subscription id to use in the request
-     * @return true if the user can access the requested resource.
-     */
+    @Override
+    public String createResource(AccountInfo accountInfo, String resourceType, String clusterId, String productId) {
+
+        final ClusterAuthorization clusterAuthorization = ClusterAuthorization.builder()
+                .accountUsername(accountInfo.getAccountUsername())
+                .clusterId(clusterId)
+                .productId(productId)
+                .reserve(true)
+                .build();
+
+        final ClusterAuthorizationResponse clusterAuthorizationResponse = restClient.clusterAuthorization(clusterAuthorization);
+
+        return clusterAuthorizationResponse.getSubscriptionId();
+    }
+
     @Override
     public boolean hasEntitlements(AccountInfo accountInfo, String resourceType, String subscriptionId) {
 
@@ -43,6 +55,7 @@ public class EntitlementsServiceImpl implements EntitlementsService {
                     .accountUsername(accountInfo.getAccountUsername())
                     .organizationId(accountInfo.getOrganizationId())
                     .resourceType(resourceType)
+                    .action(Action.CREATE.name())
                     .subscriptionId(subscriptionId)
                     .build();
 
@@ -50,5 +63,21 @@ public class EntitlementsServiceImpl implements EntitlementsService {
 
             return responseAccessReview.getAllowed();
         }
+    }
+
+    @Override
+    public boolean hasAccess(AccountInfo accountInfo, String action, String resourceType, String subscriptionId) {
+
+        final AccessReview accessReview = AccessReview.builder()
+                .accountUsername(accountInfo.getAccountUsername())
+                .organizationId(accountInfo.getOrganizationId())
+                .resourceType(resourceType)
+                .action(action)
+                .subscriptionId(subscriptionId)
+                .build();
+
+        final ResponseAccessReview responseAccessReview = restClient.accessReview(accessReview);
+
+        return responseAccessReview.getAllowed();
     }
 }

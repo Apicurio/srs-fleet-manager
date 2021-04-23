@@ -11,7 +11,7 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
 @ApplicationScoped
-public class EntitlementsServiceProducer {
+public class AccountManagementServiceProducer {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -23,6 +23,6 @@ public class EntitlementsServiceProducer {
     @ApplicationScoped
     public EntitlementsService produce() {
         log.info("Using Apicurio Registry REST AccountManagerClient.");
-        return new EntitlementsServiceImpl(accountManagementSystemRestClient);
+        return new AccountManagementServiceImpl(accountManagementSystemRestClient);
     }
 }

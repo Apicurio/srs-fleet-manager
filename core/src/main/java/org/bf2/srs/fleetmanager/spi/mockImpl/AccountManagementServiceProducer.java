@@ -8,14 +8,14 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 
 @ApplicationScoped
-public class EntitlementsServiceProducer {
+public class AccountManagementServiceProducer {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     @Produces
     @DefaultBean
     @ApplicationScoped
-    public MockEntitlementsService produce() {
-        log.info("Using Mock EntitlementsService.");
-        return new MockEntitlementsService();
+    public MockAccountManagementService produce() {
+        log.info("Using Mock Account Management Service.");
+        return new MockAccountManagementService();
     }
 }
