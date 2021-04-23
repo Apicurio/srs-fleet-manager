@@ -103,7 +103,7 @@
             </dependency>
             <dependency>
                 <groupId>org.bf2</groupId>
-                <artifactId>srs-fleet-manager-entitlements-service</artifactId>
+                <artifactId>srs-fleet-manager-account-management-service</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -189,7 +189,7 @@
                 <module>spi</module>
                 <module>core</module>
                 <module>tenant-manager-client</module>
-                <module>entitlements-service</module>
+                <module>account-management-service</module>
             </modules>
         </profile>
 

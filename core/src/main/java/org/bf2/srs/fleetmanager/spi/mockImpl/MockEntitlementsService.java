@@ -7,7 +7,7 @@ public class MockEntitlementsService implements EntitlementsService {
 
     //Just return true for the entitlements check call
     @Override
-    public boolean hasEntitlements(AccountInfo accountInfo) {
+    public boolean hasEntitlements(AccountInfo accountInfo, String resourceType, String subscriptionId) {
         return true;
     }
 }
