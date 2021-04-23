@@ -183,7 +183,7 @@
                 </dependency>
                 <dependency>
                     <groupId>org.bf2</groupId>
-                    <artifactId>srs-fleet-manager-entitlements-service</artifactId>
+                    <artifactId>srs-fleet-manager-account-management-service</artifactId>
                 </dependency>
             </dependencies>
         </profile>
