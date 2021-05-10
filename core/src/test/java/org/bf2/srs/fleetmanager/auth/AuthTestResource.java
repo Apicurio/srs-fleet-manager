@@ -19,15 +19,17 @@ public class AuthTestResource implements QuarkusTestResourceLifecycleManager {
         log.info("Starting Keycloak Test Container");
 
         container = new KeycloakContainer();
+        container.withRealmImportFile("test-realm.json");
         container.start();
 
         final Map<String, String> props = new HashMap<>();
-        props.put("auth.admin.server-url", container.getAuthServerUrl());
-        props.put("auth.admin.realm", "master");
-        props.put("auth.admin.client-id", "admin-cli");
-        props.put("auth.realm.roles", "sr-admin,sr-developer, sr-readonly");
-        props.put("auth.admin.username", container.getAdminUsername());
-        props.put("auth.admin.password", container.getAdminPassword());
+        props.put("auth.data-plane.server-url", container.getAuthServerUrl());
+        props.put("auth.data-plane.realm", "test-realm");
+        props.put("auth.data-plane.client-id", "test-client");
+        props.put("auth.roles", "sr-admin,sr-developer, sr-readonly");
+        props.put("auth.data-plane.client-secret", "93e433c4-176d-4b85-8466-7dfc088f9714");
+        props.put("keycloak.admin.username", container.getAdminUsername());
+        props.put("keycloak.admin.password", container.getAdminPassword());
 
         return props;
     }
@@ -37,5 +39,4 @@ public class AuthTestResource implements QuarkusTestResourceLifecycleManager {
         log.info("Stopping Keycloak Test Container");
         container.stop();
     }
-
 }

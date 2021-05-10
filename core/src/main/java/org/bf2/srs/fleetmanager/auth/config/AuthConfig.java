@@ -12,38 +12,35 @@ import java.util.Optional;
 @Getter
 public class AuthConfig {
 
-    @ConfigProperty(name = "auth.admin.server-url")
+    @ConfigProperty(name = "auth.data-plane.server-url")
     String authServerUrl;
 
-    @ConfigProperty(name = "auth.admin.realm")
-    String adminRealm;
+    @ConfigProperty(name = "auth.data-plane.realm")
+    String dataPlaneRealm;
 
-    @ConfigProperty(name = "auth.admin.client-id")
-    String adminClientId;
+    @ConfigProperty(name = "auth.data-plane.client-id")
+    String dataPlaneClientId;
 
-    @ConfigProperty(name = "auth.admin.username")
-    String adminUsername;
+    @ConfigProperty(name = "auth.data-plane.client-secret")
+    String dataPlaneClientSecret;
 
-    @ConfigProperty(name = "auth.admin.password")
-    String adminPassword;
-
-    @ConfigProperty(name = "auth.admin.grant-type")
+    @ConfigProperty(name = "auth.data-plane.grant-type")
     String adminGrantType;
 
-    @ConfigProperty(name = "auth.tenant-id.prefix")
+    @ConfigProperty(name = "auth.data-plane.tenant-id.prefix")
     String tenantIdPrefix;
 
-    @ConfigProperty(name = "auth.api.client-id")
+    @ConfigProperty(name = "auth.data-plane.api.client-id")
     String apiClientId;
 
-    @ConfigProperty(name = "auth.ui.client-id")
+    @ConfigProperty(name = "auth.data-plane.ui.client-id")
     String uiClientId;
 
     @Inject
-    @ConfigProperty(name = "auth.realm.roles")
+    @ConfigProperty(name = "auth.roles")
     List<String> roles;
 
     @Inject
-    @ConfigProperty(name = "auth.admin.disable.tls.verification")
+    @ConfigProperty(name = "auth.data-plane.disable.tls.verification")
     Optional<Boolean> disableTlsVerification;
 }

@@ -7,20 +7,17 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder.HostnameVerificatio
 import org.jboss.resteasy.client.jaxrs.internal.ResteasyClientBuilderImpl;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
+import org.keycloak.admin.client.resource.ClientsResource;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.representations.idm.ClientRepresentation;
-import org.keycloak.representations.idm.RealmRepresentation;
-import org.keycloak.representations.idm.RoleRepresentation;
-import org.keycloak.representations.idm.RolesRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.List;
+import java.util.Map;
 
 /**
  * TODO Add deletion of auth resources for error recovery
@@ -55,11 +52,10 @@ public class AuthService {
 
         keycloak = KeycloakBuilder.builder()
                 .serverUrl(authConfig.getAuthServerUrl())
-                .realm(authConfig.getAdminRealm())
-                .clientId(authConfig.getAdminClientId())
+                .realm(authConfig.getDataPlaneRealm())
+                .clientId(authConfig.getDataPlaneClientId())
                 .grantType(authConfig.getAdminGrantType())
-                .username(authConfig.getAdminUsername())
-                .password(authConfig.getAdminPassword())
+                .clientSecret(authConfig.getDataPlaneClientSecret())
                 .resteasyClient(client)
                 .build();
     }
@@ -69,23 +65,19 @@ public class AuthService {
      */
     public AuthResource createTenantAuthResources(String tenantId, String registryAppUrl) {
 
-        final RealmRepresentation realmRepresentation = new RealmRepresentation();
-        final String realmTenantId = authConfig.getTenantIdPrefix().concat("-").concat(tenantId);
+        final RealmResource realmResource = keycloak.realm(authConfig.getDataPlaneRealm());
+        final ClientsResource clientsResource = realmResource.clients();
 
-        realmRepresentation.setDisplayName(realmTenantId);
-        realmRepresentation.setRealm(realmTenantId);
-        realmRepresentation.setAttributes(Map.of("sr-tenant-id", tenantId));
-        realmRepresentation.setEnabled(true);
+        final List<ClientRepresentation> clients = buildRealmClients(registryAppUrl, tenantId);
 
-        realmRepresentation.setRoles(buildRealmRoles());
-        realmRepresentation.setClients(buildRealmClients(registryAppUrl));
-
-        keycloak.realms()
-                .create(realmRepresentation);
+        clients.forEach(clientRepresentation -> {
+            clientRepresentation.setDefaultRoles(authConfig.getRoles().toArray(new String[0]));
+            clientsResource.create(clientRepresentation);
+        });
 
         return AuthResource.builder()
                 .clientId(authConfig.getApiClientId())
-                .serverUrl(buildAuthServerUrl(realmTenantId))
+                .serverUrl(buildAuthServerUrl(authConfig.getDataPlaneRealm()))
                 .build();
     }
 
@@ -94,40 +86,23 @@ public class AuthService {
         return String.format(AUTH_SERVER_PLACEHOLDER, authConfig.getAuthServerUrl(), realm);
     }
 
-    private List<ClientRepresentation> buildRealmClients(String registryAppUrl) {
+    private List<ClientRepresentation> buildRealmClients(String registryAppUrl, String tenantId) {
 
         final ClientRepresentation uiClient = new ClientRepresentation();
         uiClient.setClientId(authConfig.getUiClientId());
         uiClient.setName(authConfig.getUiClientId());
         uiClient.setRedirectUris(List.of(String.format(REDIRECT_URI_PLACEHOLDER, registryAppUrl)));
         uiClient.setPublicClient(true);
-        //FIXME remove in the future
-        uiClient.setDirectAccessGrantsEnabled(true);
 
         final ClientRepresentation apiClient = new ClientRepresentation();
         apiClient.setClientId(authConfig.getApiClientId());
         apiClient.setName(authConfig.getApiClientId());
         apiClient.setBearerOnly(true);
 
+        uiClient.setAttributes(Map.of("sr-tenant-id", tenantId));
+        apiClient.setAttributes(Map.of("sr-tenant-id", tenantId));
+
         return List.of(uiClient, apiClient);
-    }
-
-    private RolesRepresentation buildRealmRoles() {
-
-        final RolesRepresentation rolesRepresentation = new RolesRepresentation();
-
-        final List<RoleRepresentation> newRealmRoles = authConfig.getRoles()
-                .stream()
-                .map(r -> {
-                    RoleRepresentation rp = new RoleRepresentation();
-                    rp.setName(r);
-                    return rp;
-                })
-                .collect(Collectors.toList());
-
-        rolesRepresentation.setRealm(newRealmRoles);
-
-        return rolesRepresentation;
     }
 
     public void deleteResources(String realmId) {

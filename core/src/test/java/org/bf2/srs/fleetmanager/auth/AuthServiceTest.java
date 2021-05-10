@@ -1,8 +1,9 @@
 package org.bf2.srs.fleetmanager.auth;
 
-import org.bf2.srs.fleetmanager.auth.config.AuthConfig;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
+import org.bf2.srs.fleetmanager.auth.config.AuthConfig;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
@@ -15,6 +16,7 @@ import javax.inject.Inject;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,42 +34,38 @@ public class AuthServiceTest {
 
     Keycloak keycloak;
 
+    @ConfigProperty(name = "keycloak.admin.password")
+    String adminPassword;
+
+    @ConfigProperty(name = "keycloak.admin.username")
+    String adminUsername;
+
     @PostConstruct
     public void init() {
 
         keycloak = KeycloakBuilder.builder()
                 .serverUrl(authConfig.getAuthServerUrl())
-                .realm(authConfig.getAdminRealm())
-                .clientId(authConfig.getAdminClientId())
-                .grantType(authConfig.getAdminGrantType())
-                .username(authConfig.getAdminUsername())
-                .password(authConfig.getAdminPassword())
+                .realm("master")
+                .clientId("admin-cli")
+                .username(adminUsername)
+                .password(adminPassword)
                 .build();
     }
 
     @Test
     public void createResourcesTest() throws MalformedURLException, URISyntaxException {
 
-        final String realm = "test-tenant-id";
-        final String realmId = authConfig.getTenantIdPrefix() + "-" + realm;
-
-        final AuthResource tenantAuthResource = authService.createTenantAuthResources(realm, "http://localhost:8080");
-
+        final AuthResource tenantAuthResource = authService.createTenantAuthResources(authConfig.getDataPlaneRealm(), "http://localhost:8080");
         final RealmResource tenantRealmResource = keycloak.realms()
-                .realm(realmId);
-
-        assertTrue(tenantRealmResource.roles()
-                .list()
-                .stream()
-                .map(RoleRepresentation::getName)
-                .collect(Collectors.toList())
-                .containsAll(authConfig.getRoles()));
+                .realm(authConfig.getDataPlaneRealm());
 
         final List<String> clients = List.of(authConfig.getUiClientId(), authConfig.getApiClientId());
 
         assertTrue(tenantRealmResource.clients()
                 .findAll()
                 .stream()
+                .filter( clientRepresentation -> clients.contains(clientRepresentation.getClientId()))
+                .filter(clientRepresentation -> Arrays.asList(clientRepresentation.getDefaultRoles()).containsAll(authConfig.getRoles()))
                 .map(ClientRepresentation::getClientId)
                 .collect(Collectors.toList())
                 .containsAll(clients));
@@ -75,9 +73,9 @@ public class AuthServiceTest {
         final URL authServerUrl = new URL(tenantAuthResource.getServerUrl());
         authServerUrl.toURI();
 
-        authService.deleteResources(realmId);
+        authService.deleteResources(authConfig.getDataPlaneRealm());
 
         assertTrue(keycloak.realms().findAll().stream()
-                .noneMatch(realmRepresentation -> realmRepresentation.getId().equals(realmId)));
+                .noneMatch(realmRepresentation -> realmRepresentation.getId().equals(authConfig.getDataPlaneRealm())));
     }
 }
