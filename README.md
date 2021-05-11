@@ -40,8 +40,7 @@ and the dependency as follows:
 ```shell script
 git clone git@github.com:Apicurio/apicurio-registry.git
 cd apicurio-registry
-git checkout multitenant-sr-demo
-make
+make build-tenant-manager
 ```
 
 Now, you can build the Service API:
