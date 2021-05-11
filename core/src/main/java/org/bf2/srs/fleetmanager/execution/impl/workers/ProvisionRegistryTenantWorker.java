@@ -116,7 +116,7 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
 
     @Transactional
     @Override
-    public void finallyExecute(Task aTask, WorkerContext ctl, Optional<Exception> error) throws RegistryNotFoundException {
+    public void finallyExecute(Task aTask, WorkerContext ctl, Optional<Exception> error) throws RegistryNotFoundException, StorageConflictException {
 
         ProvisionRegistryTenantTask task = (ProvisionRegistryTenantTask) aTask;
 

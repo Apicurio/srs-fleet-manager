@@ -17,13 +17,16 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 /**
+ * Manage the list of all registries.
+ * Manage a specific Registry.
+ *
  * @author Jakub Senko <jsenko@redhat.com>
  */
 @Path("/api/v1/registries")
 public interface RegistriesResourceV1 {
 
     /**
-     *
+     * Get the list of all registries.
      */
     @Path("/")
     @GET
@@ -31,7 +34,7 @@ public interface RegistriesResourceV1 {
     List<RegistryRest> getRegistries();
 
     /**
-     *
+     * Create a Registry.
      */
     @Path("/")
     @POST
@@ -40,7 +43,9 @@ public interface RegistriesResourceV1 {
     Response createRegistry(@Valid RegistryCreateRest registryCreate) throws StorageConflictException;
 
     /**
-     * Get a single `Registry`.
+     * Get a Registry
+     *
+     * Gets the details of a single instance of a `Registry`.
      */
     @Path("/{registryId}")
     @GET
@@ -48,9 +53,11 @@ public interface RegistriesResourceV1 {
     RegistryRest getRegistry(@PathParam("registryId") Long registryId) throws RegistryNotFoundException;
 
     /**
-     * Delete an existing `Registry`.
+     * Delete a Registry
+     *
+     * Deletes an existing `Registry`.
      */
     @Path("/{registryId}")
     @DELETE
-    void deleteRegistry(@PathParam("registryId") Long registryId) throws RegistryNotFoundException;
+    void deleteRegistry(@PathParam("registryId") Long registryId) throws RegistryNotFoundException, StorageConflictException;
 }

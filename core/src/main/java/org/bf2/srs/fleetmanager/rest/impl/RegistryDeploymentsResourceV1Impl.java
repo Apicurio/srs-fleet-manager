@@ -61,7 +61,7 @@ public class RegistryDeploymentsResourceV1Impl implements RegistryDeploymentsRes
     }
 
     @Override
-    public void deleteRegistryDeployment(Long id) throws RegistryDeploymentNotFoundException {
+    public void deleteRegistryDeployment(Long id) throws RegistryDeploymentNotFoundException, StorageConflictException {
         storage.deleteRegistryDeployment(id);
     }
 }

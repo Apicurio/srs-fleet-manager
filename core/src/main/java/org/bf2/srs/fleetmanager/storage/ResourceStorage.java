@@ -22,7 +22,7 @@ public interface ResourceStorage {
 
     List<Registry> getAllRegistries();
 
-    void deleteRegistry(@NotNull Long id) throws RegistryNotFoundException;
+    void deleteRegistry(@NotNull Long id) throws RegistryNotFoundException, StorageConflictException;
 
     //*** RegistryDeployment
 
@@ -32,5 +32,5 @@ public interface ResourceStorage {
 
     Optional<RegistryDeployment> getRegistryDeploymentById(@NotNull Long id);
 
-    void deleteRegistryDeployment(@NotNull Long id) throws RegistryDeploymentNotFoundException;
+    void deleteRegistryDeployment(@NotNull Long id) throws RegistryDeploymentNotFoundException, StorageConflictException;
 }

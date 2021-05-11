@@ -23,7 +23,7 @@ import static lombok.AccessLevel.PACKAGE;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-        "status",
+        "value",
         "lastUpdated"
 })
 @NoArgsConstructor
