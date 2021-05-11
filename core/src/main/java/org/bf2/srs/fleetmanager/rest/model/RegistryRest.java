@@ -19,6 +19,8 @@ import javax.validation.constraints.NotNull;
 import static lombok.AccessLevel.PACKAGE;
 
 /**
+ * Service Registry instance within a multi-tenant deployment.
+ *
  * @author Jakub Senko <jsenko@redhat.com>
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -72,9 +74,11 @@ public class RegistryRest {
     private String name;
 
     /**
+     * Identifier of a multi-tenant deployment, where this Service Registry instance resides.
+     * <p>
      * (Optional)
      */
     @JsonProperty("registryDeploymentId")
-    @JsonPropertyDescription("")
+    @JsonPropertyDescription("Identifier of a multi-tenant deployment, where this Service Registry instance resides.")
     private Long registryDeploymentId;
 }

@@ -1,14 +1,14 @@
 package org.bf2.srs.fleetmanager.rest.impl;
 
-import org.bf2.srs.fleetmanager.rest.model.RegistryCreateRest;
-import org.bf2.srs.fleetmanager.storage.StorageConflictException;
-import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.ScheduleRegistryTask;
+import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.rest.RegistriesResourceV1;
 import org.bf2.srs.fleetmanager.rest.convert.ConvertRegistry;
+import org.bf2.srs.fleetmanager.rest.model.RegistryCreateRest;
 import org.bf2.srs.fleetmanager.rest.model.RegistryRest;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
+import org.bf2.srs.fleetmanager.storage.StorageConflictException;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.Registry;
 
 import java.util.List;
@@ -58,7 +58,7 @@ public class RegistriesResourceV1Impl implements RegistriesResourceV1 {
     }
 
     @Override
-    public void deleteRegistry(Long id) throws RegistryNotFoundException {
+    public void deleteRegistry(Long id) throws RegistryNotFoundException, StorageConflictException {
         storage.deleteRegistry(id);
     }
 }

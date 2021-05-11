@@ -17,7 +17,7 @@ import javax.validation.constraints.Min;
 import static lombok.AccessLevel.PACKAGE;
 
 /**
- * Entity for general error result.
+ * Details about a specific error returned by the server.
  *
  * @author Jakub Senko <jsenko@redhat.com>
  */

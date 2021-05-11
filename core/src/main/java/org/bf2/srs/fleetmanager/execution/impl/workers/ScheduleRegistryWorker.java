@@ -87,7 +87,7 @@ public class ScheduleRegistryWorker extends AbstractWorker {
     }
 
     @Override
-    public void finallyExecute(Task aTask, WorkerContext ctl, Optional<Exception> error) throws RegistryNotFoundException {
+    public void finallyExecute(Task aTask, WorkerContext ctl, Optional<Exception> error) throws RegistryNotFoundException, StorageConflictException {
         ScheduleRegistryTask task = (ScheduleRegistryTask) aTask;
 
         // SUCCESS STATE

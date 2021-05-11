@@ -18,16 +18,17 @@ import javax.validation.constraints.NotEmpty;
 import static lombok.AccessLevel.PACKAGE;
 
 /**
- * Registry Deployment entity for CREATE operation.
+ * Information used to create (register) a new multi-tenant Service Registry deployment,
+ * that can host Service Registry instances.
  *
  * @author Jakub Senko <jsenko@redhat.com>
  * @see org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeployment
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
+        "name",
         "registryDeploymentUrl",
-        "tenantManagerUrl",
-        "name"
+        "tenantManagerUrl"
 })
 @NoArgsConstructor
 @AllArgsConstructor(access = PACKAGE)

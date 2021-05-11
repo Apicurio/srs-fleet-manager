@@ -5,13 +5,15 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
 /**
+ * Get the OpenAPI schema for version 1 of this REST API.
+ *
  * @author Jakub Senko <jsenko@redhat.com>
  */
 @Path("/api/v1")
 public interface SchemaResourceV1 {
 
     /**
-     *
+     * Get the OpenAPI schema for version 1 of this REST API.
      */
     @Path("/")
     @GET

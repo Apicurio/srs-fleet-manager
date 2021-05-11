@@ -1,9 +1,9 @@
 package org.bf2.srs.fleetmanager.rest;
 
-import org.bf2.srs.fleetmanager.storage.StorageConflictException;
 import org.bf2.srs.fleetmanager.rest.model.RegistryDeploymentCreateRest;
 import org.bf2.srs.fleetmanager.rest.model.RegistryDeploymentRest;
 import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
+import org.bf2.srs.fleetmanager.storage.StorageConflictException;
 
 import java.util.List;
 import javax.validation.Valid;
@@ -17,13 +17,16 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 /**
+ * Manage the list of all registry deployments.
+ * Manage a specific registry deployment.
+ *
  * @author Jakub Senko <jsenko@redhat.com>
  */
 @Path("/api/v1/registryDeployments")
 public interface RegistryDeploymentsResourceV1 {
 
     /**
-     *
+     * Get the list of all registry deployments.
      */
     @Path("/")
     @GET
@@ -31,7 +34,7 @@ public interface RegistryDeploymentsResourceV1 {
     List<RegistryDeploymentRest> getRegistryDeployments();
 
     /**
-     *
+     * Create a registry deployment.
      */
     @Path("/")
     @POST
@@ -40,7 +43,7 @@ public interface RegistryDeploymentsResourceV1 {
     Response createRegistryDeployment(@Valid RegistryDeploymentCreateRest data) throws StorageConflictException;
 
     /**
-     *
+     * Get a specific registry deployment.
      */
     @Path("/{registryDeploymentId}")
     @GET
@@ -48,9 +51,9 @@ public interface RegistryDeploymentsResourceV1 {
     RegistryDeploymentRest getRegistryDeployment(@PathParam("registryDeploymentId") Long registryDeploymentId) throws RegistryDeploymentNotFoundException;
 
     /**
-     *
+     * Delete a specific Registry Deployment.
      */
     @Path("/{registryDeploymentId}")
     @DELETE
-    void deleteRegistryDeployment(@PathParam("registryDeploymentId") Long registryDeploymentId) throws RegistryDeploymentNotFoundException;
+    void deleteRegistryDeployment(@PathParam("registryDeploymentId") Long registryDeploymentId) throws RegistryDeploymentNotFoundException, StorageConflictException;
 }

@@ -2,11 +2,11 @@ package org.bf2.srs.fleetmanager.storage.sqlPanacheImpl;
 
 import org.bf2.srs.fleetmanager.logging.Logged;
 import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
+import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.storage.StorageConflictException;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.Registry;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeployment;
-import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,10 +68,16 @@ public class PanacheResourceStorage implements ResourceStorage {
     }
 
     @Override
-    public void deleteRegistry(Long id) throws RegistryNotFoundException {
+    public void deleteRegistry(Long id) throws RegistryNotFoundException, StorageConflictException {
         Registry registry = getRegistryById(id)
                 .orElseThrow(() -> RegistryNotFoundException.create(id));
-        registryRepository.delete(registry);
+        try {
+            registryRepository.delete(registry);
+        } catch (PersistenceException ex) {
+            if (ex.getCause() instanceof ConstraintViolationException) {
+                throw StorageConflictException.create("Registry");
+            }
+        }
     }
 
     //*** RegistryDeployment
@@ -105,9 +111,15 @@ public class PanacheResourceStorage implements ResourceStorage {
     }
 
     @Override
-    public void deleteRegistryDeployment(Long id) throws RegistryDeploymentNotFoundException {
+    public void deleteRegistryDeployment(Long id) throws RegistryDeploymentNotFoundException, StorageConflictException {
         RegistryDeployment rd = getRegistryDeploymentById(id)
                 .orElseThrow(() -> RegistryDeploymentNotFoundException.create(id));
-        deploymentRepository.delete(rd);
+        try {
+            deploymentRepository.delete(rd);
+        } catch (PersistenceException ex) {
+            if (ex.getCause() instanceof ConstraintViolationException) {
+                throw StorageConflictException.create("Registry Deployment");
+            }
+        }
     }
 }

@@ -16,7 +16,7 @@ import lombok.ToString;
 import static lombok.AccessLevel.PACKAGE;
 
 /**
- * Registry entity for CREATE operation.
+ * Information used to create a new Service Registry instance within a multi-tenant deployment.
  *
  * @author Jakub Senko <jsenko@redhat.com>
  * @see RegistryRest

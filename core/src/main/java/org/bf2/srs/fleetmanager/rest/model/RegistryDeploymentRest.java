@@ -20,15 +20,17 @@ import static lombok.AccessLevel.PACKAGE;
 
 
 /**
+ * Multi-tenant Service Registry deployment, that can host Service Registry instances.
+ *
  * @author Jakub Senko <jsenko@redhat.com>
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
         "id",
+        "name",
         "tenantManagerUrl",
         "registryDeploymentUrl",
-        "status",
-        "name"
+        "status"
 })
 @NoArgsConstructor
 @AllArgsConstructor(access = PACKAGE)

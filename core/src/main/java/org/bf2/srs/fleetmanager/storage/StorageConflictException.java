@@ -23,7 +23,8 @@ public class StorageConflictException extends StorageException {
     }
 
     public static StorageConflictException create(String entityName) {
-        return new StorageConflictException("Could not create or update " + entityName + ". " +
-                "Make sure the data is valid and does not conflict with other stored entities.");
+        return new StorageConflictException("Could not create, update or delete " + entityName + ". " +
+                "Make sure the data is valid and does not conflict with other stored entities. " +
+                "Make sure the entity it is not in use before deleting.");
     }
 }
