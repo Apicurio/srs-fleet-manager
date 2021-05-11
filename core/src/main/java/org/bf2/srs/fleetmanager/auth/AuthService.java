@@ -27,6 +27,8 @@ public class AuthService {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
+    private static final String CUSTOM_ATTRIBUTE_KEY = "sr-tenant-id";
+
     @Inject
     AuthConfig authConfig;
 
@@ -99,8 +101,8 @@ public class AuthService {
         apiClient.setName(authConfig.getApiClientId());
         apiClient.setBearerOnly(true);
 
-        uiClient.setAttributes(Map.of("sr-tenant-id", tenantId));
-        apiClient.setAttributes(Map.of("sr-tenant-id", tenantId));
+        uiClient.setAttributes(Map.of(CUSTOM_ATTRIBUTE_KEY, tenantId));
+        apiClient.setAttributes(Map.of(CUSTOM_ATTRIBUTE_KEY, tenantId));
 
         return List.of(uiClient, apiClient);
     }
