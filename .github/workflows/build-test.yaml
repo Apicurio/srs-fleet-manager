@@ -30,7 +30,7 @@ jobs:
           git clone https://github.com/Apicurio/apicurio-registry.git -o upstream apicurio-registry.git
           cd apicurio-registry.git
           git checkout master
-          make tenant-manager-build
+          make build-tenant-manager
 
       - name: Prepare Build of SRS Fleet Manager
         run: |
