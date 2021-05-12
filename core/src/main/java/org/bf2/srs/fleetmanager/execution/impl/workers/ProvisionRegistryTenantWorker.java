@@ -1,6 +1,5 @@
 package org.bf2.srs.fleetmanager.execution.impl.workers;
 
-import org.bf2.srs.fleetmanager.auth.AuthResource;
 import org.bf2.srs.fleetmanager.auth.AuthService;
 import org.bf2.srs.fleetmanager.storage.StorageConflictException;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.ProvisionRegistryTenantTask;
@@ -87,15 +86,15 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
         registry.setRegistryUrl(registryDeployment.getRegistryDeploymentUrl() + "/t/" + registry.getTenantId());
 
         // NOTE: Failure point 3
-        final AuthResource authResource = authService.createTenantAuthResources(registry.getId().toString(), registry.getRegistryUrl());
 
         // Avoid accidentally creating orphan tenants
         if (task.getRegistryTenantId() == null) {
 
+            final String organizationId = authService.extractOrganizationId();
+
             TenantRequest tenantRequest = TenantRequest.builder()
                     .tenantId(registry.getTenantId())
-                    .authServerUrl(authResource.getServerUrl())
-                    .authClientId(authResource.getClientId())
+                    .organizationId(organizationId)
                     .build();
 
             TenantManager tenantManager = createTenantManager(registryDeployment);
@@ -135,7 +134,6 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
         // Cleanup orphan tenant
         if (registry != null && registryDeployment != null && task.getRegistryTenantId() != null) {
             tmClient.deleteTenant(createTenantManager(registryDeployment), registry.getTenantId());
-            authService.deleteResources(registry.getId().toString());
         }
 
         // Remove registry entity

@@ -27,8 +27,6 @@ public class MockTenantManagerClient implements TenantManagerClient {
 
         Tenant tenant = Tenant.builder()
                 .id(req.getTenantId())
-                .authServerUrl(req.getAuthServerUrl())
-                .authClientId(req.getAuthClientId())
                 .build();
         init(tm);
         testData.get(tm).put(tenant.getId(), tenant);

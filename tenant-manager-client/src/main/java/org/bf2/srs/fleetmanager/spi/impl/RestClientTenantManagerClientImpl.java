@@ -31,15 +31,10 @@ public class RestClientTenantManagerClientImpl implements TenantManagerClient {
         req.setOrganizationId("unknown"); //TODO pick from authentication details?
 
         req.setTenantId(tenantRequest.getTenantId());
-        req.setAuthServerUrl(tenantRequest.getAuthServerUrl());
-        req.setClientId(tenantRequest.getAuthClientId());
-
         RegistryTenant tenant = client.createTenant(req);
 
         return Tenant.builder()
                 .id(tenant.getTenantId())
-                .authServerUrl(tenant.getAuthServerUrl())
-                .authClientId(tenant.getAuthClientId())
                 .build();
     }
 
@@ -49,8 +44,6 @@ public class RestClientTenantManagerClientImpl implements TenantManagerClient {
         return client.listTenants().stream()
                 .map(t -> Tenant.builder()
                         .id(t.getTenantId())
-                        .authServerUrl(t.getAuthServerUrl())
-                        .authClientId(t.getAuthClientId())
                         .build())
                 .collect(Collectors.toList());
     }
