@@ -41,5 +41,6 @@ nb-configuration.xml
 # Quarkus
 .mvn
 
-# Notes
+# Other
 *~
+.notes

@@ -14,7 +14,7 @@ public class SchemaResourceV1Impl implements SchemaResourceV1 {
 
     static {
         try {
-            SCHEMA = new String(SchemaResourceV1Impl.class.getResourceAsStream("/rest-api-schema-v1.json").readAllBytes());
+            SCHEMA = new String(SchemaResourceV1Impl.class.getResourceAsStream("/srs-fleet-manager.json").readAllBytes());
         } catch (Exception e) {
             throw new IllegalStateException("Could not load Open API schema for the v1 REST interface.");
         }
