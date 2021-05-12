@@ -23,13 +23,7 @@ public class TenantRequest {
     String tenantId;
 
     /**
-     * Auth server url (including realm), required by apicurio-registry for the authentication
+     * OrganizationId to map the tenant
      */
-    String authServerUrl;
-
-    /**
-     * ClientId in the tenant's realm, used by apicurio-registry to validate incoming tokens
-     */
-    String authClientId;
-
+    String organizationId;
 }

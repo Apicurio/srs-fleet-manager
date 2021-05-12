@@ -26,14 +26,4 @@ public class Tenant {
      * Tenant ID, unique per Registry Deployment.
      */
     String id;
-
-    /**
-     * Auth server url (including realm), required by apicurio-registry for the authentication
-     */
-    String authServerUrl;
-
-    /**
-     * ClientId in the tenant's realm, used by apicurio-registry to validate incoming tokens
-     */
-    String authClientId;
 }
