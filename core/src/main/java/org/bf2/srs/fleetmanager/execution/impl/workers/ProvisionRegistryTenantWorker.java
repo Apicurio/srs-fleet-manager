@@ -85,8 +85,6 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
 
         registry.setRegistryUrl(registryDeployment.getRegistryDeploymentUrl() + "/t/" + registry.getTenantId());
 
-        // NOTE: Failure point 3
-
         // Avoid accidentally creating orphan tenants
         if (task.getRegistryTenantId() == null) {
 
