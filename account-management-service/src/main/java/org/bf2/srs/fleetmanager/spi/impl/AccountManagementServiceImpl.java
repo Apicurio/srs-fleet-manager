@@ -39,7 +39,7 @@ public class AccountManagementServiceImpl implements AccountManagementService {
     }
 
     @Override
-    public boolean hasEntitlements(AccountInfo accountInfo, String resourceType, String subscriptionId) {
+    public boolean hasEntitlements(AccountInfo accountInfo, String resourceType, String clusterId) {
 
         final TermsReview termsReview = TermsReview.builder()
                 .accountUsername(accountInfo.getOrganizationId())
@@ -51,17 +51,19 @@ public class AccountManagementServiceImpl implements AccountManagementService {
             throw new TermsRequiredException(responseTermsReview.getAccountId());
         } else {
 
-            final AccessReview accessReview = AccessReview.builder()
+            final ClusterAuthorization clusterAuthorization = ClusterAuthorization.builder()
+                    .clusterId(clusterId)
+                    .reserve(true)
                     .accountUsername(accountInfo.getAccountUsername())
-                    .organizationId(accountInfo.getOrganizationId())
-                    .resourceType(resourceType)
-                    .action(Action.CREATE.name())
-                    .subscriptionId(subscriptionId)
                     .build();
 
-            final ResponseAccessReview responseAccessReview = restClient.accessReview(accessReview);
+            final ClusterAuthorizationResponse clusterAuthorizationResponse = restClient.clusterAuthorization(clusterAuthorization);
 
-            return responseAccessReview.getAllowed();
+            if (clusterAuthorizationResponse.getExcessResources() == null || clusterAuthorizationResponse.getExcessResources().isEmpty()) {
+                return clusterAuthorizationResponse.getAllowed();
+            }
+
+            return false;
         }
     }
 

@@ -20,10 +20,10 @@ public interface AccountManagementService {
      *
      * @param accountInfo    the account information for the terms and access requests
      * @param resourceType   the requested resource type
-     * @param subscriptionId the subscription id to use in the request
+     * @param clusterId the clusterId to be used in the request
      * @return true if the user has a valid entitlement.
      */
-    boolean hasEntitlements(AccountInfo accountInfo, String resourceType, String subscriptionId);
+    boolean hasEntitlements(AccountInfo accountInfo, String resourceType, String clusterId);
 
     /**
      * Checks if a given user has access to perform the given action in the given resource

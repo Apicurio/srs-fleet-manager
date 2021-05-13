@@ -36,4 +36,12 @@ public class AuthService {
             return defaultOrg;
         }
     }
+
+    public AccountInfo extractAccountInfo() {
+
+        final String username = securityIdentity.getAttribute(AuthKeys.USERNAME);
+        final String organizationId = securityIdentity.getAttribute(AuthKeys.ORGANIZATION_ID);
+
+        return new AccountInfo(organizationId, username);
+    }
 }
