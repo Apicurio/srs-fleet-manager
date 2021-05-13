@@ -705,6 +705,13 @@
         }
       }
     },
+    "securitySchemes": {
+      "Bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
     "responses": {
       "NotFound": {
         "$ref": "#/components/responses/NotFound1"
