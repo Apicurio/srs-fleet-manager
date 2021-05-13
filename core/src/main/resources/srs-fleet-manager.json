@@ -2,13 +2,31 @@
   "openapi": "3.0.2",
   "info": {
     "title": "Service Registry Service - Fleet Manager - v1",
-    "version": "1.0.0",
+    "version": "0.0.1",
     "description": "Main entry point for the system, responsible for all sorts of management operations for the whole service of managed service registry.",
     "license": {
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0"
     }
   },
+  "servers": [
+    {
+      "url": "https://api.openshift.com",
+      "description": "Main (production) server"
+    },
+    {
+      "url": "https://api.stage.openshift.com",
+      "description": "Staging server"
+    },
+    {
+      "url": "http://localhost:8000",
+      "description": "localhost"
+    },
+    {
+      "url": "/",
+      "description": "current domain"
+    }
+  ],
   "paths": {
     "/api/v1/registries": {
       "summary": "Manage the list of all registries.",
@@ -37,7 +55,12 @@
         },
         "operationId": "getRegistries",
         "summary": "Get the list of all registries.",
-        "description": ""
+        "description": "",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
       },
       "post": {
         "requestBody": {
@@ -71,7 +94,12 @@
         },
         "operationId": "createRegistry",
         "summary": "Create a Registry.",
-        "description": ""
+        "description": "",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
       }
     },
     "/api/v1/registries/{registryId}": {
@@ -101,7 +129,12 @@
         },
         "operationId": "getRegistry",
         "summary": "Get a Registry",
-        "description": "Gets the details of a single instance of a `Registry`."
+        "description": "Gets the details of a single instance of a `Registry`.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
       },
       "delete": {
         "tags": [
@@ -120,7 +153,12 @@
         },
         "operationId": "deleteRegistry",
         "summary": "Delete a Registry",
-        "description": "Deletes an existing `Registry`."
+        "description": "Deletes an existing `Registry`.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
       },
       "parameters": [
         {
@@ -160,7 +198,12 @@
           }
         },
         "operationId": "getTasks",
-        "summary": "Get the list of all tasks executed on the server."
+        "summary": "Get the list of all tasks executed on the server.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
       }
     },
     "/api/v1/admin/tasks/{taskId}": {
@@ -189,7 +232,12 @@
           }
         },
         "operationId": "getTask",
-        "summary": "Get a specific task executed on the server."
+        "summary": "Get a specific task executed on the server.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
       },
       "parameters": [
         {
@@ -217,7 +265,12 @@
           }
         },
         "operationId": "getSchema",
-        "summary": "Get the OpenAPI schema for version 1 of this REST API."
+        "summary": "Get the OpenAPI schema for version 1 of this REST API.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
       }
     },
     "/api/v1/registryDeployments": {
@@ -242,7 +295,12 @@
           }
         },
         "operationId": "getRegistryDeployments",
-        "summary": "Get the list of all registry deployments."
+        "summary": "Get the list of all registry deployments.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
       },
       "post": {
         "requestBody": {
@@ -284,7 +342,12 @@
           }
         },
         "operationId": "createRegistryDeployment",
-        "summary": "Create a registry deployment."
+        "summary": "Create a registry deployment.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
       }
     },
     "/api/v1/registryDeployments/{registryDeploymentId}": {
@@ -323,7 +386,12 @@
           }
         },
         "operationId": "getRegistryDeployment",
-        "summary": "Get a specific registry deployment."
+        "summary": "Get a specific registry deployment.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
       },
       "delete": {
         "tags": [
@@ -361,7 +429,12 @@
           }
         },
         "operationId": "deleteRegistryDeployment",
-        "summary": "Delete a specific Registry Deployment."
+        "summary": "Delete a specific Registry Deployment.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
       }
     }
   },
