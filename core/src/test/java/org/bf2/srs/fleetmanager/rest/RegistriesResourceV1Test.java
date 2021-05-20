@@ -37,7 +37,7 @@ public class RegistriesResourceV1Test {
                 .build();
 
         Long deploymentId = given()
-                .when().contentType(ContentType.JSON).body(deployment).post("/api/v1/registryDeployments")
+                .when().contentType(ContentType.JSON).body(deployment).post("/api/v1/admin/registryDeployments")
                 .then().statusCode(HTTP_ACCEPTED)
                 .log().all()
                 .extract().as(RegistryDeploymentRest.class).getId();
@@ -84,7 +84,7 @@ public class RegistriesResourceV1Test {
         });
 
         given()
-                .when().contentType(ContentType.JSON).delete("/api/v1/registryDeployments/" + deploymentId)
+                .when().contentType(ContentType.JSON).delete("/api/v1/admin/registryDeployments/" + deploymentId)
                 .then().statusCode(HTTP_NO_CONTENT)
                 .log().all();
     }
@@ -103,7 +103,7 @@ public class RegistriesResourceV1Test {
                 .build();
 
         Long deploymentId = given()
-                .when().contentType(ContentType.JSON).body(deployment).post("/api/v1/registryDeployments")
+                .when().contentType(ContentType.JSON).body(deployment).post("/api/v1/admin/registryDeployments")
                 .then().statusCode(HTTP_ACCEPTED)
                 .log().all()
                 .extract().as(RegistryDeploymentRest.class).getId();
@@ -142,7 +142,7 @@ public class RegistriesResourceV1Test {
         });
 
         given()
-                .when().contentType(ContentType.JSON).delete("/api/v1/registryDeployments/" + deploymentId)
+                .when().contentType(ContentType.JSON).delete("/api/v1/admin/registryDeployments/" + deploymentId)
                 .then().statusCode(HTTP_NO_CONTENT)
                 .log().all();
     }
@@ -162,7 +162,7 @@ public class RegistriesResourceV1Test {
                 .build();
 
         Long deploymentId = given()
-                .when().contentType(ContentType.JSON).body(deployment).post("/api/v1/registryDeployments")
+                .when().contentType(ContentType.JSON).body(deployment).post("/api/v1/admin/registryDeployments")
                 .then().statusCode(HTTP_ACCEPTED)
                 .log().all()
                 .extract().as(RegistryDeploymentRest.class).getId();
@@ -204,7 +204,7 @@ public class RegistriesResourceV1Test {
         });
 
         given()
-                .when().contentType(ContentType.JSON).delete("/api/v1/registryDeployments/" + deploymentId)
+                .when().contentType(ContentType.JSON).delete("/api/v1/admin/registryDeployments/" + deploymentId)
                 .then().statusCode(HTTP_NO_CONTENT)
                 .log().all();
     }

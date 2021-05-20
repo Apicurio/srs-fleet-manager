@@ -23,7 +23,7 @@ import static org.hamcrest.Matchers.equalTo;
 @QuarkusTest
 class RegistryDeploymentsResourceV1Test {
 
-    private static final String BASE = "/api/v1/registryDeployments";
+    private static final String BASE = "/api/v1/admin/registryDeployments";
 
     @Test
     void testCreateRegistryDeployment() {
