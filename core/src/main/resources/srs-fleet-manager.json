@@ -3,8 +3,7 @@
   "info": {
     "title": "Service Registry Fleet Manager",
     "version": "0.0.1",
-    "description": "Managed Service Registry cloud.redhat.com API. Registry is a datastore for standard event schemas and API designs. Service Registry enables developers to manage and share the structure of their data using a REST interface. For example, client applications can dynamically push or pull the latest updates to or from the registry without needing to redeploy. Registry is an Managed version of upstream project called Apicurio Registry. Apicurio Registry also enables developers to create rules that govern how registry content can evolve over time. For example, this includes rules for content validation and version compatibility.\n\nThe Apicurio Registry REST API enables client applications to manage the artifacts in the registry. This API provides create, read, update, and delete operations for schema and API artifacts, rules, versions, and metadata. \n\nThe supported artifact types include:\n- Apache Avro schema\n- AsyncAPI specification\n- Google protocol buffers\n- GraphQL schema\n- JSON Schema\n- Kafka Connect schema\n- OpenAPI specification\n- Web Services Description Language\n- XML Schema Definition\n\n\n**Important**: The Apicurio Registry REST API is available from `http://MY-REGISTRY-URL/apis/registry/v2` by default. Therefore you must prefix all API operation paths with `../apis/registry/v2` in this case. For example: `../apis/registry/v2/ids/globalIds/{globalId}`.\n",
-    "contact": {
+    "description": "Managed Service Registry cloud.redhat.com API Management API that lets you create new registry instances. Registry is a datastore for standard event schemas and API designs. Service Registry enables developers to manage and share the structure of their data using a REST interface. For example, client applications can dynamically push or pull the latest updates to or from the registry without needing to redeploy. Registry is an Managed version of upstream project called Apicurio Registry. Apicurio Registry also enables developers to create rules that govern how registry content can evolve over time. For example, this includes rules for content validation and version compatibility.",  "contact": {
       "name": "Cloud Red Hat",
       "url": "https://cloud.redhat.com/beta/application-services/streams/",
       "email": "rhosak-eval-support@redhat.com"
@@ -37,6 +36,7 @@
       "summary": "Manage the list of all registries.",
       "description": "",
       "get": {
+        "tags": ["Registries"],
         "responses": {
           "200": {
             "content": {
@@ -107,6 +107,7 @@
         ]
       },
       "post": {
+        "tags": ["Registries"],
         "requestBody": {
           "description": "A new `Registry` to be created.",
           "content": {
