@@ -1,5 +1,6 @@
 package org.bf2.srs.fleetmanager.auth;
 
+import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.slf4j.Logger;
@@ -27,7 +28,7 @@ public class AuthService {
     Instance<JsonWebToken> jwt;
 
     public String extractOrganizationId() {
-        if (jwt.isResolvable() && authEnabled) {
+        if (isTokenResolvable()) {
             log.debug("Extracting organization id from the authentication token");
 
             return (String) jwt.get().claim(organizationIdClaimName)
@@ -38,10 +39,16 @@ public class AuthService {
     }
 
     public AccountInfo extractAccountInfo() {
+        if (isTokenResolvable()) {
+            final String username = jwt.get().getName();
+            final String organizationId = (String) jwt.get().claim(organizationIdClaimName).orElse("");
 
-        final String username = securityIdentity.getAttribute(AuthKeys.USERNAME);
-        final String organizationId = securityIdentity.getAttribute(AuthKeys.ORGANIZATION_ID);
+            return new AccountInfo(organizationId, username);
+        }
+        return null;
+    }
 
-        return new AccountInfo(organizationId, username);
+    private boolean isTokenResolvable() {
+        return authEnabled && jwt.isResolvable() && jwt.get().getRawToken() != null;
     }
 }
