@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 @ApplicationScoped
@@ -17,12 +18,15 @@ public class AuthService {
     String organizationIdClaimName;
 
     @Inject
-    JsonWebToken jwt;
+    Instance<JsonWebToken> jwt;
 
     public String extractOrganizationId() {
-        log.debug("Extracting organization id from the authentication token");
+        if (jwt.isResolvable()) {
+            log.debug("Extracting organization id from the authentication token");
 
-        return (String) jwt.claim(organizationIdClaimName)
-                .orElse("");
+            return (String) jwt.get().claim(organizationIdClaimName)
+                    .orElse("");
+        }
+        return null;
     }
 }
