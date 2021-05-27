@@ -97,7 +97,7 @@
             "description": "Unexpected error occurred"
           }
         },
-        "operationId": "getRegistries",
+        "operationId": "listRegistries",
         "summary": "Get the list of all registries.",
         "description": "",
         "security": [
