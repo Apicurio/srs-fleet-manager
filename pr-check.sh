@@ -13,20 +13,24 @@ MVN_BUILD_COMMAND="mvn -B clean install ${BUILD_FLAGS}"
 display_usage() {
     cat <<EOT
 
-#
-# This script gets triggered by the automated CI/CD jobs of AppSRE. It builds and tests 
-# '${PROJECT_NAME}' whenever a pull request is raised.
-#
 
-Usage: pr-check.sh [options]
+##########################################################################################################################
 
-with options:
-
--v, --version     Version of apicurio-registry-tenant-manager-client. If not set defaults to '2.0.0.Final'
--h, --help        This help message
+ This script gets triggered by the automated CI/CD jobs of AppSRE. It builds and tests 
+ '${PROJECT_NAME}' whenever a pull request is raised.
 
 
-# Example: sh pr-check.sh --version 2.0.0.Final
+ Usage: $0 [options]
+ Example: $0 --version 2.0.0.Final
+ 
+ options include:
+ 
+ -v, --version     Version of apicurio-registry-tenant-manager-client. If not set defaults to '2.0.0.Final'
+ -h, --help        This help message
+
+##########################################################################################################################
+
+
 EOT
 }
 
