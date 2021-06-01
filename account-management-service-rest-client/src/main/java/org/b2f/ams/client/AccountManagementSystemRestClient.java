@@ -4,14 +4,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.b2f.ams.client.auth.Auth;
 import org.b2f.ams.client.exception.AccountManagementSystemClientException;
-import org.b2f.ams.client.model.request.AccessReview;
 import org.b2f.ams.client.model.request.ClusterAuthorization;
-import org.b2f.ams.client.model.request.SelfAccessReview;
 import org.b2f.ams.client.model.request.SelfTermsReview;
 import org.b2f.ams.client.model.request.TermsReview;
 import org.b2f.ams.client.model.response.ClusterAuthorizationResponse;
 import org.b2f.ams.client.model.response.Error;
-import org.b2f.ams.client.model.response.ResponseAccessReview;
 import org.b2f.ams.client.model.response.ResponseTermsReview;
 
 import java.io.IOException;
@@ -44,24 +41,6 @@ public class AccountManagementSystemRestClient {
     private HttpClient.Builder handleConfiguration(Map<String, String> configs) {
         HttpClient.Builder clientBuilder = HttpClient.newBuilder();
         return clientBuilder;
-    }
-
-    public ResponseAccessReview accessReview(AccessReview accessReview) {
-        try {
-            return sendRequest(URI.create(endpoint + Paths.ACCESS_REVIEW_PATH), new TypeReference<ResponseAccessReview>() {
-            }, this.mapper.writeValueAsBytes(accessReview));
-        } catch (IOException e) {
-            throw new AccountManagementSystemClientException(e);
-        }
-    }
-
-    public ResponseAccessReview selfAccessReview(SelfAccessReview selfAccessReview) {
-        try {
-            return sendRequest(URI.create(endpoint + Paths.SELF_ACCESS_REVIEW_PATH), new TypeReference<ResponseAccessReview>() {
-            }, this.mapper.writeValueAsBytes(selfAccessReview));
-        } catch (IOException e) {
-            throw new AccountManagementSystemClientException(e);
-        }
     }
 
     public ResponseTermsReview termsReview(TermsReview termsReview) {

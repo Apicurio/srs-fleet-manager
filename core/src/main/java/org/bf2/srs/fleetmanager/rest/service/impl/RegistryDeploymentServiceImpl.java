@@ -1,11 +1,15 @@
 package org.bf2.srs.fleetmanager.rest.service.impl;
 
+import io.quarkus.security.ForbiddenException;
+import io.quarkus.security.identity.SecurityIdentity;
+import org.bf2.srs.fleetmanager.auth.AuthService;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.RegistryDeploymentHeartbeatTask;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
-import org.bf2.srs.fleetmanager.rest.service.RegistryDeploymentService;
 import org.bf2.srs.fleetmanager.rest.service.convert.ConvertRegistryDeployment;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeployment;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentCreate;
+import org.bf2.srs.fleetmanager.spi.AccountManagementService;
+import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
 import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.storage.StorageConflictException;
@@ -13,10 +17,11 @@ import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentD
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.validation.Valid;
+import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
@@ -37,14 +42,32 @@ public class RegistryDeploymentServiceImpl implements RegistryDeploymentService 
     @Inject
     ConvertRegistryDeployment convertRegistryDeployment;
 
+    @Inject
+    AccountManagementService accountManagementService;
+
+    @Inject
+    Instance<SecurityIdentity> securityIdentity;
+
+    @Inject
+    AuthService authService;
+
     @Override
     public RegistryDeployment createRegistryDeployment(@Valid RegistryDeploymentCreate deploymentCreate) throws StorageConflictException {
-        //TODO validate values
-        //registryDeploymentURl finishes without / starts with http ...
-        RegistryDeploymentData deployment = convertRegistryDeployment.convert(deploymentCreate);
-        storage.createOrUpdateRegistryDeployment(deployment);
-        tasks.submit(RegistryDeploymentHeartbeatTask.builder().deploymentId(deployment.getId()).build());
-        return convertRegistryDeployment.convert(deployment);
+        boolean allowed = true;
+        if (isResolvable(securityIdentity)) {
+            //TODO fill resoure type and cluster id
+            final AccountInfo accountInfo = authService.extractAccountInfo();
+            allowed = accountInfo.isAdmin() && accountManagementService.hasEntitlements(authService.extractAccountInfo(), "", "");
+        }
+        if (allowed) {
+            //TODO validate values
+            //registryDeploymentURl finishes without / starts with http ...
+            RegistryDeploymentData deployment = convertRegistryDeployment.convert(deploymentCreate);
+            storage.createOrUpdateRegistryDeployment(deployment);
+            tasks.submit(RegistryDeploymentHeartbeatTask.builder().deploymentId(deployment.getId()).build());
+            return convertRegistryDeployment.convert(deployment);
+        }
+        throw new ForbiddenException();
     }
 
     @Override
@@ -64,5 +87,9 @@ public class RegistryDeploymentServiceImpl implements RegistryDeploymentService 
     @Override
     public void deleteRegistryDeployment(Long id) throws RegistryDeploymentNotFoundException, StorageConflictException {
         storage.deleteRegistryDeployment(id);
+    }
+
+    private boolean isResolvable(Instance<SecurityIdentity> securityIdentity) {
+        return securityIdentity.isResolvable() && !securityIdentity.get().isAnonymous();
     }
 }
