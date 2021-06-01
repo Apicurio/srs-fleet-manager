@@ -24,6 +24,9 @@ public class AuthService {
     @ConfigProperty(name = "srs-fleet-manager.default-org")
     String defaultOrg;
 
+    @ConfigProperty(name = "srs-fleet-manager.is-org-admin.claim-name")
+    String isAdminClaim;
+
     @Inject
     Instance<JsonWebToken> jwt;
 
@@ -42,8 +45,9 @@ public class AuthService {
         if (isTokenResolvable()) {
             final String username = jwt.get().getName();
             final String organizationId = (String) jwt.get().claim(organizationIdClaimName).orElse("");
+            final boolean admin = (boolean) jwt.get().claim(isAdminClaim).orElse(false);
 
-            return new AccountInfo(organizationId, username);
+            return new AccountInfo(organizationId, username, admin);
         }
         return null;
     }
