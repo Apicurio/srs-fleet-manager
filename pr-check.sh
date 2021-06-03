@@ -6,6 +6,7 @@ set -eo pipefail
 PROJECT_NAME="srs-fleet-manager"
 TENANT_MANAGER_CLIENT_VERSION="2.0.0.Final"
 
+
 SKIP_TESTS=true
 MVN_BUILD_COMMAND="mvn -B clean install -DskipTests=${SKIP_TESTS}"
 
