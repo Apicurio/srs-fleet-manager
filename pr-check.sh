@@ -7,7 +7,8 @@ PROJECT_NAME="srs-fleet-manager"
 TENANT_MANAGER_CLIENT_VERSION="2.0.0.Final"
 
 
-MVN_BUILD_COMMAND="mvn -B clean install ${BUILD_FLAGS}"
+SKIP_TESTS=true
+MVN_BUILD_COMMAND="mvn -B clean install -DskipTests=${SKIP_TESTS}"
 
 
 display_usage() {
@@ -36,12 +37,15 @@ EOT
 
 
 build_project() {
-    local BUILD_FLAGS="$1"
+    local MVN_BUILD_COMMAND="${MVN_BUILD_COMMAND} ${BUILD_FLAGS}"
     echo "#######################################################################################################"
     echo " Building Project '${PROJECT_NAME}'..."
     echo " Build Command: ${MVN_BUILD_COMMAND}"
     echo "#######################################################################################################"
-    ${MVN_BUILD_COMMAND}
+    # AppSRE environments doesn't have maven and jdk11 which are required dependencies for building this project
+    # Installing these dependencies is a tedious task and also since it's a shared instance, installing the required versions of these dependencies is not possible sometimes
+    # Hence, using custom container that packs the required dependencies with the specific required versions
+    docker run --rm -t -u $(id -u):$(id -g) -v $(pwd):/home/user --workdir /home/user quay.io/riprasad/srs-project-builder:latest bash -c "${MVN_BUILD_COMMAND}"
 }
 
 
@@ -78,7 +82,7 @@ main() {
     BUILD_FLAGS="-Dapicurio-registry-tenant-manager-client.version=${TENANT_MANAGER_CLIENT_VERSION}"
 
     # function calls
-    build_project ${BUILD_FLAGS}
+    build_project
     
 }
 
