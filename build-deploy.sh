@@ -9,11 +9,13 @@ IMAGE_REGISTRY="quay.io"
 IMAGE_ORG="rhoas"
 IMAGE_NAME="${PROJECT_NAME}"
 IMAGE_TAG="latest"
-PATH_APPLICATION_PROPERTIES="./core/src/main/resources/application.properties"
 
 
-MVN_BUILD_COMMAND="mvn -B clean install ${BUILD_FLAGS}"
-DOCKER_BUILD_COMMAND="mvn -B install -DskipTests -Dquarkus.container-image.build=true ${BUILD_FLAGS}"
+SKIP_TESTS=true
+MVN_BUILD_COMMAND="mvn -B clean install -DskipTests=${SKIP_TESTS}"
+DOCKER_BUILD_COMMAND="docker build -f ./core/src/main/docker/Dockerfile.jvm -t ${IMAGE_REGISTRY}/${IMAGE_ORG}/${IMAGE_NAME}:${IMAGE_TAG} ./core/"
+
+
 
 
 
@@ -54,47 +56,20 @@ display_usage() {
 EOT
 }
 
-
-update_image_registry() {
-    local QUARKUS_PROPERTY="%prod.quarkus.container-image.registry=${IMAGE_REGISTRY}"
-    echo "Adding property '${QUARKUS_PROPERTY}' to application.properties ..."
-    echo "${QUARKUS_PROPERTY}" >> ${PATH_APPLICATION_PROPERTIES}
-}
-
-
-update_image_org() {
-    local QUARKUS_PROPERTY="%prod.quarkus.container-image.group=${IMAGE_ORG}"
-    echo "Adding property '${QUARKUS_PROPERTY}' to application.properties ..."
-    echo "${QUARKUS_PROPERTY}" >> ${PATH_APPLICATION_PROPERTIES}
-}
-
-
-update_image_name() {
-    local QUARKUS_PROPERTY="%prod.quarkus.container-image.name=${IMAGE_NAME}"
-    echo "Adding property '${QUARKUS_PROPERTY}' to application.properties ..."
-    echo "${QUARKUS_PROPERTY}" >> ${PATH_APPLICATION_PROPERTIES}
-}
-
-
-update_image_tag() {
-    local QUARKUS_PROPERTY="%prod.quarkus.container-image.tag=${IMAGE_TAG}"
-    echo "Adding property '${QUARKUS_PROPERTY}' to application.properties ..."
-    echo "${QUARKUS_PROPERTY}" >> ${PATH_APPLICATION_PROPERTIES}
-}
-
-
 build_project() {
-    local BUILD_FLAGS="$1"
+    local MVN_BUILD_COMMAND="${MVN_BUILD_COMMAND} ${BUILD_FLAGS}"
     echo "#######################################################################################################"
     echo " Building Project '${PROJECT_NAME}'..."
     echo " Build Command: ${MVN_BUILD_COMMAND}"
     echo "#######################################################################################################"
-    ${MVN_BUILD_COMMAND}
+    # AppSRE environments doesn't have maven and jdk11 which are required dependencies for building this project
+    # Installing these dependencies is a tedious task and also since it's a shared instance, installing the required versions of these dependencies is not possible sometimes
+    # Hence, using custom container that packs the required dependencies with the specific required versions
+    docker run --rm -t -u $(id -u):$(id -g) -v $(pwd):/home/user --workdir /home/user quay.io/riprasad/srs-project-builder:latest bash -c "${MVN_BUILD_COMMAND}"
 }
 
 
 build_image() {
-    local BUILD_FLAGS="$1"
     echo "#######################################################################################################"
     echo " Building Image ${IMAGE_REGISTRY}/${IMAGE_ORG}/${IMAGE_NAME}:${IMAGE_TAG}"
     echo " IMAGE_REGISTRY: ${IMAGE_REGISTRY}"
@@ -186,12 +161,8 @@ main() {
     BUILD_FLAGS="-Dapicurio-registry-tenant-manager-client.version=${TENANT_MANAGER_CLIENT_VERSION}"
 
     # function calls
-    update_image_registry
-    update_image_org
-    update_image_name
-    update_image_tag
-    build_project ${BUILD_FLAGS}
-    build_image ${BUILD_FLAGS}
+    build_project
+    build_image
     push_image
 
 }
