@@ -1,0 +1,182 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: srs-fleet-manager-template
+labels:
+  template: srs-fleet-manager-template
+objects:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: srs-fleet-manager
+      template: srs-fleet-manager-template
+      component: srs-fleet-manager
+    name: srs-fleet-manager
+  spec:
+    ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      app: srs-fleet-manager
+      template: srs-fleet-manager-template
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    labels:
+      app: srs-fleet-manager
+      template: srs-fleet-manager-template
+    name: srs-fleet-manager-mt
+  spec:
+    selector:
+      matchLabels:
+        app: srs-fleet-manager
+        template: srs-fleet-manager-template
+    replicas: ${{REPLICAS}}
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        labels:
+          app: srs-fleet-manager
+          template: srs-fleet-manager-template
+      spec:
+        containers:
+        - name: srs-fleet-manager
+          image: ${IMAGE_REGISTRY}/${IMAGE_REPOSITORY}:${IMAGE_TAG}
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: SRS_LOG_LEVEL
+            value: DEBUG
+          - name: LOG_LEVEL
+            value: INFO
+
+          - name: DB_HOST
+            valueFrom:
+              secretKeyRef:
+                name:  ${DATABASE_SECRET_NAME}
+                key:  db.host
+          - name: DB_PORT
+            valueFrom:
+              secretKeyRef:
+                name:  ${DATABASE_SECRET_NAME}
+                key:  db.port
+          - name: DB_NAME
+            valueFrom:
+              secretKeyRef:
+                name:  ${DATABASE_SECRET_NAME}
+                key:  db.name
+          - name: SERVICE_API_DATASOURCE_URL
+            value: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+          - name: SERVICE_API_DATASOURCE_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name:  ${DATABASE_SECRET_NAME}
+                key:  db.user
+          - name: SERVICE_API_DATASOURCE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name:  ${DATABASE_SECRET_NAME}
+                key:  db.password
+
+          - name: AUTH_ENABLED
+            value: "true"
+          - name: KEYCLOAK_URL
+            value: ${KEYCLOAK_URL}
+          - name: KEYCLOAK_REALM
+            value: ${KEYCLOAK_REALM}
+          - name: KEYCLOAK_API_CLIENT_ID
+            value: ${KEYCLOAK_API_CLIENT_ID}
+            #TODO is this secret needed?
+          - name: KEYCLOAK_API_CLIENT_SECRET
+            value: ${KEYCLOAK_API_CLIENT_SECRET}
+
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health/live
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          ports:
+          - containerPort: 8080
+            name: web
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health/ready
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          resources:
+            limits:
+              cpu: ${CPU_LIMIT}
+              memory: ${MEMORY_LIMIT}
+            requests:
+              cpu: ${CPU_REQUEST}
+              memory: ${MEMORY_REQUEST}
+          terminationMessagePath: /dev/termination-log
+
+parameters:
+
+- name: REPLICAS
+  description: Number of replicas of the service to run.
+  value: "3"
+
+- name: IMAGE_REGISTRY
+  displayName: Image Registry
+  required: true
+
+- name: IMAGE_REPOSITORY
+  displayName: SRS Fleet Manager Image Repository
+  required: true
+
+- name: IMAGE_TAG
+  displayName: SRS Fleet Manager Image tag
+  value: latest
+
+
+- name: MEMORY_REQUEST
+  description: Memory request.
+  value: "600Mi"
+
+- name: MEMORY_LIMIT
+  description: Memory limit.
+  value: "1300Mi"
+
+- name: CPU_REQUEST
+  description: CPU request.
+  value: "200m"
+
+- name: CPU_LIMIT
+  description: CPU limit.
+  value: "1000m"
+
+
+- name: DATABASE_SECRET_NAME
+  description: Secret name with database connection details
+  required: true
+
+- name: KEYCLOAK_URL
+  description: Keycloak base url
+  required: true
+- name: KEYCLOAK_REALM
+  description: Keycloak realm
+  required: true
+- name: KEYCLOAK_API_CLIENT_ID
+  description: client id for srs-fleet-manager API
+  value: srs-fleet-manager
+- name: KEYCLOAK_API_CLIENT_SECRET
+  description: client secret for srs-fleet-manager
+  value: changeme
