@@ -84,7 +84,7 @@ objects:
                 key:  db.password
 
           - name: AUTH_ENABLED
-            value: "true"
+            value: ${AUTH_ENABLED}
           - name: KEYCLOAK_URL
             value: ${KEYCLOAK_URL}
           - name: KEYCLOAK_REALM
@@ -168,12 +168,14 @@ parameters:
   description: Secret name with database connection details
   required: true
 
+- name: AUTH_ENABLED
+  value: "false"
 - name: KEYCLOAK_URL
   description: Keycloak base url
-  required: true
+  value: ""
 - name: KEYCLOAK_REALM
   description: Keycloak realm
-  required: true
+  value: ""
 - name: KEYCLOAK_API_CLIENT_ID
   description: client id for srs-fleet-manager API
   value: srs-fleet-manager
