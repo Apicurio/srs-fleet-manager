@@ -1,4 +1,4 @@
-apiVersion: v1
+apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
   name: srs-fleet-manager-template
@@ -172,10 +172,10 @@ parameters:
   value: "false"
 - name: KEYCLOAK_URL
   description: Keycloak base url
-  value: ""
+  value: "http:localhost:8090"
 - name: KEYCLOAK_REALM
   description: Keycloak realm
-  value: ""
+  value: srs-fleet-manager
 - name: KEYCLOAK_API_CLIENT_ID
   description: client id for srs-fleet-manager API
   value: srs-fleet-manager
