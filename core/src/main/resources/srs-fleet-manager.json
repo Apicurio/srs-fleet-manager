@@ -2,7 +2,7 @@
   "openapi": "3.0.2",
   "info": {
     "title": "Service Registry Service - Fleet Manager - v0",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "description": "Main entry point for the system, responsible for all sorts of management operations for the whole service of managed service registry.",
     "license": {
       "name": "Apache 2.0",
