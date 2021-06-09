@@ -14,6 +14,6 @@ BEARER_TOKEN=$(curl -k --location --request POST https://$(oc get route keycloak
 --data-urlencode "username=sr-admin-tenant-$CONTROL_PLANE_TENANT_ID" \
 --data-urlencode 'password=password' | jq -r .access_token )
 
-TENANT_URL=$(http http://$(oc get route service-api --template='{{ .spec.host }}')/api/v1/registries/$CONTROL_PLANE_TENANT_ID | jq -r .appUrl)
+TENANT_URL=$(http http://$(oc get route service-api --template='{{ .spec.host }}')/api/serviceregistry_mgmt/v1/registries/$CONTROL_PLANE_TENANT_ID | jq -r .appUrl)
 
 curl -v --location -i $TENANT_URL/api/artifacts --header "Authorization: Bearer $BEARER_TOKEN" \

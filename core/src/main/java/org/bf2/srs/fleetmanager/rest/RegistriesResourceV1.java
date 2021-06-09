@@ -22,7 +22,7 @@ import javax.ws.rs.core.Response;
  *
  * @author Jakub Senko <jsenko@redhat.com>
  */
-@Path("/api/v1/registries")
+@Path("/api/serviceregistry_mgmt/v1/registries")
 public interface RegistriesResourceV1 {
 
     /**

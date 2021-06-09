@@ -10,7 +10,7 @@
     }
   },
   "paths": {
-    "/api/v1/registries": {
+    "/api/serviceregistry_mgmt/v1/registries": {
       "summary": "Manage the list of all registries.",
       "description": "",
       "get": {
@@ -74,7 +74,7 @@
         "description": ""
       }
     },
-    "/api/v1/registries/{registryId}": {
+    "/api/serviceregistry_mgmt/v1/registries/{registryId}": {
       "summary": "Manage a specific Registry.",
       "description": "",
       "get": {
@@ -134,7 +134,7 @@
         }
       ]
     },
-    "/api/v1": {
+    "/api/serviceregistry_mgmt/v1": {
       "summary": "Get the OpenAPI schema for version 1 of this REST API.",
       "get": {
         "tags": [

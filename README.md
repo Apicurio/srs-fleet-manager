@@ -87,13 +87,13 @@ The following are several commands for working with the Service API
 ```shell script
 curl -X POST -H "Content-Type: application/json" \
   -d '{"tenantManagerUrl":"http://tm1.app.example.com"}' \
-  http://localhost:8080/api/v1/admin/registry-deployments
+  http://localhost:8080/api/serviceregistry_mgmt/v1/admin/registryDeployments
 ```
 
 * List Registry Deployments
 
 ```shell script
- curl http://localhost:8080/api/v1/admin/registry-deployments
+ curl http://localhost:8080/api/serviceregistry_mgmt/v1/admin/registryDeployments
 ```
 
 * Create a Registry (Tenant)
@@ -101,19 +101,19 @@ curl -X POST -H "Content-Type: application/json" \
 ```shell script
 curl -X POST -H "Content-Type: application/json" \
   -d '{}' \
-  http://localhost:8080/api/v1/registries
+  http://localhost:8080/api/serviceregistry_mgmt/v1/registries
 ```
 
 * List Registries (Tenants)
 
 ```shell script
-curl http://localhost:8080/api/v1/registries
+curl http://localhost:8080/api/serviceregistry_mgmt/v1/registries
 ```
 
 * List active Tasks
 
 ```shell script
-curl http://localhost:8080/api/v1/admin/tasks
+curl http://localhost:8080/api/serviceregistry_mgmt/v1/admin/tasks
 ```
 
 ## Didact demo

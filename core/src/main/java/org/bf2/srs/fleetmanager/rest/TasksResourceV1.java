@@ -14,7 +14,7 @@ import javax.ws.rs.Produces;
  *
  * @author Jakub Senko <jsenko@redhat.com>
  */
-@Path("/api/v1/admin/tasks")
+@Path("/api/serviceregistry_mgmt/v1/admin/tasks")
 public interface TasksResourceV1 {
 
     /**

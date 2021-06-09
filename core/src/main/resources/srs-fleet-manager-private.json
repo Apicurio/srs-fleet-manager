@@ -10,7 +10,7 @@
     }
   },
   "paths": {
-    "/api/v1/admin/tasks": {
+    "/api/serviceregistry_mgmt/v1/admin/tasks": {
       "summary": "Manage the list of all tasks executed on the server.",
       "get": {
         "tags": [
@@ -39,7 +39,7 @@
         "summary": "Get the list of all tasks executed on the server."
       }
     },
-    "/api/v1/admin/tasks/{taskId}": {
+    "/api/serviceregistry_mgmt/v1/admin/tasks/{taskId}": {
       "summary": "Manage a specific task executed on the server.",
       "get": {
         "tags": [
@@ -78,7 +78,7 @@
         }
       ]
     },
-    "/api/v1/admin": {
+    "/api/serviceregistry_mgmt/v1/admin": {
       "summary": "Get the OpenAPI schema for version 1 of this REST API.",
       "get": {
         "tags": [
@@ -96,7 +96,7 @@
         "summary": "Get the OpenAPI schema for version 1 of this REST API."
       }
     },
-    "/api/v1/admin/registryDeployments": {
+    "/api/serviceregistry_mgmt/v1/admin/registryDeployments": {
       "summary": "Manage the list of all registry deployments.",
       "get": {
         "tags": [
@@ -163,7 +163,7 @@
         "summary": "Create a registry deployment."
       }
     },
-    "/api/v1/admin/registryDeployments/{registryDeploymentId}": {
+    "/api/serviceregistry_mgmt/v1/admin/registryDeployments/{registryDeploymentId}": {
       "summary": "Manage a specific registry deployment.",
       "description": "",
       "get": {
