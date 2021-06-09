@@ -17,16 +17,20 @@ public class AuthService {
     @ConfigProperty(name = "srs-fleet-manager.organization-id.claim-name")
     String organizationIdClaimName;
 
+    @ConfigProperty(name = "srs-fleet-manager.auth.enabled")
+    boolean authEnabled;
+
     @Inject
     Instance<JsonWebToken> jwt;
 
     public String extractOrganizationId() {
-        if (jwt.isResolvable()) {
+        if (jwt.isResolvable() && authEnabled) {
             log.debug("Extracting organization id from the authentication token");
 
             return (String) jwt.get().claim(organizationIdClaimName)
                     .orElse("");
+        } else {
+            return null;
         }
-        return null;
     }
 }
