@@ -2,13 +2,16 @@
 
 set -eo pipefail
 
+# The version should be the short hash from git. This is what the deployent process expects.
+# used for IMAGE_TAG template parameter that app-interface automatically generates
+VERSION="$(git log --pretty=format:'%h' -n 1)"
 
 PROJECT_NAME="srs-fleet-manager"
 TENANT_MANAGER_CLIENT_VERSION="2.0.0.Final"
 IMAGE_REGISTRY="quay.io"
 IMAGE_ORG="rhoas"
 IMAGE_NAME="${PROJECT_NAME}"
-IMAGE_TAG="latest"
+IMAGE_TAG="${VERSION}"
 
 
 SKIP_TESTS=true
@@ -97,6 +100,8 @@ push_image() {
     echo " Pushing Image ${IMAGE_REGISTRY}/${IMAGE_ORG}/${IMAGE_NAME}:${IMAGE_TAG}"
     echo "#######################################################################################################"
     docker push "${IMAGE_REGISTRY}/${IMAGE_ORG}/${IMAGE_NAME}:${IMAGE_TAG}"
+    docker tag "${IMAGE_REGISTRY}/${IMAGE_ORG}/${IMAGE_NAME}:${IMAGE_TAG}" "${IMAGE_REGISTRY}/${IMAGE_ORG}/${IMAGE_NAME}:latest"
+    docker push "${IMAGE_REGISTRY}/${IMAGE_ORG}/${IMAGE_NAME}:latest"
     if [ $? -eq 0 ]
     then
       echo "Image successfully pushed to ${IMAGE_REGISTRY}"
