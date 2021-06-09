@@ -20,6 +20,9 @@ public class AuthService {
     @ConfigProperty(name = "srs-fleet-manager.auth.enabled")
     boolean authEnabled;
 
+    @ConfigProperty(name = "srs-fleet-manager.default-org")
+    String defaultOrg;
+
     @Inject
     Instance<JsonWebToken> jwt;
 
@@ -30,7 +33,7 @@ public class AuthService {
             return (String) jwt.get().claim(organizationIdClaimName)
                     .orElse("");
         } else {
-            return null;
+            return defaultOrg;
         }
     }
 }
