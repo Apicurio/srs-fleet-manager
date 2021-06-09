@@ -9,7 +9,7 @@ import javax.ws.rs.Produces;
  *
  * @author Jakub Senko <jsenko@redhat.com>
  */
-@Path("/api/v1")
+@Path("/api/serviceregistry_mgmt/v1")
 public interface SchemaResourceV1 {
 
     /**

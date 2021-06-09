@@ -1,1 +1,1 @@
-http http://$(oc get route service-api --template='{{ .spec.host }}')/api/v1/admin/tasks
+http http://$(oc get route service-api --template='{{ .spec.host }}')/api/serviceregistry_mgmt/v1/admin/tasks
