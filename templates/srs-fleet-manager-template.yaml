@@ -45,6 +45,8 @@ objects:
           app: srs-fleet-manager
           template: srs-fleet-manager-template
       spec:
+        serviceAccount: ${SERVICE_ACCOUNT_NAME}
+        serviceAccountName: ${SERVICE_ACCOUNT_NAME}
         containers:
         - name: srs-fleet-manager
           image: ${IMAGE_REGISTRY}/${IMAGE_REPOSITORY}:${IMAGE_TAG}
@@ -129,6 +131,10 @@ objects:
           terminationMessagePath: /dev/termination-log
 
 parameters:
+
+- name: SERVICE_ACCOUNT_NAME
+  displayName: Service Account to use for the deployment
+  required: true
 
 - name: REPLICAS
   description: Number of replicas of the service to run.
