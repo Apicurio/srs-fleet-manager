@@ -7,9 +7,9 @@ REGISTRY_URL=$3
 #just a name to easily identify the deployment
 DEPLOYMENT_NAME=$4
 
-http http://$FLEET_MANAGER_URL/api/v1/admin/registryDeployments tenantManagerUrl=$TENANT_MANAGER_URL registryDeploymentUrl=$REGISTRY_URL name=DEPLOYMENT_NAME
+http https://$FLEET_MANAGER_URL/api/serviceregistry_mgmt/v1/admin/registryDeployments tenantManagerUrl=$TENANT_MANAGER_URL registryDeploymentUrl=$REGISTRY_URL name=DEPLOYMENT_NAME
 
 echo 
 sleep 1
 
-http http://$FLEET_MANAGER_URL/api/v1/admin/registryDeployments
+http https://$FLEET_MANAGER_URL/api/serviceregistry_mgmt/v1/admin/registryDeployments
