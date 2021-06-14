@@ -40,6 +40,8 @@ public class RegistryDeploymentsResourceV1Impl implements RegistryDeploymentsRes
 
     @Override
     public Response createRegistryDeployment(@Valid RegistryDeploymentCreateRest deploymentCreate) throws StorageConflictException {
+        //TODO validate values
+        //registryDeploymentURl finishes without / starts with http ...
         RegistryDeployment deployment = convertRegistryDeployment.convert(deploymentCreate);
         storage.createOrUpdateRegistryDeployment(deployment);
         tasks.submit(RegistryDeploymentHeartbeatTask.builder().deploymentId(deployment.getId()).build());

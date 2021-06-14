@@ -7,15 +7,13 @@ set -eo pipefail
 VERSION="$(git log --pretty=format:'%h' -n 1)"
 
 PROJECT_NAME="srs-fleet-manager"
-TENANT_MANAGER_CLIENT_VERSION="2.0.0.Final"
+
 IMAGE_REGISTRY="quay.io"
 IMAGE_ORG="rhoas"
 IMAGE_NAME="${PROJECT_NAME}"
 IMAGE_TAG="${VERSION}"
 
 
-SKIP_TESTS=true
-MVN_BUILD_COMMAND="mvn -B clean install -DskipTests=${SKIP_TESTS}"
 DOCKER_BUILD_COMMAND="docker build -f ./core/src/main/docker/Dockerfile.jvm -t ${IMAGE_REGISTRY}/${IMAGE_ORG}/${IMAGE_NAME}:${IMAGE_TAG} ./core/"
 
 
@@ -60,15 +58,16 @@ EOT
 }
 
 build_project() {
-    local MVN_BUILD_COMMAND="${MVN_BUILD_COMMAND} ${BUILD_FLAGS}"
     echo "#######################################################################################################"
     echo " Building Project '${PROJECT_NAME}'..."
-    echo " Build Command: ${MVN_BUILD_COMMAND}"
     echo "#######################################################################################################"
     # AppSRE environments doesn't have maven and jdk11 which are required dependencies for building this project
     # Installing these dependencies is a tedious task and also since it's a shared instance, installing the required versions of these dependencies is not possible sometimes
     # Hence, using custom container that packs the required dependencies with the specific required versions
-    docker run --rm -t -u $(id -u):$(id -g) -v $(pwd):/home/user --workdir /home/user quay.io/riprasad/srs-project-builder:latest bash -c "${MVN_BUILD_COMMAND}"
+    # docker run --rm -t -u $(id -u):$(id -g) -v $(pwd):/home/user --workdir /home/user quay.io/riprasad/srs-project-builder:latest bash -c "${MVN_BUILD_COMMAND}"
+
+    docker pull quay.io/app-sre/mk-ci-tools:latest
+    docker run -v $(pwd):/opt/srs -w /opt/srs -e HOME=/tmp -u $(id -u) quay.io/app-sre/mk-ci-tools:latest "./build-project.sh"
 }
 
 
@@ -128,10 +127,6 @@ main() {
             display_usage
             exit 0
             ;;
-          -v|--version)
-            shift
-            TENANT_MANAGER_CLIENT_VERSION="$1"
-            ;;
           -o|--org)
             shift
             IMAGE_ORG="$1"
@@ -161,9 +156,6 @@ main() {
        exit 1
     fi
 
-
-    # Setting additional build flags
-    BUILD_FLAGS="-Dapicurio-registry-tenant-manager-client.version=${TENANT_MANAGER_CLIENT_VERSION}"
 
     # function calls
     build_project
