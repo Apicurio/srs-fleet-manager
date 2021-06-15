@@ -60,7 +60,7 @@ public class RegistriesResourceV1Impl implements RegistriesResourceV1 {
             if (order.length != 2) {
                 throw new ValidationException("invalid orderBy");
             }
-            if (order[1] == "asc") {
+            if ("asc".equals(order[1]) {
                 itemsQuery = this.registryRepository.
                         findAll(Sort.by(order[0], Sort.Direction.Ascending));
             } else {
