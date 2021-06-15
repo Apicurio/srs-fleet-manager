@@ -28,7 +28,7 @@ public class RestClientTenantManagerClientImpl implements TenantManagerClient {
         var client = getClient(tm);
 
         NewRegistryTenantRequest req = new NewRegistryTenantRequest();
-        req.setOrganizationId("unknown"); //TODO pick from authentication details?
+        req.setOrganizationId(tenantRequest.getOrganizationId());
 
         req.setTenantId(tenantRequest.getTenantId());
         RegistryTenant tenant = client.createTenant(req);
