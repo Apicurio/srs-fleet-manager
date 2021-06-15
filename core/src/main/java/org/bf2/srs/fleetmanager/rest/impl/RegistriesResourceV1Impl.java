@@ -15,7 +15,6 @@ import org.bf2.srs.fleetmanager.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.storage.StorageConflictException;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.PanacheRegistryRepository;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.Registry;
-import org.bf2.srs.fleetmanager.util.TypeConvertUtils;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
