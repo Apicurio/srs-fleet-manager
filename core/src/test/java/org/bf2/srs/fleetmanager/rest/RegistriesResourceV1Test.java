@@ -67,7 +67,7 @@ public class RegistriesResourceV1Test {
                     .log().all();
         });
 
-        List<Long> ids = List.of(valid1, valid2).stream().map(d -> {
+        List<String> ids = List.of(valid1, valid2).stream().map(d -> {
             return given()
                     .when().contentType(ContentType.JSON).body(d).post(BASE)
                     .then().statusCode(HTTP_ACCEPTED)
@@ -116,7 +116,7 @@ public class RegistriesResourceV1Test {
                 .build();
 
         // Create
-        List<Long> ids = List.of(valid1, valid2).stream().map(d -> {
+        List<String> ids = List.of(valid1, valid2).stream().map(d -> {
             return given()
                     .when().contentType(ContentType.JSON).body(d).post(BASE)
                     .then().statusCode(HTTP_ACCEPTED)
@@ -124,7 +124,7 @@ public class RegistriesResourceV1Test {
                     .extract().as(RegistryRest.class).getId();
         }).collect(toList());
 
-        List<Long> actualIds = given()
+        List<String> actualIds = given()
                 .when().get(BASE)
                 .then().statusCode(200)
                 .log().all()
@@ -175,7 +175,7 @@ public class RegistriesResourceV1Test {
                 .build();
 
         // Create
-        List<Long> ids = List.of(valid1, valid2).stream().map(d -> {
+        List<String> ids = List.of(valid1, valid2).stream().map(d -> {
             return given()
                     .when().contentType(ContentType.JSON).body(d).post(BASE)
                     .then().statusCode(HTTP_ACCEPTED)
@@ -190,7 +190,7 @@ public class RegistriesResourceV1Test {
                     .when().get(BASE + "/" + id)
                     .then().statusCode(HTTP_OK)
                     // NOTE: Test framework assumes that JSON number is `int` instead of `long`.
-                    .body("id", equalTo(id.intValue()))
+                    .body("id", equalTo(id))
                     .body("registryDeploymentId", equalTo(deploymentId.intValue()))
                     .log().all();
         });
