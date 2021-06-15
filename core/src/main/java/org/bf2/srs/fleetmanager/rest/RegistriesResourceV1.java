@@ -27,7 +27,7 @@ public interface RegistriesResourceV1 {
     @GET
     @Produces("application/json")
     // TODO QueryParam as model instead of arguments
-    RegistryRestList getRegistries(@QueryParam("page") int page, @QueryParam("size") int size, @QueryParam("orderBy") String orderBy, @QueryParam("search") String search);
+    RegistryRestList getRegistries(@QueryParam("page") Integer page, @QueryParam("size") Integer size, @QueryParam("orderBy") String orderBy, @QueryParam("search") String search);
 
     /**
      * Create a Registry.

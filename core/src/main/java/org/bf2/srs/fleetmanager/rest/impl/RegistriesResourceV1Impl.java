@@ -15,6 +15,7 @@ import org.bf2.srs.fleetmanager.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.storage.StorageConflictException;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.PanacheRegistryRepository;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.Registry;
+import org.bf2.srs.fleetmanager.util.TypeConvertUtils;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -53,7 +54,7 @@ public class RegistriesResourceV1Impl implements RegistriesResourceV1 {
     }
 
     @Override
-    public RegistryRestList getRegistries(int page, int size, String orderBy, String search) {
+    public RegistryRestList getRegistries(Integer page, Integer size, String orderBy, String search) {
         PanacheQuery<Registry> itemsQuery;
         if (orderBy != null) {
             var order = orderBy.split(" ");
@@ -71,13 +72,18 @@ public class RegistriesResourceV1Impl implements RegistriesResourceV1 {
             itemsQuery = this.registryRepository.
                     findAll(Sort.by("id", Sort.Direction.Ascending));
         }
-
-        var items = itemsQuery.page(Page.of(page, size))
-                .stream().map(convertRegistry::convert)
+        var query = itemsQuery;
+        page = (page != null) ? page : 10;
+        size = (size != null) ? size : 10;
+           
+        var total = this.registryRepository.count();
+        var items = itemsQuery.page(Page.of(page, size)).stream().map(convertRegistry::convert)
                 .collect(Collectors
                         .toCollection(ArrayList::new));
-        //TODO Add total
-        return RegistryRestList.builder().items(items).page(String.valueOf(page)).size(String.valueOf(size)).total("0").build();
+        return RegistryRestList.builder().items(items)
+                .page(page.toString())
+                .size(page.toString())
+                .total(String.valueOf(total)).build();
     }
 
     @Override
@@ -91,4 +97,6 @@ public class RegistriesResourceV1Impl implements RegistriesResourceV1 {
     public void deleteRegistry(Long id) throws RegistryNotFoundException, StorageConflictException {
         storage.deleteRegistry(id);
     }
+
+
 }
