@@ -24,10 +24,10 @@ public class ConvertRegistry {
     public RegistryRest convert(@Valid Registry registry) { // TODO @NotNull ?
         requireNonNull(registry);
         return RegistryRest.builder()
-                .id(registry.getId())
+                .id(registry.getId().toString())
                 .name(registry.getName())
                 .registryUrl(registry.getRegistryUrl())
-                .status(convertRegistryStatus.convert(registry.getStatus()))
+                .status(registry.getStatus().getValue())
                 .registryDeploymentId(ofNullable(registry.getRegistryDeployment()).map(RegistryDeployment::getId).orElse(null))
                 .build();
     }

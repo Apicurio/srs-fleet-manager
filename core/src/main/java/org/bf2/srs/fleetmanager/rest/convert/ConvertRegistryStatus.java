@@ -1,7 +1,6 @@
 package org.bf2.srs.fleetmanager.rest.convert;
 
 import org.bf2.srs.fleetmanager.rest.model.RegistryStatusValueRest;
-import org.bf2.srs.fleetmanager.rest.model.RegistryStatusRest;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryStatus;
 
 import java.time.Instant;
@@ -16,17 +15,6 @@ import static java.util.Objects.requireNonNull;
  */
 @ApplicationScoped
 public class ConvertRegistryStatus {
-
-    @Inject
-    ConvertISO8601 convertISO8601;
-
-    public RegistryStatusRest convert(@Valid RegistryStatus status) {
-        requireNonNull(status);
-        return RegistryStatusRest.builder()
-                .value(RegistryStatusValueRest.fromValue(status.getValue()))
-                .lastUpdated(convertISO8601.convert(status.getLastUpdated()))
-                .build();
-    }
 
     public RegistryStatus initial() {
         return RegistryStatus.builder()

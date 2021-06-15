@@ -1,6 +1,7 @@
 package org.bf2.srs.fleetmanager.rest;
 
 import org.bf2.srs.fleetmanager.rest.model.RegistryCreateRest;
+import org.bf2.srs.fleetmanager.rest.model.RegistryRestList;
 import org.bf2.srs.fleetmanager.storage.StorageConflictException;
 import org.bf2.srs.fleetmanager.rest.model.RegistryRest;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
@@ -31,7 +32,7 @@ public interface RegistriesResourceV1 {
     @Path("/")
     @GET
     @Produces("application/json")
-    List<RegistryRest> getRegistries();
+    RegistryRestList getRegistries(int page, int size, String orderBy, String search);
 
     /**
      * Create a Registry.

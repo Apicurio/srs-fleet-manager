@@ -6,7 +6,10 @@ import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.*;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+
+import java.util.List;
 
 import static lombok.AccessLevel.PACKAGE;
 
@@ -36,6 +39,36 @@ public class RegistryRestList extends AbstractList {
     @JsonProperty("items")
     @JsonPropertyDescription("")
     @NotNull
-    private RegistryRest items;
+    private List<RegistryRest> items;
+
+    /**
+     * (Required)
+     */
+    @JsonProperty("kind")
+    @JsonPropertyDescription("Kind of the service")
+    @NotNull
+    private String kind = "ServiceRegistryList";
+
+    /**
+     * (Optional)
+     */
+    @JsonProperty("page")
+    @JsonPropertyDescription("")
+    @NotEmpty
+    private String page;
+
+    /**
+     * (Optional)
+     */
+    @JsonProperty("size")
+    @JsonPropertyDescription("Size of the current view of items")
+    private String size;
+
+    /**
+     * (Optional)
+     */
+    @JsonProperty("total")
+    @JsonPropertyDescription("Total number of items in list")
+    private String total;
 
 }
