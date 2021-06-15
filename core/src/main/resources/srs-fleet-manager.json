@@ -45,7 +45,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RegisryRequestList"
+                  "$ref": "#/components/schemas/RegistryRestList"
                 }
               }
             },
@@ -443,7 +443,13 @@
               "size": "1",
               "total": "1",
               "item": {
-                "$ref": "#/components/examples/Registry"
+                  "id": "llmNteR4P7waRp5nJIReG",
+                  "kind": "serviceregistry",
+                  "href": "/api/serviceregistry_mgmt/v1/registries/llmNteR4P7waRp5nJIReG",
+                  "name": "sample-registry",
+                  "status": "ready",
+                  "owner": "some_id",
+                  "registryUrl": "https://somehost:433"
               }
             },
             "properties": {
