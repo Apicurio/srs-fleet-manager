@@ -41,5 +41,6 @@ public class RegistryCreateRest {
      */
     @JsonProperty("name")
     @JsonPropertyDescription("User-defined Registry name. Does not have to be unique.")
+    // TODO - names should be validated by kubernetes standard lenght etc.
     private String name;
 }
