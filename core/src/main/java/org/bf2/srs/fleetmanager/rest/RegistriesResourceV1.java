@@ -8,13 +8,7 @@ import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 
 import java.util.List;
 import javax.validation.Valid;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 
 /**
@@ -32,7 +26,8 @@ public interface RegistriesResourceV1 {
     @Path("/")
     @GET
     @Produces("application/json")
-    RegistryRestList getRegistries(int page, int size, String orderBy, String search);
+    // TODO QueryParam as model instead of arguments
+    RegistryRestList getRegistries(@QueryParam("page") int page, @QueryParam("size") int size, @QueryParam("orderBy") String orderBy, @QueryParam("search") String search);
 
     /**
      * Create a Registry.
@@ -48,17 +43,17 @@ public interface RegistriesResourceV1 {
      *
      * Gets the details of a single instance of a `Registry`.
      */
-    @Path("/{registryId}")
+    @Path("/{id}")
     @GET
     @Produces("application/json")
-    RegistryRest getRegistry(@PathParam("registryId") Long registryId) throws RegistryNotFoundException;
+    RegistryRest getRegistry(@PathParam("id") Long registryId) throws RegistryNotFoundException;
 
     /**
      * Delete a Registry
      *
      * Deletes an existing `Registry`.
      */
-    @Path("/{registryId}")
+    @Path("/{id}")
     @DELETE
-    void deleteRegistry(@PathParam("registryId") Long registryId) throws RegistryNotFoundException, StorageConflictException;
+    void deleteRegistry(@PathParam("id") Long registryId) throws RegistryNotFoundException, StorageConflictException;
 }
