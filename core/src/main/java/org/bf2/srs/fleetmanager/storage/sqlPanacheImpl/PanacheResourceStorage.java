@@ -41,7 +41,7 @@ public class PanacheResourceStorage implements ResourceStorage {
 
     @Override
     public boolean createOrUpdateRegistry(Registry registry) throws StorageConflictException {
-        requireNonNull(registry);
+        requireNonNull(registry); 
         Optional<Registry> existing = empty();
         if (registry.getId() != null) {
             existing = registryRepository.findByIdOptional(registry.getId());
