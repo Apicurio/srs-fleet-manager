@@ -46,7 +46,7 @@ public class RegistryRest {
     @JsonProperty("id")
     @JsonPropertyDescription("")
     @NotNull
-    private Long id;
+    private String id;
 
     /**
      * (Required)
@@ -54,7 +54,7 @@ public class RegistryRest {
     @JsonProperty("status")
     @JsonPropertyDescription("")
     @NotNull
-    private RegistryStatusRest status;
+    private String status;
 
     /**
      * (Required)
