@@ -72,7 +72,7 @@ public class RegistriesResourceV1Impl implements RegistriesResourceV1 {
                     findAll(Sort.by("id", Sort.Direction.Ascending));
         }
         var query = itemsQuery;
-        page = (page != null) ? page : 10;
+        page = (page != null) ? page : 0;
         size = (size != null) ? size : 10;
 
         var total = this.registryRepository.count();
@@ -80,9 +80,9 @@ public class RegistriesResourceV1Impl implements RegistriesResourceV1 {
                 .collect(Collectors
                         .toCollection(ArrayList::new));
         return RegistryRestList.builder().items(items)
-                .page(page.toString())
-                .size(page.toString())
-                .total(String.valueOf(total)).build();
+                .page(page)
+                .size(size)
+                .total(total).build();
     }
 
     @Override
