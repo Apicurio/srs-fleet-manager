@@ -443,13 +443,13 @@
               "size": "1",
               "total": "1",
               "item": {
-                  "id": "llmNteR4P7waRp5nJIReG",
-                  "kind": "serviceregistry",
-                  "href": "/api/serviceregistry_mgmt/v1/registries/llmNteR4P7waRp5nJIReG",
-                  "name": "sample-registry",
-                  "status": "ready",
-                  "owner": "some_id",
-                  "registryUrl": "https://somehost:433"
+                "id": "llmNteR4P7waRp5nJIReG",
+                "kind": "serviceregistry",
+                "href": "/api/serviceregistry_mgmt/v1/registries/llmNteR4P7waRp5nJIReG",
+                "name": "sample-registry",
+                "status": "ready",
+                "owner": "some_id",
+                "registryUrl": "https://somehost:433"
               }
             },
             "properties": {
@@ -477,24 +477,31 @@
         ],
         "type": "object",
         "properties": {
-          "id": {
-            "type": "integer"
-          },
-          "status": {
-            "$ref": "#/components/schemas/RegistryStatus",
-            "description": ""
-          },
-          "registryUrl": {
-            "type": "string"
-          },
-          "name": {
-            "description": "User-defined Registry name. Does not have to be unique.",
-            "type": "string"
-          },
-          "registryDeploymentId": {
-            "description": "Identifier of a multi-tenant deployment, where this Service Registry instance resides.",
-            "type": "integer"
-          }
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/ObjectReference"
+            },
+            {
+              "id": {
+                "type": "integer"
+              },
+              "status": {
+                "$ref": "#/components/schemas/RegistryStatusValue",
+                "description": ""
+              },
+              "registryUrl": {
+                "type": "string"
+              },
+              "name": {
+                "description": "User-defined Registry name. Does not have to be unique.",
+                "type": "string"
+              },
+              "registryDeploymentId": {
+                "description": "Identifier of a multi-tenant deployment, where this Service Registry instance resides.",
+                "type": "integer"
+              }
+            }
+          ]
         },
         "example": {
           "id": 42,
@@ -505,29 +512,6 @@
             "lastUpdated": "2021-05-04T12:34:56Z"
           },
           "registryDeploymentId": 1
-        }
-      },
-      "RegistryStatus": {
-        "description": "",
-        "required": [
-          "value",
-          "lastUpdated"
-        ],
-        "type": "object",
-        "properties": {
-          "lastUpdated": {
-            "format": "date-time",
-            "description": "ISO 8601 UTC timestamp.",
-            "type": "string"
-          },
-          "value": {
-            "$ref": "#/components/schemas/RegistryStatusValue",
-            "description": ""
-          }
-        },
-        "example": {
-          "value": "AVAILABLE",
-          "lastUpdated": "2021-05-04T12:34:56Z"
         }
       },
       "RegistryCreate": {
