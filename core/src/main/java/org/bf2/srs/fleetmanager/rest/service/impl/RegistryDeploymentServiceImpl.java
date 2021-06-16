@@ -57,7 +57,7 @@ public class RegistryDeploymentServiceImpl implements RegistryDeploymentService 
         if (isResolvable(securityIdentity)) {
             //TODO fill resoure type and cluster id
             final AccountInfo accountInfo = authService.extractAccountInfo();
-            allowed = accountInfo.isAdmin() && accountManagementService.hasEntitlements(authService.extractAccountInfo(), "", "");
+            allowed = accountManagementService.hasEntitlements(authService.extractAccountInfo(), "", "");
         }
         if (allowed) {
             //TODO validate values
@@ -86,10 +86,20 @@ public class RegistryDeploymentServiceImpl implements RegistryDeploymentService 
 
     @Override
     public void deleteRegistryDeployment(Long id) throws RegistryDeploymentNotFoundException, StorageConflictException {
-        storage.deleteRegistryDeployment(id);
+
+        boolean allowed = true;
+        if (isResolvable(securityIdentity)) {
+            final AccountInfo accountInfo = authService.extractAccountInfo();
+            allowed = accountInfo.isAdmin();
+        }
+        if (allowed) {
+            storage.deleteRegistryDeployment(id);
+        }
+        throw new ForbiddenException();
     }
 
     private boolean isResolvable(Instance<SecurityIdentity> securityIdentity) {
+
         return securityIdentity.isResolvable() && !securityIdentity.get().isAnonymous();
     }
 }
