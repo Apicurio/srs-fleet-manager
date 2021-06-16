@@ -24,6 +24,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
+import static org.bf2.srs.fleetmanager.util.SecurityUtil.isResolvable;
 
 /**
  * @author Jakub Senko <jsenko@redhat.com>
@@ -86,7 +87,6 @@ public class RegistryDeploymentServiceImpl implements RegistryDeploymentService 
 
     @Override
     public void deleteRegistryDeployment(Long id) throws RegistryDeploymentNotFoundException, StorageConflictException {
-
         boolean allowed = true;
         if (isResolvable(securityIdentity)) {
             final AccountInfo accountInfo = authService.extractAccountInfo();
@@ -96,10 +96,5 @@ public class RegistryDeploymentServiceImpl implements RegistryDeploymentService 
             storage.deleteRegistryDeployment(id);
         }
         throw new ForbiddenException();
-    }
-
-    private boolean isResolvable(Instance<SecurityIdentity> securityIdentity) {
-
-        return securityIdentity.isResolvable() && !securityIdentity.get().isAnonymous();
     }
 }
