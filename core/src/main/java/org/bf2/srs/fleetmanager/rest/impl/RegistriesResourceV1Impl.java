@@ -16,12 +16,12 @@ import org.bf2.srs.fleetmanager.storage.StorageConflictException;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.PanacheRegistryRepository;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.Registry;
 
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.validation.ValidationException;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 /**
  * @author Jakub Senko <jsenko@redhat.com>
@@ -74,7 +74,7 @@ public class RegistriesResourceV1Impl implements RegistriesResourceV1 {
         var query = itemsQuery;
         page = (page != null) ? page : 10;
         size = (size != null) ? size : 10;
-           
+
         var total = this.registryRepository.count();
         var items = itemsQuery.page(Page.of(page, size)).stream().map(convertRegistry::convert)
                 .collect(Collectors
@@ -86,16 +86,24 @@ public class RegistriesResourceV1Impl implements RegistriesResourceV1 {
     }
 
     @Override
-    public RegistryRest getRegistry(Long id) throws RegistryNotFoundException {
-        return storage.getRegistryById(id)
-                .map(convertRegistry::convert)
-                .orElseThrow(() -> RegistryNotFoundException.create(id));
+    public RegistryRest getRegistry(String registryId) throws RegistryNotFoundException {
+        try {
+            Long id = Long.valueOf(registryId);
+            return storage.getRegistryById(id)
+                    .map(convertRegistry::convert)
+                    .orElseThrow(() -> RegistryNotFoundException.create(id));
+        } catch (NumberFormatException ex) {
+            throw RegistryNotFoundException.create(registryId);
+        }
     }
 
     @Override
-    public void deleteRegistry(Long id) throws RegistryNotFoundException, StorageConflictException {
-        storage.deleteRegistry(id);
+    public void deleteRegistry(String registryId) throws RegistryNotFoundException, StorageConflictException {
+        try {
+            Long id = Long.valueOf(registryId);
+            storage.deleteRegistry(id);
+        } catch (NumberFormatException ex) {
+            throw RegistryNotFoundException.create(registryId);
+        }
     }
-
-
 }
