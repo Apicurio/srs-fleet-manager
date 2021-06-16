@@ -1,13 +1,12 @@
 package org.bf2.srs.fleetmanager.rest;
 
 import io.quarkus.test.junit.QuarkusTest;
-import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
-import io.restassured.path.json.JsonPath;
 import org.bf2.srs.fleetmanager.rest.model.RegistryCreateRest;
 import org.bf2.srs.fleetmanager.rest.model.RegistryDeploymentCreateRest;
 import org.bf2.srs.fleetmanager.rest.model.RegistryDeploymentRest;
 import org.bf2.srs.fleetmanager.rest.model.RegistryRest;
+import org.bf2.srs.fleetmanager.rest.model.RegistryRestList;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -91,10 +90,14 @@ public class RegistriesResourceV1Test {
 
     @Test
     void testGetRegistries() {
-        given()
+        RegistryRestList res1 = given()
                 .when().get(BASE)
-                .then().statusCode(HTTP_OK).body("", equalTo(JsonPath.from("[]").getList("")))
-                .log().all();
+                .then().statusCode(HTTP_OK)
+                .log().all()
+                .extract().as(RegistryRestList.class);
+
+        assertThat(res1, equalTo(RegistryRestList.builder()
+                .items(List.of()).page(0).size(10).total(0L).build()));
 
         var deployment = RegistryDeploymentCreateRest.builder()
                 .name("a")
@@ -128,8 +131,8 @@ public class RegistriesResourceV1Test {
                 .when().get(BASE)
                 .then().statusCode(200)
                 .log().all()
-                .extract().as(new TypeRef<List<RegistryRest>>() {
-                }).stream().map(RegistryRest::getId).collect(toList());
+                .extract().as(RegistryRestList.class)
+                .getItems().stream().map(RegistryRest::getId).collect(toList());
 
         assertThat(actualIds, containsInAnyOrder(ids.toArray()));
 

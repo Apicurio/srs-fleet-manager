@@ -1,74 +1,28 @@
 package org.bf2.srs.fleetmanager.rest.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyDescription;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import lombok.*;
-
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 import java.util.List;
-
-import static lombok.AccessLevel.PACKAGE;
+import javax.validation.constraints.NotNull;
 
 /**
  * Service Registry instance within a multi-tenant deployment.
  */
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({
-        "kind",
-        "items",
-        "page",
-        "size",
-        "total"
-})
 @NoArgsConstructor
-@AllArgsConstructor(access = PACKAGE)
-@Builder
 @Getter
 @Setter
-@EqualsAndHashCode
-@ToString
-public class RegistryRestList extends AbstractList {
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+public class RegistryRestList extends AbstractList<RegistryRest> {
 
-    /**
-     * (Required)
-     */
-    @JsonProperty("items")
-    @JsonPropertyDescription("")
-    @NotNull
-    private List<RegistryRest> items;
-
-    /**
-     * (Required)
-     */
-    @JsonProperty("kind")
-    @JsonPropertyDescription("Kind of the service")
-    @NotNull
-    private String kind = "ServiceRegistryList";
-
-    /**
-     * (Optional)
-     */
-    @JsonProperty("page")
-    @JsonPropertyDescription("")
-    @NotEmpty
-    private String page;
-
-    /**
-     * (Optional)
-     */
-    @JsonProperty("size")
-    @JsonPropertyDescription("Size of the current view of items")
-    private String size;
-
-    /**
-     * (Optional)
-     */
-    @JsonProperty("total")
-    @JsonPropertyDescription("Total number of items in list")
-    private String total;
-
+    @Builder
+    public RegistryRestList(@NotNull List<RegistryRest> items, @NotNull Integer page, Integer size, Long total) {
+        super(Kind.REGISTRY_LIST, items, page, size, total);
+    }
 }
