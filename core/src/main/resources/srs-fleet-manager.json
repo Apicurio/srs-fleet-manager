@@ -343,7 +343,7 @@
           "name": "id",
           "description": "A unique identifier for a `Registry`.",
           "schema": {
-            "type": "integer"
+            "type": "string"
           },
           "in": "path",
           "required": true

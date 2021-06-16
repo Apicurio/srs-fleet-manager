@@ -13,6 +13,10 @@ public class RegistryNotFoundException extends StorageException {
     }
 
     public static RegistryNotFoundException create(Long id) {
+        return create(id.toString());
+    }
+
+    public static RegistryNotFoundException create(String id) {
         return new RegistryNotFoundException("No Registry found for id " + id);
     }
 }

@@ -46,7 +46,7 @@ public interface RegistriesResourceV1 {
     @Path("/{id}")
     @GET
     @Produces("application/json")
-    RegistryRest getRegistry(@PathParam("id") Long registryId) throws RegistryNotFoundException;
+    RegistryRest getRegistry(@PathParam("id") String registryId) throws RegistryNotFoundException;
 
     /**
      * Delete a Registry
@@ -55,5 +55,5 @@ public interface RegistriesResourceV1 {
      */
     @Path("/{id}")
     @DELETE
-    void deleteRegistry(@PathParam("id") Long registryId) throws RegistryNotFoundException, StorageConflictException;
+    void deleteRegistry(@PathParam("id") String registryId) throws RegistryNotFoundException, StorageConflictException;
 }
