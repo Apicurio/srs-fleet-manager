@@ -13,6 +13,9 @@ public class TenantManagerClientProducer {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
+
+    //TODO inject tenant manager security properties when auth is enabled
+
     @UnlessBuildProfile("test")
     @Produces
     @ApplicationScoped
