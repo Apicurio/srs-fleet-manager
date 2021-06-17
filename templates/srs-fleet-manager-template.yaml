@@ -278,4 +278,4 @@ parameters:
   value: envoyproxy/envoy:v1.16.1
 - name: ENVOY_CONFIG_CM_NAME
   description: ConfigMap containing Envoy config file
-  required: true
+  value: srs-fleet-manager-envoy-config
