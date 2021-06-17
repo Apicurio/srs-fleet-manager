@@ -65,7 +65,8 @@ Once your configs are generated, you can start the whole stack with these comman
 ```
 docker-compose -f docker-compose.keycloak.yml build
 docker-compose -f docker-compose.keycloak.yml up
-docker-compose -f docker-compose.apicurio.yml up
+docker-compose -f docker-compose-registry-full.yml -f docker-compose-as-postgre.yml up
+
 ```
 
 To clear the environment, please run these commands:

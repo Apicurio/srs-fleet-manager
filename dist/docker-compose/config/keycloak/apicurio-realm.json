@@ -509,7 +509,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "secret1",
       "defaultRoles": [
         "view-applications",
         "view-profile",
@@ -557,7 +557,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "secret1",
       "redirectUris": [
         "/realms/registry/account/*"
       ],
@@ -610,7 +610,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "secret1",
       "redirectUris": [],
       "webOrigins": [],
       "notBefore": 0,
@@ -786,10 +786,10 @@
       "clientAuthenticatorType": "client-secret",
       "secret": "secret1",
       "redirectUris": [
-        "http://localhost:8080/*"
+        "*"
       ],
       "webOrigins": [
-        "http://localhost:8080"
+        "+"
       ],
       "notBefore": 0,
       "bearerOnly": false,
