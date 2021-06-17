@@ -7,8 +7,8 @@ This setup contains a fully configured Apicurio Registry multitenant deployment 
 Here is the port mapping:
 - 8090 for Keycloak
 - 8080 for the Registry
-- 8081 for Fleet Manager
-- 8082 for Tenant Manager
+- 8082 for Fleet Manager
+- 8081 for Tenant Manager
 
 #### Setup
 

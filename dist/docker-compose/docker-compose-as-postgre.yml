@@ -1,5 +1,5 @@
 services:
-  apicurio-studio-db:
+  apicurio-db:
     image: 'postgres:9.6'
     environment:
       POSTGRES_DB: ${AS_DATABASE}
