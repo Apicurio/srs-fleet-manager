@@ -1,0 +1,93 @@
+version: '3'
+
+volumes:
+  postgre_apicurio:
+
+services:
+
+
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: apicurio-registry
+      POSTGRES_PASSWORD: password
+    tenant-manager:
+      image: apicurio-registry-tenant-manager-api:latest
+      ports:
+        - 8081:8080
+      environment:
+        DATASOURCE_URL: 'jdbc:postgresql://postgres/apicurio-registry'
+        DATASOURCE_USERNAME: apicurio-registry
+        DATASOURCE_PASSWORD: password
+      depends_on:
+        - postgres
+        - registry-app
+    registry-app:
+      image: apicurio/apicurio-registry-sql:latest
+      ports:
+        - 8080:8080
+      environment:
+        REGISTRY_DATASOURCE_URL: 'jdbc:postgresql://postgres/apicurio-registry'
+        REGISTRY_DATASOURCE_USERNAME: apicurio-registry
+        REGISTRY_DATASOURCE_PASSWORD: password
+
+  apicurio-sr-fleet-manager:
+    image: 'apicurio/srs-fleet-manager:${FLEET_MANAGER_VERSION}'
+    depends_on:
+      - apicurio-studio-db
+    ports:
+      - '8092:8080'
+    environment:
+      JAVA_TOOL_OPTIONS: '-Djava.net.preferIPv4Stack=true'
+
+      QUARKUS_PROFILE: ${QUARKUS_PROFILE}
+
+      APICURIO_HUB_STORAGE_JDBC_TYPE: ${APICURIO_DB_TYPE}
+      APICURIO_DB_DRIVER_NAME: ${APICURIO_DB_DRIVER_NAME}
+      APICURIO_DB_CONNECTION_URL: ${APICURIO_DB_CONNECTION_URL}
+      APICURIO_DB_USER_NAME: ${APICURIO_DB_USER_NAME}
+      APICURIO_DB_PASSWORD: ${APICURIO_DB_PASSWORD}
+      APICURIO_DB_INITIALIZE: ${WS_APICURIO_DB_INITIALIZE}
+      APICURIO_SHARE_FOR_EVERYONE: ${APICURIO_SHARE_FOR_EVERYONE}
+
+
+  apicurio-registry:
+    image: 'apicurio/apicurio-registry-mem:latest'
+    ports:
+      - '8080:8080'
+    environment:
+
+      QUARKUS_PROFILE: ${QUARKUS_PROFILE}
+
+      AUTHZ_ENABLED: ${AUTHZ_ENABLED}
+      AUTH_ENABLED: ${AUTH_ENABLED}
+      KEYCLOAK_URL: ${KEYCLOAK_URL}
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM}
+      KEYCLOAK_API_CLIENT_ID: ${KEYCLOAK_API_CLIENT_ID}
+      KEYCLOAK_UI_CLIENT_ID: ${KEYCLOAK_UI_CLIENT_ID}
+
+
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: apicurio-registry
+      POSTGRES_PASSWORD: password
+    tenant-manager:
+      image: apicurio-registry-tenant-manager-api:latest
+      ports:
+        - 8081:8080
+      environment:
+        DATASOURCE_URL: 'jdbc:postgresql://postgres/apicurio-registry'
+        DATASOURCE_USERNAME: apicurio-registry
+        DATASOURCE_PASSWORD: password
+      depends_on:
+        - postgres
+        - registry-app
+    registry-app:
+      image: apicurio/apicurio-registry-sql:latest
+      ports:
+        - 8080:8080
+      environment:
+        REGISTRY_DATASOURCE_URL: 'jdbc:postgresql://postgres/apicurio-registry'
+        REGISTRY_DATASOURCE_USERNAME: apicurio-registry
+        REGISTRY_DATASOURCE_PASSWORD: password
