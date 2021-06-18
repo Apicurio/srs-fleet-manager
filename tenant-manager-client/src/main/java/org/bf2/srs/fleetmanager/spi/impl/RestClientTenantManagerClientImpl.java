@@ -2,6 +2,7 @@ package org.bf2.srs.fleetmanager.spi.impl;
 
 import io.apicurio.multitenant.api.datamodel.NewRegistryTenantRequest;
 import io.apicurio.multitenant.api.datamodel.RegistryTenant;
+import io.apicurio.multitenant.client.Auth;
 import io.apicurio.multitenant.client.TenantManagerClientImpl;
 import org.bf2.srs.fleetmanager.spi.TenantManagerClient;
 import org.bf2.srs.fleetmanager.spi.model.Tenant;
@@ -15,11 +16,25 @@ import java.util.stream.Collectors;
 
 public class RestClientTenantManagerClientImpl implements TenantManagerClient {
 
+    private final Auth auth;
+
     private Map<String, TenantManagerClientImpl> pool = new ConcurrentHashMap<String, TenantManagerClientImpl>();
+
+    public RestClientTenantManagerClientImpl() {
+        this(null);
+    }
+
+    public RestClientTenantManagerClientImpl(Auth auth) {
+        this.auth = auth;
+    }
 
     private io.apicurio.multitenant.client.TenantManagerClient getClient(TenantManager tm) {
         return pool.computeIfAbsent(tm.getTenantManagerUrl(), k -> {
-            return new TenantManagerClientImpl(tm.getTenantManagerUrl());
+            if (auth != null) {
+                return new TenantManagerClientImpl(tm.getTenantManagerUrl(), auth);
+            } else {
+               return new TenantManagerClientImpl(tm.getTenantManagerUrl());
+            }
         });
     }
 
