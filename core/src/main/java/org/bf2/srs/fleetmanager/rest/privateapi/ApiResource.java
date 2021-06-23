@@ -11,6 +11,7 @@ import javax.ws.rs.Produces;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentCreateRest;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentRest;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.TaskRest;
+import org.bf2.srs.fleetmanager.storage.StorageConflictException;
 
 /**
  * A JAX-RS interface.  An implementation of this interface must be provided.
@@ -41,7 +42,7 @@ public interface ApiResource {
   @POST
   @Produces("application/json")
   @Consumes("application/json")
-  RegistryDeploymentRest createRegistryDeployment(RegistryDeploymentCreateRest data);
+  RegistryDeploymentRest createRegistryDeployment(RegistryDeploymentCreateRest data) throws StorageConflictException;
 
   @Path("/serviceregistry_mgmt/v1/admin/registryDeployments/{registryDeploymentId}")
   @GET

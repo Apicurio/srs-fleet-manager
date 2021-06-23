@@ -54,7 +54,8 @@ public class Convert {
         res.setKind(data.getKind());
         res.setRegistryUrl(data.getRegistryUrl());
         res.setName(data.getName());
-        res.setRegistryDeploymentId(data.getRegistryDeploymentId().intValue());
+        res.setRegistryDeploymentId(Optional.ofNullable(data.getRegistryDeploymentId())
+                .map(Long::intValue).orElse(null)); // TODO Conversion
         res.setStatus(convert(data.getStatus()));
         return res;
     }
