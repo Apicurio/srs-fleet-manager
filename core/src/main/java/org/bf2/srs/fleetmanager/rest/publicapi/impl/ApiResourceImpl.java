@@ -33,8 +33,8 @@ public class ApiResourceImpl implements ApiResource {
     Convert convert;
 
     @Override
-    public RegistryListRest getRegistries(String page, String size, String orderBy, String search) {
-        return convert.convert(registryService.getRegistries(Integer.valueOf(page), Integer.valueOf(size), orderBy, search)); // TODO Conversion
+    public RegistryListRest getRegistries(Integer page, Integer size, String orderBy, String search) {
+        return convert.convert(registryService.getRegistries(page, size, orderBy, search));
     }
 
     @SneakyThrows

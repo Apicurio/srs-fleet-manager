@@ -590,7 +590,7 @@
         "name": "page",
         "description": "Page index",
         "schema": {
-          "type": "string"
+          "type": "integer"
         },
         "in": "query",
         "required": false
@@ -604,7 +604,7 @@
         "name": "size",
         "description": "Number of items in each page",
         "schema": {
-          "type": "string"
+          "type": "integer"
         },
         "in": "query",
         "required": false
