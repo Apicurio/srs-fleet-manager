@@ -10,6 +10,7 @@ import org.bf2.srs.fleetmanager.rest.service.model.RegistryCreate;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryList;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValue;
 
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 
@@ -41,7 +42,8 @@ public class Convert {
         res.setName(data.getName());
         res.setStatus(convert(data.getStatus()));
         res.setRegistryUrl(data.getRegistryUrl());
-        res.setRegistryDeploymentId(data.getRegistryDeploymentId().intValue()); // TODO Conversion
+        res.setRegistryDeploymentId(Optional.ofNullable(data.getRegistryDeploymentId())
+                .map(Long::intValue).orElse(null)); // TODO Conversion
         return res;
     }
 
@@ -62,7 +64,8 @@ public class Convert {
         res.setKind(registries.getKind());
         res.setPage(registries.getPage());
         res.setSize(registries.getSize());
-        res.setTotal(registries.getTotal().intValue()); // TODO Conversion
+        res.setTotal(Optional.ofNullable(registries.getTotal())
+                .map(Long::intValue).orElse(null)); // TODO Conversion
         res.setItems(registries.getItems().stream().map(this::convertToItem).collect(Collectors.toList()));
         return res;
     }
