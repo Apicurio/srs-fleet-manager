@@ -15,8 +15,8 @@ import org.bf2.srs.fleetmanager.rest.service.model.TaskSchedule;
 
 import java.time.Instant;
 import java.util.Date;
+import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.core.Response;
 
 @ApplicationScoped
 public class Convert {
@@ -24,7 +24,8 @@ public class Convert {
     public TaskScheduleRest convert(TaskSchedule data) {
         TaskScheduleRest res = new TaskScheduleRest();
         res.setFirstExecuteAt(data.getFirstExecuteAt());
-        res.setIntervalSec(data.getIntervalSec().intValue()); // TODO Conversion
+        res.setIntervalSec(Optional.ofNullable(data.getIntervalSec())
+                .map(Long::intValue).orElse(null)); // TODO Conversion
         res.setPriority(data.getPriority());
         return res;
     }
@@ -40,7 +41,8 @@ public class Convert {
 
     public RegistryDeploymentRest convert(RegistryDeployment data) {
         RegistryDeploymentRest res = new RegistryDeploymentRest();
-        res.setId(data.getId().intValue()); // TODO Conversion
+        res.setId(Optional.ofNullable(data.getId())
+                .map(Long::intValue).orElse(null)); // TODO Conversion
         res.setName(data.getName());
         res.setStatus(convert(data.getStatus()));
         res.setRegistryDeploymentUrl(data.getRegistryDeploymentUrl());
@@ -51,7 +53,8 @@ public class Convert {
     private RegistryDeploymentStatusRest convert(RegistryDeploymentStatus data) {
         RegistryDeploymentStatusRest res = new RegistryDeploymentStatusRest();
         res.setValue(convert(data.getValue()));
-        res.setLastUpdated(Date.from(Instant.parse(data.getLastUpdated()))); // TODO Conversion
+        res.setLastUpdated(Optional.ofNullable(data.getLastUpdated())
+                .map(x -> Date.from(Instant.parse(x))).orElse(null)); // TODO Conversion
         return res;
     }
 
