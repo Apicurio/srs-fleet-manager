@@ -1,11 +1,11 @@
 package org.bf2.srs.fleetmanager.rest;
 
-import org.bf2.srs.fleetmanager.rest.model.RegistryDeploymentCreateRest;
-import org.bf2.srs.fleetmanager.rest.model.RegistryDeploymentRest;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
+import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentCreateRest;
+import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentRest;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -27,34 +27,28 @@ class RegistryDeploymentsResourceV1Test {
 
     @Test
     void testCreateRegistryDeployment() {
-        var valid1 = RegistryDeploymentCreateRest.builder()
-                .name("a")
-                .tenantManagerUrl("a")
-                .registryDeploymentUrl("a")
-                .build();
+        var valid1 = new RegistryDeploymentCreateRest();
+        valid1.setName("a");
+        valid1.setTenantManagerUrl("a");
+        valid1.setRegistryDeploymentUrl("a");
 
-        var valid2 = RegistryDeploymentCreateRest.builder()
-                .tenantManagerUrl("b")
-                .registryDeploymentUrl("b")
-                .build();
+        var valid2 = new RegistryDeploymentCreateRest();
+        valid2.setTenantManagerUrl("b");
+        valid2.setRegistryDeploymentUrl("b");
 
-        var invalid1 = RegistryDeploymentCreateRest.builder()
-                .registryDeploymentUrl("c")
-                .tenantManagerUrl("")
-                .build();
+        var invalid1 = new RegistryDeploymentCreateRest();
+        invalid1.setRegistryDeploymentUrl("c");
+        invalid1.setTenantManagerUrl("");
 
-        var invalid2 = RegistryDeploymentCreateRest.builder()
-                .registryDeploymentUrl("d")
-                .build();
+        var invalid2 = new RegistryDeploymentCreateRest();
+        invalid2.setRegistryDeploymentUrl("d");
 
-        var invalid3 = RegistryDeploymentCreateRest.builder()
-                .registryDeploymentUrl("")
-                .tenantManagerUrl("e")
-                .build();
+        var invalid3 = new RegistryDeploymentCreateRest();
+        invalid3.setRegistryDeploymentUrl("");
+        invalid3.setTenantManagerUrl("e");
 
-        var invalid4 = RegistryDeploymentCreateRest.builder()
-                .tenantManagerUrl("f")
-                .build();
+        var invalid4 = new RegistryDeploymentCreateRest();
+        invalid4.setTenantManagerUrl("f");
 
         var invalidJson1 = "{\"invalid\": true}";
 
@@ -74,10 +68,10 @@ class RegistryDeploymentsResourceV1Test {
                     .log().all();
         });
 
-        List<Long> ids = List.of(valid1, valid2).stream().map(d -> {
+        List<Integer> ids = List.of(valid1, valid2).stream().map(d -> {
             return given()
                     .when().contentType(ContentType.JSON).body(d).post(BASE)
-                    .then().statusCode(HTTP_ACCEPTED)
+                    .then().statusCode(HTTP_OK)
                     .log().all()
                     .extract().as(RegistryDeploymentRest.class).getId();
         }).collect(toList());
@@ -105,27 +99,25 @@ class RegistryDeploymentsResourceV1Test {
                 .then().statusCode(HTTP_OK).body("", equalTo(JsonPath.from("[]").getList("")))
                 .log().all();
 
-        var valid1 = RegistryDeploymentCreateRest.builder()
-                .name("a")
-                .tenantManagerUrl("a")
-                .registryDeploymentUrl("a")
-                .build();
+        var valid1 = new RegistryDeploymentCreateRest();
+        valid1.setName("a");
+        valid1.setTenantManagerUrl("a");
+        valid1.setRegistryDeploymentUrl("a");
 
-        var valid2 = RegistryDeploymentCreateRest.builder()
-                .tenantManagerUrl("b")
-                .registryDeploymentUrl("b")
-                .build();
+        var valid2 = new RegistryDeploymentCreateRest();
+        valid2.setTenantManagerUrl("b");
+        valid2.setRegistryDeploymentUrl("b");
 
         // Create
-        List<Long> ids = List.of(valid1, valid2).stream().map(d -> {
+        List<Integer> ids = List.of(valid1, valid2).stream().map(d -> {
             return given()
                     .when().contentType(ContentType.JSON).body(d).post(BASE)
-                    .then().statusCode(HTTP_ACCEPTED)
+                    .then().statusCode(HTTP_OK)
                     .log().all()
                     .extract().as(RegistryDeploymentRest.class).getId();
         }).collect(toList());
 
-        List<Long> actualIds = given()
+        List<Integer> actualIds = given()
                 .when().get(BASE)
                 .then().statusCode(200)
                 .log().all()
@@ -151,22 +143,20 @@ class RegistryDeploymentsResourceV1Test {
                 .then().statusCode(HTTP_NOT_FOUND).body("error_code", equalTo(404))
                 .log().all();
 
-        var valid1 = RegistryDeploymentCreateRest.builder()
-                .name("a")
-                .tenantManagerUrl("a")
-                .registryDeploymentUrl("a")
-                .build();
+        var valid1 = new RegistryDeploymentCreateRest();
+        valid1.setName("a");
+        valid1.setTenantManagerUrl("a");
+        valid1.setRegistryDeploymentUrl("a");
 
-        var valid2 = RegistryDeploymentCreateRest.builder()
-                .tenantManagerUrl("b")
-                .registryDeploymentUrl("b")
-                .build();
+        var valid2 = new RegistryDeploymentCreateRest();
+        valid2.setTenantManagerUrl("b");
+        valid2.setRegistryDeploymentUrl("b");
 
         // Create
-        List<Long> ids = List.of(valid1, valid2).stream().map(d -> {
+        List<Integer> ids = List.of(valid1, valid2).stream().map(d -> {
             return given()
                     .when().contentType(ContentType.JSON).body(d).post(BASE)
-                    .then().statusCode(HTTP_ACCEPTED)
+                    .then().statusCode(HTTP_OK)
                     .log().all()
                     .extract().as(RegistryDeploymentRest.class).getId();
         }).collect(toList());
@@ -175,7 +165,7 @@ class RegistryDeploymentsResourceV1Test {
             given()
                     .when().get(BASE + "/" + id)
                     // NOTE: Test framework assumes that JSON number is `int` instead of `long`.
-                    .then().statusCode(HTTP_OK).body("id", equalTo(id.intValue()))
+                    .then().statusCode(HTTP_OK).body("id", equalTo(id))
                     .log().all();
         });
 

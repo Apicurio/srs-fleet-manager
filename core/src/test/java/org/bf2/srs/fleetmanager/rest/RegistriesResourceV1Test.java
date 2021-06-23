@@ -2,11 +2,12 @@ package org.bf2.srs.fleetmanager.rest;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
-import org.bf2.srs.fleetmanager.rest.model.RegistryCreateRest;
-import org.bf2.srs.fleetmanager.rest.model.RegistryDeploymentCreateRest;
-import org.bf2.srs.fleetmanager.rest.model.RegistryDeploymentRest;
-import org.bf2.srs.fleetmanager.rest.model.RegistryRest;
-import org.bf2.srs.fleetmanager.rest.model.RegistryRestList;
+import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentCreateRest;
+import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentRest;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.Item;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreateRest;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryListRest;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryRest;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -29,24 +30,21 @@ public class RegistriesResourceV1Test {
 
     @Test
     void testCreateRegistry() {
-        var deployment = RegistryDeploymentCreateRest.builder()
-                .name("a")
-                .tenantManagerUrl("a")
-                .registryDeploymentUrl("a")
-                .build();
+        var deployment = new RegistryDeploymentCreateRest();
+        deployment.setName("a");
+        deployment.setTenantManagerUrl("a");
+        deployment.setRegistryDeploymentUrl("a");
 
-        Long deploymentId = given()
+        Integer deploymentId = given()
                 .when().contentType(ContentType.JSON).body(deployment).post("/api/serviceregistry_mgmt/v1/admin/registryDeployments")
-                .then().statusCode(HTTP_ACCEPTED)
+                .then().statusCode(HTTP_OK)
                 .log().all()
                 .extract().as(RegistryDeploymentRest.class).getId();
 
-        var valid1 = RegistryCreateRest.builder()
-                .name("a")
-                .build();
+        var valid1 = new RegistryCreateRest();
+        valid1.setName("a");
 
-        var valid2 = RegistryCreateRest.builder()
-                .build();
+        var valid2 = new RegistryCreateRest();
 
         var invalidJson1 = "{\"invalid\": true}";
 
@@ -69,7 +67,7 @@ public class RegistriesResourceV1Test {
         List<String> ids = List.of(valid1, valid2).stream().map(d -> {
             return given()
                     .when().contentType(ContentType.JSON).body(d).post(BASE)
-                    .then().statusCode(HTTP_ACCEPTED)
+                    .then().statusCode(HTTP_OK)
                     .log().all()
                     .extract().as(RegistryRest.class).getId();
         }).collect(toList());
@@ -90,49 +88,48 @@ public class RegistriesResourceV1Test {
 
     @Test
     void testGetRegistries() {
-        RegistryRestList res1 = given()
+        var res1 = given()
                 .when().get(BASE)
                 .then().statusCode(HTTP_OK)
                 .log().all()
-                .extract().as(RegistryRestList.class);
+                .extract().as(RegistryListRest.class);
 
-        assertThat(res1, equalTo(RegistryRestList.builder()
-                .items(List.of()).page(0).size(10).total(0L).build()));
+        assertThat(res1.getItems(), equalTo(List.of()));
+        assertThat(res1.getPage(), equalTo(0));
+        assertThat(res1.getSize(), equalTo(10));
+        assertThat(res1.getTotal(), equalTo(0));
 
-        var deployment = RegistryDeploymentCreateRest.builder()
-                .name("a")
-                .tenantManagerUrl("a")
-                .registryDeploymentUrl("a")
-                .build();
+        var deployment = new RegistryDeploymentCreateRest();
+        deployment.setName("a");
+        deployment.setTenantManagerUrl("a");
+        deployment.setRegistryDeploymentUrl("a");
 
-        Long deploymentId = given()
+        Integer deploymentId = given()
                 .when().contentType(ContentType.JSON).body(deployment).post("/api/serviceregistry_mgmt/v1/admin/registryDeployments")
-                .then().statusCode(HTTP_ACCEPTED)
+                .then().statusCode(HTTP_OK)
                 .log().all()
                 .extract().as(RegistryDeploymentRest.class).getId();
 
-        var valid1 = RegistryCreateRest.builder()
-                .name("a")
-                .build();
+        var valid1 = new RegistryCreateRest();
+        valid1.setName("a");
 
-        var valid2 = RegistryCreateRest.builder()
-                .build();
+        var valid2 = new RegistryCreateRest();
 
         // Create
         List<String> ids = List.of(valid1, valid2).stream().map(d -> {
             return given()
                     .when().contentType(ContentType.JSON).body(d).post(BASE)
-                    .then().statusCode(HTTP_ACCEPTED)
+                    .then().statusCode(HTTP_OK)
                     .log().all()
                     .extract().as(RegistryRest.class).getId();
         }).collect(toList());
 
         List<String> actualIds = given()
                 .when().get(BASE)
-                .then().statusCode(200)
+                .then().statusCode(HTTP_OK)
                 .log().all()
-                .extract().as(RegistryRestList.class)
-                .getItems().stream().map(RegistryRest::getId).collect(toList());
+                .extract().as(RegistryListRest.class)
+                .getItems().stream().map(Item::getId).collect(toList());
 
         assertThat(actualIds, containsInAnyOrder(ids.toArray()));
 
@@ -155,33 +152,30 @@ public class RegistriesResourceV1Test {
         // Error 404
         given()
                 .when().get(BASE + "/1000")
-                .then().statusCode(HTTP_NOT_FOUND).body("error_code", equalTo(404))
+                .then().statusCode(HTTP_NOT_FOUND).body("code", equalTo("X-HTTP-CODE-404"))// TODO
                 .log().all();
 
-        var deployment = RegistryDeploymentCreateRest.builder()
-                .name("a")
-                .tenantManagerUrl("a")
-                .registryDeploymentUrl("a")
-                .build();
+        var deployment = new RegistryDeploymentCreateRest();
+        deployment.setName("a");
+        deployment.setTenantManagerUrl("a");
+        deployment.setRegistryDeploymentUrl("a");
 
-        Long deploymentId = given()
+        Integer deploymentId = given()
                 .when().contentType(ContentType.JSON).body(deployment).post("/api/serviceregistry_mgmt/v1/admin/registryDeployments")
-                .then().statusCode(HTTP_ACCEPTED)
+                .then().statusCode(HTTP_OK)
                 .log().all()
                 .extract().as(RegistryDeploymentRest.class).getId();
 
-        var valid1 = RegistryCreateRest.builder()
-                .name("a")
-                .build();
+        var valid1 = new RegistryCreateRest();
+        valid1.setName("a");
 
-        var valid2 = RegistryCreateRest.builder()
-                .build();
+        var valid2 = new RegistryCreateRest();
 
         // Create
         List<String> ids = List.of(valid1, valid2).stream().map(d -> {
             return given()
                     .when().contentType(ContentType.JSON).body(d).post(BASE)
-                    .then().statusCode(HTTP_ACCEPTED)
+                    .then().statusCode(HTTP_OK)
                     .log().all()
                     .extract().as(RegistryRest.class).getId();
         }).collect(toList());
@@ -194,7 +188,7 @@ public class RegistriesResourceV1Test {
                     .then().statusCode(HTTP_OK)
                     // NOTE: Test framework assumes that JSON number is `int` instead of `long`.
                     .body("id", equalTo(id))
-                    .body("registryDeploymentId", equalTo(deploymentId.intValue()))
+                    .body("registryDeploymentId", equalTo(deploymentId))
                     .log().all();
         });
 
