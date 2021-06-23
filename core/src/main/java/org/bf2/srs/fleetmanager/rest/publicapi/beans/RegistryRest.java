@@ -33,7 +33,7 @@ public class RegistryRest {
      * 
      */
     @JsonProperty("id")
-    private Integer id;
+    private String id;
     @JsonProperty("kind")
     private String kind;
     @JsonProperty("href")
@@ -74,7 +74,7 @@ public class RegistryRest {
      * 
      */
     @JsonProperty("id")
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
@@ -84,7 +84,7 @@ public class RegistryRest {
      * 
      */
     @JsonProperty("id")
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 

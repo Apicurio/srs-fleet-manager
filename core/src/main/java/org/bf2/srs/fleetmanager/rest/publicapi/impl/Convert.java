@@ -35,7 +35,7 @@ public class Convert {
 
     public RegistryRest convert(Registry data) {
         RegistryRest res = new RegistryRest();
-        res.setId(Integer.valueOf(data.getId())); // TODO Conversion
+        res.setId(data.getId());
         res.setKind(data.getKind());
         res.setHref("");
         res.setName(data.getName());
@@ -47,7 +47,7 @@ public class Convert {
 
     public Item convertToItem(Registry data) {
         Item res = new Item();
-        res.setId(Integer.valueOf(data.getId())); // TODO Conversion
+        res.setId(data.getId());
         res.setHref(data.getHref());
         res.setKind(data.getKind());
         res.setRegistryUrl(data.getRegistryUrl());

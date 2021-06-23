@@ -23,7 +23,7 @@ public interface ApiResource {
   @Path("/serviceregistry_mgmt/v1/registries")
   @GET
   @Produces("application/json")
-  RegistryListRest getRegistries(@QueryParam("page") String page, @QueryParam("size") String size,
+  RegistryListRest getRegistries(@QueryParam("page") Integer page, @QueryParam("size") Integer size,
       @QueryParam("orderBy") String orderBy, @QueryParam("search") String search);
 
   /**
