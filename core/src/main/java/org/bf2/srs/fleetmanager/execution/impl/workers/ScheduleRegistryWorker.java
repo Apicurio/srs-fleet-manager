@@ -5,12 +5,12 @@ import org.bf2.srs.fleetmanager.execution.impl.tasks.ScheduleRegistryTask;
 import org.bf2.srs.fleetmanager.execution.manager.Task;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
-import org.bf2.srs.fleetmanager.rest.model.RegistryDeploymentStatusValueRest;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentStatusValue;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.storage.StorageConflictException;
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.Registry;
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeployment;
+import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
+import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,15 +54,15 @@ public class ScheduleRegistryWorker extends AbstractWorker {
     public void execute(Task aTask, WorkerContext ctl) throws StorageConflictException {
         ScheduleRegistryTask task = (ScheduleRegistryTask) aTask;
 
-        Optional<Registry> registryOptional = storage.getRegistryById(task.getRegistryId());
+        Optional<RegistryData> registryOptional = storage.getRegistryById(task.getRegistryId());
         if (registryOptional.isEmpty()) {
             // NOTE: Failure point 1
             ctl.retry();
         }
-        Registry registry = registryOptional.get();
+        RegistryData registry = registryOptional.get();
 
-        List<RegistryDeployment> eligibleRegistryDeployments = storage.getAllRegistryDeployments().stream()
-                .filter(rd -> RegistryDeploymentStatusValueRest.fromValue(rd.getStatus().getValue()) == RegistryDeploymentStatusValueRest.AVAILABLE)
+        List<RegistryDeploymentData> eligibleRegistryDeployments = storage.getAllRegistryDeployments().stream()
+                .filter(rd -> RegistryDeploymentStatusValue.fromValue(rd.getStatus().getValue()) == RegistryDeploymentStatusValue.AVAILABLE)
                 .collect(toList());
         if (eligibleRegistryDeployments.isEmpty()) {
             // NOTE: Failure point 2
@@ -73,7 +73,7 @@ public class ScheduleRegistryWorker extends AbstractWorker {
 
         // Schedule to a random registry deployment
         // TODO Improve & use a specific scheduling strategy
-        RegistryDeployment registryDeployment = eligibleRegistryDeployments.get(ThreadLocalRandom.current().nextInt(eligibleRegistryDeployments.size()));
+        RegistryDeploymentData registryDeployment = eligibleRegistryDeployments.get(ThreadLocalRandom.current().nextInt(eligibleRegistryDeployments.size()));
 
         log.info("Scheduling {} to {}.", registry, registryDeployment); // TODO only available
 
@@ -91,7 +91,7 @@ public class ScheduleRegistryWorker extends AbstractWorker {
         ScheduleRegistryTask task = (ScheduleRegistryTask) aTask;
 
         // SUCCESS STATE
-        Optional<Registry> registryOpt = storage.getRegistryById(task.getRegistryId());
+        Optional<RegistryData> registryOpt = storage.getRegistryById(task.getRegistryId());
         if (registryOpt.isPresent() && registryOpt.get().getRegistryDeployment() != null)
             return;
 

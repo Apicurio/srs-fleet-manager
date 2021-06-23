@@ -12,8 +12,8 @@ import org.bf2.srs.fleetmanager.spi.model.TenantManager;
 import org.bf2.srs.fleetmanager.spi.model.TenantRequest;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.Registry;
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeployment;
+import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
+import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,14 +62,14 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
         // TODO Split along failure points?
         ProvisionRegistryTenantTask task = (ProvisionRegistryTenantTask) aTask;
 
-        Optional<Registry> registryOptional = storage.getRegistryById(task.getRegistryId());
+        Optional<RegistryData> registryOptional = storage.getRegistryById(task.getRegistryId());
         // NOTE: Failure point 1
         if (registryOptional.isEmpty()) {
             ctl.retry();
         }
-        Registry registry = registryOptional.get();
+        RegistryData registry = registryOptional.get();
 
-        RegistryDeployment registryDeployment = registry.getRegistryDeployment();
+        RegistryDeploymentData registryDeployment = registry.getRegistryDeployment();
         // NOTE: Failure point 2
         if (registryDeployment == null) {
             // Either the schedule task didn't run yet, or we are in trouble
@@ -117,9 +117,9 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
 
         ProvisionRegistryTenantTask task = (ProvisionRegistryTenantTask) aTask;
 
-        Registry registry = storage.getRegistryById(task.getRegistryId()).orElse(null);
+        RegistryData registry = storage.getRegistryById(task.getRegistryId()).orElse(null);
 
-        RegistryDeployment registryDeployment = null;
+        RegistryDeploymentData registryDeployment = null;
         if (registry != null)
             registryDeployment = registry.getRegistryDeployment();
 
@@ -140,7 +140,7 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
         }
     }
 
-    private TenantManager createTenantManager(RegistryDeployment registryDeployment) {
+    private TenantManager createTenantManager(RegistryDeploymentData registryDeployment) {
         return TenantManager.builder()
                 .tenantManagerUrl(registryDeployment.getTenantManagerUrl())
                 .registryDeploymentUrl(registryDeployment.getRegistryDeploymentUrl())
