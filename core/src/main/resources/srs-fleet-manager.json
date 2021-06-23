@@ -204,7 +204,36 @@
         "description": ""
       }
     },
-    "/api/serviceregistry_mgmt/v1/{id}": {
+    "/api/serviceregistry_mgmt/v1": {
+      "summary": "Get an OpenAPI schema for this API.",
+      "description": "Get an OpenAPI schema for this API.",
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "examples": {
+                  "OpenAPI Schema": {
+                    "value": {
+                      "openapi": "3.0.2",
+                      "info": {
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Get an OpenAPI schema for this API."
+          }
+        },
+        "operationId": "getSchema",
+        "summary": "Get an OpenAPI schema for this API."
+      }
+    },
+    "/api/serviceregistry_mgmt/v1/registries/{id}": {
       "summary": "Manage a specific Registry.",
       "description": "",
       "get": {
@@ -353,35 +382,6 @@
           "required": true
         }
       ]
-    },
-    "/api/serviceregistry_mgmt/v1": {
-      "summary": "Get an OpenAPI schema for this API.",
-      "description": "Get an OpenAPI schema for this API.",
-      "get": {
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                },
-                "examples": {
-                  "OpenAPI Schema": {
-                    "value": {
-                      "openapi": "3.0.2",
-                      "info": {
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "description": "Get an OpenAPI schema for this API."
-          }
-        },
-        "operationId": "getSchema",
-        "summary": "Get an OpenAPI schema for this API."
-      }
     }
   },
   "components": {

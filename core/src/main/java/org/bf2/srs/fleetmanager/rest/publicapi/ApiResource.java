@@ -35,10 +35,15 @@ public interface ApiResource {
   @Consumes("application/json")
   RegistryRest createRegistry(RegistryCreateRest data);
 
+  @Path("/serviceregistry_mgmt/v1")
+  @GET
+  @Produces("application/json")
+  String getSchema();
+
   /**
    * Gets the details of a single instance of a `Registry`.
    */
-  @Path("/serviceregistry_mgmt/v1/{id}")
+  @Path("/serviceregistry_mgmt/v1/registries/{id}")
   @GET
   @Produces("application/json")
   RegistryRest getRegistry(@PathParam("id") String id);
@@ -46,12 +51,7 @@ public interface ApiResource {
   /**
    * Deletes an existing `Registry`.
    */
-  @Path("/serviceregistry_mgmt/v1/{id}")
+  @Path("/serviceregistry_mgmt/v1/registries/{id}")
   @DELETE
   void deleteRegistry(@PathParam("id") String id);
-
-  @Path("/serviceregistry_mgmt/v1")
-  @GET
-  @Produces("application/json")
-  String getSchema();
 }
