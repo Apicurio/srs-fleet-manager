@@ -1,7 +1,7 @@
 package org.bf2.srs.fleetmanager.storage;
 
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.Registry;
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeployment;
+import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
+import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentData;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,21 +16,21 @@ public interface ResourceStorage {
 
     //*** Registry
 
-    boolean createOrUpdateRegistry(@Valid Registry registry) throws StorageConflictException;
+    boolean createOrUpdateRegistry(@Valid RegistryData registry) throws StorageConflictException;
 
-    Optional<Registry> getRegistryById(@NotNull Long id);
+    Optional<RegistryData> getRegistryById(@NotNull Long id);
 
-    List<Registry> getAllRegistries();
+    List<RegistryData> getAllRegistries();
 
     void deleteRegistry(@NotNull Long id) throws RegistryNotFoundException, StorageConflictException;
 
     //*** RegistryDeployment
 
-    boolean createOrUpdateRegistryDeployment(@Valid RegistryDeployment rd) throws StorageConflictException;
+    boolean createOrUpdateRegistryDeployment(@Valid RegistryDeploymentData rd) throws StorageConflictException;
 
-    List<RegistryDeployment> getAllRegistryDeployments();
+    List<RegistryDeploymentData> getAllRegistryDeployments();
 
-    Optional<RegistryDeployment> getRegistryDeploymentById(@NotNull Long id);
+    Optional<RegistryDeploymentData> getRegistryDeploymentById(@NotNull Long id);
 
     void deleteRegistryDeployment(@NotNull Long id) throws RegistryDeploymentNotFoundException, StorageConflictException;
 }

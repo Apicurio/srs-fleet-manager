@@ -8,7 +8,7 @@ import org.bf2.srs.fleetmanager.spi.TenantManagerClient;
 import org.bf2.srs.fleetmanager.spi.model.TenantManager;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.storage.StorageConflictException;
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.Registry;
+import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,8 +20,8 @@ import javax.transaction.Transactional;
 
 import static org.bf2.srs.fleetmanager.execution.impl.tasks.TaskType.REGISTRY_HEARTBEAT_T;
 import static org.bf2.srs.fleetmanager.execution.impl.workers.WorkerType.REGISTRY_HEARTBEAT_W;
-import static org.bf2.srs.fleetmanager.rest.model.RegistryStatusValueRest.AVAILABLE;
-import static org.bf2.srs.fleetmanager.rest.model.RegistryStatusValueRest.UNAVAILABLE;
+import static org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValue.AVAILABLE;
+import static org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValue.UNAVAILABLE;
 
 /**
  * @author Jakub Senko <jsenko@redhat.com>
@@ -54,13 +54,13 @@ public class RegistryHeartbeatWorker extends AbstractWorker {
     public void execute(Task aTask, WorkerContext ctl) throws StorageConflictException {
         RegistryHeartbeatTask task = (RegistryHeartbeatTask) aTask;
 
-        Optional<Registry> registryOptional = storage.getRegistryById(task.getRegistryId());
+        Optional<RegistryData> registryOptional = storage.getRegistryById(task.getRegistryId());
         if (registryOptional.isEmpty()) {
             // NOTE: Failure point 1
             // The Registry disappeared. Just retry.
             ctl.retry();
         }
-        Registry registry = registryOptional.get();
+        RegistryData registry = registryOptional.get();
 
         TenantManager tenantManager = TenantManager.builder()
                 .tenantManagerUrl(registry.getRegistryDeployment().getTenantManagerUrl())

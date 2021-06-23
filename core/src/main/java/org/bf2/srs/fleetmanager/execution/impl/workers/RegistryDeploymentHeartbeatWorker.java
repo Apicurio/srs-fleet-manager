@@ -1,6 +1,6 @@
 package org.bf2.srs.fleetmanager.execution.impl.workers;
 
-import org.bf2.srs.fleetmanager.rest.model.RegistryDeploymentStatusValueRest;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentStatusValue;
 import org.bf2.srs.fleetmanager.storage.StorageConflictException;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.RegistryDeploymentHeartbeatTask;
 import org.bf2.srs.fleetmanager.execution.manager.Task;
@@ -9,7 +9,7 @@ import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
 import org.bf2.srs.fleetmanager.spi.TenantManagerClient;
 import org.bf2.srs.fleetmanager.spi.model.TenantManager;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeployment;
+import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,13 +53,13 @@ public class RegistryDeploymentHeartbeatWorker extends AbstractWorker {
     public void execute(Task aTask, WorkerContext ctl) throws StorageConflictException {
         RegistryDeploymentHeartbeatTask task = (RegistryDeploymentHeartbeatTask) aTask;
 
-        Optional<RegistryDeployment> deploymentOptional = storage.getRegistryDeploymentById(task.getDeploymentId());
+        Optional<RegistryDeploymentData> deploymentOptional = storage.getRegistryDeploymentById(task.getDeploymentId());
         if (deploymentOptional.isEmpty()) {
             // NOTE: Failure point 1
             // The Registry Deployment disappeared. Just retry.
             ctl.retry();
         }
-        RegistryDeployment deployment = deploymentOptional.get();
+        RegistryDeploymentData deployment = deploymentOptional.get();
 
         TenantManager tenantManager = TenantManager.builder()
                 .tenantManagerUrl(deployment.getTenantManagerUrl())
@@ -71,11 +71,11 @@ public class RegistryDeploymentHeartbeatWorker extends AbstractWorker {
         deployment.getStatus().setLastUpdated(Instant.now());
 
         if (!ok) {
-            deployment.getStatus().setValue(RegistryDeploymentStatusValueRest.UNAVAILABLE.value());
+            deployment.getStatus().setValue(RegistryDeploymentStatusValue.UNAVAILABLE.value());
             // TODO alerting?
             log.warn("Registry Deployment with ID {} has become unreachable.", deployment.getId());
         } else {
-            deployment.getStatus().setValue(RegistryDeploymentStatusValueRest.AVAILABLE.value());
+            deployment.getStatus().setValue(RegistryDeploymentStatusValue.AVAILABLE.value());
         }
 
         // NOTE: Failure point 2

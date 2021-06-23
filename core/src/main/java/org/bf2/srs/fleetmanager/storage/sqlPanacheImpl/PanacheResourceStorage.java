@@ -5,8 +5,8 @@ import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.storage.StorageConflictException;
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.Registry;
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeployment;
+import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
+import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentData;
 import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,9 +40,9 @@ public class PanacheResourceStorage implements ResourceStorage {
     PanacheRegistryDeploymentRepository deploymentRepository;
 
     @Override
-    public boolean createOrUpdateRegistry(Registry registry) throws StorageConflictException {
+    public boolean createOrUpdateRegistry(RegistryData registry) throws StorageConflictException {
         requireNonNull(registry); 
-        Optional<Registry> existing = empty();
+        Optional<RegistryData> existing = empty();
         if (registry.getId() != null) {
             existing = registryRepository.findByIdOptional(registry.getId());
         }
@@ -57,19 +57,19 @@ public class PanacheResourceStorage implements ResourceStorage {
     }
 
     @Override
-    public Optional<Registry> getRegistryById(Long id) {
+    public Optional<RegistryData> getRegistryById(Long id) {
         requireNonNull(id);
         return ofNullable(registryRepository.findById(id));
     }
 
     @Override
-    public List<Registry> getAllRegistries() {
+    public List<RegistryData> getAllRegistries() {
         return registryRepository.listAll();
     }
 
     @Override
     public void deleteRegistry(Long id) throws RegistryNotFoundException, StorageConflictException {
-        Registry registry = getRegistryById(id)
+        RegistryData registry = getRegistryById(id)
                 .orElseThrow(() -> RegistryNotFoundException.create(id));
         try {
             registryRepository.delete(registry);
@@ -83,9 +83,9 @@ public class PanacheResourceStorage implements ResourceStorage {
     //*** RegistryDeployment
 
     @Override
-    public boolean createOrUpdateRegistryDeployment(RegistryDeployment deployment) throws StorageConflictException {
+    public boolean createOrUpdateRegistryDeployment(RegistryDeploymentData deployment) throws StorageConflictException {
         requireNonNull(deployment); // TODO Is this necessary if using @Valid?
-        Optional<RegistryDeployment> existing = empty();
+        Optional<RegistryDeploymentData> existing = empty();
         if (deployment.getId() != null) {
             existing = deploymentRepository.findByIdOptional(deployment.getId());
         }
@@ -100,19 +100,19 @@ public class PanacheResourceStorage implements ResourceStorage {
     }
 
     @Override
-    public List<RegistryDeployment> getAllRegistryDeployments() {
+    public List<RegistryDeploymentData> getAllRegistryDeployments() {
         return deploymentRepository.listAll();
     }
 
     @Override
-    public Optional<RegistryDeployment> getRegistryDeploymentById(Long id) {
+    public Optional<RegistryDeploymentData> getRegistryDeploymentById(Long id) {
         requireNonNull(id);
         return ofNullable(deploymentRepository.findById(id));
     }
 
     @Override
     public void deleteRegistryDeployment(Long id) throws RegistryDeploymentNotFoundException, StorageConflictException {
-        RegistryDeployment rd = getRegistryDeploymentById(id)
+        RegistryDeploymentData rd = getRegistryDeploymentById(id)
                 .orElseThrow(() -> RegistryDeploymentNotFoundException.create(id));
         try {
             deploymentRepository.delete(rd);
