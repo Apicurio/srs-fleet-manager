@@ -35,11 +35,6 @@ public interface ApiResource {
   @Consumes("application/json")
   RegistryRest createRegistry(RegistryCreateRest data);
 
-  @Path("/serviceregistry_mgmt/v1")
-  @GET
-  @Produces("application/json")
-  String getSchema();
-
   /**
    * Gets the details of a single instance of a `Registry`.
    */
@@ -54,4 +49,9 @@ public interface ApiResource {
   @Path("/serviceregistry_mgmt/v1/registries/{id}")
   @DELETE
   void deleteRegistry(@PathParam("id") String id);
+
+  @Path("/serviceregistry_mgmt/v1/openapi")
+  @GET
+  @Produces("application/json")
+  String getSchema();
 }
