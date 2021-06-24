@@ -11,7 +11,6 @@ import javax.ws.rs.Produces;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentCreateRest;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentRest;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.TaskRest;
-import org.bf2.srs.fleetmanager.storage.StorageConflictException;
 
 /**
  * A JAX-RS interface.  An implementation of this interface must be provided.
@@ -28,11 +27,6 @@ public interface ApiResource {
   @Produces("application/json")
   TaskRest getTask(@PathParam("taskId") String taskId);
 
-  @Path("/serviceregistry_mgmt/v1/admin")
-  @GET
-  @Produces("application/json")
-  String getSchema();
-
   @Path("/serviceregistry_mgmt/v1/admin/registryDeployments")
   @GET
   @Produces("application/json")
@@ -42,7 +36,7 @@ public interface ApiResource {
   @POST
   @Produces("application/json")
   @Consumes("application/json")
-  RegistryDeploymentRest createRegistryDeployment(RegistryDeploymentCreateRest data) throws StorageConflictException;
+  RegistryDeploymentRest createRegistryDeployment(RegistryDeploymentCreateRest data);
 
   @Path("/serviceregistry_mgmt/v1/admin/registryDeployments/{registryDeploymentId}")
   @GET
@@ -53,4 +47,9 @@ public interface ApiResource {
   @Path("/serviceregistry_mgmt/v1/admin/registryDeployments/{registryDeploymentId}")
   @DELETE
   void deleteRegistryDeployment(@PathParam("registryDeploymentId") Integer registryDeploymentId);
+
+  @Path("/serviceregistry_mgmt/v1/admin/openapi")
+  @GET
+  @Produces("application/json")
+  String getSchema();
 }
