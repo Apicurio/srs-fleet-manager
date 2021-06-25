@@ -9,6 +9,8 @@ import org.bf2.srs.fleetmanager.rest.service.RegistryService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 
 /**
  * @author Jakub Senko <jsenko@redhat.com>
@@ -33,7 +35,9 @@ public class ApiResourceImpl implements ApiResource {
     Convert convert;
 
     @Override
-    public RegistryListRest getRegistries(Integer page, Integer size, String orderBy, String search) {
+    public RegistryListRest getRegistries(@Min(0) Integer page,
+                                          @Min(1) @Max(1000) Integer size,
+                                          String orderBy, String search) {
         return convert.convert(registryService.getRegistries(page, size, orderBy, search));
     }
 
