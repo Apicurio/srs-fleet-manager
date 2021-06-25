@@ -4,7 +4,9 @@ import javax.validation.ValidationException;
 import java.util.List;
 import java.util.Scanner;
 
-
+/**
+ * Container that transforms query string into hibernate query
+ */
 public class SearchQuery {
 
     private String query;
@@ -29,7 +31,7 @@ public class SearchQuery {
             throw new ValidationException(String.format("invalid search query key that is not matching allowed values %s ", this.allowedFields.toString()));
         }
 
-        this.query = searchExpr[0] +"=?";
+        this.query = searchExpr[0] +" = ?1";
         this.arguments = new Object[]{searchExpr[1]};
     }
 
