@@ -29,7 +29,7 @@ public class SearchQuery {
             throw new ValidationException(String.format("invalid search query key that is not matching allowed values %s ", this.allowedFields.toString()));
         }
 
-        this.query = searchExpr[0] +"=?";
+        this.query = searchExpr[0] +" = ?1";
         this.arguments = new Object[]{searchExpr[1]};
     }
 
