@@ -65,18 +65,25 @@ docker run --network host -p 8080:8080 -e 'SERVICE_API_DATASOURCE_URL=jdbc:postg
 
 ## Configuring auth
 
-When a new Registry deployment is provisioned, the application will expect the following values to be also provisioned and valid:
+In order to configure security you must configure the following values:
 
 |Option|Env. variable|
 |---|---|
-|Authentication server url |`AUTH_ADMIN_URL`|
-|Authentication admin realm|`AUTH_ADMIN_REALM`|
-|Authentication admin client|`AUTH_ADMIN_CLIENT_ID`|
-|Authentication admin username|`AUTH_ADMIN_USERNAME`|
-|Authentication admin password|`AUTH_ADMIN_PASSWORD`|
-|Authentication admin grant type|`AUTH_ADMIN_GRANT_TYPE`|
+|Enable authentication |`AUTH_ENABLED`|
+|Authentication server url|`KEYCLOAK_URL`|
+|Authentication realm|`KEYCLOAK_REALM`|
+|Authentication client|`KEYCLOAK_API_CLIENT_ID`|
 
-The service api will use those values in order to connect to the authentication server to create the resources that the Registry deployment will need.
+### Configuring tenant manager security
+
+When security is enabled, the application will also expect the following values to be configured to be able to connect to the tenant-manager in a secure manner:
+
+|Option|Env. variable|
+|---|---|
+|Tenant manager auth server url |`TENANT_MANAGER_AUTH_SERVER_URL`|
+|Tenant manager auth realm|`TENANT_MANAGER_AUTH_SERVER_REALM`|
+|Tenant manager auth client|`TENANT_MANAGER_AUTH_CLIENT_ID`|
+|Tenant manager auth secret|`TENANT_MANAGER_AUTH_SECRET`|
 
 ## Examples
 
