@@ -627,14 +627,14 @@
       },
       "search": {
         "style": "form",
+        "description": "Search criteria.\n\nThe syntax of this parameter is similar to the syntax of the _where_ clause of an\nSQL statement. Allowed fields in the search are: name, status. Allowed comparators are `=` or `LIKE`.\nAllowed joins are `AND` and `OR`, however there is a limit of max 10 joins in the search query.\n\nExamples:\n\nTo retrieve request with name equal `my-registry`  the value should be:\n\n```\nname = my-registry \n```\n\nTo retrieve kafka request with its name starting with `my`, the value should be:\n\n```\nname like my%25\n```\n\nIf the parameter isn't provided, or if the value is empty, then all the kafkas\nthat the user has permission to see will be returned.\n\nNote. If the query is invalid, an error will be returned\n",
         "explode": true,
         "examples": {
           "search": {
-            "value": "name = my-kafka and cloud_provider = aws"
+            "value": "name = my-registry and status = AVAILABLE"
           }
         },
         "name": "search",
-        "description": "Search criteria.\n\nThe syntax of this parameter is similar to the syntax of the _where_ clause of an\nSQL statement. Allowed fields in the search are: cloud_provider, name, owner, region and status. Allowed comparators are `<>`, `=` or `LIKE`.\nAllowed joins are `AND` and `OR`, however there is a limit of max 10 joins in the search query.\n\nExamples:\n\nTo retrieve kafka request with name equal `my-kafka` and region equal `aws`, the value should be:\n\n```\nname = my-kafka and cloud_provider = aws\n```\n\nTo retrieve kafka request with its name starting with `my`, the value should be:\n\n```\nname like my%25\n```\n\nIf the parameter isn't provided, or if the value is empty, then all the kafkas\nthat the user has permission to see will be returned.\n\nNote. If the query is invalid, an error will be returned\n",
         "schema": {
           "type": "string"
         },
