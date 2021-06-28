@@ -14,7 +14,7 @@ IMAGE_NAME="${PROJECT_NAME}"
 IMAGE_TAG="${VERSION}"
 
 
-DOCKER_BUILD_COMMAND="docker build -f ./core/src/main/docker/Dockerfile.jvm -t ${IMAGE_REGISTRY}/${IMAGE_ORG}/${IMAGE_NAME}:${IMAGE_TAG} ./core/"
+DOCKER_BUILD_COMMAND="docker build -f ./core/src/main/docker/Dockerfile.legacy-jar -t ${IMAGE_REGISTRY}/${IMAGE_ORG}/${IMAGE_NAME}:${IMAGE_TAG} ./core/"
 
 
 
