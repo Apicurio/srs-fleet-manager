@@ -1,4 +1,4 @@
-package org.bf2.srs.fleetmanager.rest.impl;
+package org.bf2.srs.fleetmanager.auth;
 
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.Response;
