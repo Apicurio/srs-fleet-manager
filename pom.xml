@@ -103,12 +103,12 @@
             </dependency>
             <dependency>
                 <groupId>org.bf2</groupId>
-                <artifactId>srs-fleet-manager-account-management-service</artifactId>
+                <artifactId>account-management-service-rest-client</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.bf2</groupId>
-                <artifactId>account-management-service-rest-client</artifactId>
+                <artifactId>srs-fleet-manager-account-management-service</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
