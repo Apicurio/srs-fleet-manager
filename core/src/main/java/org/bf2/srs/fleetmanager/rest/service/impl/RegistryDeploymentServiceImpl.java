@@ -95,7 +95,8 @@ public class RegistryDeploymentServiceImpl implements RegistryDeploymentService 
         }
         if (allowed) {
             storage.deleteRegistryDeployment(id);
+        } else {
+            throw new ForbiddenException();
         }
-        throw new ForbiddenException();
     }
 }
