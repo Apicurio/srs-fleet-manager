@@ -190,6 +190,7 @@
                 <module>core</module>
                 <module>tenant-manager-client</module>
                 <module>account-management-service</module>
+                <module>account-management-service-rest-client</module>
             </modules>
         </profile>
 
