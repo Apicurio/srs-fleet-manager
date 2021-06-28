@@ -5,6 +5,7 @@ import io.quarkus.security.identity.SecurityIdentity;
 import org.bf2.srs.fleetmanager.auth.AuthService;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.RegistryDeploymentHeartbeatTask;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
+import org.bf2.srs.fleetmanager.rest.service.RegistryDeploymentService;
 import org.bf2.srs.fleetmanager.rest.service.convert.ConvertRegistryDeployment;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeployment;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentCreate;
@@ -58,7 +59,7 @@ public class RegistryDeploymentServiceImpl implements RegistryDeploymentService 
         if (isResolvable(securityIdentity)) {
             //TODO fill resoure type and cluster id
             final AccountInfo accountInfo = authService.extractAccountInfo();
-            allowed = accountManagementService.hasEntitlements(authService.extractAccountInfo(), "", "");
+            allowed = accountManagementService.hasEntitlements(accountInfo, "", "");
         }
         if (allowed) {
             //TODO validate values
