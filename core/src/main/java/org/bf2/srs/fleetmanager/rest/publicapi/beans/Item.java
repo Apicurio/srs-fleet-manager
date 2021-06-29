@@ -70,7 +70,7 @@ public class Item {
     private Integer registryDeploymentId;
 
     /**
-     * Identifier of a multi-tenant deployment, where this Service Registry instance resides.
+     * Owner of the Registry instance.
      *
      */
     @JsonProperty("owner")
@@ -194,7 +194,7 @@ public class Item {
     }
 
     /**
-     * Identifier of a multi-tenant deployment, where this Service Registry instance resides.
+     * Owner of the Registry instance.
      *
      */
     @JsonProperty("owner")
@@ -203,7 +203,7 @@ public class Item {
     }
 
     /**
-     * Identifier of a multi-tenant deployment, where this Service Registry instance resides.
+     * Owner of the Registry instance.
      *
      */
     @JsonProperty("owner")

@@ -193,7 +193,7 @@ public class RegistryRest {
     }
 
     /**
-     * Identifier of a multi-tenant deployment, where this Service Registry instance resides.
+     * Owner of the Registry instance.
      *
      */
     @JsonProperty("owner")
@@ -202,7 +202,7 @@ public class RegistryRest {
     }
 
     /**
-     * Identifier of a multi-tenant deployment, where this Service Registry instance resides.
+     * Owner of the Registry instance.
      *
      */
     @JsonProperty("owner")
