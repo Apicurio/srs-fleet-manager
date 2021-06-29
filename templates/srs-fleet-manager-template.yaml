@@ -262,7 +262,7 @@ parameters:
   value: "false"
 - name: KEYCLOAK_URL
   description: Keycloak base url
-  value: "http:localhost:8090"
+  value: "http://localhost:8090"
 - name: KEYCLOAK_REALM
   description: Keycloak realm
   value: srs-fleet-manager
