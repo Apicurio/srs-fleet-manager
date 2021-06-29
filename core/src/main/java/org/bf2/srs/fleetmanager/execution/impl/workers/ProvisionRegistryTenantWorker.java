@@ -103,7 +103,6 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
 
             task.setRegistryTenantId(registry.getTenantId());
         }
-        registry.getStatus().setLastUpdated(Instant.now());
 
         // NOTE: Failure point 5
         storage.createOrUpdateRegistry(registry);

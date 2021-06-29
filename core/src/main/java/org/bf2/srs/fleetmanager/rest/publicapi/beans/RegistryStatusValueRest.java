@@ -8,9 +8,12 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum RegistryStatusValueRest {
 
-    PROVISIONING("PROVISIONING"),
-    AVAILABLE("AVAILABLE"),
-    UNAVAILABLE("UNAVAILABLE");
+    accepted("accepted"),
+    provisioning("provisioning"),
+    ready("ready"),
+    failed("failed"),
+    deprovision("deprovision"),
+    deleting("deleting");
     private final String value;
     private final static Map<String, RegistryStatusValueRest> CONSTANTS = new HashMap<String, RegistryStatusValueRest>();
 

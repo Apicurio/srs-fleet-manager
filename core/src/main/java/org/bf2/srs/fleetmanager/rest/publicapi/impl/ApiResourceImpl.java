@@ -67,9 +67,4 @@ public class ApiResourceImpl implements ApiResource {
     public void deleteRegistry(String id) throws StorageConflictException, RegistryNotFoundException {
         registryService.deleteRegistry(id);
     }
-
-    @Override
-    public String getSchema() {
-        return SCHEMA;
-    }
 }

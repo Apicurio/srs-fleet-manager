@@ -11,6 +11,7 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
@@ -47,6 +48,11 @@ public class PanacheResourceStorage implements ResourceStorage {
             existing = registryRepository.findByIdOptional(registry.getId());
         }
         try {
+            final Instant now = Instant.now();
+            if(existing.isEmpty()) {
+                registry.setCreatedAt(now);
+            }
+            registry.setUpdatedAt(now);
             registryRepository.persistAndFlush(registry);
         } catch (PersistenceException ex) {
             if (ex.getCause() instanceof ConstraintViolationException) {

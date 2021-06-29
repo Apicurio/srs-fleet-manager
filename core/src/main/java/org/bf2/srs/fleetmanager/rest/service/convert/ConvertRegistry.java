@@ -1,14 +1,14 @@
 package org.bf2.srs.fleetmanager.rest.service.convert;
 
-import org.bf2.srs.fleetmanager.rest.service.model.RegistryCreate;
 import org.bf2.srs.fleetmanager.rest.service.model.Registry;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryCreate;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValue;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentData;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
@@ -19,18 +19,17 @@ import static java.util.Optional.ofNullable;
 @ApplicationScoped
 public class ConvertRegistry {
 
-    @Inject
-    ConvertRegistryStatus convertRegistryStatus;
-
-    public Registry convert(@Valid RegistryData registry) { // TODO @NotNull ?
-        requireNonNull(registry);
+    public Registry convert(@Valid @NotNull RegistryData registry) {
         return Registry.builder()
                 .id(registry.getId().toString())
                 .name(registry.getName())
                 .registryUrl(registry.getRegistryUrl())
-                .status(RegistryStatusValue.valueOf(registry.getStatus().getValue()))
                 .owner(registry.getOwner())
+                .status(RegistryStatusValue.fromValue(registry.getStatus()))
                 .registryDeploymentId(ofNullable(registry.getRegistryDeployment()).map(RegistryDeploymentData::getId).orElse(null))
+                .createdAt(registry.getCreatedAt())
+                .updatedAt(registry.getUpdatedAt())
+                .description(registry.getDescription())
                 .build();
     }
 
@@ -38,8 +37,8 @@ public class ConvertRegistry {
         requireNonNull(registryCreate);
         return RegistryData.builder()
                 .name(registryCreate.getName())
-                .status(convertRegistryStatus.initial())
                 .owner(registryCreate.getOwner())
+                .status(RegistryStatusValue.ACCEPTED.value())
                 .build();
     }
 }

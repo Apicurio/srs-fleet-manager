@@ -6,6 +6,7 @@ import org.bf2.srs.fleetmanager.execution.manager.Task;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentStatusValue;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValue;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.storage.StorageConflictException;
@@ -78,7 +79,7 @@ public class ScheduleRegistryWorker extends AbstractWorker {
         log.info("Scheduling {} to {}.", registry, registryDeployment); // TODO only available
 
         registry.setRegistryDeployment(registryDeployment);
-        registry.getStatus().setLastUpdated(Instant.now());
+        registry.setStatus(RegistryStatusValue.PROVISIONING.value());
 
         // NOTE: Failure point 3
         storage.createOrUpdateRegistry(registry);

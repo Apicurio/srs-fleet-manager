@@ -15,9 +15,12 @@ import static java.util.Optional.ofNullable;
  */
 public enum RegistryStatusValue {
 
-    PROVISIONING("PROVISIONING"),
-    AVAILABLE("AVAILABLE"),
-    UNAVAILABLE("UNAVAILABLE");
+    ACCEPTED("accepted"),
+    PROVISIONING("provisioning"),
+    READY("ready"),
+    FAILED("failed"),
+    REQUESTED_DEPROVISIONING("deprovision"),
+    DEPROVISIONING_DELETING("deleting");
 
     private final String value;
 

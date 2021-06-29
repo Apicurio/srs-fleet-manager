@@ -27,17 +27,6 @@ alter table registrydeploymentdata add constraint fk_registrydeploymentdata_1 fo
 
 -- RegistryStatusData
 
-create table if not exists registrystatusdata
-(
-    id bigint auto_increment not null,
-    lastupdated timestamp,
-    value varchar(255)
-);
-
-alter table registrystatusdata add constraint pk_registrystatusdata primary key (id);
-
--- RegistryStatusData
-
 create table if not exists registrydata
 (
     id bigint auto_increment not null,
@@ -45,11 +34,14 @@ create table if not exists registrydata
     registryurl varchar(255),
     tenantid varchar(255),
     registrydeployment_id bigint,
-    status_id bigint
+    description varchar(255),
+    status varchar(255),
+    owner varchar(255),
+    created_at timestamp,
+    updated_at timestamp
 );
 
 alter table registrydata add constraint pk_registrydata primary key (id);
 alter table registrydata add constraint uk_registrydata_1 unique (registryurl);
 alter table registrydata add constraint uk_registrydata_2 unique (tenantid);
 alter table registrydata add constraint fk_registrydata_1 foreign key (registrydeployment_id) references registrydeploymentdata (id);
-alter table registrydata add constraint fk_registrydata_2 foreign key (status_id) references registrystatusdata (id);

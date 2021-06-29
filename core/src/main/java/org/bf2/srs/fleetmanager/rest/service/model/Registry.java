@@ -8,8 +8,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.Instant;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 
 /**
  * Service Registry instance within a multi-tenant deployment.
@@ -27,6 +29,7 @@ public class Registry extends ObjectReference {
      * (Required)
      */
     @NotNull
+    @Pattern(regexp = "accepted|provisioning|ready|failed|deprovision|deleting")
     private RegistryStatusValue status;
 
     /**
@@ -56,13 +59,31 @@ public class Registry extends ObjectReference {
      */
     private String owner;
 
+    /**
+     * This value is set by the storage layer.
+     */
+    private Instant createdAt;
+
+    /**
+     * This value is updated by the storage layer.
+     */
+    private Instant updatedAt;
+
+    private String description;
+
+
     @Builder
-    public Registry(@NotNull String id, @NotNull String kind, String href, @NotNull RegistryStatusValue status, @NotEmpty String registryUrl, String name, Long registryDeploymentId, @NotNull String owner) {
+    public Registry(@NotNull String id, @NotNull String kind, String href,
+                    @NotNull RegistryStatusValue status, @NotEmpty String registryUrl, String name, @NotNull String owner,
+                    Long registryDeploymentId, Instant createdAt, Instant updatedAt, String description) {
         super(id, kind, href);
         this.status = status;
         this.registryUrl = registryUrl;
         this.name = name;
         this.registryDeploymentId = registryDeploymentId;
         this.owner = owner;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.description = description;
     }
 }
