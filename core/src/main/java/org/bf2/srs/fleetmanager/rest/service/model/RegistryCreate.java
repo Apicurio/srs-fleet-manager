@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import javax.validation.constraints.Size;
+
 import static lombok.AccessLevel.PACKAGE;
 
 /**
@@ -28,13 +30,21 @@ public class RegistryCreate {
      * <p>
      * (Optional)
      */
-    // TODO - names should be validated by kubernetes standard length etc.
+    // TODO Make required?
+    // TODO https://kubernetes.io/docs/concepts/overview/working-with-objects/names/
+    @Size(max = 253, message = "Registry instance name must not be longer than 253 characters.")
     private String name;
 
     /**
      * Registry owner name.
      * <p>
-     *
      */
     private String owner;
+
+    /**
+     * Optional
+     * Non-unique
+     */
+    @Size(max = 255, message = "Registry instance description must not be longer than 255 characters.")
+    private String description;
 }

@@ -12,7 +12,6 @@ import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
 import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -20,8 +19,8 @@ import javax.transaction.Transactional;
 
 import static org.bf2.srs.fleetmanager.execution.impl.tasks.TaskType.REGISTRY_HEARTBEAT_T;
 import static org.bf2.srs.fleetmanager.execution.impl.workers.WorkerType.REGISTRY_HEARTBEAT_W;
-import static org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValue.AVAILABLE;
-import static org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValue.UNAVAILABLE;
+import static org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValue.FAILED;
+import static org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValue.READY;
 
 /**
  * @author Jakub Senko <jsenko@redhat.com>
@@ -69,14 +68,12 @@ public class RegistryHeartbeatWorker extends AbstractWorker {
 
         boolean ok = tmClient.pingTenant(tenantManager, registry.getTenantId());
 
-        registry.getStatus().setLastUpdated(Instant.now());
-
         if (!ok) {
-            registry.getStatus().setValue(UNAVAILABLE.value());
+            registry.setStatus(FAILED.value());
             // TODO alerting?
             log.warn("Registry with ID {} has become unreachable.", registry.getId());
         } else {
-            registry.getStatus().setValue(AVAILABLE.value());
+            registry.setStatus(READY.value());
         }
 
         // NOTE: Failure point 2

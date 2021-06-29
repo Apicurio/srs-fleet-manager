@@ -4,7 +4,6 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentCreateRest;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentRest;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.Item;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreateRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryListRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryRest;
@@ -129,7 +128,7 @@ public class RegistriesResourceV1Test {
                 .then().statusCode(HTTP_OK)
                 .log().all()
                 .extract().as(RegistryListRest.class)
-                .getItems().stream().map(Item::getId).collect(toList());
+                .getItems().stream().map(RegistryRest::getId).collect(toList());
 
         assertThat(actualIds, containsInAnyOrder(ids.toArray()));
 

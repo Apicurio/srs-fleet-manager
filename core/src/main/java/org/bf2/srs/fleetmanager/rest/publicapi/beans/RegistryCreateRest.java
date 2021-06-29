@@ -16,7 +16,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-    "name"
+    "name",
+    "description"
 })
 @Generated("jsonschema2pojo")
 public class RegistryCreateRest {
@@ -28,6 +29,13 @@ public class RegistryCreateRest {
     @JsonProperty("name")
     @JsonPropertyDescription("User-defined Registry name. Does not have to be unique.")
     private String name;
+    /**
+     * User-provided description of the new Registry instance.
+     * 
+     */
+    @JsonProperty("description")
+    @JsonPropertyDescription("User-provided description of the new Registry instance.")
+    private String description;
 
     /**
      * User-defined Registry name. Does not have to be unique.
@@ -45,6 +53,24 @@ public class RegistryCreateRest {
     @JsonProperty("name")
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * User-provided description of the new Registry instance.
+     * 
+     */
+    @JsonProperty("description")
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * User-provided description of the new Registry instance.
+     * 
+     */
+    @JsonProperty("description")
+    public void setDescription(String description) {
+        this.description = description;
     }
 
 }

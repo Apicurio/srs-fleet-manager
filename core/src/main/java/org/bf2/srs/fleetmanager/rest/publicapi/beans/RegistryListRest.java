@@ -50,10 +50,11 @@ public class RegistryListRest {
     /**
      * 
      * (Required)
+     * (Required)
      * 
      */
     @JsonProperty("items")
-    private List<Item> items = new ArrayList<Item>();
+    private List<RegistryRest> items = new ArrayList<RegistryRest>();
 
     /**
      * 
@@ -141,7 +142,7 @@ public class RegistryListRest {
      * 
      */
     @JsonProperty("items")
-    public List<Item> getItems() {
+    public List<RegistryRest> getItems() {
         return items;
     }
 
@@ -151,7 +152,7 @@ public class RegistryListRest {
      * 
      */
     @JsonProperty("items")
-    public void setItems(List<Item> items) {
+    public void setItems(List<RegistryRest> items) {
         this.items = items;
     }
 
