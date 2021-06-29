@@ -69,4 +69,10 @@ public class RegistryData {
     @OneToOne(cascade = {CascadeType.ALL})
     @NotNull
     private RegistryStatusData status;
+
+    /**
+     * (Required)
+     */
+    @NotNull
+    private String owner;
 }

@@ -17,9 +17,8 @@ import javax.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class Convert {
 
-
-    public RegistryCreate convert(RegistryCreateRest data) {
-        return RegistryCreate.builder().name(data.getName()).build();
+    public RegistryCreate convert(RegistryCreateRest data, String owner) {
+        return RegistryCreate.builder().name(data.getName()).owner(owner).build();
     }
 
     public RegistryStatusValueRest convert(RegistryStatusValue data) {
@@ -44,6 +43,7 @@ public class Convert {
         res.setRegistryUrl(data.getRegistryUrl());
         res.setRegistryDeploymentId(Optional.ofNullable(data.getRegistryDeploymentId())
                 .map(Long::intValue).orElse(null)); // TODO Conversion
+        res.setOwner(data.getOwner());
         return res;
     }
 
@@ -57,6 +57,7 @@ public class Convert {
         res.setRegistryDeploymentId(Optional.ofNullable(data.getRegistryDeploymentId())
                 .map(Long::intValue).orElse(null)); // TODO Conversion
         res.setStatus(convert(data.getStatus()));
+        res.setOwner(data.getOwner());
         return res;
     }
 

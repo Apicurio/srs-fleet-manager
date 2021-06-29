@@ -30,4 +30,11 @@ public class RegistryCreate {
      */
     // TODO - names should be validated by kubernetes standard length etc.
     private String name;
+
+    /**
+     * Registry owner name.
+     * <p>
+     *
+     */
+    private String owner;
 }

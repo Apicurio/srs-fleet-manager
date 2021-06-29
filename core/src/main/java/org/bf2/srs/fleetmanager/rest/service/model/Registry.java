@@ -49,12 +49,20 @@ public class Registry extends ObjectReference {
      */
     private Long registryDeploymentId;
 
+    /**
+     * Registry instance owner
+     * <p>
+     * (Optional)
+     */
+    private String owner;
+
     @Builder
-    public Registry(@NotNull String id, @NotNull String kind, String href, @NotNull RegistryStatusValue status, @NotEmpty String registryUrl, String name, Long registryDeploymentId) {
+    public Registry(@NotNull String id, @NotNull String kind, String href, @NotNull RegistryStatusValue status, @NotEmpty String registryUrl, String name, Long registryDeploymentId, @NotNull String owner) {
         super(id, kind, href);
         this.status = status;
         this.registryUrl = registryUrl;
         this.name = name;
         this.registryDeploymentId = registryDeploymentId;
+        this.owner = owner;
     }
 }
