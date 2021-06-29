@@ -505,7 +505,8 @@
                 "status": "PROVISIONING",
                 "lastUpdated": "2021-05-04T12:34:56Z"
               },
-              "registryDeploymentId": 1
+              "registryDeploymentId": 1,
+              "owner": "ownername"
             }
           }
         ]

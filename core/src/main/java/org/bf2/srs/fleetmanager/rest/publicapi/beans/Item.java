@@ -22,7 +22,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "status",
     "registryUrl",
     "name",
-    "registryDeploymentId"
+    "registryDeploymentId",
+    "owner"
 })
 @Generated("jsonschema2pojo")
 public class Item {
@@ -67,6 +68,14 @@ public class Item {
     @JsonProperty("registryDeploymentId")
     @JsonPropertyDescription("Identifier of a multi-tenant deployment, where this Service Registry instance resides.")
     private Integer registryDeploymentId;
+
+    /**
+     * Identifier of a multi-tenant deployment, where this Service Registry instance resides.
+     *
+     */
+    @JsonProperty("owner")
+    @JsonPropertyDescription("Registry instance owner.")
+    private String owner;
 
     /**
      * 
@@ -182,6 +191,24 @@ public class Item {
     @JsonProperty("registryDeploymentId")
     public void setRegistryDeploymentId(Integer registryDeploymentId) {
         this.registryDeploymentId = registryDeploymentId;
+    }
+
+    /**
+     * Identifier of a multi-tenant deployment, where this Service Registry instance resides.
+     *
+     */
+    @JsonProperty("owner")
+    public String getOwner() {
+        return owner;
+    }
+
+    /**
+     * Identifier of a multi-tenant deployment, where this Service Registry instance resides.
+     *
+     */
+    @JsonProperty("owner")
+    public void setOwner(String owner) {
+        this.owner = owner;
     }
 
 }

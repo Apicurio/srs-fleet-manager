@@ -189,6 +189,7 @@ public class RegistriesResourceV1Test {
                     // NOTE: Test framework assumes that JSON number is `int` instead of `long`.
                     .body("id", equalTo(id))
                     .body("registryDeploymentId", equalTo(deploymentId))
+                    .body("owner", equalTo("Unauthenticated"))
                     .log().all();
         });
 
