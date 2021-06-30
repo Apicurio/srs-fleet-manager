@@ -3,6 +3,9 @@ package org.bf2.srs.fleetmanager.rest.service.impl;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
+import io.quarkus.security.ForbiddenException;
+import io.quarkus.security.identity.SecurityIdentity;
+import org.bf2.srs.fleetmanager.auth.AuthService;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.ScheduleRegistryTask;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.rest.service.RegistryService;
@@ -10,6 +13,8 @@ import org.bf2.srs.fleetmanager.rest.service.convert.ConvertRegistry;
 import org.bf2.srs.fleetmanager.rest.service.model.Registry;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryCreate;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryList;
+import org.bf2.srs.fleetmanager.spi.AccountManagementService;
+import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.storage.StorageConflictException;
@@ -18,11 +23,14 @@ import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
 import org.bf2.srs.fleetmanager.util.SearchQuery;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.validation.ValidationException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+
+import static org.bf2.srs.fleetmanager.util.SecurityUtil.isResolvable;
 
 @ApplicationScoped
 public class RegistryServiceImpl implements RegistryService {
@@ -39,12 +47,30 @@ public class RegistryServiceImpl implements RegistryService {
     @Inject
     PanacheRegistryRepository registryRepository;
 
+    @Inject
+    AccountManagementService accountManagementService;
+
+    @Inject
+    Instance<SecurityIdentity> securityIdentity;
+
+    @Inject
+    AuthService authService;
+
     @Override
     public Registry createRegistry(RegistryCreate registryCreate) throws StorageConflictException {
-        RegistryData registryData = convertRegistry.convert(registryCreate);
-        storage.createOrUpdateRegistry(registryData);
-        tasks.submit(ScheduleRegistryTask.builder().registryId(registryData.getId()).build());
-        return convertRegistry.convert(registryData);
+        boolean allowed = true;
+        if (isResolvable(securityIdentity)) {
+            //TODO fill resoure type and cluster id
+            final AccountInfo accountInfo = authService.extractAccountInfo();
+            allowed = accountManagementService.hasEntitlements(accountInfo, "", "");
+        }
+        if (allowed) {
+            RegistryData registryData = convertRegistry.convert(registryCreate);
+            storage.createOrUpdateRegistry(registryData);
+            tasks.submit(ScheduleRegistryTask.builder().registryId(registryData.getId()).build());
+            return convertRegistry.convert(registryData);
+        }
+        throw new ForbiddenException();
     }
 
     @Override
@@ -72,7 +98,7 @@ public class RegistryServiceImpl implements RegistryService {
             itemsQuery = this.registryRepository.findAll(sort);
             total = this.registryRepository.count();
         } else {
-            var query = new SearchQuery(search,  Arrays.asList(new String[]{"name", "status"}));
+            var query = new SearchQuery(search, Arrays.asList(new String[]{"name", "status"}));
             itemsQuery = this.registryRepository.find(query.getQuery(), sort, query.getArguments());
             total = this.registryRepository.count();
         }
@@ -101,8 +127,17 @@ public class RegistryServiceImpl implements RegistryService {
     @Override
     public void deleteRegistry(String registryId) throws RegistryNotFoundException, StorageConflictException {
         try {
-            Long id = Long.valueOf(registryId);
-            storage.deleteRegistry(id);
+            boolean allowed = true;
+            if (isResolvable(securityIdentity)) {
+                final AccountInfo accountInfo = authService.extractAccountInfo();
+                allowed = accountInfo.isAdmin();
+            }
+            if (allowed) {
+                Long id = Long.valueOf(registryId);
+                storage.deleteRegistry(id);
+            } else {
+                throw new ForbiddenException();
+            }
         } catch (NumberFormatException ex) {
             throw RegistryNotFoundException.create(registryId);
         }
