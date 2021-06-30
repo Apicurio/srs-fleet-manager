@@ -10,8 +10,6 @@
     <packaging>pom</packaging>
 
     <properties>
-        <excludedGroups>slow</excludedGroups>
-
         <surefire-plugin.version>2.22.1</surefire-plugin.version>
 
         <!-- Compile -->
@@ -174,7 +172,6 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${surefire-plugin.version}</version>
                     <configuration>
-                       <excludedGroups>${excludedGroups}</excludedGroups>
                         <systemPropertyVariables>
                             <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
                             <maven.home>${maven.home}</maven.home>
