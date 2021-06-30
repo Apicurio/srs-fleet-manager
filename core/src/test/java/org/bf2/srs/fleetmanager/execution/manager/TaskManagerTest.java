@@ -4,6 +4,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.TestTask;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.TestTask.BasicCommand;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.TestTask.RetryCommand;
+import org.bf2.srs.fleetmanager.util.TestTags;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -138,7 +139,7 @@ public class TaskManagerTest {
     }
 
     @Test
-    @Tag("slow")
+    @Tag(TestTags.SLOW)
     void testAutomaticRetrySlow() {
         TestTask task = null;
 

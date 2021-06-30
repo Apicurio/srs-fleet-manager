@@ -10,6 +10,8 @@
     <packaging>pom</packaging>
 
     <properties>
+        <excludedGroups>slow</excludedGroups>
+
         <surefire-plugin.version>2.22.1</surefire-plugin.version>
 
         <!-- Compile -->
@@ -37,6 +39,7 @@
         <apicurio-registry-tenant-manager-client.version>2.1.0-SNAPSHOT</apicurio-registry-tenant-manager-client.version>
         <keycloak.version>11.0.3</keycloak.version>
         <keycloak.testcontainers.version>1.5.0</keycloak.testcontainers.version>
+        <embedded-postgres.version>1.2.10</embedded-postgres.version>
 
     </properties>
 
@@ -91,6 +94,11 @@
 
             <!-- Module artifacts -->
 
+            <dependency>
+                <groupId>org.bf2</groupId>
+                <artifactId>srs-fleet-manager-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.bf2</groupId>
                 <artifactId>srs-fleet-manager-spi</artifactId>
@@ -166,6 +174,7 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${surefire-plugin.version}</version>
                     <configuration>
+                       <excludedGroups>${excludedGroups}</excludedGroups>
                         <systemPropertyVariables>
                             <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
                             <maven.home>${maven.home}</maven.home>
@@ -191,6 +200,13 @@
                 <module>tenant-manager-client</module>
                 <module>account-management-service</module>
                 <module>account-management-service-rest-client</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>it</id>
+            <modules>
+                <module>integration-tests</module>
             </modules>
         </profile>
 
@@ -225,12 +241,6 @@
                                 </configuration>
                             </execution>
                         </executions>
-                    </plugin>
-                    <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
-                            <excludedGroups>slow</excludedGroups>
-                        </configuration>
                     </plugin>
                 </plugins>
             </build>

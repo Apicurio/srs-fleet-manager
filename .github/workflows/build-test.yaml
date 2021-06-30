@@ -24,22 +24,17 @@ jobs:
       - name: Checkout "${{ github.ref }}"
         uses: actions/checkout@v2
 
-      - name: Build Apicurio Registry Tenant Manager
-        run: |
-          cd "${{ github.workspace }}/.."
-          git clone https://github.com/Apicurio/apicurio-registry.git -o upstream apicurio-registry.git
-          cd apicurio-registry.git
-          git checkout master
-          mvn install -Pprod -Pmultitenancy -pl 'multitenancy/tenant-manager-client' -am
-
       - name: Prepare Build of SRS Fleet Manager
         run: |
           cd "${{ github.workspace }}"
 
       - name: Build SRS Fleet Manager
+        env:
+          EXTRA_ARGS: -DexcludedGroups=none
         run: |
-          mvn -B install
+          make pr-check
 
       - name: Build SRS Fleet Manager - Docker
+        # TODO move this to Makefile and update build scripts to share logic?
         run: |
-          mvn -B install -DskipTests -Dquarkus.container-image.build=true
+          mvn -B install -DskipTests -Dquarkus.container-image.build=true -pl core

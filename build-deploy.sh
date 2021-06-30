@@ -67,7 +67,9 @@ build_project() {
     # docker run --rm -t -u $(id -u):$(id -g) -v $(pwd):/home/user --workdir /home/user quay.io/riprasad/srs-project-builder:latest bash -c "${MVN_BUILD_COMMAND}"
 
     docker pull quay.io/app-sre/mk-ci-tools:latest
-    docker run -v $(pwd):/opt/srs -w /opt/srs -e HOME=/tmp -u $(id -u) quay.io/app-sre/mk-ci-tools:latest "./build-project.sh"
+    docker run -v $(pwd):/opt/srs -w /opt/srs -e HOME=/tmp -u $(id -u) \
+        -e APICURIO_REGISTRY_REPO=https://gitlab.cee.redhat.com/service-registry/srs-service-registry.git
+        quay.io/app-sre/mk-ci-tools:latest make pr-check
 }
 
 
