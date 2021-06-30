@@ -1,12 +1,13 @@
 package org.bf2.srs.fleetmanager.rest.publicapi.impl;
 
 import io.quarkus.security.identity.SecurityIdentity;
-import lombok.SneakyThrows;
 import org.bf2.srs.fleetmanager.rest.publicapi.ApiResource;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreateRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryListRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryRest;
 import org.bf2.srs.fleetmanager.rest.service.RegistryService;
+import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
+import org.bf2.srs.fleetmanager.storage.StorageConflictException;
 import org.bf2.srs.fleetmanager.util.SecurityUtil;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -48,9 +49,8 @@ public class ApiResourceImpl implements ApiResource {
         return convert.convert(registryService.getRegistries(page, size, orderBy, search));
     }
 
-    @SneakyThrows
     @Override
-    public RegistryRest createRegistry(RegistryCreateRest data) {
+    public RegistryRest createRegistry(RegistryCreateRest data) throws StorageConflictException {
         String owner = OWNER_PLACEHOLDER;
         if (SecurityUtil.isResolvable(securityIdentity)) {
             owner = securityIdentity.get().getAttribute(usernameAttribute);
@@ -58,15 +58,13 @@ public class ApiResourceImpl implements ApiResource {
         return convert.convert(registryService.createRegistry(convert.convert(data, owner)));
     }
 
-    @SneakyThrows
     @Override
-    public RegistryRest getRegistry(String id) {
+    public RegistryRest getRegistry(String id) throws RegistryNotFoundException {
         return convert.convert(registryService.getRegistry(id));
     }
 
-    @SneakyThrows
     @Override
-    public void deleteRegistry(String id) {
+    public void deleteRegistry(String id) throws StorageConflictException, RegistryNotFoundException {
         registryService.deleteRegistry(id);
     }
 

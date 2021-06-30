@@ -1,12 +1,14 @@
 package org.bf2.srs.fleetmanager.rest.privateapi.impl;
 
-import lombok.SneakyThrows;
+import org.bf2.srs.fleetmanager.execution.manager.TaskNotFoundException;
 import org.bf2.srs.fleetmanager.rest.privateapi.ApiResource;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentCreateRest;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentRest;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.TaskRest;
 import org.bf2.srs.fleetmanager.rest.service.RegistryDeploymentService;
 import org.bf2.srs.fleetmanager.rest.service.TaskService;
+import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
+import org.bf2.srs.fleetmanager.storage.StorageConflictException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,9 +42,8 @@ public class ApiResourceImpl implements ApiResource {
         return taskService.getTasks().stream().map(convert::convert).collect(Collectors.toList());
     }
 
-    @SneakyThrows
     @Override
-    public TaskRest getTask(String taskId) {
+    public TaskRest getTask(String taskId) throws TaskNotFoundException {
         return convert.convert(taskService.getTask(taskId));
     }
 
@@ -56,21 +57,18 @@ public class ApiResourceImpl implements ApiResource {
         return registryDeploymentService.getRegistryDeployments().stream().map(convert::convert).collect(Collectors.toList());
     }
 
-    @SneakyThrows
     @Override
-    public RegistryDeploymentRest createRegistryDeployment(RegistryDeploymentCreateRest data) {
+    public RegistryDeploymentRest createRegistryDeployment(RegistryDeploymentCreateRest data) throws StorageConflictException {
         return convert.convert(registryDeploymentService.createRegistryDeployment(convert.convert(data)));
     }
 
-    @SneakyThrows
     @Override
-    public RegistryDeploymentRest getRegistryDeployment(Integer registryDeploymentId) {
+    public RegistryDeploymentRest getRegistryDeployment(Integer registryDeploymentId) throws RegistryDeploymentNotFoundException {
         return convert.convert(registryDeploymentService.getRegistryDeployment(registryDeploymentId.longValue())); // TODO Conversion
     }
 
-    @SneakyThrows
     @Override
-    public void deleteRegistryDeployment(Integer registryDeploymentId) {
+    public void deleteRegistryDeployment(Integer registryDeploymentId) throws StorageConflictException, RegistryDeploymentNotFoundException {
         registryDeploymentService.deleteRegistryDeployment(registryDeploymentId.longValue()); // TODO Conversion
     }
 }
