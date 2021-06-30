@@ -1,8 +1,9 @@
 package org.bf2.srs.fleetmanager;
 
-import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
+import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
+import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.migration.MigrationService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -12,9 +13,13 @@ import javax.inject.Inject;
 public class App {
 
     @Inject
+    MigrationService migrationService;
+
+    @Inject
     TaskManager taskManager;
 
     void onStart(@Observes StartupEvent ev) {
+        migrationService.runMigration();
         taskManager.start();
     }
 
