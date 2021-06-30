@@ -13,8 +13,10 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 import static lombok.AccessLevel.PACKAGE;
@@ -23,6 +25,7 @@ import static lombok.AccessLevel.PACKAGE;
  * @author Jakub Senko <jsenko@redhat.com>
  */
 @Entity
+@Table(name = "registrydata")
 @NoArgsConstructor
 @AllArgsConstructor(access = PACKAGE)
 @Builder
@@ -37,36 +40,40 @@ public class RegistryData {
      */
     @Id
     @GeneratedValue
+    @Column(name = "id")
     @EqualsAndHashCode.Include
     private Long id;
 
     /**
      * (Optional)
      */
+    @Column(name = "name")
     private String name;
 
     /**
      * (Optional*)
      */
-    @Column(unique = true)
+    @Column(name = "registryurl", unique = true)
     private String registryUrl;
 
     /**
      * (Optional*)
      */
-    @Column(unique = true)
+    @Column(name = "tenantid", unique = true)
     private String tenantId;
 
     /**
      * (Optional*)
      */
     @ManyToOne
+    @JoinColumn(name = "registrydeployment_id")
     private RegistryDeploymentData registryDeployment;
 
     /**
      * (Required)
      */
     @OneToOne(cascade = {CascadeType.ALL})
+    @JoinColumn(name = "status_id")
     @NotNull
     private RegistryStatusData status;
 
