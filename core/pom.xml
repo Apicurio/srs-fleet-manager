@@ -13,7 +13,7 @@
     <artifactId>srs-fleet-manager-core</artifactId>
 
     <properties>
-        <excludedGroups>slow</excludedGroups>
+        <skipGroups>slow</skipGroups>
     </properties>
 
     <dependencies>
@@ -168,7 +168,7 @@
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                   <excludedGroups>${excludedGroups}</excludedGroups>
+                   <excludedGroups>${skipGroups}</excludedGroups>
                     <systemPropertyVariables>
                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
                         <maven.home>${maven.home}</maven.home>

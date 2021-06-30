@@ -3,12 +3,12 @@ APICURIO_REGISTRY_BRANCH?=master
 
 # builds and runs unit tests for srs-fleet-manager app
 build:
-	mvn install $(EXTRA_ARGS)
+	mvn install -Dmaven.javadoc.skip=true --no-transfer-progress -DtrimStackTrace=false $(EXTRA_ARGS)
 .PHONY: build
 
 # builds tenant-manager required dependencies and builds and runs integration tests for srs-fleet-manager app
 pr-check: build-tenant-manager-deps build
-	mvn verify -Pit -pl integration-tests
+	mvn verify -Pit -pl integration-tests -Dmaven.javadoc.skip=true --no-transfer-progress -DtrimStackTrace=false
 .PHONY: pr-check
 
 build-deploy: pr-check

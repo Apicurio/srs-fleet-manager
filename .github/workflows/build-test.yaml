@@ -30,7 +30,7 @@ jobs:
 
       - name: Build SRS Fleet Manager
         env:
-          EXTRA_ARGS: -DexcludedGroups=none
+          EXTRA_ARGS: -DskipGroups=none
         run: |
           make pr-check
 
