@@ -1,6 +1,7 @@
 package org.bf2.srs.fleetmanager.execution.impl.workers;
 
 import org.bf2.srs.fleetmanager.auth.AuthService;
+import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
 import org.bf2.srs.fleetmanager.storage.StorageConflictException;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.ProvisionRegistryTenantTask;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.RegistryHeartbeatTask;
@@ -88,11 +89,11 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
         // Avoid accidentally creating orphan tenants
         if (task.getRegistryTenantId() == null) {
 
-            final String organizationId = authService.extractOrganizationId();
+            final AccountInfo accountInfo = authService.extractAccountInfo();
 
             TenantRequest tenantRequest = TenantRequest.builder()
                     .tenantId(registry.getTenantId())
-                    .organizationId(organizationId)
+                    .organizationId(accountInfo.getOrganizationId())
                     .build();
 
             TenantManager tenantManager = createTenantManager(registryDeployment);

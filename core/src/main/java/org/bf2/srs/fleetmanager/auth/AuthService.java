@@ -30,19 +30,9 @@ public class AuthService {
     @Inject
     Instance<JsonWebToken> jwt;
 
-    public String extractOrganizationId() {
-        if (isTokenResolvable()) {
-            log.debug("Extracting organization id from the authentication token");
-
-            return (String) jwt.get().claim(organizationIdClaimName)
-                    .orElse("");
-        } else {
-            return defaultOrg;
-        }
-    }
-
     public AccountInfo extractAccountInfo() {
         if (isTokenResolvable()) {
+            log.debug("Extracting account information from the authentication token");
             final String username = jwt.get().getName();
             final String organizationId = (String) jwt.get().claim(organizationIdClaimName).orElse("");
             final boolean admin = (boolean) jwt.get().claim(isAdminClaim).orElse(false);
