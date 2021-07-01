@@ -1,0 +1,4 @@
+deployments:
+  - name: test-deployment
+    registryDeploymentUrl: http://nonexistenthost:8080
+    tenantManagerUrl: http://localhost:8585

@@ -42,9 +42,11 @@ public class PanacheResourceStorage implements ResourceStorage {
 
     @Override
     public boolean createOrUpdateRegistry(RegistryData registry) throws StorageConflictException {
-        requireNonNull(registry); 
+        requireNonNull(registry);
         Optional<RegistryData> existing = empty();
         if (registry.getId() != null) {
+            //TODO investigate using locks, such as optimistic locks
+            //why optional? if the entity comes with an id, the row have to exists, otherwise throw an exception
             existing = registryRepository.findByIdOptional(registry.getId());
         }
         try {
@@ -93,6 +95,8 @@ public class PanacheResourceStorage implements ResourceStorage {
         requireNonNull(deployment); // TODO Is this necessary if using @Valid?
         Optional<RegistryDeploymentData> existing = empty();
         if (deployment.getId() != null) {
+            //TODO investigate using locks, such as optimistic locks
+            //why optional? if the entity comes with an id, the row have to exists, otherwise throw an exception
             existing = deploymentRepository.findByIdOptional(deployment.getId());
         }
         try {

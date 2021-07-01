@@ -40,6 +40,7 @@ import org.bf2.srs.fleetmanager.it.executor.Exec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.restassured.RestAssured;
 import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
 
 /**
@@ -52,7 +53,7 @@ public class TestInfraManager {
     private static final String FLEET_MANAGER_JAR_PATH = "../core/target/srs-fleet-manager-core-%s-runner.jar";
     private static final String PROJECT_VERSION = System.getProperty("project.version");
     private static final String TENANT_MANAGER_MODULE_PATH = "../apicurio-registry/multitenancy/tenant-manager-api/";
-    //target/apicurio-registry-tenant-manager-api-*-runner.jar
+    private static final String DEPLOYMENTS_CONFIG_FILE = "./src/main/resources/deployments.yaml";
 
     private LinkedList<TestInfraProcess> processes = new LinkedList<>();
 
@@ -107,6 +108,9 @@ public class TestInfraManager {
         appEnv.put("SERVICE_API_DATASOURCE_USERNAME", "postgres");
         appEnv.put("SERVICE_API_DATASOURCE_PASSWORD", "postgres");
 
+        //set static deployments config file
+        appEnv.put("REGISTRY_DEPLOYMENTS_CONFIG_FILE", DEPLOYMENTS_CONFIG_FILE);
+
         Map<String, String> node1Env = new HashMap<>(appEnv);
         runFleetManager(node1Env, "node-1", fleetManagerPort);
 
@@ -115,10 +119,8 @@ public class TestInfraManager {
         Map<String, String> node2Env = new HashMap<>(appEnv);
         runFleetManager(node2Env, "node-2", c2port);
 
-//        int c3port = c2port + 1;
-//        Map<String, String> node3Env = new HashMap<>(appEnv);
-//        runRegistry(node3Env, "node-3" ,String.valueOf(c3port));
 
+        RestAssured.baseURI = getFleetManagerUri();
     }
 
     private String deployPostgresql(String name) throws IOException {

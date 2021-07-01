@@ -74,11 +74,11 @@ public class RegistryDeployment {
     private RegistryDeploymentStatus status;
 
     /**
-     * User-defined Registry Deployment name. Does not have to be unique.
+     * User-defined Registry Deployment name. Have to be unique.
      * <p>
      * (Optional)
      */
     @JsonProperty("name")
-    @JsonPropertyDescription("User-defined Registry Deployment name. Does not have to be unique.")
+    @JsonPropertyDescription("User-defined Registry Deployment name. Have to be unique.")
     private String name;
 }

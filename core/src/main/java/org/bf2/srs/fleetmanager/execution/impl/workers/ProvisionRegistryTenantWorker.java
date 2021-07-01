@@ -83,8 +83,12 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
             registry.setTenantId(task.getRegistryTenantId());
         }
 
-        //TODO check deployment trailing slash
-        registry.setRegistryUrl(registryDeployment.getRegistryDeploymentUrl() + "/t/" + registry.getTenantId());
+        String registryUrl = registryDeployment.getRegistryDeploymentUrl();
+        if (!registryUrl.endsWith("/")) {
+            registryUrl += "/";
+        }
+        registryUrl += "t/" + registry.getTenantId();
+        registry.setRegistryUrl(registryUrl);
 
         // Avoid accidentally creating orphan tenants
         if (task.getRegistryTenantId() == null) {

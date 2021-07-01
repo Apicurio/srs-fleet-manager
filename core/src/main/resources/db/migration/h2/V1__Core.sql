@@ -23,6 +23,7 @@ create table if not exists registrydeploymentdata
 alter table registrydeploymentdata add constraint pk_registrydeploymentdata primary key (id);
 alter table registrydeploymentdata add constraint uk_registrydeploymentdata_1 unique (registrydeploymenturl);
 alter table registrydeploymentdata add constraint uk_registrydeploymentdata_2 unique (tenantmanagerurl);
+alter table registrydeploymentdata add constraint uk_registrydeploymentdata_3 unique (name);
 alter table registrydeploymentdata add constraint fk_registrydeploymentdata_1 foreign key (status_id) references registrydeploymentstatusdata (id);
 
 -- RegistryStatusData

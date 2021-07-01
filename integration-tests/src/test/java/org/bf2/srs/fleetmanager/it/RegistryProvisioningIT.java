@@ -3,6 +3,7 @@ package org.bf2.srs.fleetmanager.it;
 import static io.restassured.RestAssured.given;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.util.UUID;
@@ -10,13 +11,11 @@ import java.util.concurrent.TimeUnit;
 
 import org.awaitility.Awaitility;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentCreateRest;
-import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreateRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValueRest;
 import org.junit.jupiter.api.Test;
 
-import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 
 public class RegistryProvisioningIT extends SRSFleetManagerBaseIT {
@@ -28,15 +27,12 @@ public class RegistryProvisioningIT extends SRSFleetManagerBaseIT {
         var deployment = new RegistryDeploymentCreateRest();
         deployment.setName("test-deployment");
         deployment.setTenantManagerUrl(infra.getTenantManagerUri());
-        deployment.setRegistryDeploymentUrl("a");
+        deployment.setRegistryDeploymentUrl("http://registry-test");
 
-        RestAssured.baseURI = infra.getFleetManagerUri();
-
-        Integer deploymentId = given()
-                .when().contentType(ContentType.JSON).body(deployment).post("/api/serviceregistry_mgmt/v1/admin/registryDeployments")
-                .then().statusCode(HTTP_OK)
-                .log().all()
-                .extract().as(RegistryDeploymentRest.class).getId();
+        given()
+            .when().contentType(ContentType.JSON).body(deployment).post("/api/serviceregistry_mgmt/v1/admin/registryDeployments")
+            .then().statusCode(HTTP_FORBIDDEN)
+            .log().all();
 
         var registry1 = new RegistryCreateRest();
         registry1.setName(UUID.randomUUID().toString());
@@ -69,10 +65,6 @@ public class RegistryProvisioningIT extends SRSFleetManagerBaseIT {
             .then().statusCode(HTTP_NO_CONTENT)
             .log().all();
 
-        given()
-            .when().contentType(ContentType.JSON).delete("/api/serviceregistry_mgmt/v1/admin/registryDeployments/" + deploymentId)
-            .then().statusCode(HTTP_NO_CONTENT)
-            .log().all();
     }
 
 }

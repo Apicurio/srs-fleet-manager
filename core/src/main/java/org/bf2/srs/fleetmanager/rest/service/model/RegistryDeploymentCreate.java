@@ -15,6 +15,8 @@ import lombok.ToString;
 
 import javax.validation.constraints.NotEmpty;
 
+import org.hibernate.validator.constraints.URL;
+
 import static lombok.AccessLevel.PACKAGE;
 
 /**
@@ -45,6 +47,7 @@ public class RegistryDeploymentCreate {
     @JsonProperty("registryDeploymentUrl")
     @JsonPropertyDescription("")
     @NotEmpty
+    @URL
     private String registryDeploymentUrl;
 
     /**
@@ -53,14 +56,16 @@ public class RegistryDeploymentCreate {
     @JsonProperty("tenantManagerUrl")
     @JsonPropertyDescription("")
     @NotEmpty
+    @URL
     private String tenantManagerUrl;
 
     /**
-     * User-defined Registry Deployment name. Does not have to be unique.
+     * User-defined Registry Deployment name. Have to be unique.
      * <p>
      * (Optional)
      */
     @JsonProperty("name")
-    @JsonPropertyDescription("User-defined Registry Deployment name. Does not have to be unique.")
+    @JsonPropertyDescription("User-defined Registry Deployment name. Have to be unique.")
+    @NotEmpty
     private String name;
 }

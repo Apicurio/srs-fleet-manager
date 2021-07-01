@@ -69,6 +69,7 @@ public class RegistryDeploymentData {
     /**
      * (Optional)
      */
-    @Column(name = "name")
+    @Column(name = "name", unique = true)
+    @NotEmpty
     private String name;
 }

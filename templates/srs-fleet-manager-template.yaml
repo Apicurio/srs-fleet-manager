@@ -5,6 +5,15 @@ metadata:
 labels:
   template: srs-fleet-manager-template
 objects:
+- kind: ConfigMap
+  apiVersion: v1
+  metadata:
+    name: registry-deployments-config-file
+    annotations:
+      qontract.recycle: "true"
+  data:
+    registry-deployments.yaml: |-
+      deployments: ${REGISTRY_DEPLOYMENTS_LIST}
 - apiVersion: v1
   kind: Service
   metadata:
@@ -80,6 +89,9 @@ objects:
         serviceAccount: ${SERVICE_ACCOUNT_NAME}
         serviceAccountName: ${SERVICE_ACCOUNT_NAME}
         volumes:
+        - name: registry-deployments-config-file
+          configMap:
+            name: registry-deployments-config-file
         - name: envoy-config
           configMap:
             name: ${ENVOY_CONFIG_CM_NAME}
@@ -90,6 +102,10 @@ objects:
         - name: srs-fleet-manager
           image: ${IMAGE_REGISTRY}/${IMAGE_REPOSITORY}:${IMAGE_TAG}
           imagePullPolicy: IfNotPresent
+          volumeMounts:
+          - name: registry-deployments-config-file
+            mountPath: /config/registry-deployments.yaml
+            subPath: registry-deployments.yaml
           env:
           - name: SRS_LOG_LEVEL
             value: DEBUG
@@ -135,6 +151,9 @@ objects:
             #TODO is this secret needed?
           - name: KEYCLOAK_API_CLIENT_SECRET
             value: ${KEYCLOAK_API_CLIENT_SECRET}
+
+          - name: REGISTRY_DEPLOYMENTS_CONFIG_FILE
+            value: /config/registry-deployments.yaml
 
           livenessProbe:
             failureThreshold: 3
@@ -279,3 +298,7 @@ parameters:
 - name: ENVOY_CONFIG_CM_NAME
   description: ConfigMap containing Envoy config file
   value: srs-fleet-manager-envoy-config
+
+- name: REGISTRY_DEPLOYMENTS_LIST
+  description: List of static service-registry deployments, will be used as target to provision registry tenants
+  value: "[]"

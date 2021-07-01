@@ -307,7 +307,7 @@
             "description": ""
           },
           "name": {
-            "description": "User-defined Registry Deployment name. Does not have to be unique.",
+            "description": "User-defined Registry Deployment name. Have to be unique.",
             "type": "string"
           }
         },
@@ -339,7 +339,7 @@
             "type": "string"
           },
           "name": {
-            "description": "User-defined Registry Deployment name. Does not have to be unique.",
+            "description": "User-defined Registry Deployment name. Have to be unique.",
             "type": "string"
           }
         },
