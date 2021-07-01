@@ -12,6 +12,10 @@
 
     <artifactId>srs-fleet-manager-core</artifactId>
 
+    <properties>
+        <skipGroups>slow</skipGroups>
+    </properties>
+
     <dependencies>
 
         <!-- Quarkus -->
@@ -160,6 +164,16 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                   <excludedGroups>${skipGroups}</excludedGroups>
+                    <systemPropertyVariables>
+                        <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+                        <maven.home>${maven.home}</maven.home>
+                    </systemPropertyVariables>
+                </configuration>
             </plugin>
         </plugins>
     </build>
