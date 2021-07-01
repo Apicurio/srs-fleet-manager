@@ -2,7 +2,6 @@ package org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.migration;
 
 import org.bf2.srs.fleetmanager.spi.TenantManagerClient;
 import org.bf2.srs.fleetmanager.spi.model.TenantManager;
-import org.bf2.srs.fleetmanager.storage.ResourceStorage;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.output.CleanResult;
@@ -26,9 +25,6 @@ public class MigrationService {
     @Inject
     TenantManagerClient tenantManagerClient;
 
-    @Inject
-    ResourceStorage storage;
-
     /**
      * Temporal workaround for upgrade to the database schema
      * TODO remove this flag
@@ -43,17 +39,16 @@ public class MigrationService {
 
             log.warn("Removing all data first");
 
-            storage.getAllRegistryDeployments().forEach(d -> {
-                TenantManager tm = TenantManager.builder()
-                        .tenantManagerUrl(d.getTenantManagerUrl())
-                        .registryDeploymentUrl(d.getRegistryDeploymentUrl())
-                        .build();
+            TenantManager tm = TenantManager.builder()
+                    .tenantManagerUrl("http://tenant-manager:8585")
+                    .registryDeploymentUrl("https://service-registry-stage.apps.app-sre-stage-0.k3s7.p1.openshiftapps.com")
+                    .build();
 
-                tenantManagerClient.getAllTenants(tm).stream().forEach(t -> {
-                    log.warn("Deleting tenant '{}'", t.getId());
-                    tenantManagerClient.deleteTenant(tm, t.getId());
-                });
+            tenantManagerClient.getAllTenants(tm).stream().forEach(t -> {
+                log.warn("Deleting tenant '{}'", t.getId());
+                tenantManagerClient.deleteTenant(tm, t.getId());
             });
+
             CleanResult cleanResult = flyway.clean();
             log.info("Database clean result: " +
                           "flywayVersion = '{}', " +
