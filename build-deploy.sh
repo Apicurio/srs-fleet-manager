@@ -68,7 +68,7 @@ build_project() {
 
     docker pull quay.io/app-sre/mk-ci-tools:latest
     docker run -v $(pwd):/opt/srs -w /opt/srs -e HOME=/tmp -u $(id -u) \
-        -e APICURIO_REGISTRY_REPO=https://gitlab.cee.redhat.com/service-registry/srs-service-registry.git
+        -e APICURIO_REGISTRY_REPO=https://gitlab.cee.redhat.com/service-registry/srs-service-registry.git \
         quay.io/app-sre/mk-ci-tools:latest make pr-check
 }
 
