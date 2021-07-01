@@ -1,9 +1,14 @@
 package org.bf2.srs.fleetmanager;
 
+import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
+import org.bf2.srs.fleetmanager.rest.service.RegistryDeploymentService;
+import org.bf2.srs.fleetmanager.storage.StorageConflictException;
+
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
-import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.migration.MigrationService;
+
+import java.io.IOException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -18,9 +23,13 @@ public class App {
     @Inject
     TaskManager taskManager;
 
-    void onStart(@Observes StartupEvent ev) {
+    @Inject
+    RegistryDeploymentService deploymentService;
+
+    void onStart(@Observes StartupEvent ev) throws StorageConflictException, IOException {
         migrationService.runMigration();
         taskManager.start();
+        deploymentService.init();
     }
 
     void onStop(@Observes ShutdownEvent ev) {

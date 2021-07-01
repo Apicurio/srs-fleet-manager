@@ -60,7 +60,7 @@ public class RegistryDeploymentRest {
      * 
      */
     @JsonProperty("name")
-    @JsonPropertyDescription("User-defined Registry Deployment name. Does not have to be unique.")
+    @JsonPropertyDescription("User-defined Registry Deployment name. Have to be unique.")
     private String name;
 
     /**

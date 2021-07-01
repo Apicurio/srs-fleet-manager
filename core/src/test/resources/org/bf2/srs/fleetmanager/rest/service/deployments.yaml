@@ -1,0 +1,7 @@
+deployments:
+  - name: deployment-1
+    registryDeploymentUrl: http://test-registry:8080
+    tenantManagerUrl: http://tenant-manager-test:8585
+  - name: deployment-2
+    registryDeploymentUrl: http://test-registry-2:8080
+    tenantManagerUrl: http://tenant-manager-test-2:8585

@@ -5,14 +5,16 @@ import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeployment;
 import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
 import org.bf2.srs.fleetmanager.storage.StorageConflictException;
 
+import java.io.IOException;
 import java.util.List;
 import javax.validation.Valid;
-import javax.ws.rs.core.Response;
 
 /**
  * @author Jakub Senko <jsenko@redhat.com>
  */
 public interface RegistryDeploymentService {
+
+    void init() throws StorageConflictException, IOException;
 
     List<RegistryDeployment> getRegistryDeployments();
 

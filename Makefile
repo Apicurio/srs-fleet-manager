@@ -6,13 +6,13 @@ build:
 	mvn install -Dmaven.javadoc.skip=true --no-transfer-progress -DtrimStackTrace=false $(EXTRA_ARGS)
 .PHONY: build
 
-# builds tenant-manager required dependencies and builds and runs integration tests for srs-fleet-manager app
-pr-check: build-tenant-manager-deps build
+integration-tests:
 	mvn verify -Pit -pl integration-tests -Dmaven.javadoc.skip=true --no-transfer-progress -DtrimStackTrace=false
-.PHONY: pr-check
+.PHONY: integration-tests
 
-build-deploy: pr-check
-.PHONY: build-deploy
+# builds tenant-manager required dependencies and builds and runs integration tests for srs-fleet-manager app
+pr-check: build-tenant-manager-deps build integration-tests
+.PHONY: pr-check
 
 build-tenant-manager-deps: pull-apicurio-registry
 	cd apicurio-registry; mvn install -Pprod -Pmultitenancy -pl 'multitenancy/tenant-manager-client,multitenancy/tenant-manager-api' -am -DskipTests

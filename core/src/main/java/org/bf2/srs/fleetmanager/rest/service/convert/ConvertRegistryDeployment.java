@@ -23,6 +23,7 @@ public class ConvertRegistryDeployment {
         requireNonNull(deployment);
         return RegistryDeployment.builder()
                 .id(deployment.getId())
+                .name(deployment.getName())
                 .tenantManagerUrl(deployment.getTenantManagerUrl())
                 .registryDeploymentUrl(deployment.getRegistryDeploymentUrl())
                 .status(convertRegistryDeploymentStatus.convert(deployment.getStatus()))

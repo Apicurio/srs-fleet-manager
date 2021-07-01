@@ -31,8 +31,8 @@ public class RegistriesResourceV1Test {
     void testCreateRegistry() {
         var deployment = new RegistryDeploymentCreateRest();
         deployment.setName("a");
-        deployment.setTenantManagerUrl("a");
-        deployment.setRegistryDeploymentUrl("a");
+        deployment.setTenantManagerUrl("https://tenant-manager");
+        deployment.setRegistryDeploymentUrl("https://registry");
 
         Integer deploymentId = given()
                 .when().contentType(ContentType.JSON).body(deployment).post("/api/serviceregistry_mgmt/v1/admin/registryDeployments")
@@ -100,8 +100,8 @@ public class RegistriesResourceV1Test {
 
         var deployment = new RegistryDeploymentCreateRest();
         deployment.setName("a");
-        deployment.setTenantManagerUrl("a");
-        deployment.setRegistryDeploymentUrl("a");
+        deployment.setTenantManagerUrl("https://tenant-manager");
+        deployment.setRegistryDeploymentUrl("https://registry");
 
         Integer deploymentId = given()
                 .when().contentType(ContentType.JSON).body(deployment).post("/api/serviceregistry_mgmt/v1/admin/registryDeployments")
@@ -156,8 +156,8 @@ public class RegistriesResourceV1Test {
 
         var deployment = new RegistryDeploymentCreateRest();
         deployment.setName("a");
-        deployment.setTenantManagerUrl("a");
-        deployment.setRegistryDeploymentUrl("a");
+        deployment.setTenantManagerUrl("https://tenant-manager");
+        deployment.setRegistryDeploymentUrl("https://registry");
 
         Integer deploymentId = given()
                 .when().contentType(ContentType.JSON).body(deployment).post("/api/serviceregistry_mgmt/v1/admin/registryDeployments")
