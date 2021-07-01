@@ -50,7 +50,7 @@ public class RegistryProvisioningIT extends SRSFleetManagerBaseIT {
                     .log().all()
                     .extract().as(RegistryRest.class);
 
-        assertNotEquals(RegistryStatusValueRest.UNAVAILABLE, registry1Result.getStatus());
+        assertNotEquals(RegistryStatusValueRest.failed, registry1Result.getStatus());
 
         Awaitility.await("registry available").atMost(30, TimeUnit.SECONDS).pollInterval(5, TimeUnit.SECONDS)
             .until(() -> {
@@ -59,7 +59,7 @@ public class RegistryProvisioningIT extends SRSFleetManagerBaseIT {
                             .then().statusCode(HTTP_OK)
                             .log().all()
                             .extract().as(RegistryRest.class);
-                return reg.getStatus().equals(RegistryStatusValueRest.AVAILABLE);
+                return reg.getStatus().equals(RegistryStatusValueRest.ready);
             });
 
 
