@@ -154,6 +154,9 @@ objects:
 
           - name: REGISTRY_DEPLOYMENTS_CONFIG_FILE
             value: /config/registry-deployments.yaml
+            #workaround for schema updates
+          - name: SRS_FLEET_MANAGER_DELETE_ALL
+            value: ${SRS_FLEET_MANAGER_DELETE_ALL}
 
           livenessProbe:
             failureThreshold: 3
@@ -302,3 +305,5 @@ parameters:
 - name: REGISTRY_DEPLOYMENTS_LIST
   description: List of static service-registry deployments, will be used as target to provision registry tenants
   value: "[]"
+- name: SRS_FLEET_MANAGER_DELETE_ALL
+  value: "false"
