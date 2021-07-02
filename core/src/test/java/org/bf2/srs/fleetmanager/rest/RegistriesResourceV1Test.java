@@ -44,6 +44,7 @@ public class RegistriesResourceV1Test {
         valid1.setName("a");
 
         var valid2 = new RegistryCreateRest();
+        valid2.setName("foosafasdfasf");
 
         var invalidJson1 = "{\"invalid\": true}";
 
@@ -113,6 +114,7 @@ public class RegistriesResourceV1Test {
         valid1.setName("a");
 
         var valid2 = new RegistryCreateRest();
+        valid2.setName("bbbb");
 
         // Create
         List<String> ids = List.of(valid1, valid2).stream().map(d -> {
@@ -169,6 +171,7 @@ public class RegistriesResourceV1Test {
         valid1.setName("a");
 
         var valid2 = new RegistryCreateRest();
+        valid2.setName("bbb");
 
         // Create
         List<String> ids = List.of(valid1, valid2).stream().map(d -> {
