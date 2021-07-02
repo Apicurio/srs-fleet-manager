@@ -26,7 +26,7 @@ public class ApiResourceImpl implements ApiResource {
 
     static {
         try {
-            SCHEMA = new String(ApiResourceImpl.class.getResourceAsStream("./srs-fleet-manager.json").readAllBytes());
+            SCHEMA = new String(ApiResourceImpl.class.getResourceAsStream("/srs-fleet-manager.json").readAllBytes());
         } catch (Exception e) {
             throw new IllegalStateException("Could not load Open API schema for the v1 REST interface.", e);
         }
