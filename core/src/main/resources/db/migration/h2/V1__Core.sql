@@ -26,12 +26,12 @@ alter table registrydeploymentdata add constraint uk_registrydeploymentdata_2 un
 alter table registrydeploymentdata add constraint uk_registrydeploymentdata_3 unique (name);
 alter table registrydeploymentdata add constraint fk_registrydeploymentdata_1 foreign key (status_id) references registrydeploymentstatusdata (id);
 
--- RegistryStatusData
+-- RegistryData
 
 create table if not exists registrydata
 (
     id bigint auto_increment not null,
-    name varchar(255),
+    name varchar(255) not null,
     registryurl varchar(255),
     tenantid varchar(255),
     registrydeployment_id bigint,

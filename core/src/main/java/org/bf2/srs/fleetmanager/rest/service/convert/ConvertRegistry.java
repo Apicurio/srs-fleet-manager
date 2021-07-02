@@ -33,7 +33,7 @@ public class ConvertRegistry {
                 .build();
     }
 
-    public RegistryData convert(@Valid RegistryCreate registryCreate) {
+    public RegistryData convert(@Valid @NotNull RegistryCreate registryCreate) {
         requireNonNull(registryCreate);
         return RegistryData.builder()
                 .name(registryCreate.getName())

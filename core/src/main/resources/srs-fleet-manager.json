@@ -506,12 +506,16 @@
         "type": "object",
         "properties": {
           "name": {
-            "description": "User-defined Registry name. Does not have to be unique.",
-            "type": "string"
+            "description": "User-defined Registry name. Required. Does not have to be unique.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32,
+            "pattern": "[a-z]([a-z0-9\\-]*[a-z0-9])?"
           },
           "description": {
-            "description": "User-provided description of the new Registry instance.",
-            "type": "string"
+            "description": "User-provided description of the new Registry instance. Not required.",
+            "type": "string",
+            "maxLength": 255
           }
         },
         "example": {

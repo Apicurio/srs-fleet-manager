@@ -31,7 +31,7 @@ alter table registrydeploymentdata add constraint fk_registrydeploymentdata_1 fo
 create table if not exists registrydata
 (
     id bigserial not null,
-    name varchar(255),
+    name varchar(255) not null,
     registryurl varchar(255),
     tenantid varchar(255),
     registrydeployment_id bigint,
