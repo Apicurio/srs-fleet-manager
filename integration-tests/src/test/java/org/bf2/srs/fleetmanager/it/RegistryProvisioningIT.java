@@ -6,7 +6,6 @@ import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.awaitility.Awaitility;
@@ -35,7 +34,7 @@ public class RegistryProvisioningIT extends SRSFleetManagerBaseIT {
             .log().all();
 
         var registry1 = new RegistryCreateRest();
-        registry1.setName(UUID.randomUUID().toString());
+        registry1.setName("test-registry-1");
 
         var registry1Result = given()
                     .when()
