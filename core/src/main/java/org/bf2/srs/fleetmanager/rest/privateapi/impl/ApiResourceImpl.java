@@ -22,9 +22,9 @@ public class ApiResourceImpl implements ApiResource {
 
     static {
         try {
-            SCHEMA = new String(ApiResourceImpl.class.getResourceAsStream("/srs-fleet-manager-private.json").readAllBytes());
+            SCHEMA = new String(ApiResourceImpl.class.getResourceAsStream("./srs-fleet-manager-private.json").readAllBytes());
         } catch (Exception e) {
-            throw new IllegalStateException("Could not load Open API schema for the v1 REST interface.");
+            throw new IllegalStateException("Could not load Open API schema for the v1 REST interface.", e);
         }
     }
 
