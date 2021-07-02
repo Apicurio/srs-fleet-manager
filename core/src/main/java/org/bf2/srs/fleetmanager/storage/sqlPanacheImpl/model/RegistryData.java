@@ -45,7 +45,7 @@ public class RegistryData {
     /**
      * (Optional)
      */
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     private String name;
 
     /**
