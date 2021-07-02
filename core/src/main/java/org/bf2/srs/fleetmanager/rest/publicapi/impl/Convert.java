@@ -18,11 +18,12 @@ import javax.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class Convert {
 
-    public RegistryCreate convert(RegistryCreateRest data, String owner) {
+    public RegistryCreate convert(RegistryCreateRest data, String owner, String orgId) {
         return RegistryCreate.builder()
                 .name(data.getName())
                 .owner(owner)
                 .description(data.getDescription())
+                .orgId(orgId)
                 .build();
     }
 

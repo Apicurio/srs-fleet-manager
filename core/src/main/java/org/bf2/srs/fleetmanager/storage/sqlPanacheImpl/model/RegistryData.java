@@ -16,6 +16,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 import static lombok.AccessLevel.PACKAGE;
 
@@ -84,4 +85,10 @@ public class RegistryData {
 
     @Column(name = "status")
     private String status;
+
+    /**
+     * (Required)
+     */
+    @Column(name = "org_id", nullable = false)
+    private String orgId;
 }

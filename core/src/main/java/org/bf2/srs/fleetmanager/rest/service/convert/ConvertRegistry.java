@@ -25,6 +25,7 @@ public class ConvertRegistry {
                 .name(registry.getName())
                 .registryUrl(registry.getRegistryUrl())
                 .owner(registry.getOwner())
+                .orgId(registry.getOrgId())
                 .status(RegistryStatusValue.fromValue(registry.getStatus()))
                 .registryDeploymentId(ofNullable(registry.getRegistryDeployment()).map(RegistryDeploymentData::getId).orElse(null))
                 .createdAt(registry.getCreatedAt())
@@ -38,6 +39,7 @@ public class ConvertRegistry {
         return RegistryData.builder()
                 .name(registryCreate.getName())
                 .owner(registryCreate.getOwner())
+                .orgId(registryCreate.getOrgId())
                 .status(RegistryStatusValue.ACCEPTED.value())
                 .build();
     }

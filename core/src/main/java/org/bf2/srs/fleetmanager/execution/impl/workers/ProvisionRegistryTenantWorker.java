@@ -1,8 +1,5 @@
 package org.bf2.srs.fleetmanager.execution.impl.workers;
 
-import org.bf2.srs.fleetmanager.auth.AuthService;
-import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
-import org.bf2.srs.fleetmanager.storage.StorageConflictException;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.ProvisionRegistryTenantTask;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.RegistryHeartbeatTask;
 import org.bf2.srs.fleetmanager.execution.manager.Task;
@@ -13,17 +10,17 @@ import org.bf2.srs.fleetmanager.spi.model.TenantManager;
 import org.bf2.srs.fleetmanager.spi.model.TenantRequest;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
+import org.bf2.srs.fleetmanager.storage.StorageConflictException;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
-import java.util.Optional;
-import java.util.UUID;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.bf2.srs.fleetmanager.execution.impl.tasks.TaskType.PROVISION_REGISTRY_TENANT_T;
 import static org.bf2.srs.fleetmanager.execution.impl.workers.WorkerType.PROVISION_REGISTRY_TENANT_W;
@@ -44,9 +41,6 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
 
     @Inject
     TaskManager tasks;
-
-    @Inject
-    AuthService authService;
 
     public ProvisionRegistryTenantWorker() {
         super(PROVISION_REGISTRY_TENANT_W);
@@ -94,11 +88,10 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
         // Avoid accidentally creating orphan tenants
         if (task.getRegistryTenantId() == null) {
 
-            final AccountInfo accountInfo = authService.extractAccountInfo();
-
             TenantRequest tenantRequest = TenantRequest.builder()
                     .tenantId(registry.getTenantId())
-                    .organizationId(accountInfo.getOrganizationId())
+                    .createdBy(registry.getOwner())
+                    .organizationId(registry.getOrgId())
                     .build();
 
             TenantManager tenantManager = createTenantManager(registryDeployment);
