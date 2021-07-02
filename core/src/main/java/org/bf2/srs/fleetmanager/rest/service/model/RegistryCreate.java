@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import static lombok.AccessLevel.PACKAGE;
@@ -27,12 +28,11 @@ public class RegistryCreate {
 
     /**
      * User-defined Registry name. Does not have to be unique.
-     * <p>
-     * (Optional)
+     * TODO Make unique within an organization.
      */
-    // TODO Make required?
-    // TODO https://kubernetes.io/docs/concepts/overview/working-with-objects/names/
-    @Size(max = 253, message = "Registry instance name must not be longer than 253 characters.")
+    @Size(min = 1, max = 32, message = "Registry instance name length must be between 1 and 32 characters (inclusive).")
+    @Pattern(regexp = "[a-z]([a-z0-9\\-]*[a-z0-9])?", message = "Registry instance must only consist of lower case, alphanumeric characters and '-'. " +
+            "Must start with an alphabetic character. Must end with an alphanumeric character.")
     private String name;
 
     /**

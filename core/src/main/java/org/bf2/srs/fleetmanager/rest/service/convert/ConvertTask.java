@@ -7,6 +7,7 @@ import org.bf2.srs.fleetmanager.rest.service.model.Task;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 import static java.util.Objects.requireNonNull;
 
@@ -22,7 +23,7 @@ public class ConvertTask {
     @Inject
     ConvertTaskSchedule convertTaskSchedule;
 
-    public Task convert(@Valid org.bf2.srs.fleetmanager.execution.manager.Task task) {
+    public Task convert(@Valid @NotNull org.bf2.srs.fleetmanager.execution.manager.Task task) {
         requireNonNull(task);
         try {
             return Task.builder()

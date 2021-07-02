@@ -6,8 +6,8 @@ import java.time.Duration;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
-import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 
 /**
@@ -19,8 +19,7 @@ public class ConvertTaskSchedule {
     @Inject
     ConvertISO8601 convertISO8601;
 
-    public TaskSchedule convert(@Valid org.bf2.srs.fleetmanager.execution.manager.TaskSchedule schedule) {
-        requireNonNull(schedule);
+    public TaskSchedule convert(@Valid @NotNull org.bf2.srs.fleetmanager.execution.manager.TaskSchedule schedule) {
         return TaskSchedule.builder()
                 .firstExecuteAt(convertISO8601.convert(schedule.getFirstExecuteAt()))
                 .priority(schedule.getPriority())
