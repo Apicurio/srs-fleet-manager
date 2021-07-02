@@ -71,11 +71,17 @@ public class Registry extends ObjectReference {
 
     private String description;
 
+    /**
+     * Registry instance org id
+     * <p>
+     * (Optional)
+     */
+    private String orgId;
 
     @Builder
     public Registry(@NotNull String id, @NotNull String kind, String href,
                     @NotNull RegistryStatusValue status, @NotEmpty String registryUrl, String name, @NotNull String owner,
-                    Long registryDeploymentId, Instant createdAt, Instant updatedAt, String description) {
+                    Long registryDeploymentId, Instant createdAt, Instant updatedAt, String description, @NotNull String orgId) {
         super(id, kind, href);
         this.status = status;
         this.registryUrl = registryUrl;
@@ -85,5 +91,6 @@ public class Registry extends ObjectReference {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.description = description;
+        this.orgId = orgId;
     }
 }

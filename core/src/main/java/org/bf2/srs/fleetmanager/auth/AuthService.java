@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
+import java.util.Optional;
 
 @ApplicationScoped
 public class AuthService {
@@ -34,10 +35,14 @@ public class AuthService {
         if (isTokenResolvable()) {
             log.debug("Extracting account information from the authentication token");
             final String username = jwt.get().getName();
-            final String organizationId = (String) jwt.get().claim(organizationIdClaimName).orElse("");
-            final boolean admin = (boolean) jwt.get().claim(isAdminClaim).orElse(false);
+            final String organizationId = (String) jwt.get().claim(organizationIdClaimName).orElse(defaultOrg);
+            boolean isOrgAdmin = false;
+            final Optional<Object> isOrgAdminClaimValue = jwt.get().claim(isAdminClaim);
 
-            return new AccountInfo(organizationId, username, admin);
+            if (isOrgAdminClaimValue.isPresent()) {
+                isOrgAdmin = Boolean.valueOf(isOrgAdminClaimValue.get().toString());
+            }
+            return new AccountInfo(organizationId, username, isOrgAdmin);
         }
         return null;
     }

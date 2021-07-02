@@ -1,6 +1,8 @@
 package org.bf2.srs.fleetmanager.rest.publicapi.impl;
 
 import io.quarkus.security.identity.SecurityIdentity;
+import lombok.SneakyThrows;
+import org.bf2.srs.fleetmanager.auth.AuthService;
 import org.bf2.srs.fleetmanager.rest.publicapi.ApiResource;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreateRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryListRest;
@@ -8,6 +10,7 @@ import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryRest;
 import org.bf2.srs.fleetmanager.rest.service.RegistryService;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.storage.StorageConflictException;
+import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
 import org.bf2.srs.fleetmanager.util.SecurityUtil;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -41,8 +44,11 @@ public class ApiResourceImpl implements ApiResource {
     @Inject
     Instance<SecurityIdentity> securityIdentity;
 
-    @ConfigProperty(name = "srs-fleet-manager.username-attribute")
-    String usernameAttribute;
+    @Inject
+    AuthService authService;
+
+    @ConfigProperty(name = "srs-fleet-manager.default-org")
+    String defaultOrg;
 
     @Override
     public RegistryListRest getRegistries(Integer page, Integer size, String orderBy, String search) {
@@ -52,10 +58,13 @@ public class ApiResourceImpl implements ApiResource {
     @Override
     public RegistryRest createRegistry(RegistryCreateRest data) throws StorageConflictException {
         String owner = OWNER_PLACEHOLDER;
+        String orgId = defaultOrg;
         if (SecurityUtil.isResolvable(securityIdentity)) {
-            owner = securityIdentity.get().getAttribute(usernameAttribute);
+            final AccountInfo accountInfo = authService.extractAccountInfo();
+            owner = accountInfo.getAccountUsername();
+            orgId = accountInfo.getOrganizationId();
         }
-        return convert.convert(registryService.createRegistry(convert.convert(data, owner)));
+        return convert.convert(registryService.createRegistry(convert.convert(data, owner, orgId)));
     }
 
     @Override

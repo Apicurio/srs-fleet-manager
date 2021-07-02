@@ -26,4 +26,9 @@ public class TenantRequest {
      * OrganizationId to map the tenant
      */
     String organizationId;
+
+    /**
+     * User who requested the tenant
+     */
+    String createdBy;
 }
