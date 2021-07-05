@@ -165,9 +165,20 @@ objects:
             value: ${KEYCLOAK_REALM}
           - name: KEYCLOAK_API_CLIENT_ID
             value: ${KEYCLOAK_API_CLIENT_ID}
-            #TODO is this secret needed?
-          - name: KEYCLOAK_API_CLIENT_SECRET
-            value: ${KEYCLOAK_API_CLIENT_SECRET}
+          - name: TENANT_MANAGER_AUTH_SERVER_URL
+            value: ${TENANT_MANAGER_AUTH_SERVER_URL}
+          - name: TENANT_MANAGER_AUTH_SERVER_REALM
+            value: ${TENANT_MANAGER_AUTH_SERVER_REALM}
+          - name: TENANT_MANAGER_AUTH_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: ${TENANT_MANAGER_AUTH_SECRET_NAME}
+                key: client-id
+          - name: TENANT_MANAGER_AUTH_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: ${TENANT_MANAGER_AUTH_SECRET_NAME}
+                key: client-secret
 
           - name: REGISTRY_DEPLOYMENTS_CONFIG_FILE
             value: /config/registry-deployments.yaml
@@ -308,9 +319,15 @@ parameters:
 - name: KEYCLOAK_API_CLIENT_ID
   description: client id for srs-fleet-manager API
   value: srs-fleet-manager
-- name: KEYCLOAK_API_CLIENT_SECRET
-  description: client secret for srs-fleet-manager
-  value: changeme
+- name: TENANT_MANAGER_AUTH_SERVER_URL
+  description: Keycloak base url used for Tenant Manager Access
+  value: "http://localhost:8090"
+- name: TENANT_MANAGER_AUTH_SERVER_REALM
+  description: Realm used for Tenant Manager Access
+  value: tenant-manager
+- name: TENANT_MANAGER_AUTH_SECRET_NAME
+  description: k8s secret name with client-id and client-secret to access tenant-manager
+  required: true
 
 - name: ENVOY_IMAGE
   description: Envoy image.
