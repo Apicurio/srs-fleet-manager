@@ -327,7 +327,7 @@ parameters:
   value: tenant-manager
 - name: TENANT_MANAGER_AUTH_SECRET_NAME
   description: k8s secret name with client-id and client-secret to access tenant-manager
-  required: true
+  value: srs-tenant-manager-credentials
 
 - name: ENVOY_IMAGE
   description: Envoy image.
