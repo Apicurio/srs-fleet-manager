@@ -39,7 +39,7 @@ create table if not exists registrydata
     status varchar(255),
     owner varchar(255),
     created_at timestamp,
-    updated_at timestamp
+    updated_at timestamp,
     org_id varchar(255) not null
 );
 
