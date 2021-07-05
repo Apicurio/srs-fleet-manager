@@ -62,6 +62,23 @@ objects:
     selector:
       app: srs-fleet-manager
       template: srs-fleet-manager-template
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: srs-fleet-manager
+      template: srs-fleet-manager-template
+      component: srs-fleet-manager-metrics
+    name: srs-fleet-manager-metrics
+  spec:
+    ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+      name: metrics
+    selector:
+      app: srs-fleet-manager
+      template: srs-fleet-manager-template
 - apiVersion: apps/v1
   kind: Deployment
   metadata:
