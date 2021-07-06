@@ -3,7 +3,7 @@ package org.bf2.srs.fleetmanager.rest.service.impl;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
-import org.bf2.srs.fleetmanager.auth.interceptor.CheckDeletePermission;
+import org.bf2.srs.fleetmanager.auth.interceptor.CheckDeletePermissions;
 import org.bf2.srs.fleetmanager.auth.interceptor.CheckQuota;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.ScheduleRegistryTask;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
@@ -102,7 +102,7 @@ public class RegistryServiceImpl implements RegistryService {
     }
 
     @Override
-    @CheckDeletePermission
+    @CheckDeletePermissions
     public void deleteRegistry(String registryId) throws RegistryNotFoundException, StorageConflictException {
         try {
             Long id = Long.valueOf(registryId);
