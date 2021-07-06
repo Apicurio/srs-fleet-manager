@@ -5,6 +5,8 @@ import org.bf2.srs.fleetmanager.auth.AuthService;
 import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
@@ -20,6 +22,8 @@ import static org.bf2.srs.fleetmanager.util.SecurityUtil.isResolvable;
 @CheckDeletePermissions
 @Interceptor
 public class CheckDeletePermissionsInterceptor {
+
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     @Inject
     Instance<SecurityIdentity> securityIdentity;
@@ -41,10 +45,15 @@ public class CheckDeletePermissionsInterceptor {
         } else {
             return context.proceed();
         }
+        log.info("Attempt to delete registry instance without the proper permissions");
         throw new ForbiddenException();
     }
 
-    public boolean isAdminOrOwner(AccountInfo accountInfo, Optional<RegistryData> registry) {
-        return accountInfo.isAdmin() || registry.isEmpty() || accountInfo.getAccountUsername().equals(registry.get().getOwner());
+    private static boolean isAdminOrOwner(AccountInfo accountInfo, Optional<RegistryData> registry) {
+        if (null == accountInfo.getAccountUsername()) {
+            throw new IllegalStateException("Account username cannot be null in the jwt");
+        } else {
+            return accountInfo.isAdmin() || registry.isEmpty() || accountInfo.getAccountUsername().equals(registry.get().getOwner());
+        }
     }
 }
