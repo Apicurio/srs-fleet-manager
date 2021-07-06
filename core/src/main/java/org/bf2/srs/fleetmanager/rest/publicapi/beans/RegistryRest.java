@@ -100,7 +100,7 @@ public class RegistryRest {
      * (Required)
      * 
      */
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssZ", timezone = "UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssz", timezone = "UTC")
     @JsonProperty("created_at")
     @JsonPropertyDescription("ISO 8601 UTC timestamp.")
     private Date createdAt;
@@ -109,7 +109,7 @@ public class RegistryRest {
      * (Required)
      * 
      */
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssZ", timezone = "UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssz", timezone = "UTC")
     @JsonProperty("updated_at")
     @JsonPropertyDescription("ISO 8601 UTC timestamp.")
     private Date updatedAt;
