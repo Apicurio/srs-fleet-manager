@@ -95,7 +95,7 @@ public class RegistriesResourceV1Test {
                 .extract().as(RegistryListRest.class);
 
         assertThat(res1.getItems(), equalTo(List.of()));
-        assertThat(res1.getPage(), equalTo(0));
+        assertThat(res1.getPage(), equalTo(1));
         assertThat(res1.getSize(), equalTo(10));
         assertThat(res1.getTotal(), equalTo(0));
 
