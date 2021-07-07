@@ -13,6 +13,9 @@ import org.bf2.srs.fleetmanager.storage.StorageConflictException;
 import org.bf2.srs.fleetmanager.util.SecurityUtil;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
+import static org.bf2.srs.fleetmanager.util.SecurityUtil.OWNER_ID_PLACEHOLDER;
+import static org.bf2.srs.fleetmanager.util.SecurityUtil.OWNER_PLACEHOLDER;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
@@ -24,8 +27,6 @@ import javax.inject.Inject;
 public class ApiResourceImpl implements ApiResource {
 
     private static final String SCHEMA;
-    private static final String OWNER_PLACEHOLDER = "Unauthenticated";
-    private static final Long OWNER_ID_PLACEHOLDER = 1L;
 
     static {
         try {
