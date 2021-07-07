@@ -74,6 +74,12 @@ public class RegistryData {
     @Column(name = "owner")
     private String owner;
 
+    /**
+     * (Required)
+     */
+    @Column(name = "owner_id")
+    private Long ownerId;
+
     @Column(name = "created_at")
     private Instant createdAt;
 

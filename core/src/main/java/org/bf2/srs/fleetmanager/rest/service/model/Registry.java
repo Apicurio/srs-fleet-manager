@@ -60,6 +60,13 @@ public class Registry extends ObjectReference {
     private String owner;
 
     /**
+     * Registry instance owner id
+     * <p>
+     * (Optional)
+     */
+    private Long ownerId;
+
+    /**
      * This value is set by the storage layer.
      */
     private Instant createdAt;

@@ -39,6 +39,7 @@ public class ConvertRegistry {
         return RegistryData.builder()
                 .name(registryCreate.getName())
                 .owner(registryCreate.getOwner())
+                .ownerId(registryCreate.getOwnerId())
                 .orgId(registryCreate.getOrgId())
                 .status(RegistryStatusValue.ACCEPTED.value())
                 .build();

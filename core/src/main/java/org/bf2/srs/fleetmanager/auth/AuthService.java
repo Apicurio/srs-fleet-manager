@@ -28,6 +28,12 @@ public class AuthService {
     @ConfigProperty(name = "srs-fleet-manager.is-org-admin.claim-name")
     String isAdminClaim;
 
+    @ConfigProperty(name = "srs-fleet-manager.account-id.claim-name")
+    String accountIdClaim;
+
+    @ConfigProperty(name = "srs-fleet-manager.default-account-id")
+    String defaultAccountId;
+
     @Inject
     Instance<JsonWebToken> jwt;
 
@@ -36,13 +42,15 @@ public class AuthService {
             log.debug("Extracting account information from the authentication token");
             final String username = jwt.get().getName();
             final String organizationId = (String) jwt.get().claim(organizationIdClaimName).orElse(defaultOrg);
+            final Long accountId = Long.parseLong((String) jwt.get().claim(accountIdClaim).orElse(defaultAccountId));
+
             boolean isOrgAdmin = false;
             final Optional<Object> isOrgAdminClaimValue = jwt.get().claim(isAdminClaim);
 
             if (isOrgAdminClaimValue.isPresent()) {
                 isOrgAdmin = Boolean.valueOf(isOrgAdminClaimValue.get().toString());
             }
-            return new AccountInfo(organizationId, username, isOrgAdmin);
+            return new AccountInfo(organizationId, username, isOrgAdmin, accountId);
         }
         return null;
     }

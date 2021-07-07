@@ -50,10 +50,10 @@ public class CheckDeletePermissionsInterceptor {
     }
 
     private static boolean isAdminOrOwner(AccountInfo accountInfo, Optional<RegistryData> registry) {
-        if (null == accountInfo.getAccountUsername()) {
-            throw new IllegalStateException("Account username cannot be null in the jwt");
+        if (null == accountInfo.getAccountId()) {
+            throw new IllegalStateException("Account id cannot be null in the jwt");
         } else {
-            return accountInfo.isAdmin() || registry.isEmpty() || accountInfo.getAccountUsername().equals(registry.get().getOwner());
+            return accountInfo.isAdmin() || registry.isEmpty() || accountInfo.getAccountId().equals(registry.get().getOwnerId());
         }
     }
 }
