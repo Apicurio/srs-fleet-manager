@@ -1,16 +1,15 @@
 package org.bf2.srs.fleetmanager.rest.publicapi.impl;
 
 import io.quarkus.security.identity.SecurityIdentity;
-import lombok.SneakyThrows;
 import org.bf2.srs.fleetmanager.auth.AuthService;
 import org.bf2.srs.fleetmanager.rest.publicapi.ApiResource;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreateRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryListRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryRest;
 import org.bf2.srs.fleetmanager.rest.service.RegistryService;
+import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.storage.StorageConflictException;
-import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
 import org.bf2.srs.fleetmanager.util.SecurityUtil;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -52,7 +51,9 @@ public class ApiResourceImpl implements ApiResource {
     String defaultOrg;
 
     @Override
-    public RegistryListRest getRegistries(Integer page, Integer size, String orderBy, String search) {
+    public RegistryListRest getRegistries(Integer page,
+                                          Integer size,
+                                          String orderBy, String search) {
         return convert.convert(registryService.getRegistries(page, size, orderBy, search));
     }
 

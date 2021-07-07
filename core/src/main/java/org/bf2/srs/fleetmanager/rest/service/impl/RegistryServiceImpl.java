@@ -55,7 +55,7 @@ public class RegistryServiceImpl implements RegistryService {
         PanacheQuery<RegistryData> itemsQuery;
         // Defaults
         var sort = Sort.by("id", Sort.Direction.Ascending);
-        page = (page != null) ? page : 0;
+        page = (page != null) ? page : 1;
         size = (size != null) ? size : 10;
 
         if (orderBy != null) {
@@ -75,12 +75,12 @@ public class RegistryServiceImpl implements RegistryService {
             itemsQuery = this.registryRepository.findAll(sort);
             total = this.registryRepository.count();
         } else {
-            var query = new SearchQuery(search, Arrays.asList(new String[]{"name", "status"}));
+            var query = new SearchQuery(search, Arrays.asList("name", "status"));
             itemsQuery = this.registryRepository.find(query.getQuery(), sort, query.getArguments());
             total = this.registryRepository.count();
         }
 
-        var items = itemsQuery.page(Page.of(page, size)).stream().map(convertRegistry::convert)
+        var items = itemsQuery.page(Page.of(page - 1, size)).stream().map(convertRegistry::convert)
                 .collect(Collectors
                         .toCollection(ArrayList::new));
         return RegistryList.builder().items(items)
