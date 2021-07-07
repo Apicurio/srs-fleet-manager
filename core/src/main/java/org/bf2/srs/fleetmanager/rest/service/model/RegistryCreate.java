@@ -42,6 +42,12 @@ public class RegistryCreate {
     private String owner;
 
     /**
+     * Registry owner id.
+     * <p>
+     */
+    private Long ownerId;
+
+    /**
      * Registry org id.
      * <p>
      *

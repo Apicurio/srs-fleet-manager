@@ -26,6 +26,7 @@ public class ApiResourceImpl implements ApiResource {
 
     private static final String SCHEMA;
     private static final String OWNER_PLACEHOLDER = "Unauthenticated";
+    private static final Long OWNER_ID_PLACEHOLDER = 1L;
 
     static {
         try {
@@ -59,12 +60,14 @@ public class ApiResourceImpl implements ApiResource {
     public RegistryRest createRegistry(RegistryCreateRest data) throws StorageConflictException {
         String owner = OWNER_PLACEHOLDER;
         String orgId = defaultOrg;
+        Long ownerId = OWNER_ID_PLACEHOLDER;
         if (SecurityUtil.isResolvable(securityIdentity)) {
             final AccountInfo accountInfo = authService.extractAccountInfo();
             owner = accountInfo.getAccountUsername();
             orgId = accountInfo.getOrganizationId();
+            ownerId = accountInfo.getAccountId();
         }
-        return convert.convert(registryService.createRegistry(convert.convert(data, owner, orgId)));
+        return convert.convert(registryService.createRegistry(convert.convert(data, owner, orgId, ownerId)));
     }
 
     @Override
