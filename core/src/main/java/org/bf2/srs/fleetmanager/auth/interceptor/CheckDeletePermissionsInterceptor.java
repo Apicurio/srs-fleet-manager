@@ -39,7 +39,7 @@ public class CheckDeletePermissionsInterceptor {
         if (isResolvable(securityIdentity)) {
             final AccountInfo accountInfo = authService.extractAccountInfo();
             final Optional<RegistryData> registry = storage.getRegistryById(Long.parseLong(context.getParameters()[0].toString()));
-            if (isAdminOrOwner(accountInfo, registry)) {
+            if (userCanDeleteInstance(accountInfo, registry)) {
                 return context.proceed();
             }
         } else {
@@ -49,11 +49,19 @@ public class CheckDeletePermissionsInterceptor {
         throw new ForbiddenException();
     }
 
-    private static boolean isAdminOrOwner(AccountInfo accountInfo, Optional<RegistryData> registry) {
+    private static boolean userCanDeleteInstance(AccountInfo accountInfo, Optional<RegistryData> registry) {
         if (null == accountInfo.getAccountId()) {
             throw new IllegalStateException("Account id cannot be null in the jwt");
         } else {
-            return accountInfo.isAdmin() || registry.isEmpty() || accountInfo.getAccountId().equals(registry.get().getOwnerId());
+            return registry.isEmpty() || isInstanceOwner(accountInfo, registry.get().getOwnerId()) || isOrgAdmin(accountInfo, registry.get().getOrgId());
         }
+    }
+
+    private static boolean isInstanceOwner(AccountInfo accountInfo, Long ownerId) {
+        return accountInfo.getAccountId().equals(ownerId);
+    }
+
+    private static boolean isOrgAdmin(AccountInfo accountInfo, String registryInstanceOrg) {
+        return accountInfo.isAdmin() && accountInfo.getOrganizationId().equals(registryInstanceOrg);
     }
 }
