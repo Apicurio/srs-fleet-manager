@@ -1,5 +1,7 @@
 package org.bf2.srs.fleetmanager.rest.publicapi;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -25,7 +27,7 @@ public interface ApiResource {
   @Path("/serviceregistry_mgmt/v1/registries")
   @GET
   @Produces("application/json")
-  RegistryListRest getRegistries(@QueryParam("page") Integer page, @QueryParam("size") Integer size,
+  RegistryListRest getRegistries(@Min(1)  @QueryParam("page") Integer page, @Min(1) @Max(1000) @QueryParam("size") Integer size,
       @QueryParam("orderBy") String orderBy, @QueryParam("search") String search);
 
   /**

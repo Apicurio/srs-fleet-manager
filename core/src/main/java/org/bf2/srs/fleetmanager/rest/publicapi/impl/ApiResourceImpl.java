@@ -16,8 +16,6 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 
 /**
  * @author Jakub Senko <jsenko@redhat.com>
@@ -53,8 +51,8 @@ public class ApiResourceImpl implements ApiResource {
     String defaultOrg;
 
     @Override
-    public RegistryListRest getRegistries(@Min(1) Integer page,
-                                          @Min(1) @Max(1000) Integer size,
+    public RegistryListRest getRegistries(Integer page,
+                                          Integer size,
                                           String orderBy, String search) {
         return convert.convert(registryService.getRegistries(page, size, orderBy, search));
     }
