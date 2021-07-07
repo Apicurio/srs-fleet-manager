@@ -1,38 +1,44 @@
 package org.bf2.srs.fleetmanager.util;
 
 import javax.validation.ValidationException;
+
+import org.apache.commons.lang3.tuple.Pair;
+
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 /**
- * Container that transforms query string into hibernate query
+ * Container that transforms query string into hibernate query, for now it only uses AND conditions
  */
 public class SearchQuery {
 
     private String query;
     private Object[] arguments;
-    private String search;
-    private List<String> allowedFields;
+    private List<Pair<String, Object>> search;
 
-    public SearchQuery(String search, List<String> allowedFields) {
+    public SearchQuery(List<Pair<String, Object>> search) {
         this.search = search;
-        this.allowedFields = allowedFields;
         this.query = "";
         buildQuery();
     }
 
-    // TODO Use Antlr for full query parsing - current version supports only single value
+    // TODO Use Antlr for full query parsing - current version supports only "and" conditions
     private void buildQuery() {
-        var searchExpr = search.split("=");
-        if (searchExpr.length != 2) {
-            throw new ValidationException("Invalid search query. Currently search supports only single key=value strings pair");
-        }
-        if (!allowedFields.contains(searchExpr[0])) {
-            throw new ValidationException(String.format("invalid search query key that is not matching allowed values %s ", this.allowedFields.toString()));
+        if (this.search.isEmpty()) {
+            throw new ValidationException("Invalid search query. Search query cannot be empty");
         }
 
-        this.query = searchExpr[0] +" = ?1";
-        this.arguments = new Object[]{searchExpr[1]};
+        List<Object> args = new ArrayList<>();
+        int index = 1;
+        for (Pair<String, Object> pair : search) {
+            if (!this.query.isEmpty()) {
+                this.query += " and ";
+            }
+            this.query += pair.getKey() + " = ?" + index;
+            args.add(pair.getValue());
+            index++;
+        }
+        this.arguments = args.toArray();
     }
 
     public String getQuery() {
