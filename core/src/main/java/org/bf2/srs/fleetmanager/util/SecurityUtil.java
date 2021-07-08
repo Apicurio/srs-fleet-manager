@@ -9,8 +9,7 @@ import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
 public class SecurityUtil {
 
     public static final String OWNER_PLACEHOLDER = "Unauthenticated";
-    //TODO change this to -1 ?
-    public static final Long OWNER_ID_PLACEHOLDER = 1L;
+    public static final Long OWNER_ID_PLACEHOLDER = -1L;
 
     private SecurityUtil() {
         //utility class
