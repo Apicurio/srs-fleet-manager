@@ -53,7 +53,8 @@ public class TestInfraManager {
     private static final String FLEET_MANAGER_JAR_PATH = "../core/target/srs-fleet-manager-core-%s-runner.jar";
     private static final String PROJECT_VERSION = System.getProperty("project.version");
     private static final String TENANT_MANAGER_MODULE_PATH = "../apicurio-registry/multitenancy/tenant-manager-api/";
-    private static final String DEPLOYMENTS_CONFIG_FILE = "./src/main/resources/deployments.yaml";
+    private static final String DEPLOYMENTS_CONFIG_FILE = "./src/test/resources/deployments.yaml";
+    private static final String PLANS_CONFIG_FILE = "./src/test/resources/plans.yaml";
 
     private LinkedList<TestInfraProcess> processes = new LinkedList<>();
 
@@ -110,6 +111,10 @@ public class TestInfraManager {
 
         //set static deployments config file
         appEnv.put("REGISTRY_DEPLOYMENTS_CONFIG_FILE", DEPLOYMENTS_CONFIG_FILE);
+
+        //set static plans config file
+        appEnv.put("REGISTRY_QUOTA_PLANS_CONFIG_FILE", PLANS_CONFIG_FILE);
+        appEnv.put("REGISTRY_QUOTA_PLANS_DEFAULT", "basic");
 
         Map<String, String> node1Env = new HashMap<>(appEnv);
         runFleetManager(node1Env, "node-1", fleetManagerPort);

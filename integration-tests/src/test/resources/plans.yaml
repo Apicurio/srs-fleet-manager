@@ -1,0 +1,29 @@
+plans:
+  - name: basic
+    resources:
+      - type: MAX_TOTAL_SCHEMAS_COUNT
+        limit: 10
+      - type: MAX_ARTIFACT_PROPERTIES_COUNT
+        limit: 50
+      - type: MAX_PROPERTY_KEY_SIZE_BYTES
+        limit: 256
+      - type: MAX_PROPERTY_VALUE_SIZE_BYTES
+        limit: 1024
+      - type: MAX_ARTIFACT_LABELS_COUNT
+        limit: 50
+      - type: MAX_LABEL_SIZE_BYTES
+        limit: 256
+  - name: premium
+    resources:
+      - type: MAX_TOTAL_SCHEMAS_COUNT
+        limit: 100000
+      - type: MAX_ARTIFACT_PROPERTIES_COUNT
+        limit: 100
+      - type: MAX_PROPERTY_KEY_SIZE_BYTES
+        limit: 256
+      - type: MAX_PROPERTY_VALUE_SIZE_BYTES
+        limit: 1024
+      - type: MAX_ARTIFACT_LABELS_COUNT
+        limit: 100
+      - type: MAX_LABEL_SIZE_BYTES
+        limit: 256

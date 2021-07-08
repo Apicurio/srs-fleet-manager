@@ -2,6 +2,7 @@ package org.bf2.srs.fleetmanager;
 
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.rest.service.RegistryDeploymentService;
+import org.bf2.srs.fleetmanager.service.QuotaPlansService;
 import org.bf2.srs.fleetmanager.storage.StorageConflictException;
 
 import io.quarkus.runtime.ShutdownEvent;
@@ -26,10 +27,14 @@ public class App {
     @Inject
     RegistryDeploymentService deploymentService;
 
+    @Inject
+    QuotaPlansService plansService;
+
     void onStart(@Observes StartupEvent ev) throws StorageConflictException, IOException {
         migrationService.runMigration();
         taskManager.start();
         deploymentService.init();
+        plansService.init();
     }
 
     void onStop(@Observes ShutdownEvent ev) {

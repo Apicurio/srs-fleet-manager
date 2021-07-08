@@ -9,6 +9,8 @@ import lombok.ToString;
 
 import static lombok.AccessLevel.PACKAGE;
 
+import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor(access = PACKAGE)
 @Builder
@@ -31,4 +33,10 @@ public class TenantRequest {
      * User who requested the tenant
      */
     String createdBy;
+
+    /**
+     * List of resource limits to apply to this tenant
+     */
+    List<TenantLimit> resources;
+
 }
