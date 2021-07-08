@@ -5,6 +5,7 @@ import org.bf2.srs.fleetmanager.execution.impl.tasks.RegistryHeartbeatTask;
 import org.bf2.srs.fleetmanager.execution.manager.Task;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
+import org.bf2.srs.fleetmanager.service.QuotaPlansService;
 import org.bf2.srs.fleetmanager.spi.TenantManagerClient;
 import org.bf2.srs.fleetmanager.spi.model.TenantManager;
 import org.bf2.srs.fleetmanager.spi.model.TenantRequest;
@@ -41,6 +42,9 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
 
     @Inject
     TaskManager tasks;
+
+    @Inject
+    QuotaPlansService plansService;
 
     public ProvisionRegistryTenantWorker() {
         super(PROVISION_REGISTRY_TENANT_W);
@@ -92,6 +96,7 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
                     .tenantId(registry.getTenantId())
                     .createdBy(registry.getOwner())
                     .organizationId(registry.getOrgId())
+                    .resources(plansService.getDefaultQuotaPlan().getResources())
                     .build();
 
             TenantManager tenantManager = createTenantManager(registryDeployment);

@@ -1,10 +1,13 @@
 package org.bf2.srs.fleetmanager.it;
 
 import static io.restassured.RestAssured.given;
+import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.net.HttpURLConnection.HTTP_OK;
-import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.concurrent.TimeUnit;
 
@@ -15,6 +18,10 @@ import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValueRest;
 import org.junit.jupiter.api.Test;
 
+import io.apicurio.multitenant.api.datamodel.ResourceType;
+import io.apicurio.multitenant.api.datamodel.TenantResource;
+import io.apicurio.multitenant.client.TenantManagerClient;
+import io.apicurio.multitenant.client.TenantManagerClientImpl;
 import io.restassured.http.ContentType;
 
 public class RegistryProvisioningIT extends SRSFleetManagerBaseIT {
@@ -57,6 +64,35 @@ public class RegistryProvisioningIT extends SRSFleetManagerBaseIT {
                 return reg.getStatus().equals(RegistryStatusValueRest.ready);
             });
 
+        RegistryRest registry = given()
+                .when().get(BASE + "/" + registry1Result.getId())
+                .then().statusCode(HTTP_OK)
+                .log().all()
+                .extract().as(RegistryRest.class);
+
+        String registryUrl = registry.getRegistryUrl();
+        assertNotNull(registryUrl);
+        var tokens = registryUrl.split("/t/");
+        assertTrue(tokens.length == 2);
+
+        String internalTenantId = tokens[1];
+
+        TenantManagerClient tenantManager = new TenantManagerClientImpl(infra.getTenantManagerUri());
+
+        var internalTenant = tenantManager.getTenant(internalTenantId);
+
+        var resources = internalTenant.getResources();
+
+        TenantResource maxTotalSchemas = null;
+        for (var r : resources) {
+            if (r.getType() == ResourceType.MAX_TOTAL_SCHEMAS_COUNT) {
+                maxTotalSchemas = r;
+            }
+        }
+        assertNotNull(maxTotalSchemas);
+        assertEquals(10, maxTotalSchemas.getLimit());
+
+        //TODO e2e test check limits are applied
 
         // Delete
         given()
