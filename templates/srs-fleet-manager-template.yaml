@@ -14,6 +14,29 @@ objects:
   data:
     registry-deployments.yaml: |-
       deployments: ${REGISTRY_DEPLOYMENTS_LIST}
+- kind: ConfigMap
+  apiVersion: v1
+  metadata:
+    name: registry-quota-plans-config
+    annotations:
+      qontract.recycle: "true"
+  data:
+    quota-plans.yaml: |-
+      plans:
+        - name: basic
+          resources:
+            - type: MAX_TOTAL_SCHEMAS_COUNT
+              limit: 10000
+            - type: MAX_ARTIFACT_PROPERTIES_COUNT
+              limit: 50
+            - type: MAX_PROPERTY_KEY_SIZE_BYTES
+              limit: 256
+            - type: MAX_PROPERTY_VALUE_SIZE_BYTES
+              limit: 1024
+            - type: MAX_ARTIFACT_LABELS_COUNT
+              limit: 50
+            - type: MAX_LABEL_SIZE_BYTES
+              limit: 256
 - apiVersion: v1
   kind: Service
   metadata:
@@ -109,6 +132,9 @@ objects:
         - name: registry-deployments-config-file
           configMap:
             name: registry-deployments-config-file
+        - name: quota-plans-config-file
+          configMap:
+            name: ${REGISTRY_QUOTA_PLANS_CM_NAME}
         - name: envoy-config
           configMap:
             name: ${ENVOY_CONFIG_CM_NAME}
@@ -123,11 +149,14 @@ objects:
           - name: registry-deployments-config-file
             mountPath: /config/registry-deployments.yaml
             subPath: registry-deployments.yaml
+          - name: quota-plans-config-file
+            mountPath: /config/quota-plans.yaml
+            subPath: quota-plans.yaml
           env:
           - name: SRS_LOG_LEVEL
-            value: DEBUG
+            value: ${SRS_LOG_LEVEL}
           - name: LOG_LEVEL
-            value: INFO
+            value: ${LOG_LEVEL}
 
           - name: DB_HOST
             valueFrom:
@@ -186,10 +215,15 @@ objects:
           - name: SRS_FLEET_MANAGER_DELETE_ALL
             value: ${SRS_FLEET_MANAGER_DELETE_ALL}
 
+          - name: REGISTRY_QUOTA_PLANS_CONFIG_FILE
+            value: /config/quota-plans.yaml
+          - name: REGISTRY_QUOTA_PLANS_DEFAULT
+            value: ${REGISTRY_QUOTA_PLANS_DEFAULT}
+
           livenessProbe:
             failureThreshold: 3
             httpGet:
-              path: /health/live
+              path: /q/health/live
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 5
@@ -203,7 +237,7 @@ objects:
           readinessProbe:
             failureThreshold: 3
             httpGet:
-              path: /health/ready
+              path: /q/health/ready
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 5
@@ -265,6 +299,12 @@ objects:
 
 
 parameters:
+
+- name: LOG_LEVEL
+  value: INFO
+
+- name: SRS_LOG_LEVEL
+  value: DEBUG
 
 - name: SERVICE_ACCOUNT_NAME
   displayName: Service Account to use for the deployment
@@ -341,3 +381,10 @@ parameters:
   value: "[]"
 - name: SRS_FLEET_MANAGER_DELETE_ALL
   value: "false"
+
+- name: REGISTRY_QUOTA_PLANS_CM_NAME
+  description: Name for configmap containg plans config file
+  value: registry-quota-plans-config
+- name: REGISTRY_QUOTA_PLANS_DEFAULT
+  description: Default quota plan to apply registries
+  value: basic
