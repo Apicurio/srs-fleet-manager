@@ -51,7 +51,7 @@ public class CustomMetricsConfiguration {
 
             @Override
             public DistributionStatisticConfig configure(Meter.Id id, DistributionStatisticConfig config) {
-                if(id.getName().startsWith(REQUESTS_TIMER_METRIC) && isServiceRegistryManagementApiCall(id)) {
+                if(id.getName().startsWith(REQUESTS_TIMER_METRIC)) {
                     return DistributionStatisticConfig.builder()
                         .percentiles(0.5, 0.95, 0.99)
                         .serviceLevelObjectives(0.1 * factor, 1.0 * factor, 2.0 * factor, 5.0 * factor, 10.0 * factor, 30.0 * factor)
