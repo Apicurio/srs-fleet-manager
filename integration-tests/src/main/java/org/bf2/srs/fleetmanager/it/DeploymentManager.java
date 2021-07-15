@@ -62,7 +62,6 @@ public class DeploymentManager implements BeforeEachCallback, AfterEachCallback,
         }
 
         startTestInfraIfNeeded(context);
-//        LOGGER.info("Registry app is running on {}", TestUtils.getRegistryV2ApiUrl());
     }
 
     @Override

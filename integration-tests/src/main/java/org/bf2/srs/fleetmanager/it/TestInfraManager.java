@@ -37,6 +37,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.awaitility.Awaitility;
 import org.bf2.srs.fleetmanager.it.executor.Exec;
+import org.bf2.srs.fleetmanager.it.jwks.JWKSMockServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +51,12 @@ public class TestInfraManager {
 
     static final Logger LOGGER = LoggerFactory.getLogger(TestInfraManager.class);
 
+    private static final String TENANT_MANAGER_AUTH_ENABLED = "TENANT_MANAGER_AUTH_ENABLED";
+    private static final String MAS_SSO_URL = "MAS_SSO_URL";
+    private static final String MAS_SSO_REALM = "MAS_SSO_REALM";
+    private static final String MAS_SSO_CLIENT_ID = "MAS_SSO_CLIENT_ID";
+    private static final String MAS_SSO_CLIENT_SECRET = "MAS_SSO_CLIENT_SECRET";
+
     private static final String FLEET_MANAGER_JAR_PATH = "../core/target/srs-fleet-manager-core-%s-runner.jar";
     private static final String PROJECT_VERSION = System.getProperty("project.version");
     private static final String TENANT_MANAGER_MODULE_PATH = "../apicurio-registry/multitenancy/tenant-manager-api/";
@@ -61,6 +68,10 @@ public class TestInfraManager {
     private int fleetManagerPort = 8080;
 
     private String tenantManagerUrl = "http://localhost:8585";
+
+    private boolean tenantManagerAuthEnabled = false;
+    private AuthConfig authConfig;
+    private AuthConfig tenantManagerAuthConfig;
 
     private static TestInfraManager instance;
 
@@ -83,6 +94,18 @@ public class TestInfraManager {
         return this.tenantManagerUrl;
     }
 
+    public boolean isTenantManagerAuthEnabled() {
+        return this.tenantManagerAuthEnabled;
+    }
+
+    public AuthConfig getAuthConfig() {
+        return this.authConfig;
+    }
+
+    public AuthConfig getTenantManagerAuthConfig() {
+        return this.tenantManagerAuthConfig;
+    }
+
     public boolean isRunning() {
         return !processes.isEmpty();
     }
@@ -99,10 +122,38 @@ public class TestInfraManager {
         appEnv.put("LOG_LEVEL", "DEBUG");
         appEnv.put("SRS_LOG_LEVEL", "DEBUG");
 
-        //TODO when auth is enabled in staging run tests with auth enabled
-//        runKeycloak(appEnv);
+        var authConfig = runKeycloakMock();
+        this.authConfig = authConfig;
 
-        runTenantManager(appEnv);
+        appEnv.put("AUTH_ENABLED", "true");
+        appEnv.put("KEYCLOAK_URL", authConfig.keycloakUrl);
+        appEnv.put("KEYCLOAK_REALM", authConfig.realm);
+        appEnv.put("KEYCLOAK_API_CLIENT_ID", authConfig.clientId);
+
+        String tenantManagerAuthEnabledVar = System.getenv(TENANT_MANAGER_AUTH_ENABLED);
+        tenantManagerAuthEnabled = tenantManagerAuthEnabledVar != null && tenantManagerAuthEnabledVar.equals("true");
+
+        //TODO adapt tests to work with and without authentication
+        if (tenantManagerAuthEnabled) {
+            LOGGER.info("Tenant Manager authentication is enabled");
+
+            tenantManagerAuthConfig = new AuthConfig();
+            tenantManagerAuthConfig.keycloakUrl = getMandatoryEnvVar(MAS_SSO_URL);
+            tenantManagerAuthConfig.realm = getMandatoryEnvVar(MAS_SSO_REALM);
+            tenantManagerAuthConfig.clientId = getMandatoryEnvVar(MAS_SSO_CLIENT_ID);
+            tenantManagerAuthConfig.clientSecret = getMandatoryEnvVar(MAS_SSO_CLIENT_SECRET);
+
+            appEnv.put(TENANT_MANAGER_AUTH_ENABLED, "true");
+            appEnv.put("TENANT_MANAGER_AUTH_SERVER_URL", tenantManagerAuthConfig.keycloakUrl);
+            appEnv.put("TENANT_MANAGER_AUTH_SERVER_REALM", tenantManagerAuthConfig.realm);
+            appEnv.put("TENANT_MANAGER_AUTH_CLIENT_ID", tenantManagerAuthConfig.clientId);
+            appEnv.put("TENANT_MANAGER_AUTH_SECRET", tenantManagerAuthConfig.clientSecret);
+
+        } else {
+            appEnv.put(TENANT_MANAGER_AUTH_ENABLED, "false");
+        }
+
+        runTenantManager(tenantManagerAuthEnabled);
 
         String datasourceUrl = deployPostgresql("fleet-manager");
         appEnv.put("SERVICE_API_DATASOURCE_URL", datasourceUrl);
@@ -128,6 +179,35 @@ public class TestInfraManager {
         RestAssured.baseURI = getFleetManagerUri();
     }
 
+    private AuthConfig runKeycloakMock() {
+
+        AuthConfig authConfig = new AuthConfig();
+
+        JWKSMockServer mock = new JWKSMockServer();
+        String baseUrl = mock.start();
+        authConfig.keycloakUrl = baseUrl + "/auth";
+        authConfig.realm = "test";
+        authConfig.clientId = "fleet-manager-client-id";
+
+        LOGGER.info("keycloak mock running at {}", authConfig.keycloakUrl);
+
+        processes.add(new EmbeddedTestInfraProcess() {
+
+            @Override
+            public String getName() {
+                return "keycloak-mock";
+            }
+
+            @Override
+            public void close() throws Exception {
+                mock.stop();
+            }
+
+        });
+
+        return authConfig;
+    }
+
     private String deployPostgresql(String name) throws IOException {
         EmbeddedPostgres database = EmbeddedPostgres
                 .builder()
@@ -135,7 +215,7 @@ public class TestInfraManager {
 
         String datasourceUrl = database.getJdbcUrl("postgres", "postgres");
 
-        processes.add(new TestInfraProcess() {
+        processes.add(new EmbeddedTestInfraProcess() {
 
             @Override
             public String getName() {
@@ -147,30 +227,25 @@ public class TestInfraManager {
                 database.close();
             }
 
-            @Override
-            public String getStdOut() {
-                return "";
-            }
-
-            @Override
-            public String getStdErr() {
-                return "";
-            }
-
-            @Override
-            public boolean isContainer() {
-                return false;
-            }
         });
 
         return datasourceUrl;
     }
 
-    private void runTenantManager(Map<String, String> fleetManagerAppEnv) throws IOException {
+    //TODO replace tenant manager with mock?
+    private void runTenantManager(boolean authEnabled) throws IOException {
+
+        Map<String, String> appEnv = new HashMap<>();
+
+        if (authEnabled) {
+            appEnv.put("AUTH_ENABLED", "true");
+            appEnv.put("KEYCLOAK_URL", getMandatoryEnvVar(MAS_SSO_URL));
+            appEnv.put("KEYCLOAK_REALM", getMandatoryEnvVar(MAS_SSO_REALM));
+            appEnv.put("KEYCLOAK_API_CLIENT_ID", getMandatoryEnvVar(MAS_SSO_CLIENT_ID));
+        }
 
         String datasourceUrl = deployPostgresql("tenant-manager");
 
-        Map<String, String> appEnv = new HashMap<>();
         appEnv.put("DATASOURCE_URL", datasourceUrl);
         appEnv.put("DATASOURCE_USERNAME", "postgres");
         appEnv.put("DATASOURCE_PASSWORD", "postgres");
@@ -331,7 +406,7 @@ public class TestInfraManager {
                     LOGGER.error("Error stopping process " + p.getName(), e);
                 }
             }
-            if (logsPath != null) {
+            if (logsPath != null && p.hasLogs()) {
                 try {
                     Path filePath = logsPath.resolve(currentDate + "-" + p.getName() + "-" + "stdout.log");
                     LOGGER.info("Storing registry logs to " + filePath.toString());
@@ -390,4 +465,11 @@ public class TestInfraManager {
         return null;
     }
 
+    private String getMandatoryEnvVar(String envVar) {
+        String var = System.getenv().get(envVar);
+        if (var == null || var.isEmpty()) {
+            throw new IllegalStateException("missing " + envVar + " env var");
+        }
+        return var;
+    }
 }

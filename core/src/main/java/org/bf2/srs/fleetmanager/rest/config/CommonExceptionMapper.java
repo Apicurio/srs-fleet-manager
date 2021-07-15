@@ -9,6 +9,7 @@ import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status.Family;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
@@ -32,9 +33,13 @@ public class CommonExceptionMapper implements ExceptionMapper<Throwable> {
     public Response toResponse(Throwable exception) {
         Optional<CustomExceptionMapper> mapper = mappers.stream().filter(m -> m.supportsPath(uriInfo.getPath())).findFirst();
         if (mapper.isPresent()) {
-            return mapper.get().toResponse(exception);
+            Response r = mapper.get().toResponse(exception);
+            if (r.getStatusInfo().getFamily() == Family.SERVER_ERROR) {
+                log.error("Unhandled exception", exception);
+            }
+            return r;
         } else {
-            log.error("No custom exception mapper available for path '{}'.", uriInfo.getPath());
+            log.error("No custom exception mapper available for path " + uriInfo.getPath(), exception);
             return Response.serverError().build();
         }
     }
