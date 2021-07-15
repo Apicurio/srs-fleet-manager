@@ -19,18 +19,11 @@ package org.bf2.srs.fleetmanager.it;
 /**
  * @author Fabian Martinez
  */
-public interface TestInfraProcess extends AutoCloseable {
+public class AuthConfig {
 
-    public boolean isContainer();
-
-    public String getName();
-
-    public String getStdOut();
-
-    public String getStdErr();
-
-    default boolean hasLogs() {
-        return true;
-    }
+    String keycloakUrl;
+    String realm;
+    String clientId;
+    String clientSecret;
 
 }

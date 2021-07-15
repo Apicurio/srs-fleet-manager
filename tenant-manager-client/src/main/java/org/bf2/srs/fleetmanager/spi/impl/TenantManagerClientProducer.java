@@ -1,7 +1,6 @@
 package org.bf2.srs.fleetmanager.spi.impl;
 
 import io.apicurio.multitenant.client.Auth;
-import io.apicurio.multitenant.client.TenantManagerClientImpl;
 import org.bf2.srs.fleetmanager.spi.TenantManagerClient;
 import io.quarkus.arc.profile.UnlessBuildProfile;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -28,14 +27,14 @@ public class TenantManagerClientProducer {
     @ConfigProperty(name = "srs-fleet-manager.tenant-manager.auth.realm")
     String tenantManagerAuthRealm;
 
-    @ConfigProperty(name = "srs-fleet-manager.auth.enabled")
-    boolean authEnabled;
+    @ConfigProperty(name = "srs-fleet-manager.tenant-manager.auth.enabled")
+    boolean tenantManagerAuthEnabled;
 
     @UnlessBuildProfile("test")
     @Produces
     @ApplicationScoped
     public TenantManagerClient produce() {
-        if (authEnabled) {
+        if (tenantManagerAuthEnabled) {
             log.info("Using Apicurio Registry REST TenantManagerClient with authentication enabled.");
             return new RestClientTenantManagerClientImpl(new Auth(tenantManagerAuthServerUrl, tenantManagerAuthRealm, tenantManagerAuthClientId, tenantManagerAuthSecret));
         } else {

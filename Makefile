@@ -1,5 +1,5 @@
 APICURIO_REGISTRY_REPO?=https://github.com/Apicurio/apicurio-registry.git
-APICURIO_REGISTRY_BRANCH?=master
+APICURIO_REGISTRY_BRANCH?=mas-sr
 
 # builds and runs unit tests for srs-fleet-manager app
 build:
@@ -10,8 +10,12 @@ integration-tests:
 	mvn verify -Pit -pl integration-tests -Dmaven.javadoc.skip=true --no-transfer-progress -DtrimStackTrace=false
 .PHONY: integration-tests
 
-# builds tenant-manager required dependencies and builds and runs integration tests for srs-fleet-manager app
-pr-check: build-tenant-manager-deps build integration-tests
+# builds tenant-manager required dependencies and builds srs-fleet-manager app
+build-project: build-tenant-manager-deps build
+.PHONY: build-project
+
+# builds srs-fleet-manager app and it's dependencies and integration tests
+pr-check: build-project integration-tests
 .PHONY: pr-check
 
 build-tenant-manager-deps: pull-apicurio-registry

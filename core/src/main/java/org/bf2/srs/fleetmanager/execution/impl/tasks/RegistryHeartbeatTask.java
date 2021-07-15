@@ -21,6 +21,6 @@ public class RegistryHeartbeatTask extends AbstractTask {
     public RegistryHeartbeatTask(long registryId) {
         super(REGISTRY_HEARTBEAT_T);
         this.registryId = registryId;
-        this.schedule = TaskSchedule.builder().interval(Duration.ofSeconds(10)).build();
+        this.schedule = TaskSchedule.builder().interval(Duration.ofSeconds(30)).build();
     }
 }
