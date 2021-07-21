@@ -12,6 +12,9 @@ else
    exit 1
 fi
 
+# builds tenant-manager, which is a required dependency for fleet manager
+make build-tenant-manager-deps
+
 # Triggering the scan
 docker run -v $(pwd):/opt/srs-fleet-manager:z \
 	  -e SRCCLR_API_TOKEN=${SRCCLR_API_TOKEN} \
