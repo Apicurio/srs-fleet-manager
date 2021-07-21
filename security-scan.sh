@@ -12,13 +12,10 @@ else
    exit 1
 fi
 
-# builds tenant-manager, which is a required dependency for fleet manager
-make build-tenant-manager-deps
-
 # Triggering the scan
 docker run -v $(pwd):/opt/srs-fleet-manager:z \
 	  -e SRCCLR_API_TOKEN=${SRCCLR_API_TOKEN} \
 	  -e JAVA_OPTS="-Duser.home=/tmp" \
 	  -w /opt/srs-fleet-manager \
 	  -u $(id -u) \
-	  quay.io/app-sre/mk-ci-tools:latest /bin/bash -c "mkdir -p logs/ && DEBUG=1 srcclr.sh | tee logs/scan_result.txt"
+	  quay.io/app-sre/mk-ci-tools:latest /bin/bash -c "make build-tenant-manager-deps && mkdir -p logs/ && DEBUG=1 srcclr.sh | tee logs/scan_result.txt"
