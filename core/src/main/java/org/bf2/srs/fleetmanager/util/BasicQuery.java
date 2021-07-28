@@ -17,6 +17,8 @@
 package org.bf2.srs.fleetmanager.util;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.validation.ValidationException;
 
@@ -39,17 +41,20 @@ public class BasicQuery {
 
     // TODO Use Antlr for full query parsing - current version supports only single value
     private void buildQuery() {
-        var searchExpr = search.split("=");
-        if (searchExpr.length != 2) {
+        var searchExpr = Stream.of(search.split("="))
+            .filter(s -> !s.isBlank())
+            .map(String::trim)
+            .collect(Collectors.toList());
+        if (searchExpr.size() != 2) {
             throw new ValidationException("Invalid search query. Currently search supports only single key=value strings pair");
         }
-        if (!allowedFields.contains(searchExpr[0])) {
+        if (!allowedFields.contains(searchExpr.get(0))) {
             throw new ValidationException(String.format("invalid search query key that is not matching allowed values %s ", this.allowedFields.toString()));
         }
 
-        this.column = searchExpr[0];
+        this.column = searchExpr.get(0);
         this.query = this.column + " = ?1";
-        this.argument = searchExpr[1];
+        this.argument = searchExpr.get(1);
     }
 
     public String getQuery() {

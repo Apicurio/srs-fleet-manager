@@ -38,6 +38,7 @@ public class ConvertRegistry {
         requireNonNull(registryCreate);
         return RegistryData.builder()
                 .name(registryCreate.getName())
+                .description(registryCreate.getDescription())
                 .owner(registryCreate.getOwner())
                 .ownerId(registryCreate.getOwnerId())
                 .orgId(registryCreate.getOrgId())

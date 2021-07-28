@@ -2,15 +2,16 @@ package org.bf2.srs.fleetmanager.rest;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
+
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentCreateRest;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreateRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryListRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryRest;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValueRest;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-
 import static io.restassured.RestAssured.given;
 import static java.net.HttpURLConnection.*;
 import static java.util.stream.Collectors.toList;
@@ -18,6 +19,8 @@ import static org.bf2.srs.fleetmanager.util.TestUtil.delay;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Jakub Senko <jsenko@redhat.com>
@@ -169,36 +172,74 @@ public class RegistriesResourceV1Test {
 
         var valid1 = new RegistryCreateRest();
         valid1.setName("a");
+        valid1.setDescription("foo");
 
         var valid2 = new RegistryCreateRest();
         valid2.setName("bbb");
+        valid2.setDescription("hello world");
 
         // Create
-        List<String> ids = List.of(valid1, valid2).stream().map(d -> {
+        List<RegistryRest> regs = List.of(valid1, valid2).stream().map(d -> {
             return given()
                     .when().contentType(ContentType.JSON).body(d).post(BASE)
                     .then().statusCode(HTTP_OK)
                     .log().all()
-                    .extract().as(RegistryRest.class).getId();
+                    .extract().as(RegistryRest.class);
         }).collect(toList());
 
         delay(3 * 1000);
 
-        ids.forEach(id -> {
-            given()
-                    .when().get(BASE + "/" + id)
+        regs.forEach(reg -> {
+
+            var apiReg = given()
+                    .when().get(BASE + "/" + reg.getId())
                     .then().statusCode(HTTP_OK)
-                    // NOTE: Test framework assumes that JSON number is `int` instead of `long`.
-                    .body("id", equalTo(id))
-                    .body("registryDeploymentId", equalTo(deploymentId))
-                    .body("owner", equalTo("Unauthenticated"))
-                    .log().all();
+                    .log().all()
+                    .extract().as(RegistryRest.class);
+            assertNotNull(apiReg.getName());
+            assertEquals(reg.getName(), apiReg.getName());
+            assertNotNull(apiReg.getDescription());
+            assertEquals(reg.getDescription(), apiReg.getDescription());
+            assertEquals(deploymentId, apiReg.getRegistryDeploymentId());
+            assertEquals("Unauthenticated", apiReg.getOwner());
+            assertEquals(reg.getOwner(), apiReg.getOwner());
+            assertNotNull(apiReg.getCreatedAt());
+            assertEquals(reg.getCreatedAt(), apiReg.getCreatedAt());
+            assertNotNull(apiReg.getUpdatedAt());
+            assertEquals(reg.getUpdatedAt(), apiReg.getUpdatedAt());
+            assertEquals(reg.getHref(), apiReg.getHref());
+            assertEquals(reg.getId(), apiReg.getId());
+            assertEquals(reg.getKind(), apiReg.getKind());
+            assertEquals(reg.getRegistryUrl(), apiReg.getRegistryUrl());
+            assertEquals(RegistryStatusValueRest.provisioning, apiReg.getStatus());
+
+            var list = given()
+                .when()
+                    .queryParam("search", "name = " + reg.getName())
+                    .get(BASE)
+                .then().statusCode(HTTP_OK)
+                .log().all()
+                .extract().as(RegistryListRest.class);
+            assertEquals(1, list.getTotal());
+            assertNotNull(list.getItems().get(0));
+            assertEquals(reg.getName(), list.getItems().get(0).getName());
+            assertEquals(reg.getDescription(), list.getItems().get(0).getDescription());
+            assertEquals(deploymentId, list.getItems().get(0).getRegistryDeploymentId());
+            assertEquals(reg.getOwner(), list.getItems().get(0).getOwner());
+            assertEquals(reg.getCreatedAt(), list.getItems().get(0).getCreatedAt());
+            assertEquals(reg.getUpdatedAt(), list.getItems().get(0).getUpdatedAt());
+            assertEquals(reg.getHref(), list.getItems().get(0).getHref());
+            assertEquals(reg.getId(), list.getItems().get(0).getId());
+            assertEquals(reg.getKind(), list.getItems().get(0).getKind());
+            assertEquals(reg.getRegistryUrl(), list.getItems().get(0).getRegistryUrl());
+            assertEquals(RegistryStatusValueRest.provisioning, list.getItems().get(0).getStatus());
+
         });
 
         // Delete
-        ids.forEach(id -> {
+        regs.forEach(reg -> {
             given()
-                    .when().delete(BASE + "/" + id)
+                    .when().delete(BASE + "/" + reg.getId())
                     .then().statusCode(HTTP_NO_CONTENT)
                     .log().all();
         });
