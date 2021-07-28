@@ -204,9 +204,7 @@ public class RegistriesResourceV1Test {
             assertEquals("Unauthenticated", apiReg.getOwner());
             assertEquals(reg.getOwner(), apiReg.getOwner());
             assertNotNull(apiReg.getCreatedAt());
-            assertEquals(reg.getCreatedAt(), apiReg.getCreatedAt());
             assertNotNull(apiReg.getUpdatedAt());
-            assertEquals(reg.getUpdatedAt(), apiReg.getUpdatedAt());
             assertEquals(reg.getHref(), apiReg.getHref());
             assertEquals(reg.getId(), apiReg.getId());
             assertEquals(reg.getKind(), apiReg.getKind());
@@ -226,8 +224,8 @@ public class RegistriesResourceV1Test {
             assertEquals(reg.getDescription(), list.getItems().get(0).getDescription());
             assertEquals(deploymentId, list.getItems().get(0).getRegistryDeploymentId());
             assertEquals(reg.getOwner(), list.getItems().get(0).getOwner());
-            assertEquals(reg.getCreatedAt(), list.getItems().get(0).getCreatedAt());
-            assertEquals(reg.getUpdatedAt(), list.getItems().get(0).getUpdatedAt());
+            assertNotNull(list.getItems().get(0).getCreatedAt());
+            assertNotNull(list.getItems().get(0).getUpdatedAt());
             assertEquals(reg.getHref(), list.getItems().get(0).getHref());
             assertEquals(reg.getId(), list.getItems().get(0).getId());
             assertEquals(reg.getKind(), list.getItems().get(0).getKind());
