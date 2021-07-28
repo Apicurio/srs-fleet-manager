@@ -15,12 +15,16 @@ import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreateRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValueRest;
 import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.keycloak.common.VerificationException;
+
 import io.apicurio.multitenant.api.datamodel.ResourceType;
 import io.apicurio.multitenant.api.datamodel.TenantResource;
 import io.apicurio.multitenant.client.Auth;
 import io.apicurio.multitenant.client.TenantManagerClient;
 import io.apicurio.multitenant.client.TenantManagerClientImpl;
+import io.apicurio.multitenant.client.exception.TenantManagerClientException;
 
 public class RegistryProvisioningIT extends SRSFleetManagerBaseIT {
 
@@ -67,6 +71,21 @@ public class RegistryProvisioningIT extends SRSFleetManagerBaseIT {
             var tmAuth = infra.getTenantManagerAuthConfig();
             Auth auth = new Auth(tmAuth.keycloakUrl, tmAuth.realm, tmAuth.clientId, tmAuth.clientSecret);
             tenantManager = new TenantManagerClientImpl(infra.getTenantManagerUri(), auth);
+
+            {
+                //verify tenant manager auth
+                var invalidTMClient = new TenantManagerClientImpl(infra.getTenantManagerUri(),
+                        new Auth(tmAuth.keycloakUrl, tmAuth.realm, "foo", "baz"));
+                try {
+                    invalidTMClient.deleteTenant("foo");
+                    Assertions.fail("Tenant Manager auth is not working");
+                } catch (TenantManagerClientException e) {
+                    if (!VerificationException.class.isInstance(e)) {
+                        Assertions.fail("Tenant Manager auth did not throw VerificationException");
+                    }
+                }
+            }
+
         } else {
             tenantManager = new TenantManagerClientImpl(infra.getTenantManagerUri());
         }
