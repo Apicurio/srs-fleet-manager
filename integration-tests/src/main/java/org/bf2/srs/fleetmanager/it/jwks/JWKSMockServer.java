@@ -68,7 +68,7 @@ public class JWKSMockServer {
                                         "  ]\n" +
                                         "}")));
 
-        LOGGER.info("Keycloak started in mock mode: %s", server.baseUrl());
+        LOGGER.info("Keycloak started in mock mode: {}", server.baseUrl());
 
         return server.baseUrl();
     }

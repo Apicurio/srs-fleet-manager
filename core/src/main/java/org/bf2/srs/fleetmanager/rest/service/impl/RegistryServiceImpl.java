@@ -113,8 +113,7 @@ public class RegistryServiceImpl implements RegistryService {
         PanacheQuery<RegistryData> itemsQuery = this.registryRepository.find(query.getQuery(), sort, query.getArguments());
 
         var items = itemsQuery.page(Page.of(page - 1, size)).stream().map(convertRegistry::convert)
-                .collect(Collectors
-                        .toCollection(ArrayList::new));
+                .collect(Collectors.toList());
         return RegistryList.builder().items(items)
                 .page(page)
                 .size(size)
