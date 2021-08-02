@@ -8,6 +8,8 @@ import lombok.ToString;
 import static java.util.Objects.requireNonNull;
 
 /**
+ * Workers MUST be thread safe. They should not contain state and inject thread safe beans only.
+ *
  * @author Jakub Senko <jsenko@redhat.com>
  */
 @NoArgsConstructor

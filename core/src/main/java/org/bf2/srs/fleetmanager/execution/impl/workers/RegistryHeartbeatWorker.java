@@ -23,6 +23,8 @@ import static org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValue.FA
 import static org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValue.READY;
 
 /**
+ * This class MUST be thread safe. It should not contain state and inject thread safe beans only.
+ *
  * @author Jakub Senko <jsenko@redhat.com>
  */
 @ApplicationScoped

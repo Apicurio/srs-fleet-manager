@@ -23,6 +23,8 @@ import static org.bf2.srs.fleetmanager.execution.impl.tasks.TaskType.REGISTRY_DE
 import static org.bf2.srs.fleetmanager.execution.impl.workers.WorkerType.REGISTRY_DEPLOYMENT_HEARTBEAT_W;
 
 /**
+ * This class MUST be thread safe. It should not contain state and inject thread safe beans only.
+ *
  * @author Jakub Senko <jsenko@redhat.com>
  */
 @ApplicationScoped

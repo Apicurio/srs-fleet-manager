@@ -15,7 +15,6 @@ import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentD
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
@@ -28,6 +27,8 @@ import static org.bf2.srs.fleetmanager.execution.impl.tasks.TaskType.SCHEDULE_RE
 import static org.bf2.srs.fleetmanager.execution.impl.workers.WorkerType.SCHEDULE_REGISTRY_W;
 
 /**
+ * This class MUST be thread safe. It should not contain state and inject thread safe beans only.
+ *
  * @author Jakub Senko <jsenko@redhat.com>
  */
 @ApplicationScoped
