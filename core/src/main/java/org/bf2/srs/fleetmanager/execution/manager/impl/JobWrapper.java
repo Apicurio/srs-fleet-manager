@@ -16,6 +16,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
@@ -29,8 +30,11 @@ import static org.bf2.srs.fleetmanager.execution.manager.impl.QuartzIDs.jobDetai
 import static org.bf2.srs.fleetmanager.execution.manager.impl.QuartzIDs.jobDetailKeyForWorker;
 
 /**
+ * This class MUST be thread safe. It should not contain state and inject thread safe beans only.
+ *
  * @author Jakub Senko <jsenko@redhat.com>
  */
+@ApplicationScoped
 @PersistJobDataAfterExecution
 @DisallowConcurrentExecution
 public class JobWrapper implements Job {
