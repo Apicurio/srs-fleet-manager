@@ -96,7 +96,6 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
                     .tenantId(registry.getTenantId())
                     .createdBy(registry.getOwner())
                     .organizationId(registry.getOrgId())
-                    .resources(plansService.getDefaultQuotaPlan().getResources())
                     .build();
 
             TenantManager tenantManager = createTenantManager(registryDeployment);

@@ -4,8 +4,8 @@ import io.apicurio.multitenant.api.datamodel.NewRegistryTenantRequest;
 import io.apicurio.multitenant.api.datamodel.RegistryTenant;
 import io.apicurio.multitenant.api.datamodel.ResourceType;
 import io.apicurio.multitenant.api.datamodel.TenantResource;
-import io.apicurio.multitenant.client.Auth;
 import io.apicurio.multitenant.client.TenantManagerClientImpl;
+import io.apicurio.rest.client.auth.Auth;
 import org.bf2.srs.fleetmanager.spi.TenantManagerClient;
 import org.bf2.srs.fleetmanager.spi.model.Tenant;
 import org.bf2.srs.fleetmanager.spi.model.TenantLimit;
@@ -13,6 +13,7 @@ import org.bf2.srs.fleetmanager.spi.model.TenantManager;
 import org.bf2.srs.fleetmanager.spi.model.TenantRequest;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -37,7 +38,7 @@ public class RestClientTenantManagerClientImpl implements TenantManagerClient {
     private io.apicurio.multitenant.client.TenantManagerClient getClient(TenantManager tm) {
         return pool.computeIfAbsent(tm.getTenantManagerUrl(), k -> {
             if (auth != null) {
-                return new TenantManagerClientImpl(tm.getTenantManagerUrl(), auth);
+                return new TenantManagerClientImpl(tm.getTenantManagerUrl(), Collections.emptyMap(), auth);
             } else {
                return new TenantManagerClientImpl(tm.getTenantManagerUrl());
             }

@@ -1,8 +1,7 @@
 package org.b2f.ams.client;
 
+import io.apicurio.rest.client.auth.OidcAuth;
 import io.quarkus.arc.profile.UnlessBuildProfile;
-import org.b2f.ams.client.auth.Auth;
-import org.b2f.ams.client.auth.KeycloakAuth;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,11 +18,8 @@ public class AccountManagementSystemRestClientProducer {
     @ConfigProperty(name = "account-management-system.url")
     private String endpoint;
 
-    @ConfigProperty(name = "sso.url")
-    private String ssoUrl;
-
-    @ConfigProperty(name = "sso.realm")
-    private String ssoRealm;
+    @ConfigProperty(name = "sso.token.endpoint")
+    private String ssoTokenEndpoint;
 
     @ConfigProperty(name = "sso.client-id")
     private String ssoClientId;
@@ -37,7 +33,7 @@ public class AccountManagementSystemRestClientProducer {
     public AccountManagementSystemRestClient produce() {
         log.info("Using Account Management System REST client.");
 
-        final Auth auth = new KeycloakAuth(ssoUrl, ssoRealm, ssoClientId, ssoClientSecret);
+        final OidcAuth auth = new OidcAuth(ssoTokenEndpoint, ssoClientId, ssoClientSecret);
 
         return new AccountManagementSystemRestClient(endpoint, Collections.emptyMap(), auth);
     }
