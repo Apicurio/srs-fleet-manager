@@ -13,16 +13,14 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 import static lombok.AccessLevel.PACKAGE;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-        "allowed",
-        "organization_id",
-        "subscription",
-        "excess_resources"
+        "id",
+        "kind",
+        "href"
 })
 @NoArgsConstructor
 @AllArgsConstructor(access = PACKAGE)
@@ -31,34 +29,27 @@ import static lombok.AccessLevel.PACKAGE;
 @Setter
 @EqualsAndHashCode
 @ToString
-public class ClusterAuthorizationResponse {
+public class Subscription {
 
     /**
      * (Required)
      */
-    @JsonProperty("allowed")
+    @JsonProperty("id")
     @JsonPropertyDescription("")
     @NotNull
-    Boolean allowed;
+    String id;
 
     /**
      * (Optional)
      */
-    @JsonProperty("organization_id")
+    @JsonProperty("kind")
     @JsonPropertyDescription("")
-    String organizationId;
+    String kind;
 
     /**
      * (Optional)
      */
-    @JsonProperty("subscription")
+    @JsonProperty("href")
     @JsonPropertyDescription("")
-    Subscription subscription;
-
-    /**
-     * (Optional)
-     */
-    @JsonProperty("excess_resources")
-    @JsonPropertyDescription("")
-    List<ExcessResource> excessResources;
+    String href;
 }

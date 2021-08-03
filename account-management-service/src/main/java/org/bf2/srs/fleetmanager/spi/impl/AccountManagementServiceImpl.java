@@ -1,12 +1,15 @@
 package org.bf2.srs.fleetmanager.spi.impl;
 
 import org.b2f.ams.client.AccountManagementSystemRestClient;
+import org.b2f.ams.client.exception.TermsRequiredException;
 import org.b2f.ams.client.model.request.ClusterAuthorization;
+import org.b2f.ams.client.model.request.ReservedResource;
 import org.b2f.ams.client.model.request.TermsReview;
-import org.b2f.ams.client.model.response.ClusterAuthorizationResponse;
 import org.b2f.ams.client.model.response.ResponseTermsReview;
 import org.bf2.srs.fleetmanager.spi.AccountManagementService;
 import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
+
+import java.util.Collections;
 
 /**
  * This service is in charge of check if a given user has the appropriate situation in order to ask for the requested resource
@@ -20,22 +23,7 @@ public class AccountManagementServiceImpl implements AccountManagementService {
     }
 
     @Override
-    public String createResource(AccountInfo accountInfo, String resourceType, String clusterId, String productId) {
-
-        final ClusterAuthorization clusterAuthorization = ClusterAuthorization.builder()
-                .accountUsername(accountInfo.getAccountUsername())
-                .clusterId(clusterId)
-                .productId(productId)
-                .reserve(true)
-                .build();
-
-        final ClusterAuthorizationResponse clusterAuthorizationResponse = restClient.clusterAuthorization(clusterAuthorization);
-
-        return clusterAuthorizationResponse.getSubscriptionId();
-    }
-
-    @Override
-    public boolean hasEntitlements(AccountInfo accountInfo, String resourceType, String clusterId) {
+    public boolean hasEntitlements(AccountInfo accountInfo, String resourceType, String clusterId, String productId) {
 
         boolean termsAccepted = true;
         final TermsReview termsReview = new TermsReview();
@@ -45,17 +33,20 @@ public class AccountManagementServiceImpl implements AccountManagementService {
 
         if (termsAccepted) {
             final ClusterAuthorization clusterAuthorization = ClusterAuthorization.builder()
-                    .clusterId(clusterId)
-                    .reserve(false)
                     .accountUsername(accountInfo.getAccountUsername())
+                    .productId(productId)
+                    .managed(true)
+                    .byoc(false)
+                    .cloudProviderId("aws")
+                    .reserve(true)
+                    .availabilityZone("single")
+                    .clusterId(clusterId)
+                    .resources(Collections.singletonList(ReservedResource.builder().resourceType(resourceType).resourceName(productId).count(1).build()))
                     .build();
 
-            final ClusterAuthorizationResponse clusterAuthorizationResponse = restClient.clusterAuthorization(clusterAuthorization);
-            if (clusterAuthorizationResponse.getExcessResources() == null || clusterAuthorizationResponse.getExcessResources().isEmpty()) {
-                return clusterAuthorizationResponse.getAllowed();
-            }
+            return restClient.clusterAuthorization(clusterAuthorization).getAllowed();
+        } else {
+            throw new TermsRequiredException(accountInfo.getAccountUsername());
         }
-        //TODO throw specific exception when terms not accepted
-        return false;
     }
 }

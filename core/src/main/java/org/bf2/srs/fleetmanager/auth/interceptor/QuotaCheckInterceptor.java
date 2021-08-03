@@ -5,6 +5,7 @@ import io.quarkus.security.identity.SecurityIdentity;
 import org.bf2.srs.fleetmanager.auth.AuthService;
 import org.bf2.srs.fleetmanager.spi.AccountManagementService;
 import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
@@ -27,13 +28,15 @@ public class QuotaCheckInterceptor {
     @Inject
     AuthService authService;
 
+    @ConfigProperty(name = "srs-fleet-manager.registry.product-id")
+    String productId;
+
     @AroundInvoke
     public Object intercept(InvocationContext context) throws Exception {
         boolean allowed = true;
         if (isResolvable(securityIdentity)) {
-            //TODO fill resoure type and cluster id
             final AccountInfo accountInfo = authService.extractAccountInfo();
-            allowed = accountManagementService.hasEntitlements(accountInfo, "", "");
+            allowed = accountManagementService.hasEntitlements(accountInfo, "cluster.aws", "", productId);
         }
         if (allowed) {
             return context.proceed();
