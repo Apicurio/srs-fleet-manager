@@ -114,7 +114,7 @@ public class ClusterAuthorization {
     /**
      * (Optional)
      */
-    @JsonProperty("account_username")
+    @JsonProperty("product_id")
     @JsonPropertyDescription("")
     private String productId;
     /**
