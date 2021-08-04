@@ -4,7 +4,6 @@ import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
 import io.quarkus.security.identity.SecurityIdentity;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.bf2.srs.fleetmanager.auth.AuthService;
 import org.bf2.srs.fleetmanager.auth.interceptor.CheckDeletePermissions;
@@ -16,6 +15,7 @@ import org.bf2.srs.fleetmanager.rest.service.convert.ConvertRegistry;
 import org.bf2.srs.fleetmanager.rest.service.model.Registry;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryCreate;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryList;
+import org.bf2.srs.fleetmanager.spi.AccountManagementService;
 import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
@@ -24,19 +24,19 @@ import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.PanacheRegistryRepository
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
 import org.bf2.srs.fleetmanager.util.BasicQuery;
 import org.bf2.srs.fleetmanager.util.SearchQuery;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.validation.ValidationException;
-
-import static org.bf2.srs.fleetmanager.util.SecurityUtil.OWNER_ID_PLACEHOLDER;
-import static org.bf2.srs.fleetmanager.util.SecurityUtil.isResolvable;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.bf2.srs.fleetmanager.util.SecurityUtil.OWNER_ID_PLACEHOLDER;
+import static org.bf2.srs.fleetmanager.util.SecurityUtil.isResolvable;
 
 @ApplicationScoped
 public class RegistryServiceImpl implements RegistryService {
@@ -59,9 +59,18 @@ public class RegistryServiceImpl implements RegistryService {
     @Inject
     AuthService authService;
 
+    @Inject
+    AccountManagementService accountManagementService;
+
+    @ConfigProperty(name = "srs-fleet-manager.registry.product-id")
+    String productId;
+
+
     @Override
     public Registry createRegistry(RegistryCreate registryCreate) throws StorageConflictException {
-        RegistryData registryData = convertRegistry.convert(registryCreate);
+        final AccountInfo accountInfo = authService.extractAccountInfo();
+        String subscriptionId = accountManagementService.createResource(accountInfo, "cluster.aws", "", productId);
+        RegistryData registryData = convertRegistry.convert(registryCreate, subscriptionId, accountInfo.getAccountUsername(), accountInfo.getOrganizationId(), accountInfo.getAccountId());
         storage.createOrUpdateRegistry(registryData);
         tasks.submit(ScheduleRegistryTask.builder().registryId(registryData.getId()).build());
         return convertRegistry.convert(registryData);
@@ -135,8 +144,13 @@ public class RegistryServiceImpl implements RegistryService {
     @CheckDeletePermissions
     public void deleteRegistry(String registryId) throws RegistryNotFoundException, StorageConflictException {
         try {
+            //First we get the subscriptionId for the given registry
+            final String subscriptionId = getRegistry(registryId).getSubscriptionId();
+            //Then we delete the registry instance
             Long id = Long.valueOf(registryId);
             storage.deleteRegistry(id);
+            //And finally, if no exceptions have been thrown by the delete registry operation, we return the subscription to the user
+            accountManagementService.deleteSubscription(subscriptionId);
         } catch (NumberFormatException ex) {
             throw RegistryNotFoundException.create(registryId);
         }
