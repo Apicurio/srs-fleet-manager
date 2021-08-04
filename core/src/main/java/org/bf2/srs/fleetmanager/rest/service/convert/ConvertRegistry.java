@@ -31,6 +31,7 @@ public class ConvertRegistry {
                 .createdAt(registry.getCreatedAt())
                 .updatedAt(registry.getUpdatedAt())
                 .description(registry.getDescription())
+                .subscriptionId(registry.getSubscriptionId())
                 .build();
     }
 
@@ -43,6 +44,7 @@ public class ConvertRegistry {
                 .ownerId(registryCreate.getOwnerId())
                 .orgId(registryCreate.getOrgId())
                 .status(RegistryStatusValue.ACCEPTED.value())
+                .subscriptionId(registryCreate.getSubscriptionId())
                 .build();
     }
 }

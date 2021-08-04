@@ -60,4 +60,11 @@ public class RegistryCreate {
      */
     @Size(max = 255, message = "Registry instance description must not be longer than 255 characters.")
     private String description;
+
+    /**
+     * Registry subscription id.
+     * <p>
+     *
+     */
+    private String subscriptionId;
 }

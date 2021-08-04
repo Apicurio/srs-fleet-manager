@@ -12,8 +12,8 @@ import org.b2f.ams.client.exception.AccountManagementErrorHandler;
 import org.b2f.ams.client.exception.AccountManagementSystemClientException;
 import org.b2f.ams.client.model.request.ClusterAuthorization;
 import org.b2f.ams.client.model.request.TermsReview;
-import org.b2f.ams.client.model.response.ClusterAuthorizationResponse;
 import org.b2f.ams.client.model.response.ResponseTermsReview;
+import org.b2f.ams.client.model.response.ClusterAuthorizationResponse;
 
 import java.util.Collections;
 import java.util.Map;

@@ -8,7 +8,6 @@ import io.quarkus.security.identity.SecurityIdentity;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bf2.srs.fleetmanager.auth.AuthService;
 import org.bf2.srs.fleetmanager.auth.interceptor.CheckDeletePermissions;
-import org.bf2.srs.fleetmanager.auth.interceptor.CheckQuota;
 import org.bf2.srs.fleetmanager.auth.interceptor.CheckReadPermissions;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.ScheduleRegistryTask;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
@@ -61,7 +60,6 @@ public class RegistryServiceImpl implements RegistryService {
     AuthService authService;
 
     @Override
-    @CheckQuota
     public Registry createRegistry(RegistryCreate registryCreate) throws StorageConflictException {
         RegistryData registryData = convertRegistry.convert(registryCreate);
         storage.createOrUpdateRegistry(registryData);

@@ -8,7 +8,9 @@ import org.b2f.ams.client.model.request.TermsReview;
 import org.b2f.ams.client.model.response.ResponseTermsReview;
 import org.bf2.srs.fleetmanager.spi.AccountManagementService;
 import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
+import org.b2f.ams.client.model.response.ClusterAuthorizationResponse;
 
+import javax.ws.rs.ForbiddenException;
 import java.util.Collections;
 
 /**
@@ -23,9 +25,9 @@ public class AccountManagementServiceImpl implements AccountManagementService {
     }
 
     @Override
-    public boolean hasEntitlements(AccountInfo accountInfo, String resourceType, String clusterId, String productId) {
+    public String createResource(AccountInfo accountInfo, String resourceType, String clusterId, String productId) {
 
-        boolean termsAccepted = true;
+        boolean termsAccepted;
         final TermsReview termsReview = new TermsReview();
         termsReview.setAccountUsername(accountInfo.getAccountUsername());
         final ResponseTermsReview responseTermsReview = restClient.termsReview(termsReview);
@@ -44,7 +46,14 @@ public class AccountManagementServiceImpl implements AccountManagementService {
                     .resources(Collections.singletonList(ReservedResource.builder().resourceType(resourceType).resourceName(productId).count(1).build()))
                     .build();
 
-            return restClient.clusterAuthorization(clusterAuthorization).getAllowed();
+            final ClusterAuthorizationResponse clusterAuthorizationResponse = restClient.clusterAuthorization(clusterAuthorization);
+
+            if (clusterAuthorizationResponse.getAllowed()) {
+                return clusterAuthorizationResponse.getSubscription().getId();
+            } else {
+                //User not allowed to create resource
+                throw new ForbiddenException();
+            }
         } else {
             throw new TermsRequiredException(accountInfo.getAccountUsername());
         }

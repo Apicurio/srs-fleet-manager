@@ -5,15 +5,15 @@ import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
 public interface AccountManagementService {
 
     /**
-     * Checks if a given user has a valid entitlement
+     * Creates a resource for the given user
      *
-     * @param accountInfo  the account information for the terms and access requests
+     * @param accountInfo  the account information for requests
      * @param resourceType the requested resource type
      * @param clusterId    the clusterId to be used in the request
      * @param productId    the service registry product id
-     * @return true if the user has a valid entitlement.
+     * @return the id of the subscription.
      */
-    boolean hasEntitlements(AccountInfo accountInfo, String resourceType, String clusterId, String productId);
+    String createResource(AccountInfo accountInfo, String resourceType, String clusterId, String productId);
 
     /**
      * Delete a subscription by id

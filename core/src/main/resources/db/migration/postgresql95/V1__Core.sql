@@ -41,7 +41,8 @@ create table if not exists registrydata
     created_at timestamp,
     updated_at timestamp,
     org_id varchar(255) not null,
-    owner_id bigserial not null
+    owner_id bigserial not null,
+    subscription_id varchar(255)
 );
 
 alter table registrydata add constraint pk_registrydata primary key (id);
