@@ -6,9 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import io.apicurio.rest.client.auth.OidcAuth;
 import org.awaitility.Awaitility;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentCreateRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreateRest;
@@ -18,7 +20,6 @@ import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
 import org.junit.jupiter.api.Test;
 import io.apicurio.multitenant.api.datamodel.ResourceType;
 import io.apicurio.multitenant.api.datamodel.TenantResource;
-import io.apicurio.multitenant.client.Auth;
 import io.apicurio.multitenant.client.TenantManagerClient;
 import io.apicurio.multitenant.client.TenantManagerClientImpl;
 
@@ -65,8 +66,8 @@ public class RegistryProvisioningIT extends SRSFleetManagerBaseIT {
         TenantManagerClient tenantManager;
         if (infra.isTenantManagerAuthEnabled()) {
             var tmAuth = infra.getTenantManagerAuthConfig();
-            Auth auth = new Auth(tmAuth.keycloakUrl, tmAuth.realm, tmAuth.clientId, tmAuth.clientSecret);
-            tenantManager = new TenantManagerClientImpl(infra.getTenantManagerUri(), auth);
+            OidcAuth auth = new OidcAuth(tmAuth.tokenEndpoint, tmAuth.clientId, tmAuth.clientSecret);
+            tenantManager = new TenantManagerClientImpl(infra.getTenantManagerUri(), Collections.emptyMap(), auth);
 
             //TODO uncomment
 //            {

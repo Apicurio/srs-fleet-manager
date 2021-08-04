@@ -25,5 +25,6 @@ public class AuthConfig {
     String realm;
     String clientId;
     String clientSecret;
+    String tokenEndpoint;
 
 }

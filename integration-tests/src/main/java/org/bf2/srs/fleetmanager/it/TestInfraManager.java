@@ -187,9 +187,10 @@ public class TestInfraManager {
         String baseUrl = mock.start();
         authConfig.keycloakUrl = baseUrl + "/auth";
         authConfig.realm = "test";
+        authConfig.tokenEndpoint =  authConfig.keycloakUrl + "/realms/" + authConfig.realm + "/protocol/openid-connect/token";
         authConfig.clientId = "fleet-manager-client-id";
 
-        LOGGER.info("keycloak mock running at {}", authConfig.keycloakUrl);
+        LOGGER.info("keycloak mock running at {}", authConfig.tokenEndpoint);
 
         processes.add(new EmbeddedTestInfraProcess() {
 
