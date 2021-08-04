@@ -7,11 +7,18 @@ public interface AccountManagementService {
     /**
      * Checks if a given user has a valid entitlement
      *
-     * @param accountInfo    the account information for the terms and access requests
-     * @param resourceType   the requested resource type
-     * @param clusterId      the clusterId to be used in the request
-     * @param productId      the service registry product id
+     * @param accountInfo  the account information for the terms and access requests
+     * @param resourceType the requested resource type
+     * @param clusterId    the clusterId to be used in the request
+     * @param productId    the service registry product id
      * @return true if the user has a valid entitlement.
      */
     boolean hasEntitlements(AccountInfo accountInfo, String resourceType, String clusterId, String productId);
+
+    /**
+     * Delete a subscription by id
+     *
+     * @param subscriptionId the identifier of the subscription to be deleted
+     */
+    void deleteSubscription(String subscriptionId);
 }

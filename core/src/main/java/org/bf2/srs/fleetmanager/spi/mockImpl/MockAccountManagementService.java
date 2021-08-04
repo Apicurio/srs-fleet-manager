@@ -10,4 +10,9 @@ public class MockAccountManagementService implements AccountManagementService {
     public boolean hasEntitlements(AccountInfo accountInfo, String resourceType, String clusterId, String productId) {
         return true;
     }
+
+    @Override
+    public void deleteSubscription(String subscriptionId) {
+        //Do nothing, this is just a mock call
+    }
 }
