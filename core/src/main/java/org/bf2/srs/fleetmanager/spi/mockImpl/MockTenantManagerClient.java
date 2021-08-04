@@ -1,27 +1,29 @@
 package org.bf2.srs.fleetmanager.spi.mockImpl;
 
-import org.bf2.srs.fleetmanager.spi.TenantManagerClient;
+import org.bf2.srs.fleetmanager.spi.TenantManagerService;
+import org.bf2.srs.fleetmanager.spi.model.CreateTenantRequest;
 import org.bf2.srs.fleetmanager.spi.model.Tenant;
-import org.bf2.srs.fleetmanager.spi.model.TenantManager;
-import org.bf2.srs.fleetmanager.spi.model.TenantRequest;
+import org.bf2.srs.fleetmanager.spi.model.TenantLimit;
+import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.Objects.requireNonNull;
 
-public class MockTenantManagerClient implements TenantManagerClient {
+public class MockTenantManagerClient implements TenantManagerService {
 
-    private final Map<TenantManager, Map<String, Tenant>> testData = new ConcurrentHashMap<>();
+    private final Map<TenantManagerConfig, Map<String, Tenant>> testData = new ConcurrentHashMap<>();
 
-    private void init(TenantManager tm) {
+    private void init(TenantManagerConfig tm) {
         testData.computeIfAbsent(tm, s -> new ConcurrentHashMap<>());
     }
 
     @Override
-    public Tenant createTenant(TenantManager tm, TenantRequest req) {
+    public Tenant createTenant(TenantManagerConfig tm, CreateTenantRequest req) {
         requireNonNull(tm);
         requireNonNull(req);
 
@@ -34,13 +36,19 @@ public class MockTenantManagerClient implements TenantManagerClient {
     }
 
     @Override
-    public List<Tenant> getAllTenants(TenantManager tm) {
+    public Optional<Tenant> getTenantById(TenantManagerConfig tm, String tenantId) {
+        init(tm);
+        return Optional.ofNullable(testData.get(tm).get(tenantId));
+    }
+
+    @Override
+    public List<Tenant> getAllTenants(TenantManagerConfig tm) {
         init(tm);
         return new ArrayList<>(testData.get(tm).values());
     }
 
     @Override
-    public void deleteTenant(TenantManager tm, String tenantId) {
+    public void deleteTenant(TenantManagerConfig tm, String tenantId) {
         requireNonNull(tm);
         requireNonNull(tenantId);
         init(tm);
@@ -48,16 +56,21 @@ public class MockTenantManagerClient implements TenantManagerClient {
     }
 
     @Override
-    public boolean pingTenantManager(TenantManager tm) {
+    public boolean pingTenantManager(TenantManagerConfig tm) {
         requireNonNull(tm);
         return true;
     }
 
     @Override
-    public boolean pingTenant(TenantManager tm, String tenantId) {
+    public boolean pingTenant(TenantManagerConfig tm, String tenantId) {
         requireNonNull(tm);
         requireNonNull(tenantId);
         init(tm);
         return testData.get(tm).containsKey(tenantId);
+    }
+
+    @Override
+    public void validateConfig(List<TenantLimit> limits) {
+        // NOOP
     }
 }

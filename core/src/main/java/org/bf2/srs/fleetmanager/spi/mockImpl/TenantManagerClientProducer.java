@@ -1,6 +1,6 @@
 package org.bf2.srs.fleetmanager.spi.mockImpl;
 
-import org.bf2.srs.fleetmanager.spi.TenantManagerClient;
+import org.bf2.srs.fleetmanager.spi.TenantManagerService;
 import io.quarkus.arc.DefaultBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +16,7 @@ public class TenantManagerClientProducer {
     @Produces
     @DefaultBean
     @ApplicationScoped
-    public TenantManagerClient produce() {
+    public TenantManagerService produce() {
         log.info("Using Mock TenantManagerClient.");
         return new MockTenantManagerClient();
     }

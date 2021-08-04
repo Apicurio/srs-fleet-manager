@@ -6,8 +6,8 @@ import org.bf2.srs.fleetmanager.execution.impl.tasks.RegistryDeploymentHeartbeat
 import org.bf2.srs.fleetmanager.execution.manager.Task;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
-import org.bf2.srs.fleetmanager.spi.TenantManagerClient;
-import org.bf2.srs.fleetmanager.spi.model.TenantManager;
+import org.bf2.srs.fleetmanager.spi.TenantManagerService;
+import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentData;
 import org.slf4j.Logger;
@@ -36,7 +36,7 @@ public class RegistryDeploymentHeartbeatWorker extends AbstractWorker {
     ResourceStorage storage;
 
     @Inject
-    TenantManagerClient tmClient;
+    TenantManagerService tmClient;
 
     @Inject
     TaskManager tasks;
@@ -63,7 +63,7 @@ public class RegistryDeploymentHeartbeatWorker extends AbstractWorker {
         }
         RegistryDeploymentData deployment = deploymentOptional.get();
 
-        TenantManager tenantManager = TenantManager.builder()
+        TenantManagerConfig tenantManager = TenantManagerConfig.builder()
                 .tenantManagerUrl(deployment.getTenantManagerUrl())
                 .registryDeploymentUrl(deployment.getRegistryDeploymentUrl())
                 .build();

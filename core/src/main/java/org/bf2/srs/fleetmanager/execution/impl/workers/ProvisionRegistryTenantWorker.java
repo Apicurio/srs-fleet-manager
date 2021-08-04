@@ -6,9 +6,9 @@ import org.bf2.srs.fleetmanager.execution.manager.Task;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
 import org.bf2.srs.fleetmanager.service.QuotaPlansService;
-import org.bf2.srs.fleetmanager.spi.TenantManagerClient;
-import org.bf2.srs.fleetmanager.spi.model.TenantManager;
-import org.bf2.srs.fleetmanager.spi.model.TenantRequest;
+import org.bf2.srs.fleetmanager.spi.TenantManagerService;
+import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
+import org.bf2.srs.fleetmanager.spi.model.CreateTenantRequest;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.storage.StorageConflictException;
@@ -40,7 +40,7 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
     ResourceStorage storage;
 
     @Inject
-    TenantManagerClient tmClient;
+    TenantManagerService tmClient;
 
     @Inject
     TaskManager tasks;
@@ -94,14 +94,14 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
         // Avoid accidentally creating orphan tenants
         if (task.getRegistryTenantId() == null) {
 
-            TenantRequest tenantRequest = TenantRequest.builder()
+            CreateTenantRequest tenantRequest = CreateTenantRequest.builder()
                     .tenantId(registry.getTenantId())
                     .createdBy(registry.getOwner())
                     .organizationId(registry.getOrgId())
                     .resources(plansService.getDefaultQuotaPlan().getResources())
                     .build();
 
-            TenantManager tenantManager = createTenantManager(registryDeployment);
+            TenantManagerConfig tenantManager = Utils.createTenantManagerConfig(registryDeployment);
 
             // NOTE: Failure point 4
             tmClient.createTenant(tenantManager, tenantRequest);
@@ -136,19 +136,12 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
 
         // Cleanup orphan tenant
         if (registry != null && registryDeployment != null && task.getRegistryTenantId() != null) {
-            tmClient.deleteTenant(createTenantManager(registryDeployment), registry.getTenantId());
+            tmClient.deleteTenant(Utils.createTenantManagerConfig(registryDeployment), registry.getTenantId());
         }
 
         // Remove registry entity
         if (registry != null) {
             storage.deleteRegistry(registry.getId());
         }
-    }
-
-    private TenantManager createTenantManager(RegistryDeploymentData registryDeployment) {
-        return TenantManager.builder()
-                .tenantManagerUrl(registryDeployment.getTenantManagerUrl())
-                .registryDeploymentUrl(registryDeployment.getRegistryDeploymentUrl())
-                .build();
     }
 }

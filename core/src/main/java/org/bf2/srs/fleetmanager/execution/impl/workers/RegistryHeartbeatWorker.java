@@ -4,8 +4,8 @@ import org.bf2.srs.fleetmanager.execution.impl.tasks.RegistryHeartbeatTask;
 import org.bf2.srs.fleetmanager.execution.manager.Task;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
-import org.bf2.srs.fleetmanager.spi.TenantManagerClient;
-import org.bf2.srs.fleetmanager.spi.model.TenantManager;
+import org.bf2.srs.fleetmanager.spi.TenantManagerService;
+import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.storage.StorageConflictException;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
@@ -36,7 +36,7 @@ public class RegistryHeartbeatWorker extends AbstractWorker {
     ResourceStorage storage;
 
     @Inject
-    TenantManagerClient tmClient;
+    TenantManagerService tmClient;
 
     @Inject
     TaskManager tasks;
@@ -55,15 +55,17 @@ public class RegistryHeartbeatWorker extends AbstractWorker {
     public void execute(Task aTask, WorkerContext ctl) throws StorageConflictException {
         RegistryHeartbeatTask task = (RegistryHeartbeatTask) aTask;
 
+        // TODO Stop when tenant status is (deleting)?
         Optional<RegistryData> registryOptional = storage.getRegistryById(task.getRegistryId());
         if (registryOptional.isEmpty()) {
             // NOTE: Failure point 1
             // The Registry disappeared. Just retry.
+            // It could've been deprovisioned!
             ctl.retry();
         }
         RegistryData registry = registryOptional.get();
 
-        TenantManager tenantManager = TenantManager.builder()
+        TenantManagerConfig tenantManager = TenantManagerConfig.builder()
                 .tenantManagerUrl(registry.getRegistryDeployment().getTenantManagerUrl())
                 .registryDeploymentUrl(registry.getRegistryDeployment().getRegistryDeploymentUrl())
                 .build();
@@ -84,7 +86,7 @@ public class RegistryHeartbeatWorker extends AbstractWorker {
 
     @Override
     public void finallyExecute(Task aTask, WorkerContext ctl, Optional<Exception> error) {
-        // The Registry was deleted or storage failed.
+        // The Registry was deprovisioned, deleted or storage failed.
         // We should make sure the customers won't lose data so we'll just ignore this error.
     }
 }

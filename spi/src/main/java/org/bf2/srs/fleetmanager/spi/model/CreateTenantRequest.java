@@ -17,7 +17,7 @@ import java.util.List;
 @Getter
 @EqualsAndHashCode
 @ToString
-public class TenantRequest {
+public class CreateTenantRequest {
 
     /**
      * TenantId is specified by the control-plane

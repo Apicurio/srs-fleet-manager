@@ -8,6 +8,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.bf2.srs.fleetmanager.auth.AuthService;
 import org.bf2.srs.fleetmanager.auth.interceptor.CheckDeletePermissions;
 import org.bf2.srs.fleetmanager.auth.interceptor.CheckReadPermissions;
+import org.bf2.srs.fleetmanager.execution.impl.tasks.deprovision.DeprovisionRegistryTask;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.ScheduleRegistryTask;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.rest.service.RegistryService;
@@ -26,14 +27,15 @@ import org.bf2.srs.fleetmanager.util.BasicQuery;
 import org.bf2.srs.fleetmanager.util.SearchQuery;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
-import javax.validation.ValidationException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
+import javax.validation.ValidationException;
+
 
 import static org.bf2.srs.fleetmanager.util.SecurityUtil.OWNER_ID_PLACEHOLDER;
 import static org.bf2.srs.fleetmanager.util.SecurityUtil.isResolvable;
@@ -64,7 +66,6 @@ public class RegistryServiceImpl implements RegistryService {
 
     @ConfigProperty(name = "srs-fleet-manager.registry.product-id")
     String productId;
-
 
     @Override
     public Registry createRegistry(RegistryCreate registryCreate) throws StorageConflictException {
@@ -144,13 +145,10 @@ public class RegistryServiceImpl implements RegistryService {
     @CheckDeletePermissions
     public void deleteRegistry(String registryId) throws RegistryNotFoundException, StorageConflictException {
         try {
-            //First we get the subscriptionId for the given registry
-            final String subscriptionId = getRegistry(registryId).getSubscriptionId();
-            //Then we delete the registry instance
-            Long id = Long.valueOf(registryId);
-            storage.deleteRegistry(id);
-            //And finally, if no exceptions have been thrown by the delete registry operation, we return the subscription to the user
-            accountManagementService.deleteSubscription(subscriptionId);
+            // Verify preconditions - Registry exists
+            long id = Long.parseLong(registryId);
+            storage.getRegistryById(id).orElseThrow(() -> RegistryNotFoundException.create(registryId));
+            tasks.submit(DeprovisionRegistryTask.builder().registryId(id).build());
         } catch (NumberFormatException ex) {
             throw RegistryNotFoundException.create(registryId);
         }
