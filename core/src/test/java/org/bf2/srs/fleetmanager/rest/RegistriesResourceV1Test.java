@@ -21,6 +21,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Jakub Senko <jsenko@redhat.com>
@@ -208,8 +209,13 @@ public class RegistriesResourceV1Test {
             assertEquals(reg.getHref(), apiReg.getHref());
             assertEquals(reg.getId(), apiReg.getId());
             assertEquals(reg.getKind(), apiReg.getKind());
-            assertEquals(reg.getRegistryUrl(), apiReg.getRegistryUrl());
-            assertEquals(RegistryStatusValueRest.provisioning, apiReg.getStatus());
+            // The status could've changed at this point
+            if(apiReg.getStatus() == RegistryStatusValueRest.provisioning) {
+                assertEquals(reg.getRegistryUrl() /* null */, apiReg.getRegistryUrl());
+            } else {
+                assertEquals(RegistryStatusValueRest.ready, apiReg.getStatus());
+                assertTrue(apiReg.getRegistryUrl().startsWith(deployment.getRegistryDeploymentUrl()));
+            }
 
             var list = given()
                 .when()
@@ -229,9 +235,13 @@ public class RegistriesResourceV1Test {
             assertEquals(reg.getHref(), list.getItems().get(0).getHref());
             assertEquals(reg.getId(), list.getItems().get(0).getId());
             assertEquals(reg.getKind(), list.getItems().get(0).getKind());
-            assertEquals(reg.getRegistryUrl(), list.getItems().get(0).getRegistryUrl());
-            assertEquals(RegistryStatusValueRest.provisioning, list.getItems().get(0).getStatus());
-
+            // The status could've changed at this point
+            if(list.getItems().get(0).getStatus() == RegistryStatusValueRest.provisioning) {
+                assertEquals(reg.getRegistryUrl() /* null */, list.getItems().get(0).getRegistryUrl());
+            } else {
+                assertEquals(RegistryStatusValueRest.ready, list.getItems().get(0).getStatus());
+                assertTrue(list.getItems().get(0).getRegistryUrl().startsWith(deployment.getRegistryDeploymentUrl()));
+            }
         });
 
         // Delete
