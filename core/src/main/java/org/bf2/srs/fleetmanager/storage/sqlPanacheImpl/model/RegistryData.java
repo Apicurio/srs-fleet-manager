@@ -97,4 +97,7 @@ public class RegistryData {
      */
     @Column(name = "org_id", nullable = false)
     private String orgId;
+
+    @Column(name = "subscription_id")
+    private String subscriptionId;
 }
