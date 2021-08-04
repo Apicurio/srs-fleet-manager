@@ -31,20 +31,19 @@ public class ConvertRegistry {
                 .createdAt(registry.getCreatedAt())
                 .updatedAt(registry.getUpdatedAt())
                 .description(registry.getDescription())
-                .subscriptionId(registry.getSubscriptionId())
                 .build();
     }
 
-    public RegistryData convert(@Valid @NotNull RegistryCreate registryCreate) {
+    public RegistryData convert(@Valid @NotNull RegistryCreate registryCreate, String subscriptionId, String owner, String orgId, Long ownerId) {
         requireNonNull(registryCreate);
         return RegistryData.builder()
                 .name(registryCreate.getName())
                 .description(registryCreate.getDescription())
-                .owner(registryCreate.getOwner())
-                .ownerId(registryCreate.getOwnerId())
-                .orgId(registryCreate.getOrgId())
+                .owner(owner)
+                .ownerId(ownerId)
+                .orgId(orgId)
                 .status(RegistryStatusValue.ACCEPTED.value())
-                .subscriptionId(registryCreate.getSubscriptionId())
+                .subscriptionId(subscriptionId)
                 .build();
     }
 }

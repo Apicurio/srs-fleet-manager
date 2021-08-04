@@ -36,35 +36,9 @@ public class RegistryCreate {
     private String name;
 
     /**
-     * Registry owner name.
-     * <p>
-     */
-    private String owner;
-
-    /**
-     * Registry owner id.
-     * <p>
-     */
-    private Long ownerId;
-
-    /**
-     * Registry org id.
-     * <p>
-     *
-     */
-    private String orgId;
-
-    /**
      * Optional
      * Non-unique
      */
     @Size(max = 255, message = "Registry instance description must not be longer than 255 characters.")
     private String description;
-
-    /**
-     * Registry subscription id.
-     * <p>
-     *
-     */
-    private String subscriptionId;
 }
