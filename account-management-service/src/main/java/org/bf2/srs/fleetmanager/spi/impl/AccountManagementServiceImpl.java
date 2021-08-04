@@ -49,4 +49,9 @@ public class AccountManagementServiceImpl implements AccountManagementService {
             throw new TermsRequiredException(accountInfo.getAccountUsername());
         }
     }
+
+    @Override
+    public void deleteSubscription(String subscriptionId) {
+        restClient.deleteSubscription(subscriptionId);
+    }
 }
