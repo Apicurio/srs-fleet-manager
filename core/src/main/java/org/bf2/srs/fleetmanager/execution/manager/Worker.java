@@ -36,9 +36,9 @@ public interface Worker {
      * (@link {@link WorkerContext}.
      * <p>
      * This also means that when the application is shutting down,
-     * the method will be NOT be usually executed, since the task is assumed to be persisted to a database. only for tasks that are NOT persistent.
+     * the method will be NOT be usually executed, since the task is assumed to be persisted to a database.
      * <p>
-     * IMPORTANT: This method is not `default` to force implementors to handle failure states.
+     * NOTE: This method is not `default` to force implementors to handle failure states.
      **/
     void finallyExecute(Task aTask, WorkerContext ctl, Optional<Exception> error) throws Exception;
 }

@@ -1,7 +1,7 @@
 package org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.migration;
 
-import org.bf2.srs.fleetmanager.spi.TenantManagerClient;
-import org.bf2.srs.fleetmanager.spi.model.TenantManager;
+import org.bf2.srs.fleetmanager.spi.TenantManagerService;
+import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.output.CleanResult;
@@ -23,7 +23,7 @@ public class MigrationService {
     Flyway flyway;
 
     @Inject
-    TenantManagerClient tenantManagerClient;
+    TenantManagerService tenantManagerClient;
 
     /**
      * Temporal workaround for upgrade to the database schema
@@ -39,7 +39,7 @@ public class MigrationService {
 
             log.warn("Removing all data first");
 
-            TenantManager tm = TenantManager.builder()
+            TenantManagerConfig tm = TenantManagerConfig.builder()
                     .tenantManagerUrl("http://tenant-manager:8585")
                     .registryDeploymentUrl("https://service-registry-stage.apps.app-sre-stage-0.k3s7.p1.openshiftapps.com")
                     .build();

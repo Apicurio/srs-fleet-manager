@@ -2,7 +2,7 @@ package org.bf2.srs.fleetmanager.spi.impl;
 
 import io.apicurio.rest.client.auth.OidcAuth;
 import io.quarkus.arc.profile.UnlessBuildProfile;
-import org.bf2.srs.fleetmanager.spi.TenantManagerClient;
+import org.bf2.srs.fleetmanager.spi.TenantManagerService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,13 +30,13 @@ public class TenantManagerClientProducer {
     @UnlessBuildProfile("test")
     @Produces
     @ApplicationScoped
-    public TenantManagerClient produce() {
+    public TenantManagerService produce() {
         if (tenantManagerAuthEnabled) {
             log.info("Using Apicurio Registry REST TenantManagerClient with authentication enabled.");
-            return new RestClientTenantManagerClientImpl(new OidcAuth(tenantManagerAuthServerUrl, tenantManagerAuthClientId, tenantManagerAuthSecret));
+            return new RestClientTenantManagerServiceImpl(new OidcAuth(tenantManagerAuthServerUrl, tenantManagerAuthClientId, tenantManagerAuthSecret));
         } else {
             log.info("Using Apicurio Registry REST TenantManagerClient.");
-            return new RestClientTenantManagerClientImpl();
+            return new RestClientTenantManagerServiceImpl();
         }
     }
 }

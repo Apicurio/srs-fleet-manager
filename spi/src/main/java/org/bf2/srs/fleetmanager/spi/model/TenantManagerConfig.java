@@ -20,7 +20,7 @@ import static lombok.AccessLevel.PACKAGE;
 @Getter
 @EqualsAndHashCode
 @ToString
-public class TenantManager {
+public class TenantManagerConfig {
 
     String tenantManagerUrl;
 

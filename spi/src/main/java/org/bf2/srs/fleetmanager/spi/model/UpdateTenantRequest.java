@@ -9,23 +9,13 @@ import lombok.ToString;
 
 import static lombok.AccessLevel.PACKAGE;
 
-/**
- * Tenant information received from the Tenant Manager.
- *
- * @author Jakub Senko <jsenko@redhat.com>
- */
 @NoArgsConstructor
 @AllArgsConstructor(access = PACKAGE)
 @Builder
 @Getter
 @EqualsAndHashCode
 @ToString
-public class Tenant {
-
-    /**
-     * Tenant ID, unique per Registry Deployment.
-     */
-    String id;
+public class UpdateTenantRequest {
 
     TenantStatus status;
 }

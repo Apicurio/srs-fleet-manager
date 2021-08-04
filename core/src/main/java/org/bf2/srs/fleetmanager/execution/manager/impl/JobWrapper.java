@@ -183,6 +183,10 @@ public class JobWrapper implements Job {
             throw new IllegalArgumentException("Argument must be non-negative.");
         if (retries == 0)
             return ZERO;
+        if (retries > 63) {
+            // Prevent overflow: 1L << (64 - 1) = -9223372036854775808
+            return ofSeconds(MAX_RETRY_DELAY_SEC);
+        }
         long delay = 1L << (retries - 1);
         return (delay > MAX_RETRY_DELAY_SEC) ?
                 ofSeconds(MAX_RETRY_DELAY_SEC) : ofSeconds(delay);
