@@ -372,8 +372,8 @@ public class TestInfraManager {
         LOGGER.info("Checking runner JAR path: " + path);
         if (!runnerExists(path)) {
             LOGGER.info("No runner JAR found.");
-            throw new IllegalStateException("Could not determine where to find the executable jar for the server. " +
-                "This may happen if you are using an IDE to debug.");
+            throw new IllegalStateException("Could not find the executable jar for the server at '" + path + "'. " +
+                "This may happen if you are using an IDE to debug. Try to build the jars manually before running the tests.");
         }
         return path;
     }

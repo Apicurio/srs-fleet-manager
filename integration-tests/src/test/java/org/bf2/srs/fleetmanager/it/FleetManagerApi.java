@@ -16,19 +16,18 @@
 
 package org.bf2.srs.fleetmanager.it;
 
-import static io.restassured.RestAssured.given;
-import static java.net.HttpURLConnection.*;
-
-import java.util.List;
-
+import io.restassured.http.ContentType;
+import io.smallrye.jwt.build.Jwt;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentCreateRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreateRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryListRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryRest;
 import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
 
-import io.restassured.http.ContentType;
-import io.smallrye.jwt.build.Jwt;
+import java.util.List;
+
+import static io.restassured.RestAssured.given;
+import static java.net.HttpURLConnection.*;
 
 /**
  * @author Fabian Martinez
@@ -37,14 +36,14 @@ public class FleetManagerApi {
 
     private static final String BASE = "/api/serviceregistry_mgmt/v1/registries";
 
-    public void verifyApiIsSecured() {
+    public static void verifyApiIsSecured() {
         given()
             .when().get(BASE)
             .then().statusCode(HTTP_UNAUTHORIZED)
             .log().all();
     }
 
-    public RegistryRest createRegistry(RegistryCreateRest registry, AccountInfo user) {
+    public static RegistryRest createRegistry(RegistryCreateRest registry, AccountInfo user) {
         return given()
                 .auth().oauth2(getAccessToken(user))
                 .when().contentType(ContentType.JSON).body(registry)
@@ -54,7 +53,7 @@ public class FleetManagerApi {
                 .extract().as(RegistryRest.class);
     }
 
-    public List<RegistryRest> listRegistries(AccountInfo user) {
+    public static List<RegistryRest> listRegistries(AccountInfo user) {
         return given()
                 .auth().oauth2(getAccessToken(user))
                 .when().get(BASE)
@@ -63,7 +62,7 @@ public class FleetManagerApi {
                 .extract().as(RegistryListRest.class).getItems();
     }
 
-    public RegistryRest getRegistry(String id, AccountInfo user) {
+    public static RegistryRest getRegistry(String id, AccountInfo user) {
         return given()
                 .auth().oauth2(getAccessToken(user))
                 .when().get(BASE + "/" + id)
@@ -72,15 +71,14 @@ public class FleetManagerApi {
                 .extract().as(RegistryRest.class);
     }
 
-    public void verifyRegistryNotExists(String id, AccountInfo user) {
-        given()
+    public static void verifyRegistryNotExists(String id, AccountInfo user) {
+        given().log().all()
                 .auth().oauth2(getAccessToken(user))
                 .when().get(BASE + "/" + id)
-                .then().statusCode(HTTP_NOT_FOUND)
-                .log().all();
+                .then().statusCode(HTTP_NOT_FOUND);
     }
 
-    public void deleteRegistry(String id, AccountInfo user) {
+    public static void deleteRegistry(String id, AccountInfo user) {
         given()
             .auth().oauth2(getAccessToken(user))
             .when().delete(BASE + "/" + id)
@@ -88,7 +86,7 @@ public class FleetManagerApi {
             .log().all();
     }
 
-    public void verifyDeleteNotAllowed(String id, AccountInfo user) {
+    public static void verifyDeleteNotAllowed(String id, AccountInfo user) {
         given()
             .auth().oauth2(getAccessToken(user))
             .when().delete(BASE + "/" + id)
@@ -96,7 +94,7 @@ public class FleetManagerApi {
             .log().all();
     }
 
-    public void verifyCreateDeploymentNotAllowed(RegistryDeploymentCreateRest deployment, AccountInfo user) {
+    public static void verifyCreateDeploymentNotAllowed(RegistryDeploymentCreateRest deployment, AccountInfo user) {
         given()
             .auth().oauth2(getAccessToken(user))
             .when().contentType(ContentType.JSON).body(deployment).post("/api/serviceregistry_mgmt/v1/admin/registryDeployments")
@@ -104,7 +102,7 @@ public class FleetManagerApi {
             .log().all();
     }
 
-    private String getAccessToken(AccountInfo account) {
+    private static String getAccessToken(AccountInfo account) {
         return Jwt.preferredUserName(account.getAccountUsername())
 
                 .claim("org_id", account.getOrganizationId())
