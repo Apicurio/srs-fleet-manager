@@ -22,6 +22,8 @@ public interface TenantManagerService {
      */
     List<Tenant> getAllTenants(TenantManagerConfig tm);
 
+    void updateTenant(TenantManagerConfig tm, UpdateTenantRequest req);
+
     /**
      * This operation sets tenant status to TO_BE_DELETED.
      */

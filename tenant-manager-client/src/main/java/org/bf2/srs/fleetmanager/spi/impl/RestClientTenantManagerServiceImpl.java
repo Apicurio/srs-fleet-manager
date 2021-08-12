@@ -4,6 +4,8 @@ import io.apicurio.multitenant.api.datamodel.NewRegistryTenantRequest;
 import io.apicurio.multitenant.api.datamodel.RegistryTenant;
 import io.apicurio.multitenant.api.datamodel.ResourceType;
 import io.apicurio.multitenant.api.datamodel.TenantResource;
+import io.apicurio.multitenant.api.datamodel.TenantStatusValue;
+import io.apicurio.multitenant.api.datamodel.UpdateRegistryTenantRequest;
 import io.apicurio.multitenant.client.TenantManagerClient;
 import io.apicurio.multitenant.client.TenantManagerClientImpl;
 import io.apicurio.rest.client.auth.Auth;
@@ -13,6 +15,7 @@ import org.bf2.srs.fleetmanager.spi.model.Tenant;
 import org.bf2.srs.fleetmanager.spi.model.TenantLimit;
 import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
 import org.bf2.srs.fleetmanager.spi.model.TenantStatus;
+import org.bf2.srs.fleetmanager.spi.model.UpdateTenantRequest;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -52,6 +55,15 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
                 .id(data.getTenantId())
                 .status(TenantStatus.fromValue(data.getStatus().value()))
                 .build();
+    }
+
+    private UpdateRegistryTenantRequest convert(UpdateTenantRequest req) {
+        var res = new UpdateRegistryTenantRequest();
+        // res.setName();
+        // res.setDescription();
+        res.setStatus(TenantStatusValue.fromValue(req.getStatus().value()));
+        // res.setResources();
+        return res;
     }
 
     @Override
@@ -95,6 +107,13 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
         return client.listTenants().stream()
                 .map(this::convert)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void updateTenant(TenantManagerConfig tm, UpdateTenantRequest req) {
+        var client = getClient(tm);
+        var internalReq = convert(req);
+        client.updateTenant(req.getId(), internalReq);
     }
 
     @Override
