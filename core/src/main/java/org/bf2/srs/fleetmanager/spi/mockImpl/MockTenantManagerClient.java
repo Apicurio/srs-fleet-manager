@@ -5,6 +5,8 @@ import org.bf2.srs.fleetmanager.spi.model.CreateTenantRequest;
 import org.bf2.srs.fleetmanager.spi.model.Tenant;
 import org.bf2.srs.fleetmanager.spi.model.TenantLimit;
 import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
+import org.bf2.srs.fleetmanager.spi.model.TenantStatus;
+import org.bf2.srs.fleetmanager.spi.model.UpdateTenantRequest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,11 +50,22 @@ public class MockTenantManagerClient implements TenantManagerService {
     }
 
     @Override
+    public void updateTenant(TenantManagerConfig tm, UpdateTenantRequest req) {
+        requireNonNull(tm);
+        requireNonNull(req);
+        init(tm);
+        var optionalTenant = getTenantById(tm, req.getId());
+        var tenant = optionalTenant.orElseThrow(() -> new IllegalArgumentException("No tenant found for ID " + req.getId())); // TODO
+        tenant.setStatus(req.getStatus());
+        testData.get(tm).put(req.getId(), tenant);
+    }
+
+    @Override
     public void deleteTenant(TenantManagerConfig tm, String tenantId) {
         requireNonNull(tm);
         requireNonNull(tenantId);
         init(tm);
-        testData.get(tm).remove(tenantId);
+        testData.get(tm).get(tenantId).setStatus(TenantStatus.TO_BE_DELETED);
     }
 
     @Override

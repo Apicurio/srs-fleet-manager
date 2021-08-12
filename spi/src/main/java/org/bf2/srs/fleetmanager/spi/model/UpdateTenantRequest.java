@@ -17,5 +17,7 @@ import static lombok.AccessLevel.PACKAGE;
 @ToString
 public class UpdateTenantRequest {
 
+    String id;
+
     TenantStatus status;
 }

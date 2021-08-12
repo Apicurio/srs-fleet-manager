@@ -2,16 +2,20 @@ package org.bf2.srs.fleetmanager.rest;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
-
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentCreateRest;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreateRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryListRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValueRest;
+import org.bf2.srs.fleetmanager.spi.TenantManagerService;
+import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
+import org.bf2.srs.fleetmanager.util.TestUtil;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import javax.inject.Inject;
+
 import static io.restassured.RestAssured.given;
 import static java.net.HttpURLConnection.*;
 import static java.util.stream.Collectors.toList;
@@ -29,7 +33,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @QuarkusTest
 public class RegistriesResourceV1Test {
 
-    private static final String BASE = "/api/serviceregistry_mgmt/v1/registries";
+    public static final String BASE = "/api/serviceregistry_mgmt/v1/registries";
+
+    @Inject
+    TenantManagerService tms;
 
     @Test
     void testCreateRegistry() {
@@ -68,21 +75,28 @@ public class RegistriesResourceV1Test {
                     .log().all();
         });
 
-        List<String> ids = List.of(valid1, valid2).stream().map(d -> {
+        List<RegistryRest> registries = List.of(valid1, valid2).stream().map(d -> {
             return given()
                     .when().contentType(ContentType.JSON).body(d).post(BASE)
                     .then().statusCode(HTTP_OK)
                     .log().all()
-                    .extract().as(RegistryRest.class).getId();
+                    .extract().as(RegistryRest.class);
         }).collect(toList());
 
+        registries = TestUtil.waitForReady(registries);
+
         // Delete
-        ids.forEach(id -> {
+        registries.forEach(id -> {
             given()
-                    .when().delete(BASE + "/" + id)
+                    .when().delete(BASE + "/" + id.getId())
                     .then().statusCode(HTTP_NO_CONTENT)
                     .log().all();
         });
+
+        TestUtil.waitForDeletion(tms, TenantManagerConfig.builder()
+                .tenantManagerUrl(deployment.getTenantManagerUrl())
+                .registryDeploymentUrl(deployment.getRegistryDeploymentUrl()).build(),
+                registries);
 
         given()
                 .when().contentType(ContentType.JSON).delete("/api/serviceregistry_mgmt/v1/admin/registryDeployments/" + deploymentId)
@@ -121,30 +135,38 @@ public class RegistriesResourceV1Test {
         valid2.setName("bbbb");
 
         // Create
-        List<String> ids = List.of(valid1, valid2).stream().map(d -> {
+        List<RegistryRest> registries = List.of(valid1, valid2).stream().map(d -> {
             return given()
                     .when().contentType(ContentType.JSON).body(d).post(BASE)
                     .then().statusCode(HTTP_OK)
                     .log().all()
-                    .extract().as(RegistryRest.class).getId();
+                    .extract().as(RegistryRest.class);
         }).collect(toList());
 
-        List<String> actualIds = given()
+        List<RegistryRest> actualRegistries = given()
                 .when().get(BASE)
                 .then().statusCode(HTTP_OK)
                 .log().all()
                 .extract().as(RegistryListRest.class)
-                .getItems().stream().map(RegistryRest::getId).collect(toList());
+                .getItems();
 
-        assertThat(actualIds, containsInAnyOrder(ids.toArray()));
+        assertThat(actualRegistries.stream().map(RegistryRest::getId).collect(toList()),
+                containsInAnyOrder(registries.stream().map(RegistryRest::getId).toArray()));
+
+        registries = TestUtil.waitForReady(registries);
 
         // Delete
-        ids.forEach(id -> {
+        registries.forEach(r -> {
             given()
-                    .when().delete(BASE + "/" + id)
+                    .when().delete(BASE + "/" + r.getId())
                     .then().statusCode(HTTP_NO_CONTENT)
                     .log().all();
         });
+
+        TestUtil.waitForDeletion(tms, TenantManagerConfig.builder()
+                        .tenantManagerUrl(deployment.getTenantManagerUrl())
+                        .registryDeploymentUrl(deployment.getRegistryDeploymentUrl()).build(),
+                registries);
 
         given()
                 .when().contentType(ContentType.JSON).delete("/api/serviceregistry_mgmt/v1/admin/registryDeployments/" + deploymentId)
@@ -244,6 +266,8 @@ public class RegistriesResourceV1Test {
             }
         });
 
+        regs = TestUtil.waitForReady(regs);
+
         // Delete
         regs.forEach(reg -> {
             given()
@@ -251,6 +275,11 @@ public class RegistriesResourceV1Test {
                     .then().statusCode(HTTP_NO_CONTENT)
                     .log().all();
         });
+
+        TestUtil.waitForDeletion(tms, TenantManagerConfig.builder()
+                        .tenantManagerUrl(deployment.getTenantManagerUrl())
+                        .registryDeploymentUrl(deployment.getRegistryDeploymentUrl()).build(),
+                regs);
 
         given()
                 .when().contentType(ContentType.JSON).delete("/api/serviceregistry_mgmt/v1/admin/registryDeployments/" + deploymentId)
