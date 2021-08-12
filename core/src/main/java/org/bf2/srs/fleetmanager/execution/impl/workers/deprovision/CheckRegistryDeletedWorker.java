@@ -86,7 +86,6 @@ public class CheckRegistryDeletedWorker extends AbstractWorker {
                     storage.deleteRegistry(registry.getId());
                     // TODO Do we want to delete the tenant record from tenant manager?
                     ctl.delay(ctl::stop);
-                    // TODO TRANSACTIONS
                 }
             } else {
                 log.warn("Tenant (ID = {}) not found. Retrying.", registry.getTenantId());
