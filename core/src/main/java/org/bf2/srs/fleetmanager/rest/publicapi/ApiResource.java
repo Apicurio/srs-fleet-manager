@@ -13,6 +13,8 @@ import javax.ws.rs.QueryParam;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreateRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryListRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryRest;
+import org.bf2.srs.fleetmanager.spi.ResourceLimitReachedException;
+import org.bf2.srs.fleetmanager.spi.TermsRequiredException;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.storage.StorageConflictException;
 
@@ -37,7 +39,7 @@ public interface ApiResource {
   @POST
   @Produces("application/json")
   @Consumes("application/json")
-  RegistryRest createRegistry(RegistryCreateRest data) throws StorageConflictException;
+  RegistryRest createRegistry(RegistryCreateRest data) throws StorageConflictException, TermsRequiredException, ResourceLimitReachedException;
 
   /**
    * Gets the details of a single instance of a `Registry`.

@@ -144,7 +144,7 @@ public class RegistryDeploymentServiceImpl implements RegistryDeploymentService 
     public RegistryDeployment getRegistryDeployment(Long id) throws RegistryDeploymentNotFoundException {
         return storage.getRegistryDeploymentById(id)
                 .map(convertRegistryDeployment::convert)
-                .orElseThrow(() -> RegistryDeploymentNotFoundException.create(id));
+                .orElseThrow(() -> new RegistryDeploymentNotFoundException(id.toString()));
     }
 
     @Override

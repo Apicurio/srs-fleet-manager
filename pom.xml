@@ -206,6 +206,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
+                <module>common</module>
                 <module>spi</module>
                 <module>core</module>
                 <module>tenant-manager-client</module>

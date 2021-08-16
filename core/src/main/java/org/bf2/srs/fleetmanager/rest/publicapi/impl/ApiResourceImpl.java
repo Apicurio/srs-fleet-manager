@@ -5,6 +5,8 @@ import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreateRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryListRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryRest;
 import org.bf2.srs.fleetmanager.rest.service.RegistryService;
+import org.bf2.srs.fleetmanager.spi.ResourceLimitReachedException;
+import org.bf2.srs.fleetmanager.spi.TermsRequiredException;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.storage.StorageConflictException;
 
@@ -41,7 +43,8 @@ public class ApiResourceImpl implements ApiResource {
     }
 
     @Override
-    public RegistryRest createRegistry(RegistryCreateRest data) throws StorageConflictException {
+    public RegistryRest createRegistry(RegistryCreateRest data)
+            throws StorageConflictException, TermsRequiredException, ResourceLimitReachedException {
         return convert.convert(registryService.createRegistry(convert.convert(data)));
     }
 

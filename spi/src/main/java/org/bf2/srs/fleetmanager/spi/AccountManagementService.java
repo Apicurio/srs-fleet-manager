@@ -13,7 +13,7 @@ public interface AccountManagementService {
      * @param productId    the service registry product id
      * @return the id of the subscription.
      */
-    String createResource(AccountInfo accountInfo, String resourceType, String clusterId, String productId);
+    String createResource(AccountInfo accountInfo, String resourceType, String clusterId, String productId) throws TermsRequiredException, ResourceLimitReachedException;
 
     /**
      * Delete a subscription by id

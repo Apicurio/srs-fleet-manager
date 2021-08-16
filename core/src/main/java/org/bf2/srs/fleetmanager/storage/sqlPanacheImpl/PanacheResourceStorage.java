@@ -78,7 +78,7 @@ public class PanacheResourceStorage implements ResourceStorage {
     @Override
     public void deleteRegistry(Long id) throws RegistryNotFoundException, StorageConflictException {
         RegistryData registry = getRegistryById(id)
-                .orElseThrow(() -> RegistryNotFoundException.create(id));
+                .orElseThrow(() -> new RegistryNotFoundException(id));
         try {
             registryRepository.delete(registry);
         } catch (PersistenceException ex) {
@@ -125,7 +125,7 @@ public class PanacheResourceStorage implements ResourceStorage {
     @Override
     public void deleteRegistryDeployment(Long id) throws RegistryDeploymentNotFoundException, StorageConflictException {
         RegistryDeploymentData rd = getRegistryDeploymentById(id)
-                .orElseThrow(() -> RegistryDeploymentNotFoundException.create(id));
+                .orElseThrow(() -> new RegistryDeploymentNotFoundException(id.toString()));
         try {
             deploymentRepository.delete(rd);
         } catch (PersistenceException ex) {

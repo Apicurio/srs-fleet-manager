@@ -8,7 +8,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.bf2.srs.fleetmanager.auth.AuthService;
 import org.bf2.srs.fleetmanager.auth.interceptor.CheckDeletePermissions;
 import org.bf2.srs.fleetmanager.auth.interceptor.CheckReadPermissions;
-import org.bf2.srs.fleetmanager.execution.impl.tasks.deprovision.DeprovisionRegistryTask;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.ScheduleRegistryTask;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.deprovision.StartDeprovisionRegistryTask;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
@@ -18,6 +17,8 @@ import org.bf2.srs.fleetmanager.rest.service.model.Registry;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryCreate;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryList;
 import org.bf2.srs.fleetmanager.spi.AccountManagementService;
+import org.bf2.srs.fleetmanager.spi.ResourceLimitReachedException;
+import org.bf2.srs.fleetmanager.spi.TermsRequiredException;
 import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
@@ -36,7 +37,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.validation.ValidationException;
-
 
 import static org.bf2.srs.fleetmanager.util.SecurityUtil.OWNER_ID_PLACEHOLDER;
 import static org.bf2.srs.fleetmanager.util.SecurityUtil.isResolvable;
@@ -69,7 +69,8 @@ public class RegistryServiceImpl implements RegistryService {
     String productId;
 
     @Override
-    public Registry createRegistry(RegistryCreate registryCreate) throws StorageConflictException {
+    public Registry createRegistry(RegistryCreate registryCreate)
+            throws StorageConflictException, TermsRequiredException, ResourceLimitReachedException {
         final AccountInfo accountInfo = authService.extractAccountInfo();
         String subscriptionId = accountManagementService.createResource(accountInfo, "cluster.aws", "", productId);
         RegistryData registryData = convertRegistry.convert(registryCreate, subscriptionId, accountInfo.getAccountUsername(), accountInfo.getOrganizationId(), accountInfo.getAccountId());
@@ -133,12 +134,12 @@ public class RegistryServiceImpl implements RegistryService {
     @CheckReadPermissions
     public Registry getRegistry(String registryId) throws RegistryNotFoundException {
         try {
-            Long id = Long.valueOf(registryId);
+            long id = Long.parseLong(registryId);
             return storage.getRegistryById(id)
                     .map(convertRegistry::convert)
-                    .orElseThrow(() -> RegistryNotFoundException.create(id));
+                    .orElseThrow(() -> new RegistryNotFoundException(id));
         } catch (NumberFormatException ex) {
-            throw RegistryNotFoundException.create(registryId);
+            throw new RegistryNotFoundException(registryId);
         }
     }
 
@@ -148,10 +149,10 @@ public class RegistryServiceImpl implements RegistryService {
         try {
             // Verify preconditions - Registry exists
             long id = Long.parseLong(registryId);
-            storage.getRegistryById(id).orElseThrow(() -> RegistryNotFoundException.create(registryId));
+            storage.getRegistryById(id).orElseThrow(() -> new RegistryNotFoundException(registryId));
             tasks.submit(StartDeprovisionRegistryTask.builder().registryId(id).build());
         } catch (NumberFormatException ex) {
-            throw RegistryNotFoundException.create(registryId);
+            throw new RegistryNotFoundException(registryId);
         }
     }
 }

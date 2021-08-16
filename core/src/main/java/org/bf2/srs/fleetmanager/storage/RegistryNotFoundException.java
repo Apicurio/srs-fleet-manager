@@ -1,22 +1,32 @@
 package org.bf2.srs.fleetmanager.storage;
 
-public class RegistryNotFoundException extends StorageException {
+import lombok.Getter;
+import org.bf2.srs.fleetmanager.common.errors.UserError;
+import org.bf2.srs.fleetmanager.common.errors.UserErrorCode;
+import org.bf2.srs.fleetmanager.common.errors.UserErrorInfo;
+
+public class RegistryNotFoundException extends StorageException implements UserError {
 
     private static final long serialVersionUID = 3830931257679125603L;
 
-    public RegistryNotFoundException() {
-        super();
+    @Getter
+    private final String registryId;
+
+    public RegistryNotFoundException(long registryId) {
+        this.registryId = Long.toString(registryId);
     }
 
-    public RegistryNotFoundException(String message) {
-        super(message);
+    public RegistryNotFoundException(String registryId) {
+        this.registryId = registryId;
     }
 
-    public static RegistryNotFoundException create(Long id) {
-        return create(id.toString());
+    @Override
+    public String getMessage() {
+        return getUserErrorInfo().getReason();
     }
 
-    public static RegistryNotFoundException create(String id) {
-        return new RegistryNotFoundException("No Registry found for id " + id);
+    @Override
+    public UserErrorInfo getUserErrorInfo() {
+        return UserErrorInfo.create(UserErrorCode.ERROR_REGISTRY_NOT_FOUND, registryId);
     }
 }

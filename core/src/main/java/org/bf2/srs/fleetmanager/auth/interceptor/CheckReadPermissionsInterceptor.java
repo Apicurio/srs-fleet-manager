@@ -46,7 +46,7 @@ public class CheckReadPermissionsInterceptor {
             }
         } else {
             return context.proceed();
-        }
+        } // TODO This does not make sense
         log.info("Attempt to read registry instance without the proper permissions");
         throw new ForbiddenException();
     }
@@ -60,7 +60,7 @@ public class CheckReadPermissionsInterceptor {
                     return true;
                 } else {
                     //throw not found exception to avoid leaking information of other registries from users in other organizations
-                    throw new RegistryNotFoundException();
+                    throw new RegistryNotFoundException("?"); // TODO ?
                 }
             } else {
                 return SecurityUtil.isInstanceOwner(accountInfo, registry.get().getOwnerId());

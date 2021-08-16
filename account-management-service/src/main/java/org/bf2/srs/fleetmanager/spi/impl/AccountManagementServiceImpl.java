@@ -1,7 +1,8 @@
 package org.bf2.srs.fleetmanager.spi.impl;
 
 import org.b2f.ams.client.AccountManagementSystemRestClient;
-import org.b2f.ams.client.exception.TermsRequiredException;
+import org.bf2.srs.fleetmanager.spi.ResourceLimitReachedException;
+import org.bf2.srs.fleetmanager.spi.TermsRequiredException;
 import org.b2f.ams.client.model.request.ClusterAuthorization;
 import org.b2f.ams.client.model.request.ReservedResource;
 import org.b2f.ams.client.model.request.TermsReview;
@@ -25,7 +26,7 @@ public class AccountManagementServiceImpl implements AccountManagementService {
     }
 
     @Override
-    public String createResource(AccountInfo accountInfo, String resourceType, String clusterId, String productId) {
+    public String createResource(AccountInfo accountInfo, String resourceType, String clusterId, String productId) throws TermsRequiredException, ResourceLimitReachedException {
 
         boolean termsAccepted;
         final TermsReview termsReview = new TermsReview();
@@ -52,7 +53,7 @@ public class AccountManagementServiceImpl implements AccountManagementService {
                 return clusterAuthorizationResponse.getSubscription().getId();
             } else {
                 //User not allowed to create resource
-                throw new ForbiddenException();
+                throw new ResourceLimitReachedException();
             }
         } else {
             throw new TermsRequiredException(accountInfo.getAccountUsername());
