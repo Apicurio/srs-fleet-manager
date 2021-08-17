@@ -140,6 +140,8 @@ public class TestInfraManager {
             tenantManagerAuthConfig = new AuthConfig();
             tenantManagerAuthConfig.keycloakUrl = getMandatoryEnvVar(MAS_SSO_URL);
             tenantManagerAuthConfig.realm = getMandatoryEnvVar(MAS_SSO_REALM);
+            tenantManagerAuthConfig.tokenEndpoint = tenantManagerAuthConfig.keycloakUrl + "/realms/"
+                    + tenantManagerAuthConfig.realm + "/protocol/openid-connect/token";
             tenantManagerAuthConfig.clientId = getMandatoryEnvVar(MAS_SSO_CLIENT_ID);
             tenantManagerAuthConfig.clientSecret = getMandatoryEnvVar(MAS_SSO_CLIENT_SECRET);
 
