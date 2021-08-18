@@ -7,7 +7,7 @@ import org.bf2.srs.fleetmanager.execution.impl.workers.Utils;
 import org.bf2.srs.fleetmanager.execution.impl.workers.WorkerType;
 import org.bf2.srs.fleetmanager.execution.manager.Task;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
-import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValue;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
 import org.bf2.srs.fleetmanager.spi.AccountManagementService;
 import org.bf2.srs.fleetmanager.spi.TenantManagerService;
 import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
@@ -106,7 +106,7 @@ public class DeprovisionRegistryWorker extends AbstractWorker {
             var reg = registry.get();
             // Failure - Could not delete tenant or update status
             // Try updating status to failed, otherwise user can retry.
-            reg.setStatus(RegistryStatusValue.FAILED.value());
+            reg.setStatus(RegistryStatusValueDto.FAILED.value());
             // TODO Add failed_reason
             storage.createOrUpdateRegistry(reg);
             log.warn("Failed to deprovision Registry: {}", registry);

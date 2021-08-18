@@ -10,13 +10,10 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({
     "id",
     "kind",
-    "href",
-    "code",
-    "reason",
-    "operation_id"
+    "href"
 })
 @Generated("jsonschema2pojo")
-public class ErrorRest {
+public class ObjectReference {
 
     @JsonProperty("id")
     private String id;
@@ -24,12 +21,6 @@ public class ErrorRest {
     private String kind;
     @JsonProperty("href")
     private String href;
-    @JsonProperty("code")
-    private String code;
-    @JsonProperty("reason")
-    private String reason;
-    @JsonProperty("operation_id")
-    private String operationId;
 
     @JsonProperty("id")
     public String getId() {
@@ -59,36 +50,6 @@ public class ErrorRest {
     @JsonProperty("href")
     public void setHref(String href) {
         this.href = href;
-    }
-
-    @JsonProperty("code")
-    public String getCode() {
-        return code;
-    }
-
-    @JsonProperty("code")
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    @JsonProperty("reason")
-    public String getReason() {
-        return reason;
-    }
-
-    @JsonProperty("reason")
-    public void setReason(String reason) {
-        this.reason = reason;
-    }
-
-    @JsonProperty("operation_id")
-    public String getOperationId() {
-        return operationId;
-    }
-
-    @JsonProperty("operation_id")
-    public void setOperationId(String operationId) {
-        this.operationId = operationId;
     }
 
 }

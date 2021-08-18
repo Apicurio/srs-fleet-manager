@@ -23,14 +23,14 @@ import javax.validation.constraints.Pattern;
 @Setter
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class Registry extends ObjectReference {
+public class RegistryDto extends ObjectReferenceDto {
 
     /**
      * (Required)
      */
     @NotNull
     @Pattern(regexp = "accepted|provisioning|ready|failed|deprovision|deleting")
-    private RegistryStatusValue status;
+    private RegistryStatusValueDto status;
 
     /**
      * (Required)
@@ -92,9 +92,9 @@ public class Registry extends ObjectReference {
     private String subscriptionId;
 
     @Builder
-    public Registry(@NotNull String id, @NotNull String kind, String href,
-                    @NotNull RegistryStatusValue status, @NotEmpty String registryUrl, String name, @NotNull String owner,
-                    Long registryDeploymentId, Instant createdAt, Instant updatedAt, String description, @NotNull String orgId, String subscriptionId) {
+    public RegistryDto(@NotNull String id, @NotNull String kind, String href,
+                       @NotNull RegistryStatusValueDto status, @NotEmpty String registryUrl, String name, @NotNull String owner,
+                       Long registryDeploymentId, Instant createdAt, Instant updatedAt, String description, @NotNull String orgId, String subscriptionId) {
         super(id, kind, href);
         this.status = status;
         this.registryUrl = registryUrl;

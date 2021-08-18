@@ -10,8 +10,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import org.awaitility.Awaitility;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryRest;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValueRest;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.Registry;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValue;
 import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
 
 import java.util.Collections;
@@ -51,11 +51,11 @@ public class Utils {
                 }));
     }
 
-    public static RegistryRest waitForReady(RegistryRest tenant, AccountInfo accountInfo) {
+    public static Registry waitForReady(Registry tenant, AccountInfo accountInfo) {
         Awaitility.await("Registry ready").atMost(5, SECONDS).pollInterval(1, SECONDS)
                 .until(() -> {
                     var reg = FleetManagerApi.getRegistry(tenant.getId(), accountInfo);
-                    return RegistryStatusValueRest.ready.equals(reg.getStatus());
+                    return RegistryStatusValue.ready.equals(reg.getStatus());
                 });
         return FleetManagerApi.getRegistry(tenant.getId(), accountInfo);
     }

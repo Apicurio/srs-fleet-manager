@@ -19,9 +19,9 @@ package org.bf2.srs.fleetmanager.it;
 import io.restassured.http.ContentType;
 import io.smallrye.jwt.build.Jwt;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentCreateRest;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreateRest;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryListRest;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryRest;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.Registry;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreate;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryList;
 import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
 
 import java.util.List;
@@ -43,32 +43,32 @@ public class FleetManagerApi {
             .log().all();
     }
 
-    public static RegistryRest createRegistry(RegistryCreateRest registry, AccountInfo user) {
+    public static Registry createRegistry(RegistryCreate registry, AccountInfo user) {
         return given()
                 .auth().oauth2(getAccessToken(user))
                 .when().contentType(ContentType.JSON).body(registry)
                 .post(BASE)
                 .then().statusCode(HTTP_OK)
                 .log().all()
-                .extract().as(RegistryRest.class);
+                .extract().as(Registry.class);
     }
 
-    public static List<RegistryRest> listRegistries(AccountInfo user) {
+    public static List<Registry> listRegistries(AccountInfo user) {
         return given()
                 .auth().oauth2(getAccessToken(user))
                 .when().get(BASE)
                 .then().statusCode(HTTP_OK)
                 .log().all()
-                .extract().as(RegistryListRest.class).getItems();
+                .extract().as(RegistryList.class).getItems();
     }
 
-    public static RegistryRest getRegistry(String id, AccountInfo user) {
+    public static Registry getRegistry(String id, AccountInfo user) {
         return given()
                 .auth().oauth2(getAccessToken(user))
                 .when().get(BASE + "/" + id)
                 .then().statusCode(HTTP_OK)
                 .log().all()
-                .extract().as(RegistryRest.class);
+                .extract().as(Registry.class);
     }
 
     public static void verifyRegistryNotExists(String id, AccountInfo user) {

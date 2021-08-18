@@ -1,14 +1,14 @@
 package org.bf2.srs.fleetmanager.execution.impl.workers.deprovision;
 
+import org.bf2.srs.fleetmanager.execution.impl.tasks.TaskType;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.deprovision.DeprovisionRegistryTask;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.deprovision.StartDeprovisionRegistryTask;
-import org.bf2.srs.fleetmanager.execution.impl.tasks.TaskType;
 import org.bf2.srs.fleetmanager.execution.impl.workers.AbstractWorker;
 import org.bf2.srs.fleetmanager.execution.impl.workers.WorkerType;
 import org.bf2.srs.fleetmanager.execution.manager.Task;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
-import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValue;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.storage.StorageConflictException;
@@ -55,7 +55,7 @@ public class StartDeprovisionRegistryWorker extends AbstractWorker {
         if (registryOptional.isPresent()) { // FAILURE POINT 1
 
             var registry = registryOptional.get();
-            var status = RegistryStatusValue.of(registry.getStatus());
+            var status = RegistryStatusValueDto.of(registry.getStatus());
             switch (status) {
                 case ACCEPTED:
                 case PROVISIONING:
@@ -67,7 +67,7 @@ public class StartDeprovisionRegistryWorker extends AbstractWorker {
                     // Continue
                     // Since we're not waiting, skip directly to "deleting" status.
                     // registry.setStatus(RegistryStatusValue.REQUESTED_DEPROVISIONING.value());
-                    registry.setStatus(RegistryStatusValue.DEPROVISIONING_DELETING.value());
+                    registry.setStatus(RegistryStatusValueDto.DEPROVISIONING_DELETING.value());
                     storage.createOrUpdateRegistry(registry); // FAILURE POINT 2
                     ctl.delay(() -> tasks.submit(DeprovisionRegistryTask.builder().registryId(registry.getId()).build()));
                     return;
@@ -97,7 +97,7 @@ public class StartDeprovisionRegistryWorker extends AbstractWorker {
         if (registryOptional.isPresent()) {
             var registry = registryOptional.get();
             // SUCCESS STATE
-            if (RegistryStatusValue.DEPROVISIONING_DELETING.value().equals(registry.getStatus()))
+            if (RegistryStatusValueDto.DEPROVISIONING_DELETING.value().equals(registry.getStatus()))
                 return;
 
             // FAILURE

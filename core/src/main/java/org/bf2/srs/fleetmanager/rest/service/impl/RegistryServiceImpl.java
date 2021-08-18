@@ -13,9 +13,9 @@ import org.bf2.srs.fleetmanager.execution.impl.tasks.deprovision.StartDeprovisio
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.rest.service.RegistryService;
 import org.bf2.srs.fleetmanager.rest.service.convert.ConvertRegistry;
-import org.bf2.srs.fleetmanager.rest.service.model.Registry;
-import org.bf2.srs.fleetmanager.rest.service.model.RegistryCreate;
-import org.bf2.srs.fleetmanager.rest.service.model.RegistryList;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryDto;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryCreateDto;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryListDto;
 import org.bf2.srs.fleetmanager.spi.AccountManagementService;
 import org.bf2.srs.fleetmanager.spi.ResourceLimitReachedException;
 import org.bf2.srs.fleetmanager.spi.TermsRequiredException;
@@ -69,7 +69,7 @@ public class RegistryServiceImpl implements RegistryService {
     String productId;
 
     @Override
-    public Registry createRegistry(RegistryCreate registryCreate)
+    public RegistryDto createRegistry(RegistryCreateDto registryCreate)
             throws StorageConflictException, TermsRequiredException, ResourceLimitReachedException {
         final AccountInfo accountInfo = authService.extractAccountInfo();
         String subscriptionId = accountManagementService.createResource(accountInfo, "cluster.aws", "", productId);
@@ -80,7 +80,7 @@ public class RegistryServiceImpl implements RegistryService {
     }
 
     @Override
-    public RegistryList getRegistries(Integer page, Integer size, String orderBy, String search) {
+    public RegistryListDto getRegistries(Integer page, Integer size, String orderBy, String search) {
         // Defaults
         var sort = Sort.by("id", Sort.Direction.Ascending);
         page = (page != null) ? page : 1;
@@ -124,7 +124,7 @@ public class RegistryServiceImpl implements RegistryService {
 
         var items = itemsQuery.page(Page.of(page - 1, size)).stream().map(convertRegistry::convert)
                 .collect(Collectors.toList());
-        return RegistryList.builder().items(items)
+        return RegistryListDto.builder().items(items)
                 .page(page)
                 .size(size)
                 .total(total).build();
@@ -132,7 +132,7 @@ public class RegistryServiceImpl implements RegistryService {
 
     @Override
     @CheckReadPermissions
-    public Registry getRegistry(String registryId) throws RegistryNotFoundException {
+    public RegistryDto getRegistry(String registryId) throws RegistryNotFoundException {
         try {
             long id = Long.parseLong(registryId);
             return storage.getRegistryById(id)

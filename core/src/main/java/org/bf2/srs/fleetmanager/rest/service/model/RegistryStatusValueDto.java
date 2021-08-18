@@ -13,7 +13,7 @@ import static java.util.Optional.ofNullable;
 /**
  * @author Jakub Senko <jsenko@redhat.com>
  */
-public enum RegistryStatusValue {
+public enum RegistryStatusValueDto {
 
     ACCEPTED("accepted"),
     PROVISIONING("provisioning"),
@@ -24,15 +24,15 @@ public enum RegistryStatusValue {
 
     private final String value;
 
-    private static final Map<String, RegistryStatusValue> CONSTANTS = new HashMap<>();
+    private static final Map<String, RegistryStatusValueDto> CONSTANTS = new HashMap<>();
 
     static {
-        for (RegistryStatusValue c : values()) {
+        for (RegistryStatusValueDto c : values()) {
             CONSTANTS.put(c.value, c);
         }
     }
 
-    RegistryStatusValue(String value) {
+    RegistryStatusValueDto(String value) {
         this.value = value;
     }
 
@@ -41,12 +41,12 @@ public enum RegistryStatusValue {
         return this.value;
     }
 
-    public static Optional<RegistryStatusValue> ofOptional(String value) {
+    public static Optional<RegistryStatusValueDto> ofOptional(String value) {
         return ofNullable(CONSTANTS.get(value));
     }
 
     @JsonCreator
-    public static RegistryStatusValue of(String value) {
+    public static RegistryStatusValueDto of(String value) {
         return ofOptional(value).orElseThrow();
     }
 

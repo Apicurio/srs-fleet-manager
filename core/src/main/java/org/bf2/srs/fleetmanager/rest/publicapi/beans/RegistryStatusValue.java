@@ -6,7 +6,7 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum RegistryStatusValueRest {
+public enum RegistryStatusValue {
 
     accepted("accepted"),
     provisioning("provisioning"),
@@ -15,15 +15,15 @@ public enum RegistryStatusValueRest {
     deprovision("deprovision"),
     deleting("deleting");
     private final String value;
-    private final static Map<String, RegistryStatusValueRest> CONSTANTS = new HashMap<String, RegistryStatusValueRest>();
+    private final static Map<String, RegistryStatusValue> CONSTANTS = new HashMap<String, RegistryStatusValue>();
 
     static {
-        for (RegistryStatusValueRest c: values()) {
+        for (RegistryStatusValue c: values()) {
             CONSTANTS.put(c.value, c);
         }
     }
 
-    private RegistryStatusValueRest(String value) {
+    private RegistryStatusValue(String value) {
         this.value = value;
     }
 
@@ -38,8 +38,8 @@ public enum RegistryStatusValueRest {
     }
 
     @JsonCreator
-    public static RegistryStatusValueRest fromValue(String value) {
-        RegistryStatusValueRest constant = CONSTANTS.get(value);
+    public static RegistryStatusValue fromValue(String value) {
+        RegistryStatusValue constant = CONSTANTS.get(value);
         if (constant == null) {
             throw new IllegalArgumentException(value);
         } else {

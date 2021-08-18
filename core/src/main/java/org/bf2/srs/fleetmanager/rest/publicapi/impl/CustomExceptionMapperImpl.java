@@ -7,7 +7,7 @@ import org.bf2.srs.fleetmanager.common.errors.UserErrorCode;
 import org.bf2.srs.fleetmanager.common.errors.UserErrorInfo;
 import org.bf2.srs.fleetmanager.errors.UserErrorMapper;
 import org.bf2.srs.fleetmanager.rest.config.CustomExceptionMapper;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.ErrorRest;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.Error;
 import org.bf2.srs.fleetmanager.rest.service.model.Kind;
 import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
@@ -85,7 +85,7 @@ public class CustomExceptionMapperImpl implements CustomExceptionMapper {
             ei = UserErrorInfo.create(UserErrorCode.ERROR_UNKNOWN);
             log.warn("Processing an unknown error", exception);
         }
-        ErrorRest errorInfo = new ErrorRest();
+        Error errorInfo = new Error();
         errorInfo.setKind(Kind.ERROR);
         errorInfo.setId(Integer.toString(ei.getCode().getId()));
         errorInfo.setHref("/api/serviceregistry_mgmt/v1/errors/" + errorInfo.getId());
