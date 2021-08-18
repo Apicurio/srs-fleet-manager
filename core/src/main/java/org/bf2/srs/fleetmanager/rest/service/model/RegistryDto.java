@@ -87,15 +87,14 @@ public class RegistryDto extends ObjectReferenceDto {
 
     /**
      * Registry subscriptionId
-     *
      */
     private String subscriptionId;
 
     @Builder
-    public RegistryDto(@NotNull String id, @NotNull String kind, String href,
+    public RegistryDto(@NotNull String id,
                        @NotNull RegistryStatusValueDto status, @NotEmpty String registryUrl, String name, @NotNull String owner,
                        Long registryDeploymentId, Instant createdAt, Instant updatedAt, String description, @NotNull String orgId, String subscriptionId) {
-        super(id, kind, href);
+        super(id, Kind.REGISTRY);
         this.status = status;
         this.registryUrl = registryUrl;
         this.name = name;
@@ -106,5 +105,10 @@ public class RegistryDto extends ObjectReferenceDto {
         this.description = description;
         this.orgId = orgId;
         this.subscriptionId = subscriptionId;
+    }
+
+    @Override
+    public String getHref() {
+        return "/api/serviceregistry_mgmt/v1/registries/" + getId();
     }
 }

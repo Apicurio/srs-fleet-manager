@@ -21,7 +21,7 @@ import static lombok.AccessLevel.PACKAGE;
 @Setter
 @EqualsAndHashCode
 @ToString
-public class ObjectReferenceDto {
+public abstract class ObjectReferenceDto {
 
     @NotNull
     private String id;
@@ -29,5 +29,5 @@ public class ObjectReferenceDto {
     @NotNull
     private String kind;
 
-    private String href;
+    public abstract String getHref();
 }

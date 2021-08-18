@@ -6,6 +6,8 @@ import org.bf2.srs.fleetmanager.rest.publicapi.beans.ErrorList;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.Registry;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreate;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryList;
+import org.bf2.srs.fleetmanager.rest.service.ErrorNotFoundException;
+import org.bf2.srs.fleetmanager.rest.service.ErrorService;
 import org.bf2.srs.fleetmanager.rest.service.RegistryService;
 import org.bf2.srs.fleetmanager.spi.ResourceLimitReachedException;
 import org.bf2.srs.fleetmanager.spi.TermsRequiredException;
@@ -26,6 +28,9 @@ public class ApiResourceImpl implements ApiResource {
 
     @Inject
     Convert convert;
+
+    @Inject
+    ErrorService errorService;
 
     @Override
     public RegistryList getRegistries(Integer page,
@@ -51,12 +56,12 @@ public class ApiResourceImpl implements ApiResource {
     }
 
     @Override
-    public ErrorList getErrors() {
-        return null;
+    public ErrorList getErrors(Integer page, Integer size) {
+        return convert.convert(errorService.getErrors(page, size));
     }
 
     @Override
-    public Error getError(Integer id) {
-        return null;
+    public Error getError(Integer id) throws ErrorNotFoundException {
+        return convert.convert(errorService.getError(id));
     }
 }

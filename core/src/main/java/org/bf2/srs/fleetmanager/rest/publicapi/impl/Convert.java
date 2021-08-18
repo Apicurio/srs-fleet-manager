@@ -1,9 +1,13 @@
 package org.bf2.srs.fleetmanager.rest.publicapi.impl;
 
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.Error;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.ErrorList;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.Registry;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreate;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryList;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValue;
+import org.bf2.srs.fleetmanager.rest.service.model.ErrorDto;
+import org.bf2.srs.fleetmanager.rest.service.model.ErrorListDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryCreateDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryListDto;
@@ -74,5 +78,26 @@ public class Convert {
 
     public Date convert(Instant data) {
         return Date.from(data);
+    }
+
+    public Error convert(ErrorDto data) {
+        var res = new Error();
+        res.setId(data.getId());
+        res.setKind(data.getKind());
+        res.setHref(data.getHref());
+        res.setCode(data.getCode());
+        res.setReason(data.getReason());
+        res.setOperationId(data.getOperationId());
+        return res;
+    }
+
+    public ErrorList convert(ErrorListDto data) {
+        var res = new ErrorList();
+        res.setKind(data.getKind());
+        res.setPage(data.getPage());
+        res.setSize(data.getSize());
+        res.setTotal(data.getTotal().intValue()); // TODO Conversion
+        res.setItems(data.getItems().stream().map(this::convert).collect(Collectors.toList()));
+        return res;
     }
 }
