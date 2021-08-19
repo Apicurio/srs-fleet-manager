@@ -59,27 +59,30 @@ public class StartDeprovisionRegistryWorker extends AbstractWorker {
             switch (status) {
                 case ACCEPTED:
                 case PROVISIONING:
-                    // Provisioning in progress, try later
+                    log.debug("Provisioning in progress. Retrying.");
                     ctl.retry();
                     return; // Unreachable
                 case READY:
                 case FAILED: {
                     // Continue
-                    registry.setStatus(RegistryStatusValue.REQUESTED_DEPROVISIONING.value());
+                    // Since we're not waiting, skip directly to "deleting" status.
+                    // registry.setStatus(RegistryStatusValue.REQUESTED_DEPROVISIONING.value());
+                    registry.setStatus(RegistryStatusValue.DEPROVISIONING_DELETING.value());
                     storage.createOrUpdateRegistry(registry); // FAILURE POINT 2
                     ctl.delay(() -> tasks.submit(DeprovisionRegistryTask.builder().registryId(registry.getId()).build()));
                     return;
                 }
                 case REQUESTED_DEPROVISIONING:
                 case DEPROVISIONING_DELETING:
-                    // Deprovisioning already in progress, abort
+                    log.debug("Deprovisioning is already in progress. Stopping.");
                     ctl.stop();
                     return; // Unreachable
                 default:
                     throw new IllegalStateException("Unexpected value: " + status);
             }
         } else {
-            ctl.retry();
+            log.warn("Registry id='{}' not found. Stopping.", task.getRegistryId());
+            ctl.stop();
         }
     }
 
@@ -94,7 +97,7 @@ public class StartDeprovisionRegistryWorker extends AbstractWorker {
         if (registryOptional.isPresent()) {
             var registry = registryOptional.get();
             // SUCCESS STATE
-            if (RegistryStatusValue.REQUESTED_DEPROVISIONING.value().equals(registry.getStatus()))
+            if (RegistryStatusValue.DEPROVISIONING_DELETING.value().equals(registry.getStatus()))
                 return;
 
             // FAILURE

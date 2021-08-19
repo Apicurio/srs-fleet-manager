@@ -4,7 +4,6 @@ import io.apicurio.multitenant.api.datamodel.TenantStatusValue;
 import io.apicurio.multitenant.api.datamodel.UpdateRegistryTenantRequest;
 import io.apicurio.multitenant.client.TenantManagerClient;
 import org.awaitility.Awaitility;
-import org.bf2.srs.fleetmanager.execution.impl.tasks.deprovision.CheckRegistryDeletedTask;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreateRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValueRest;

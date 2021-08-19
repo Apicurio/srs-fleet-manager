@@ -19,6 +19,9 @@ public class DeprovisionRegistryTask extends AbstractTask {
     @Setter
     private String registryTenantId;
 
+    @Setter
+    private boolean amsSuccess = false;
+
     @Builder
     public DeprovisionRegistryTask(long registryId) {
         super(DEPROVISION_REGISTRY_T);

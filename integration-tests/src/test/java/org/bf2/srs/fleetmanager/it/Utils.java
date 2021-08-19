@@ -10,7 +10,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import org.awaitility.Awaitility;
-import org.bf2.srs.fleetmanager.execution.impl.tasks.deprovision.CheckRegistryDeletedTask;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValueRest;
 import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
@@ -41,7 +40,7 @@ public class Utils {
             tmc.updateTenant(t.getTenantId(), req);
         });
 
-        Awaitility.await("Registry deleted").atMost(CheckRegistryDeletedTask.builder().build().getSchedule().getInterval().getSeconds() * 2, SECONDS).pollInterval(5, SECONDS)
+        Awaitility.await("Registry deleted").atMost(5, SECONDS).pollInterval(1, SECONDS)
                 .until(() -> tenants.stream().allMatch(t -> {
                     try {
                         FleetManagerApi.verifyRegistryNotExists(t.getRegistryId(), t.getAccountInfo());
