@@ -64,7 +64,7 @@ public class ScheduleRegistryWorker extends AbstractWorker {
         RegistryData registry = registryOptional.get();
 
         List<RegistryDeploymentData> eligibleRegistryDeployments = storage.getAllRegistryDeployments().stream()
-                .filter(rd -> RegistryDeploymentStatusValue.fromValue(rd.getStatus().getValue()) == RegistryDeploymentStatusValue.AVAILABLE)
+                .filter(rd -> RegistryDeploymentStatusValue.of(rd.getStatus().getValue()) == RegistryDeploymentStatusValue.AVAILABLE)
                 .collect(toList());
         if (eligibleRegistryDeployments.isEmpty()) {
             // NOTE: Failure point 2

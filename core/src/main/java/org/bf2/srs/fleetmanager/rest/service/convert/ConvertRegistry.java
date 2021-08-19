@@ -26,7 +26,7 @@ public class ConvertRegistry {
                 .registryUrl(registry.getRegistryUrl())
                 .owner(registry.getOwner())
                 .orgId(registry.getOrgId())
-                .status(RegistryStatusValue.fromValue(registry.getStatus()))
+                .status(RegistryStatusValue.of(registry.getStatus()))
                 .registryDeploymentId(ofNullable(registry.getRegistryDeployment()).map(RegistryDeploymentData::getId).orElse(null))
                 .createdAt(registry.getCreatedAt())
                 .updatedAt(registry.getUpdatedAt())

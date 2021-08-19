@@ -38,13 +38,13 @@ public enum RegistryDeploymentStatusValue {
         return this.value;
     }
 
-    public static Optional<RegistryDeploymentStatusValue> fromValueOptional(String value) {
+    public static Optional<RegistryDeploymentStatusValue> ofOptional(String value) {
         return ofNullable(CONSTANTS.get(value));
     }
 
     @JsonCreator
-    public static RegistryDeploymentStatusValue fromValue(String value) {
-        return fromValueOptional(value).orElseThrow();
+    public static RegistryDeploymentStatusValue of(String value) {
+        return ofOptional(value).orElseThrow();
     }
 
     @Override

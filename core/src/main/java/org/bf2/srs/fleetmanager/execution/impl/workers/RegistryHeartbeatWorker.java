@@ -2,13 +2,11 @@ package org.bf2.srs.fleetmanager.execution.impl.workers;
 
 import org.bf2.srs.fleetmanager.execution.impl.tasks.RegistryHeartbeatTask;
 import org.bf2.srs.fleetmanager.execution.manager.Task;
-import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValue;
 import org.bf2.srs.fleetmanager.spi.TenantManagerService;
-import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.storage.StorageConflictException;
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +25,7 @@ import static org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValue.RE
  *
  * @author Jakub Senko <jsenko@redhat.com>
  */
+// TODO This task is (temporarily) not used. Enable when needed.
 @ApplicationScoped
 public class RegistryHeartbeatWorker extends AbstractWorker {
 
@@ -36,10 +35,7 @@ public class RegistryHeartbeatWorker extends AbstractWorker {
     ResourceStorage storage;
 
     @Inject
-    TenantManagerService tmClient;
-
-    @Inject
-    TaskManager tasks;
+    TenantManagerService tms;
 
     public RegistryHeartbeatWorker() {
         super(REGISTRY_HEARTBEAT_W);
@@ -53,40 +49,53 @@ public class RegistryHeartbeatWorker extends AbstractWorker {
     @Transactional
     @Override
     public void execute(Task aTask, WorkerContext ctl) throws StorageConflictException {
-        RegistryHeartbeatTask task = (RegistryHeartbeatTask) aTask;
+        var task = (RegistryHeartbeatTask) aTask;
+        var registryOptional = storage.getRegistryById(task.getRegistryId());
+        if (registryOptional.isPresent()) {
+            var registry = registryOptional.get();
+            var status = RegistryStatusValue.of(registry.getStatus());
+            switch (status) {
+                case ACCEPTED: {
+                    log.warn("Unexpected status '{}'. Stopping.", status);
+                    ctl.stop();
+                    return; // Unreachable
+                }
+                case PROVISIONING:
+                case READY: {
+                    var tmc = Utils.createTenantManagerConfig(registry.getRegistryDeployment());
+                    boolean isAvailable = tms.pingTenant(tmc, registry.getTenantId());
 
-        // TODO Stop when tenant status is (deleting)?
-        Optional<RegistryData> registryOptional = storage.getRegistryById(task.getRegistryId());
-        if (registryOptional.isEmpty()) {
-            // NOTE: Failure point 1
-            // The Registry disappeared. Just retry.
-            // It could've been deprovisioned!
-            ctl.retry();
-        }
-        RegistryData registry = registryOptional.get();
+                    if (isAvailable) {
+                        registry.setStatus(READY.value());
+                        log.debug("Registry id='{}' is available.", registry.getId());
+                    } else {
+                        registry.setStatus(FAILED.value());
+                        log.warn("Registry id='{}' is not available.", registry.getId());
+                        // TODO Set failed_reason
+                    }
 
-        TenantManagerConfig tenantManager = TenantManagerConfig.builder()
-                .tenantManagerUrl(registry.getRegistryDeployment().getTenantManagerUrl())
-                .registryDeploymentUrl(registry.getRegistryDeployment().getRegistryDeploymentUrl())
-                .build();
-
-        boolean ok = tmClient.pingTenant(tenantManager, registry.getTenantId());
-
-        if (!ok) {
-            registry.setStatus(FAILED.value());
-            // TODO alerting?
-            log.warn("Registry with ID {} has become unreachable.", registry.getId());
+                    if (status != RegistryStatusValue.of(registry.getStatus())) {
+                        storage.createOrUpdateRegistry(registry);
+                    }
+                    return;
+                }
+                case FAILED: // TODO Decide based on failed_reason
+                case REQUESTED_DEPROVISIONING:
+                case DEPROVISIONING_DELETING:
+                    log.debug("Registry has '{}' status. Stopping.", status);
+                    ctl.stop();
+                    return; // Unreachable
+                default:
+                    throw new IllegalStateException("Unexpected value: " + status);
+            }
         } else {
-            registry.setStatus(READY.value());
+            log.warn("Registry id='{}' not found. Stopping.", task.getRegistryId());
+            ctl.stop();
         }
-
-        // NOTE: Failure point 2
-        storage.createOrUpdateRegistry(registry);
     }
 
     @Override
     public void finallyExecute(Task aTask, WorkerContext ctl, Optional<Exception> error) {
-        // The Registry was deprovisioned, deleted or storage failed.
-        // We should make sure the customers won't lose data so we'll just ignore this error.
+        // NOOP
     }
 }

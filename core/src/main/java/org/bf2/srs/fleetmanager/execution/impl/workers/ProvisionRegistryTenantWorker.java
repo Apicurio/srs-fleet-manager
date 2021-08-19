@@ -5,6 +5,7 @@ import org.bf2.srs.fleetmanager.execution.impl.tasks.RegistryHeartbeatTask;
 import org.bf2.srs.fleetmanager.execution.manager.Task;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValue;
 import org.bf2.srs.fleetmanager.service.QuotaPlansService;
 import org.bf2.srs.fleetmanager.spi.TenantManagerService;
 import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
@@ -110,10 +111,12 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
         }
 
         // NOTE: Failure point 5
+        registry.setStatus(RegistryStatusValue.READY.value());
         storage.createOrUpdateRegistry(registry);
 
+        // TODO This task is (temporarily) not used. Enable when needed.
         // Update status to available in the heartbeat task, which should run ASAP
-        ctl.delay(() -> tasks.submit(RegistryHeartbeatTask.builder().registryId(registry.getId()).build()));
+        //ctl.delay(() -> tasks.submit(RegistryHeartbeatTask.builder().registryId(registry.getId()).build()));
     }
 
     @Transactional

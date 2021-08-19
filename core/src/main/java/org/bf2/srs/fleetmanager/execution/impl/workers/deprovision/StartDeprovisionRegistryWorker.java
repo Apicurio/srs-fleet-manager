@@ -55,7 +55,7 @@ public class StartDeprovisionRegistryWorker extends AbstractWorker {
         if (registryOptional.isPresent()) { // FAILURE POINT 1
 
             var registry = registryOptional.get();
-            var status = RegistryStatusValue.fromValue(registry.getStatus());
+            var status = RegistryStatusValue.of(registry.getStatus());
             switch (status) {
                 case ACCEPTED:
                 case PROVISIONING:
