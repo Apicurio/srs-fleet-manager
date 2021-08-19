@@ -6,6 +6,7 @@ import org.bf2.srs.fleetmanager.rest.service.RegistryDeploymentService;
 import org.bf2.srs.fleetmanager.rest.service.convert.ConvertRegistryDeployment;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeployment;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentCreate;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentStatusValue;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentsConfigList;
 import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
@@ -124,6 +125,7 @@ public class RegistryDeploymentServiceImpl implements RegistryDeploymentService 
     }
 
     private void createOrUpdateRegistryDeployment(RegistryDeploymentData deployment) throws StorageConflictException {
+        deployment.getStatus().setValue(RegistryDeploymentStatusValue.AVAILABLE.value());
         storage.createOrUpdateRegistryDeployment(deployment);
         // TODO This task is (temporarily) not used. Enable when needed.
         //if (created) {

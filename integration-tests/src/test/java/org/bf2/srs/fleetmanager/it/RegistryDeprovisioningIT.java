@@ -47,13 +47,7 @@ class RegistryDeprovisioningIT extends SRSFleetManagerBaseIT {
 
         FleetManagerApi.deleteRegistry(createdRegistry1.getId(), alice);
 
-        Awaitility.await("registry1 deprovisioning stated").atMost(5, SECONDS).pollInterval(1, SECONDS)
-                .until(() -> {
-                    // This may be too slow to catch RegistryStatusValueRest.deprovision status,
-                    // so we'll wait for RegistryStatusValueRest.deleting.
-                    var reg = FleetManagerApi.getRegistry(createdRegistry1.getId(), alice);
-                    return RegistryStatusValueRest.deleting.equals(reg.getStatus());
-                });
+        // We don't have to wait for the status to be RegistryStatusValueRest.deleting, since that happens almost immediately now.
 
         Awaitility.await("registry1 deleting initiated").atMost(5, SECONDS).pollInterval(1, SECONDS)
                 .until(() -> {
@@ -65,7 +59,7 @@ class RegistryDeprovisioningIT extends SRSFleetManagerBaseIT {
         req.setStatus(TenantStatusValue.DELETED);
         tenantManager.updateTenant(registry1TenantId, req);
 
-        Awaitility.await("registry1 deleted").atMost(CheckRegistryDeletedTask.builder().build().getSchedule().getInterval().getSeconds() * 2, SECONDS).pollInterval(5, SECONDS)
+        Awaitility.await("registry1 deleted").atMost(5, SECONDS).pollInterval(1, SECONDS)
                 .until(() -> {
                     try {
                         FleetManagerApi.verifyRegistryNotExists(createdRegistry1.getId(), alice);
