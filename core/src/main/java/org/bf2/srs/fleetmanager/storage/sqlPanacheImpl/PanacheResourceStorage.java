@@ -51,7 +51,7 @@ public class PanacheResourceStorage implements ResourceStorage {
         }
         try {
             final Instant now = Instant.now();
-            if(existing.isEmpty()) {
+            if (existing.isEmpty()) {
                 registry.setCreatedAt(now);
             }
             registry.setUpdatedAt(now);
@@ -100,6 +100,8 @@ public class PanacheResourceStorage implements ResourceStorage {
             existing = deploymentRepository.findByIdOptional(deployment.getId());
         }
         try {
+            final Instant now = Instant.now();
+            deployment.getStatus().setLastUpdated(now);
             deploymentRepository.persistAndFlush(deployment);
         } catch (PersistenceException ex) {
             if (ex.getCause() instanceof ConstraintViolationException) {

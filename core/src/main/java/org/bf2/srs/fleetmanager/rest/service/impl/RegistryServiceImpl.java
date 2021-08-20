@@ -10,6 +10,7 @@ import org.bf2.srs.fleetmanager.auth.interceptor.CheckDeletePermissions;
 import org.bf2.srs.fleetmanager.auth.interceptor.CheckReadPermissions;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.deprovision.DeprovisionRegistryTask;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.ScheduleRegistryTask;
+import org.bf2.srs.fleetmanager.execution.impl.tasks.deprovision.StartDeprovisionRegistryTask;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.rest.service.RegistryService;
 import org.bf2.srs.fleetmanager.rest.service.convert.ConvertRegistry;
@@ -148,7 +149,7 @@ public class RegistryServiceImpl implements RegistryService {
             // Verify preconditions - Registry exists
             long id = Long.parseLong(registryId);
             storage.getRegistryById(id).orElseThrow(() -> RegistryNotFoundException.create(registryId));
-            tasks.submit(DeprovisionRegistryTask.builder().registryId(id).build());
+            tasks.submit(StartDeprovisionRegistryTask.builder().registryId(id).build());
         } catch (NumberFormatException ex) {
             throw RegistryNotFoundException.create(registryId);
         }

@@ -1,15 +1,14 @@
 package org.bf2.srs.fleetmanager.execution.impl.workers.deprovision;
 
 import org.bf2.srs.fleetmanager.execution.impl.tasks.TaskType;
-import org.bf2.srs.fleetmanager.execution.impl.tasks.deprovision.CheckRegistryDeletedTask;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.deprovision.DeprovisionRegistryTask;
 import org.bf2.srs.fleetmanager.execution.impl.workers.AbstractWorker;
 import org.bf2.srs.fleetmanager.execution.impl.workers.Utils;
 import org.bf2.srs.fleetmanager.execution.impl.workers.WorkerType;
 import org.bf2.srs.fleetmanager.execution.manager.Task;
-import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValue;
+import org.bf2.srs.fleetmanager.spi.AccountManagementService;
 import org.bf2.srs.fleetmanager.spi.TenantManagerService;
 import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
@@ -37,10 +36,10 @@ public class DeprovisionRegistryWorker extends AbstractWorker {
     ResourceStorage storage;
 
     @Inject
-    TenantManagerService tmClient;
+    TenantManagerService tms;
 
     @Inject
-    TaskManager tasks;
+    AccountManagementService ams;
 
     public DeprovisionRegistryWorker() {
         super(WorkerType.DEPROVISION_REGISTRY_W);
@@ -53,60 +52,67 @@ public class DeprovisionRegistryWorker extends AbstractWorker {
 
     @Transactional
     @Override
-    public void execute(Task aTask, WorkerContext ctl) throws StorageConflictException {
-
-        DeprovisionRegistryTask task = (DeprovisionRegistryTask) aTask;
-
-        Optional<RegistryData> registryOptional = storage.getRegistryById(task.getRegistryId());
+    public void execute(Task aTask, WorkerContext ctl) throws StorageConflictException, RegistryNotFoundException {
+        var task = (DeprovisionRegistryTask) aTask;
+        var registryOptional = storage.getRegistryById(task.getRegistryId());
 
         if (registryOptional.isPresent()) { // FAILURE POINT 1
 
             var registry = registryOptional.get();
-
             RegistryDeploymentData registryDeployment = registry.getRegistryDeployment();
 
+            // FAILURE POINT 2
             if (task.getRegistryTenantId() == null) {
                 final var tenantId = registry.getTenantId();
                 TenantManagerConfig tenantManagerConfig = Utils.createTenantManagerConfig(registryDeployment);
-                // FAILURE POINT 2
-                tmClient.deleteTenant(tenantManagerConfig, tenantId);
+                tms.deleteTenant(tenantManagerConfig, tenantId);
                 task.setRegistryTenantId(tenantId);
+                log.debug("Tenant id='{}' delete request send.", tenantId);
             }
 
-            // FAILURE POINT 3
-            registry.setStatus(RegistryStatusValue.DEPROVISIONING_DELETING.value());
-            storage.createOrUpdateRegistry(registry);
+            /* Return AMS entitlement
+             * FAILURE POINT 3
+             * Recovery: We recover by setting the registry status to failed so we don't lose information
+             *   and the process can be initiated again.
+             * Reentrancy: If the registry was already returned, (i.e. failed in #3)
+             *   we need to continue without raising an error, otherwise we will keep retrying.
+             */
+            if (!task.isAmsSuccess()) {
+                final String subscriptionId = registry.getSubscriptionId();
+                ams.deleteSubscription(subscriptionId);
+                task.setAmsSuccess(true);
+                log.debug("Subscription (id='{}') for Registry (id='{}') deleted.", subscriptionId, registry.getId());
+            }
 
-            ctl.delay(() -> tasks.submit(CheckRegistryDeletedTask.builder().registryId(registry.getId()).build()));
-
+            /* Delete the registry from DB
+             * FAILURE POINT 4
+             * Recovery: We set the status to failed so it can be retried.
+             * Reentrancy: This is the last step, so nothing to do.
+             */
+            storage.deleteRegistry(registry.getId());
         } else {
-            ctl.retry();
+            log.warn("Registry id='{}' not found. Stopping.", task.getRegistryId());
+            ctl.stop();
         }
     }
 
     @Transactional
     @Override
     public void finallyExecute(Task aTask, WorkerContext ctl, Optional<Exception> error) throws RegistryNotFoundException, StorageConflictException {
-
         DeprovisionRegistryTask task = (DeprovisionRegistryTask) aTask;
-
         Optional<RegistryData> registry = storage.getRegistryById(task.getRegistryId());
 
         if (registry.isPresent()) {
             var reg = registry.get();
-            // SUCCESS STATE
-            if (RegistryStatusValue.DEPROVISIONING_DELETING.value().equals(reg.getStatus()))
-                return;
-
             // Failure - Could not delete tenant or update status
             // Try updating status to failed, otherwise user can retry.
             reg.setStatus(RegistryStatusValue.FAILED.value());
+            // TODO Add failed_reason
             storage.createOrUpdateRegistry(reg);
             log.warn("Failed to deprovision Registry: {}", registry);
         } else {
-            // Registry not found.
-            // It is possible that it was deprovisioned in the meantime, so not necessarily an issue.
-            log.warn("Could not find Registry (ID = {}).", task.getRegistryId());
+            // SUCCESS
+            log.debug("Registry (ID = {}) has been deleted.", task.getRegistryId());
         }
     }
 }

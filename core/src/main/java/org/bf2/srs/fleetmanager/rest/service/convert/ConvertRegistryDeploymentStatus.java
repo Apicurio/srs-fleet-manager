@@ -21,7 +21,7 @@ public class ConvertRegistryDeploymentStatus {
 
     public RegistryDeploymentStatus convert(@Valid @NotNull RegistryDeploymentStatusData status) {
         return RegistryDeploymentStatus.builder()
-                .value(RegistryDeploymentStatusValue.fromValue(status.getValue()))
+                .value(RegistryDeploymentStatusValue.of(status.getValue()))
                 .lastUpdated(convertISO8601.convert(status.getLastUpdated()))
                 .build();
     }

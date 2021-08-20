@@ -1,11 +1,12 @@
 package org.bf2.srs.fleetmanager.rest.service.impl;
 
-import org.bf2.srs.fleetmanager.execution.impl.tasks.RegistryDeploymentHeartbeatTask;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.rest.service.RegistryDeploymentService;
 import org.bf2.srs.fleetmanager.rest.service.convert.ConvertRegistryDeployment;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeployment;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentCreate;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentStatusValue;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentsConfigList;
 import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
@@ -15,16 +16,6 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.validation.Valid;
-import javax.validation.Validator;
-import javax.ws.rs.ForbiddenException;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
@@ -33,6 +24,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Valid;
+import javax.validation.Validator;
+import javax.ws.rs.ForbiddenException;
 
 import static java.util.stream.Collectors.toList;
 
@@ -127,10 +125,12 @@ public class RegistryDeploymentServiceImpl implements RegistryDeploymentService 
     }
 
     private void createOrUpdateRegistryDeployment(RegistryDeploymentData deployment) throws StorageConflictException {
-        boolean created = storage.createOrUpdateRegistryDeployment(deployment);
-        if (created) {
-            tasks.submit(RegistryDeploymentHeartbeatTask.builder().deploymentId(deployment.getId()).build());
-        }
+        deployment.getStatus().setValue(RegistryDeploymentStatusValue.AVAILABLE.value());
+        storage.createOrUpdateRegistryDeployment(deployment);
+        // TODO This task is (temporarily) not used. Enable when needed.
+        //if (created) {
+        //    tasks.submit(RegistryDeploymentHeartbeatTask.builder().deploymentId(deployment.getId()).build());
+        //}
     }
 
     @Override

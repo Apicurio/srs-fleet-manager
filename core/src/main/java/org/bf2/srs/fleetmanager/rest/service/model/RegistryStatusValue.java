@@ -24,7 +24,7 @@ public enum RegistryStatusValue {
 
     private final String value;
 
-    private final static Map<String, RegistryStatusValue> CONSTANTS = new HashMap<>();
+    private static final Map<String, RegistryStatusValue> CONSTANTS = new HashMap<>();
 
     static {
         for (RegistryStatusValue c : values()) {
@@ -41,13 +41,13 @@ public enum RegistryStatusValue {
         return this.value;
     }
 
-    public static Optional<RegistryStatusValue> fromValueOptional(String value) {
+    public static Optional<RegistryStatusValue> ofOptional(String value) {
         return ofNullable(CONSTANTS.get(value));
     }
 
     @JsonCreator
-    public static RegistryStatusValue fromValue(String value) {
-        return fromValueOptional(value).orElseThrow();
+    public static RegistryStatusValue of(String value) {
+        return ofOptional(value).orElseThrow();
     }
 
     @Override
