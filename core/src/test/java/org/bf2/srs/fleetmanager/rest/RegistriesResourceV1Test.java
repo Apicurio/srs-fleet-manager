@@ -54,6 +54,9 @@ public class RegistriesResourceV1Test {
         var valid1 = new RegistryCreateRest();
         valid1.setName("a");
 
+        var invalidRepeatedName = new RegistryCreateRest();
+        valid1.setName("a");
+
         var valid2 = new RegistryCreateRest();
         valid2.setName("foosafasdfasf");
 
@@ -82,6 +85,10 @@ public class RegistriesResourceV1Test {
                     .log().all()
                     .extract().as(RegistryRest.class);
         }).collect(toList());
+
+        given()
+                .when().contentType(ContentType.JSON).body(invalidRepeatedName).post(BASE)
+                .then().statusCode(HTTP_CONFLICT);
 
         registries = TestUtil.waitForReady(registries);
 

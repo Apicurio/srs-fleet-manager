@@ -47,4 +47,5 @@ create table if not exists registrydata
 alter table registrydata add constraint pk_registrydata primary key (id);
 alter table registrydata add constraint uk_registrydata_1 unique (registryurl);
 alter table registrydata add constraint uk_registrydata_2 unique (tenantid);
+alter table registrydata add constraint uk_registrydata_3 unique (org_id, name);
 alter table registrydata add constraint fk_registrydata_1 foreign key (registrydeployment_id) references registrydeploymentdata (id);
