@@ -94,9 +94,9 @@ class RegistryProvisioningIT extends SRSFleetManagerBaseIT {
         registry3.setName("test-registry-3");
         var rhadminRegistry = FleetManagerApi.createRegistry(registry3, rhadmin);
 
-        //create one registry belonging to bob, bob is in a different organization
+        //create one registry belonging to bob, bob is in a different organization, so creating it with same name should be ok
         var registry4 = new RegistryCreateRest();
-        registry4.setName("test-registry-4");
+        registry4.setName("test-registry-1");
         var bobRegistry = FleetManagerApi.createRegistry(registry4, bob);
 
         //################## check read permissions
