@@ -186,7 +186,7 @@ public class RegistriesResourceV1Test {
         // Error 404
         given()
                 .when().get(BASE + "/1000")
-                .then().statusCode(HTTP_NOT_FOUND).body("code", equalTo("X-HTTP-CODE-404"))// TODO
+                .then().statusCode(HTTP_NOT_FOUND).body("code", equalTo("SRSMGT-ERROR-2"))// TODO
                 .log().all();
 
         var deployment = new RegistryDeploymentCreateRest();
