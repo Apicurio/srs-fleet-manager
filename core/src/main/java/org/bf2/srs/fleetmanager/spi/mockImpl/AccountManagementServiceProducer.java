@@ -1,6 +1,7 @@
 package org.bf2.srs.fleetmanager.spi.mockImpl;
 
 import io.quarkus.arc.DefaultBean;
+import org.bf2.srs.fleetmanager.spi.AccountManagementService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +15,7 @@ public class AccountManagementServiceProducer {
     @Produces
     @DefaultBean
     @ApplicationScoped
-    public MockAccountManagementService produce() {
+    public AccountManagementService produce() {
         log.info("Using Mock Account Management Service.");
         return new MockAccountManagementService();
     }

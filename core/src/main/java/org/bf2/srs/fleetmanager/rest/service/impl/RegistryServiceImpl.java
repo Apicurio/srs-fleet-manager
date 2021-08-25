@@ -32,6 +32,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
@@ -72,7 +73,7 @@ public class RegistryServiceImpl implements RegistryService {
     public RegistryDto createRegistry(RegistryCreateDto registryCreate)
             throws RegistryStorageConflictException, TermsRequiredException, ResourceLimitReachedException {
         final AccountInfo accountInfo = authService.extractAccountInfo();
-        String subscriptionId = accountManagementService.createResource(accountInfo, "cluster.aws", "", productId);
+        String subscriptionId = accountManagementService.createResource(accountInfo, "cluster.aws", UUID.randomUUID().toString(), productId);
         RegistryData registryData = convertRegistry.convert(registryCreate, subscriptionId, accountInfo.getAccountUsername(), accountInfo.getOrganizationId(), accountInfo.getAccountId());
         storage.createOrUpdateRegistry(registryData);
         tasks.submit(ScheduleRegistryTask.builder().registryId(registryData.getId()).build());
