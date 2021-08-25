@@ -35,7 +35,9 @@ import java.util.TimeZone;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.awaitility.Awaitility;
+import org.bf2.srs.fleetmanager.it.ams.AmsWireMockServer;
 import org.bf2.srs.fleetmanager.it.executor.Exec;
 import org.bf2.srs.fleetmanager.it.jwks.JWKSMockServer;
 import org.slf4j.Logger;
@@ -123,6 +125,9 @@ public class TestInfraManager {
         appEnv.put("SRS_LOG_LEVEL", "DEBUG");
 
         var authConfig = runKeycloakMock();
+
+        var amsUrl = runAmsMock();
+
         this.authConfig = authConfig;
 
         appEnv.put("AUTH_ENABLED", "true");
@@ -169,6 +174,11 @@ public class TestInfraManager {
         appEnv.put("REGISTRY_QUOTA_PLANS_CONFIG_FILE", PLANS_CONFIG_FILE);
         appEnv.put("REGISTRY_QUOTA_PLANS_DEFAULT", "basic");
 
+        appEnv.put("AMS_URL", amsUrl);
+        appEnv.put("SSO_TOKEN_ENDPOINT", authConfig.tokenEndpoint);
+        appEnv.put("SSO_CLIENT_ID", authConfig.clientId);
+        appEnv.put("SSO_CLIENT_SECRET", authConfig.clientSecret);
+
         Map<String, String> node1Env = new HashMap<>(appEnv);
         runFleetManager(node1Env, "node-1", fleetManagerPort);
 
@@ -209,6 +219,29 @@ public class TestInfraManager {
         });
 
         return authConfig;
+    }
+
+    private String runAmsMock() throws JsonProcessingException {
+
+        AmsWireMockServer mock = new AmsWireMockServer();
+        String baseUrl = mock.start();
+
+        LOGGER.info("ams mock running at {}", baseUrl);
+
+        processes.add(new EmbeddedTestInfraProcess() {
+
+            @Override
+            public String getName() {
+                return "ams-mock";
+            }
+
+            @Override
+            public void close() throws Exception {
+                mock.stop();
+            }
+
+        });
+        return baseUrl;
     }
 
     private String deployPostgresql(String name) throws IOException {
