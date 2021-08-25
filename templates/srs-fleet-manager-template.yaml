@@ -208,7 +208,16 @@ objects:
               secretKeyRef:
                 name: ${TENANT_MANAGER_AUTH_SECRET_NAME}
                 key: client-secret
-
+          - name: FLEET_MANAGER_AUTH_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: ${FLEET_MANAGER_AUTH_SECRET_NAME}
+                  key: client-id
+          - name: FLEET_MANAGER_AUTH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: ${FLEET_MANAGER_AUTH_SECRET_NAME}
+                  key: client-secret
           - name: REGISTRY_DEPLOYMENTS_CONFIG_FILE
             value: /config/registry-deployments.yaml
             #workaround for schema updates
@@ -368,6 +377,9 @@ parameters:
 - name: TENANT_MANAGER_AUTH_SECRET_NAME
   description: k8s secret name with client-id and client-secret to access tenant-manager
   value: srs-tenant-manager-credentials
+- name: FLEET_MANAGER_AUTH_SECRET_NAME
+  description: k8s secret name with client-id and client-secret that the fleet manager will use to connect to SSO
+  value: srs-fleet-manager-credentials
 
 - name: ENVOY_IMAGE
   description: Envoy image.
