@@ -1,17 +1,15 @@
 package org.bf2.srs.fleetmanager.spi.impl;
 
-import org.b2f.ams.client.AccountManagementSystemRestClient;
 import org.bf2.srs.fleetmanager.spi.ResourceLimitReachedException;
 import org.bf2.srs.fleetmanager.spi.TermsRequiredException;
-import org.b2f.ams.client.model.request.ClusterAuthorization;
-import org.b2f.ams.client.model.request.ReservedResource;
-import org.b2f.ams.client.model.request.TermsReview;
-import org.b2f.ams.client.model.response.ResponseTermsReview;
+import org.bf2.srs.fleetmanager.spi.impl.model.request.ClusterAuthorization;
+import org.bf2.srs.fleetmanager.spi.impl.model.request.ReservedResource;
+import org.bf2.srs.fleetmanager.spi.impl.model.request.TermsReview;
+import org.bf2.srs.fleetmanager.spi.impl.model.response.ResponseTermsReview;
 import org.bf2.srs.fleetmanager.spi.AccountManagementService;
 import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
-import org.b2f.ams.client.model.response.ClusterAuthorizationResponse;
+import org.bf2.srs.fleetmanager.spi.impl.model.response.ClusterAuthorizationResponse;
 
-import javax.ws.rs.ForbiddenException;
 import java.util.Collections;
 
 /**

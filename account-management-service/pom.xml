@@ -12,6 +12,8 @@
 
     <artifactId>srs-fleet-manager-account-management-service</artifactId>
 
+    <properties><commons.logging.version>1.2</commons.logging.version></properties>
+
     <dependencies>
 
         <dependency>
@@ -25,8 +27,44 @@
         </dependency>
 
         <dependency>
-            <groupId>org.bf2</groupId>
-            <artifactId>account-management-service-rest-client</artifactId>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>${commons.logging.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.apicurio</groupId>
+            <artifactId>apicurio-common-rest-client-auth</artifactId>
+        </dependency>
+
+        <!-- Other -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- TEST -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-junit5</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock-jre8</artifactId>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

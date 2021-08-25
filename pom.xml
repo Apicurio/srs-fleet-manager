@@ -35,7 +35,7 @@
         <!-- Other -->
         <lombok.version>1.18.16</lombok.version>
         <apicurio-registry-tenant-manager-client.version>2.1.0-SNAPSHOT</apicurio-registry-tenant-manager-client.version>
-        <apicurio-common-rest-client.version>0.0.4.Final</apicurio-common-rest-client.version>
+        <apicurio-common-rest-client.version>0.0.5.Final</apicurio-common-rest-client.version>
         <keycloak.version>11.0.3</keycloak.version>
         <keycloak.testcontainers.version>1.5.0</keycloak.testcontainers.version>
         <embedded-postgres.version>1.2.10</embedded-postgres.version>
@@ -107,11 +107,6 @@
             <dependency>
                 <groupId>org.bf2</groupId>
                 <artifactId>srs-fleet-manager-tenant-manager-client</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.bf2</groupId>
-                <artifactId>account-management-service-rest-client</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -211,7 +206,6 @@
                 <module>core</module>
                 <module>tenant-manager-client</module>
                 <module>account-management-service</module>
-                <module>account-management-service-rest-client</module>
             </modules>
         </profile>
 
