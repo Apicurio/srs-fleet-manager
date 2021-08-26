@@ -8,6 +8,7 @@ import org.bf2.srs.fleetmanager.common.errors.UserErrorInfo;
 import org.bf2.srs.fleetmanager.errors.UserErrorMapper;
 import org.bf2.srs.fleetmanager.rest.config.CustomExceptionMapper;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.Error;
+import org.bf2.srs.fleetmanager.rest.service.ErrorNotFoundException;
 import org.bf2.srs.fleetmanager.rest.service.model.Kind;
 import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
@@ -47,6 +48,7 @@ public class CustomExceptionMapperImpl implements CustomExceptionMapper {
 
         map.put(RegistryNotFoundException.class, HTTP_NOT_FOUND);
         map.put(RegistryDeploymentNotFoundException.class, HTTP_NOT_FOUND);
+        map.put(ErrorNotFoundException.class, HTTP_NOT_FOUND);
 
         map.put(DateTimeParseException.class, HTTP_BAD_REQUEST);
         map.put(ConstraintViolationException.class, HTTP_BAD_REQUEST);
