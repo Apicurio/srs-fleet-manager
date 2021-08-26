@@ -23,11 +23,10 @@ public enum UserErrorCode {
     ERROR_FORMAT_DATETIME(3, "Bad date or time format", 0),
     ERROR_FORMAT_REQUEST(4, "Invalid request content", 0),
     ERROR_FORMAT_REQUEST_JSON(5, "Bad request format - invalid JSON", 0),
-    ERROR_REGISTRY_DEPLOYMENT_NOT_FOUND(6, "Registry Deployment with id='%s' not found", 1),
-    ERROR_AMS_TERMS_NOT_ACCEPTED(7, "Required terms have not been accepted for account id='%s'", 1),
-    ERROR_AMS_RESOURCE_LIMIT_REACHED(8, "The maximum number of allowed Registry instances has been reached", 0),
-    ERROR_ERROR_TYPE_NOT_FOUND(9, "Error type with id='%s' not found", 1),
-    ERROR_REGISTRY_STORAGE_CONFLICT(10, "Data conflict. Make sure Registry with the given name does not already exist", 0);
+    ERROR_AMS_TERMS_NOT_ACCEPTED(6, "Required terms have not been accepted for account id='%s'", 1),
+    ERROR_AMS_RESOURCE_LIMIT_REACHED(7, "The maximum number of allowed Registry instances has been reached", 0),
+    ERROR_ERROR_TYPE_NOT_FOUND(8, "Error type with id='%s' not found", 1),
+    ERROR_REGISTRY_STORAGE_CONFLICT(9, "Data conflict. Make sure Registry with the given name does not already exist", 0);
 
     public static final String ERROR_CODE_PREFIX = "SRSMGT-ERROR-";
 
