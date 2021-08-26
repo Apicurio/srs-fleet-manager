@@ -22,6 +22,6 @@ public class ErrorNotFoundException extends Exception implements UserError {
 
     @Override
     public UserErrorInfo getUserErrorInfo() {
-        return UserErrorInfo.create(UserErrorCode.ERROR_NOT_FOUND_ERROR_TYPE, id);
+        return UserErrorInfo.create(UserErrorCode.ERROR_ERROR_TYPE_NOT_FOUND, id);
     }
 }

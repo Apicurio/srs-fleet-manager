@@ -26,7 +26,8 @@ public enum UserErrorCode {
     ERROR_REGISTRY_DEPLOYMENT_NOT_FOUND(6, "Registry Deployment with id='%s' not found", 1),
     ERROR_AMS_TERMS_NOT_ACCEPTED(7, "Required terms have not been accepted for account id='%s'", 1),
     ERROR_AMS_RESOURCE_LIMIT_REACHED(8, "The maximum number of allowed Registry instances has been reached", 0),
-    ERROR_NOT_FOUND_ERROR_TYPE(9, "Error type with id='%s' not found", 1);
+    ERROR_ERROR_TYPE_NOT_FOUND(9, "Error type with id='%s' not found", 1),
+    ERROR_REGISTRY_STORAGE_CONFLICT(10, "Data conflict. Make sure Registry with the given name does not already exist", 0);
 
     public static final String ERROR_CODE_PREFIX = "SRSMGT-ERROR-";
 

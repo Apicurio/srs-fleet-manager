@@ -12,7 +12,7 @@ import org.bf2.srs.fleetmanager.rest.service.RegistryService;
 import org.bf2.srs.fleetmanager.spi.ResourceLimitReachedException;
 import org.bf2.srs.fleetmanager.spi.TermsRequiredException;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
-import org.bf2.srs.fleetmanager.storage.StorageConflictException;
+import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -41,7 +41,7 @@ public class ApiResourceImpl implements ApiResource {
 
     @Override
     public Registry createRegistry(RegistryCreate data)
-            throws StorageConflictException, TermsRequiredException, ResourceLimitReachedException {
+            throws RegistryStorageConflictException, TermsRequiredException, ResourceLimitReachedException {
         return convert.convert(registryService.createRegistry(convert.convert(data)));
     }
 
@@ -51,7 +51,7 @@ public class ApiResourceImpl implements ApiResource {
     }
 
     @Override
-    public void deleteRegistry(String id) throws StorageConflictException, RegistryNotFoundException {
+    public void deleteRegistry(String id) throws RegistryStorageConflictException, RegistryNotFoundException {
         registryService.deleteRegistry(id);
     }
 

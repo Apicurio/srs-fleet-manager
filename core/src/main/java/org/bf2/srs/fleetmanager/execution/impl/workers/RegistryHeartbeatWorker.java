@@ -6,7 +6,7 @@ import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
 import org.bf2.srs.fleetmanager.spi.TenantManagerService;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
-import org.bf2.srs.fleetmanager.storage.StorageConflictException;
+import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +48,7 @@ public class RegistryHeartbeatWorker extends AbstractWorker {
 
     @Transactional
     @Override
-    public void execute(Task aTask, WorkerContext ctl) throws StorageConflictException {
+    public void execute(Task aTask, WorkerContext ctl) throws RegistryStorageConflictException {
         var task = (RegistryHeartbeatTask) aTask;
         var registryOptional = storage.getRegistryById(task.getRegistryId());
         if (registryOptional.isPresent()) {

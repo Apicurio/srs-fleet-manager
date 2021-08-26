@@ -2,9 +2,10 @@ package org.bf2.srs.fleetmanager.storage.sqlPanacheImpl;
 
 import org.bf2.srs.fleetmanager.logging.Logged;
 import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
+import org.bf2.srs.fleetmanager.storage.RegistryDeploymentStorageConflictException;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
+import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
-import org.bf2.srs.fleetmanager.storage.StorageConflictException;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentData;
 import org.hibernate.exception.ConstraintViolationException;
@@ -41,7 +42,7 @@ public class PanacheResourceStorage implements ResourceStorage {
     PanacheRegistryDeploymentRepository deploymentRepository;
 
     @Override
-    public boolean createOrUpdateRegistry(RegistryData registry) throws StorageConflictException {
+    public boolean createOrUpdateRegistry(RegistryData registry) throws RegistryStorageConflictException {
         requireNonNull(registry);
         Optional<RegistryData> existing = empty();
         if (registry.getId() != null) {
@@ -58,7 +59,7 @@ public class PanacheResourceStorage implements ResourceStorage {
             registryRepository.persistAndFlush(registry);
         } catch (PersistenceException ex) {
             if (ex.getCause() instanceof ConstraintViolationException) {
-                throw StorageConflictException.create("Registry");
+                throw new RegistryStorageConflictException();
             }
         }
         return existing.isEmpty();
@@ -76,14 +77,14 @@ public class PanacheResourceStorage implements ResourceStorage {
     }
 
     @Override
-    public void deleteRegistry(Long id) throws RegistryNotFoundException, StorageConflictException {
+    public void deleteRegistry(Long id) throws RegistryNotFoundException, RegistryStorageConflictException {
         RegistryData registry = getRegistryById(id)
                 .orElseThrow(() -> new RegistryNotFoundException(id));
         try {
             registryRepository.delete(registry);
         } catch (PersistenceException ex) {
             if (ex.getCause() instanceof ConstraintViolationException) {
-                throw StorageConflictException.create("Registry");
+                throw new RegistryStorageConflictException();
             }
         }
     }
@@ -91,7 +92,7 @@ public class PanacheResourceStorage implements ResourceStorage {
     //*** RegistryDeployment
 
     @Override
-    public boolean createOrUpdateRegistryDeployment(RegistryDeploymentData deployment) throws StorageConflictException {
+    public boolean createOrUpdateRegistryDeployment(RegistryDeploymentData deployment) throws RegistryDeploymentStorageConflictException {
         requireNonNull(deployment); // TODO Is this necessary if using @Valid?
         Optional<RegistryDeploymentData> existing = empty();
         if (deployment.getId() != null) {
@@ -105,7 +106,7 @@ public class PanacheResourceStorage implements ResourceStorage {
             deploymentRepository.persistAndFlush(deployment);
         } catch (PersistenceException ex) {
             if (ex.getCause() instanceof ConstraintViolationException) {
-                throw StorageConflictException.create("Registry Deployment");
+                throw new RegistryDeploymentStorageConflictException();
             }
         }
         return existing.isEmpty();
@@ -123,14 +124,14 @@ public class PanacheResourceStorage implements ResourceStorage {
     }
 
     @Override
-    public void deleteRegistryDeployment(Long id) throws RegistryDeploymentNotFoundException, StorageConflictException {
+    public void deleteRegistryDeployment(Long id) throws RegistryDeploymentNotFoundException, RegistryDeploymentStorageConflictException {
         RegistryDeploymentData rd = getRegistryDeploymentById(id)
                 .orElseThrow(() -> new RegistryDeploymentNotFoundException(id.toString()));
         try {
             deploymentRepository.delete(rd);
         } catch (PersistenceException ex) {
             if (ex.getCause() instanceof ConstraintViolationException) {
-                throw StorageConflictException.create("Registry Deployment");
+                throw new RegistryDeploymentStorageConflictException();
             }
         }
     }

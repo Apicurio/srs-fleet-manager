@@ -9,7 +9,7 @@ import org.bf2.srs.fleetmanager.rest.service.ErrorNotFoundException;
 import org.bf2.srs.fleetmanager.spi.ResourceLimitReachedException;
 import org.bf2.srs.fleetmanager.spi.TermsRequiredException;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
-import org.bf2.srs.fleetmanager.storage.StorageConflictException;
+import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -43,7 +43,7 @@ public interface ApiResource {
     @POST
     @Produces("application/json")
     @Consumes("application/json")
-    Registry createRegistry(RegistryCreate data) throws StorageConflictException, TermsRequiredException, ResourceLimitReachedException;
+    Registry createRegistry(RegistryCreate data) throws RegistryStorageConflictException, TermsRequiredException, ResourceLimitReachedException;
 
     /**
      * Gets the details of a single instance of a `Registry`.
@@ -58,7 +58,7 @@ public interface ApiResource {
      */
     @Path("/serviceregistry_mgmt/v1/registries/{id}")
     @DELETE
-    void deleteRegistry(@PathParam("id") String id) throws StorageConflictException, RegistryNotFoundException;
+    void deleteRegistry(@PathParam("id") String id) throws RegistryStorageConflictException, RegistryNotFoundException;
 
     /**
      *

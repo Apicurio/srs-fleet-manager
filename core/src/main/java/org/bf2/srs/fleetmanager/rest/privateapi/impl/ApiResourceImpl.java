@@ -8,7 +8,7 @@ import org.bf2.srs.fleetmanager.rest.privateapi.beans.TaskRest;
 import org.bf2.srs.fleetmanager.rest.service.RegistryDeploymentService;
 import org.bf2.srs.fleetmanager.rest.service.TaskService;
 import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
-import org.bf2.srs.fleetmanager.storage.StorageConflictException;
+import org.bf2.srs.fleetmanager.storage.RegistryDeploymentStorageConflictException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -58,7 +58,7 @@ public class ApiResourceImpl implements ApiResource {
     }
 
     @Override
-    public RegistryDeploymentRest createRegistryDeployment(RegistryDeploymentCreateRest data) throws StorageConflictException {
+    public RegistryDeploymentRest createRegistryDeployment(RegistryDeploymentCreateRest data) throws RegistryDeploymentStorageConflictException {
         return convert.convert(registryDeploymentService.createRegistryDeployment(convert.convert(data)));
     }
 
@@ -68,7 +68,7 @@ public class ApiResourceImpl implements ApiResource {
     }
 
     @Override
-    public void deleteRegistryDeployment(Integer registryDeploymentId) throws StorageConflictException, RegistryDeploymentNotFoundException {
+    public void deleteRegistryDeployment(Integer registryDeploymentId) throws RegistryDeploymentNotFoundException, RegistryDeploymentStorageConflictException {
         registryDeploymentService.deleteRegistryDeployment(registryDeploymentId.longValue()); // TODO Conversion
     }
 }

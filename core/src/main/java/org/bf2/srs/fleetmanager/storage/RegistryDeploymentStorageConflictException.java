@@ -10,20 +10,12 @@ package org.bf2.srs.fleetmanager.storage;
  *
  * @author Jakub Senko <jsenko@redhat.com>
  */
-public class StorageConflictException extends StorageException {
+public class RegistryDeploymentStorageConflictException extends StorageException {
 
-    private static final long serialVersionUID = -6235365490109511256L;
+    private static final long serialVersionUID = 1388468989212260814L;
 
-    public StorageConflictException() {
-        super();
-    }
-
-    public StorageConflictException(String message) {
-        super(message);
-    }
-
-    public static StorageConflictException create(String entityName) {
-        return new StorageConflictException("Could not create, update or delete " + entityName + ". " +
+    public RegistryDeploymentStorageConflictException() {
+        super("Could not create, update or delete RegistryDeployment. " +
                 "Make sure the data is valid and does not conflict with other stored entities. " +
                 "Make sure the entity it is not in use before deleting.");
     }

@@ -1,7 +1,6 @@
 package org.bf2.srs.fleetmanager.rest.service.impl;
 
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.rest.service.RegistryDeploymentService;
 import org.bf2.srs.fleetmanager.rest.service.convert.ConvertRegistryDeployment;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeployment;
@@ -9,8 +8,8 @@ import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentCreate;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentStatusValue;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentsConfigList;
 import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
+import org.bf2.srs.fleetmanager.storage.RegistryDeploymentStorageConflictException;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
-import org.bf2.srs.fleetmanager.storage.StorageConflictException;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentData;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
@@ -46,9 +45,6 @@ public class RegistryDeploymentServiceImpl implements RegistryDeploymentService 
     Validator validator;
 
     @Inject
-    TaskManager tasks;
-
-    @Inject
     ResourceStorage storage;
 
     @Inject
@@ -58,7 +54,7 @@ public class RegistryDeploymentServiceImpl implements RegistryDeploymentService 
     Optional<File> deploymentsConfigFile;
 
     @Override
-    public void init() throws StorageConflictException, IOException {
+    public void init() throws IOException, RegistryDeploymentStorageConflictException {
 
         if (deploymentsConfigFile.isEmpty()) {
             return;
@@ -115,7 +111,7 @@ public class RegistryDeploymentServiceImpl implements RegistryDeploymentService 
     }
 
     @Override
-    public RegistryDeployment createRegistryDeployment(@Valid RegistryDeploymentCreate deploymentCreate) throws StorageConflictException {
+    public RegistryDeployment createRegistryDeployment(@Valid RegistryDeploymentCreate deploymentCreate) throws RegistryDeploymentStorageConflictException {
         if (deploymentsConfigFile.isPresent()) {
             throw new ForbiddenException();
         }
@@ -124,7 +120,7 @@ public class RegistryDeploymentServiceImpl implements RegistryDeploymentService 
         return convertRegistryDeployment.convert(deployment);
     }
 
-    private void createOrUpdateRegistryDeployment(RegistryDeploymentData deployment) throws StorageConflictException {
+    private void createOrUpdateRegistryDeployment(RegistryDeploymentData deployment) throws RegistryDeploymentStorageConflictException {
         deployment.getStatus().setValue(RegistryDeploymentStatusValue.AVAILABLE.value());
         storage.createOrUpdateRegistryDeployment(deployment);
         // TODO This task is (temporarily) not used. Enable when needed.
@@ -148,7 +144,7 @@ public class RegistryDeploymentServiceImpl implements RegistryDeploymentService 
     }
 
     @Override
-    public void deleteRegistryDeployment(Long id) throws RegistryDeploymentNotFoundException, StorageConflictException {
+    public void deleteRegistryDeployment(Long id) throws RegistryDeploymentNotFoundException, RegistryDeploymentStorageConflictException {
         if (deploymentsConfigFile.isPresent()) {
             throw new ForbiddenException();
         }

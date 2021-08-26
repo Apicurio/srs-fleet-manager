@@ -11,7 +11,7 @@ import org.bf2.srs.fleetmanager.rest.publicapi.beans.Error;
 import org.bf2.srs.fleetmanager.rest.service.model.Kind;
 import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
-import org.bf2.srs.fleetmanager.storage.StorageConflictException;
+import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +52,7 @@ public class CustomExceptionMapperImpl implements CustomExceptionMapper {
         map.put(ConstraintViolationException.class, HTTP_BAD_REQUEST);
         map.put(JsonParseException.class, HTTP_BAD_REQUEST);
 
-        map.put(StorageConflictException.class, HTTP_CONFLICT);
+        map.put(RegistryStorageConflictException.class, HTTP_CONFLICT);
 
         CODE_MAP = Collections.unmodifiableMap(map);
     }

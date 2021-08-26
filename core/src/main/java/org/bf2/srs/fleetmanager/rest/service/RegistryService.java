@@ -6,15 +6,15 @@ import org.bf2.srs.fleetmanager.rest.service.model.RegistryListDto;
 import org.bf2.srs.fleetmanager.spi.ResourceLimitReachedException;
 import org.bf2.srs.fleetmanager.spi.TermsRequiredException;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
-import org.bf2.srs.fleetmanager.storage.StorageConflictException;
+import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
 
 public interface RegistryService {
 
-    RegistryDto createRegistry(RegistryCreateDto registry) throws StorageConflictException, TermsRequiredException, ResourceLimitReachedException;
+    RegistryDto createRegistry(RegistryCreateDto registry) throws RegistryStorageConflictException, TermsRequiredException, ResourceLimitReachedException;
 
     RegistryListDto getRegistries(Integer page, Integer size, String orderBy, String search);
 
     RegistryDto getRegistry(String registryId) throws RegistryNotFoundException;
 
-    void deleteRegistry(String registryId) throws RegistryNotFoundException, StorageConflictException;
+    void deleteRegistry(String registryId) throws RegistryNotFoundException, RegistryStorageConflictException;
 }
