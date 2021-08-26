@@ -23,14 +23,14 @@ import javax.validation.constraints.Pattern;
 @Setter
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class Registry extends ObjectReference {
+public class RegistryDto extends ObjectReferenceDto {
 
     /**
      * (Required)
      */
     @NotNull
     @Pattern(regexp = "accepted|provisioning|ready|failed|deprovision|deleting")
-    private RegistryStatusValue status;
+    private RegistryStatusValueDto status;
 
     /**
      * (Required)
@@ -87,15 +87,14 @@ public class Registry extends ObjectReference {
 
     /**
      * Registry subscriptionId
-     *
      */
     private String subscriptionId;
 
     @Builder
-    public Registry(@NotNull String id, @NotNull String kind, String href,
-                    @NotNull RegistryStatusValue status, @NotEmpty String registryUrl, String name, @NotNull String owner,
-                    Long registryDeploymentId, Instant createdAt, Instant updatedAt, String description, @NotNull String orgId, String subscriptionId) {
-        super(id, kind, href);
+    public RegistryDto(@NotNull String id,
+                       @NotNull RegistryStatusValueDto status, @NotEmpty String registryUrl, String name, @NotNull String owner,
+                       Long registryDeploymentId, Instant createdAt, Instant updatedAt, String description, @NotNull String orgId, String subscriptionId) {
+        super(id, Kind.REGISTRY);
         this.status = status;
         this.registryUrl = registryUrl;
         this.name = name;
@@ -106,5 +105,10 @@ public class Registry extends ObjectReference {
         this.description = description;
         this.orgId = orgId;
         this.subscriptionId = subscriptionId;
+    }
+
+    @Override
+    public String getHref() {
+        return "/api/serviceregistry_mgmt/v1/registries/" + getId();
     }
 }

@@ -7,13 +7,13 @@ import org.bf2.srs.fleetmanager.execution.impl.workers.Utils;
 import org.bf2.srs.fleetmanager.execution.impl.workers.WorkerType;
 import org.bf2.srs.fleetmanager.execution.manager.Task;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
-import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValue;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
 import org.bf2.srs.fleetmanager.spi.AccountManagementService;
 import org.bf2.srs.fleetmanager.spi.TenantManagerService;
 import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
-import org.bf2.srs.fleetmanager.storage.StorageConflictException;
+import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentData;
 import org.slf4j.Logger;
@@ -52,7 +52,7 @@ public class DeprovisionRegistryWorker extends AbstractWorker {
 
     @Transactional
     @Override
-    public void execute(Task aTask, WorkerContext ctl) throws StorageConflictException, RegistryNotFoundException {
+    public void execute(Task aTask, WorkerContext ctl) throws RegistryStorageConflictException, RegistryNotFoundException {
         var task = (DeprovisionRegistryTask) aTask;
         var registryOptional = storage.getRegistryById(task.getRegistryId());
 
@@ -98,7 +98,7 @@ public class DeprovisionRegistryWorker extends AbstractWorker {
 
     @Transactional
     @Override
-    public void finallyExecute(Task aTask, WorkerContext ctl, Optional<Exception> error) throws RegistryNotFoundException, StorageConflictException {
+    public void finallyExecute(Task aTask, WorkerContext ctl, Optional<Exception> error) throws RegistryNotFoundException, RegistryStorageConflictException {
         DeprovisionRegistryTask task = (DeprovisionRegistryTask) aTask;
         Optional<RegistryData> registry = storage.getRegistryById(task.getRegistryId());
 
@@ -106,7 +106,7 @@ public class DeprovisionRegistryWorker extends AbstractWorker {
             var reg = registry.get();
             // Failure - Could not delete tenant or update status
             // Try updating status to failed, otherwise user can retry.
-            reg.setStatus(RegistryStatusValue.FAILED.value());
+            reg.setStatus(RegistryStatusValueDto.FAILED.value());
             // TODO Add failed_reason
             storage.createOrUpdateRegistry(reg);
             log.warn("Failed to deprovision Registry: {}", registry);

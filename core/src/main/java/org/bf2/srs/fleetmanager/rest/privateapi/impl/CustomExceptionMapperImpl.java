@@ -5,8 +5,8 @@ import io.quarkus.runtime.configuration.ProfileManager;
 import org.bf2.srs.fleetmanager.rest.config.CustomExceptionMapper;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.ErrorInfo1Rest;
 import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
+import org.bf2.srs.fleetmanager.storage.RegistryDeploymentStorageConflictException;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
-import org.bf2.srs.fleetmanager.storage.StorageConflictException;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -43,7 +43,7 @@ public class CustomExceptionMapperImpl implements CustomExceptionMapper {
         map.put(ConstraintViolationException.class, HTTP_BAD_REQUEST);
         map.put(JsonParseException.class, HTTP_BAD_REQUEST);
 
-        map.put(StorageConflictException.class, HTTP_CONFLICT);
+        map.put(RegistryDeploymentStorageConflictException.class, HTTP_CONFLICT);
 
         CODE_MAP = Collections.unmodifiableMap(map);
     }

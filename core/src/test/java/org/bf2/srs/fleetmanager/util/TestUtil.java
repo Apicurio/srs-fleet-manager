@@ -1,8 +1,8 @@
 package org.bf2.srs.fleetmanager.util;
 
 import org.awaitility.Awaitility;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryRest;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValueRest;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.Registry;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValue;
 import org.bf2.srs.fleetmanager.spi.TenantManagerService;
 import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
 import org.bf2.srs.fleetmanager.spi.model.TenantStatus;
@@ -39,7 +39,7 @@ public class TestUtil {
         }
     }
 
-    public static void waitForDeletion(TenantManagerService tms, TenantManagerConfig tmc, List<RegistryRest> registries) {
+    public static void waitForDeletion(TenantManagerService tms, TenantManagerConfig tmc, List<Registry> registries) {
 
         Awaitility.await("Registry deleting initiated").atMost(5, SECONDS).pollInterval(1, SECONDS)
                 .until(() -> registries.stream().allMatch(r -> {
@@ -68,19 +68,19 @@ public class TestUtil {
                 }));
     }
 
-    public static List<RegistryRest> waitForReady(List<RegistryRest> registries) {
+    public static List<Registry> waitForReady(List<Registry> registries) {
         Awaitility.await("Registry ready").atMost(5, SECONDS).pollInterval(1, SECONDS)
                 .until(() -> registries.stream().allMatch(r -> {
                     var reg = given().log().all()
                             .when().get(BASE + "/" + r.getId())
                             .then().statusCode(HTTP_OK)
-                            .extract().as(RegistryRest.class);
-                    return RegistryStatusValueRest.ready.equals(reg.getStatus());
+                            .extract().as(Registry.class);
+                    return RegistryStatusValue.ready.equals(reg.getStatus());
                 }));
         return registries.stream().map(r -> given().log().all()
                 .when().get(BASE + "/" + r.getId())
                 .then().statusCode(HTTP_OK)
-                .extract().as(RegistryRest.class)).collect(Collectors.toList());
+                .extract().as(Registry.class)).collect(Collectors.toList());
     }
 
     public static String getTenantIdFromUrl(String registryUrl) {

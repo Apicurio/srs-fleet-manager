@@ -31,7 +31,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "updated_at"
 })
 @Generated("jsonschema2pojo")
-public class RegistryRest {
+public class Registry {
 
     /**
      * 
@@ -64,7 +64,7 @@ public class RegistryRest {
      */
     @JsonProperty("status")
     @JsonPropertyDescription("\"accepted\": Registry status when accepted for processing.\n\n\"provisioning\": Registry status when provisioning a new instance.\n\n\"ready\": Registry status when ready for use.\n\n\"failed\": Registry status when the provisioning failed. When removing a Registry in this state,\nthe status transitions directly to \"deleting\".\n\n\n\"deprovision\": Registry status when accepted for deprovisioning.\n\n\"deleting\": Registry status when deprovisioning.\n")
-    private RegistryStatusValueRest status;
+    private RegistryStatusValue status;
     @JsonProperty("registryUrl")
     private String registryUrl;
     /**
@@ -100,7 +100,7 @@ public class RegistryRest {
      * (Required)
      * 
      */
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssZ", timezone = "UTC")
     @JsonProperty("created_at")
     @JsonPropertyDescription("ISO 8601 UTC timestamp.")
     private Date createdAt;
@@ -109,7 +109,7 @@ public class RegistryRest {
      * (Required)
      * 
      */
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssZ", timezone = "UTC")
     @JsonProperty("updated_at")
     @JsonPropertyDescription("ISO 8601 UTC timestamp.")
     private Date updatedAt;
@@ -173,7 +173,7 @@ public class RegistryRest {
      * 
      */
     @JsonProperty("status")
-    public RegistryStatusValueRest getStatus() {
+    public RegistryStatusValue getStatus() {
         return status;
     }
 
@@ -196,7 +196,7 @@ public class RegistryRest {
      * 
      */
     @JsonProperty("status")
-    public void setStatus(RegistryStatusValueRest status) {
+    public void setStatus(RegistryStatusValue status) {
         this.status = status;
     }
 

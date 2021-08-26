@@ -3,10 +3,10 @@ package org.bf2.srs.fleetmanager.execution.impl.workers;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.RegistryHeartbeatTask;
 import org.bf2.srs.fleetmanager.execution.manager.Task;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
-import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValue;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
 import org.bf2.srs.fleetmanager.spi.TenantManagerService;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
-import org.bf2.srs.fleetmanager.storage.StorageConflictException;
+import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,8 +17,8 @@ import javax.transaction.Transactional;
 
 import static org.bf2.srs.fleetmanager.execution.impl.tasks.TaskType.REGISTRY_HEARTBEAT_T;
 import static org.bf2.srs.fleetmanager.execution.impl.workers.WorkerType.REGISTRY_HEARTBEAT_W;
-import static org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValue.FAILED;
-import static org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValue.READY;
+import static org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto.FAILED;
+import static org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto.READY;
 
 /**
  * This class MUST be thread safe. It should not contain state and inject thread safe beans only.
@@ -48,12 +48,12 @@ public class RegistryHeartbeatWorker extends AbstractWorker {
 
     @Transactional
     @Override
-    public void execute(Task aTask, WorkerContext ctl) throws StorageConflictException {
+    public void execute(Task aTask, WorkerContext ctl) throws RegistryStorageConflictException {
         var task = (RegistryHeartbeatTask) aTask;
         var registryOptional = storage.getRegistryById(task.getRegistryId());
         if (registryOptional.isPresent()) {
             var registry = registryOptional.get();
-            var status = RegistryStatusValue.of(registry.getStatus());
+            var status = RegistryStatusValueDto.of(registry.getStatus());
             switch (status) {
                 case ACCEPTED: {
                     log.warn("Unexpected status '{}'. Stopping.", status);
@@ -74,7 +74,7 @@ public class RegistryHeartbeatWorker extends AbstractWorker {
                         // TODO Set failed_reason
                     }
 
-                    if (status != RegistryStatusValue.of(registry.getStatus())) {
+                    if (status != RegistryStatusValueDto.of(registry.getStatus())) {
                         storage.createOrUpdateRegistry(registry);
                     }
                     return;

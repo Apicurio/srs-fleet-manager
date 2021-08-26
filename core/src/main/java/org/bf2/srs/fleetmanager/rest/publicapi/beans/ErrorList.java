@@ -17,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "items"
 })
 @Generated("jsonschema2pojo")
-public class RegistryListRest {
+public class ErrorList {
 
     /**
      * 
@@ -50,11 +50,10 @@ public class RegistryListRest {
     /**
      * 
      * (Required)
-     * (Required)
      * 
      */
     @JsonProperty("items")
-    private List<RegistryRest> items = new ArrayList<RegistryRest>();
+    private List<Error> items = new ArrayList<Error>();
 
     /**
      * 
@@ -142,7 +141,7 @@ public class RegistryListRest {
      * 
      */
     @JsonProperty("items")
-    public List<RegistryRest> getItems() {
+    public List<Error> getItems() {
         return items;
     }
 
@@ -152,7 +151,7 @@ public class RegistryListRest {
      * 
      */
     @JsonProperty("items")
-    public void setItems(List<RegistryRest> items) {
+    public void setItems(List<Error> items) {
         this.items = items;
     }
 

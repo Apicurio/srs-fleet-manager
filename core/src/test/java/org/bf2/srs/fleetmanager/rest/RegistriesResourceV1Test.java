@@ -4,10 +4,10 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentCreateRest;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentRest;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreateRest;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryListRest;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryRest;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValueRest;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.Registry;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreate;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryList;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValue;
 import org.bf2.srs.fleetmanager.spi.TenantManagerService;
 import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
 import org.bf2.srs.fleetmanager.util.TestUtil;
@@ -51,13 +51,13 @@ public class RegistriesResourceV1Test {
                 .log().all()
                 .extract().as(RegistryDeploymentRest.class).getId();
 
-        var valid1 = new RegistryCreateRest();
+        var valid1 = new RegistryCreate();
         valid1.setName("a");
 
-        var invalidRepeatedName = new RegistryCreateRest();
+        var invalidRepeatedName = new RegistryCreate();
         valid1.setName("a");
 
-        var valid2 = new RegistryCreateRest();
+        var valid2 = new RegistryCreate();
         valid2.setName("foosafasdfasf");
 
         var invalidJson1 = "{\"invalid\": true}";
@@ -78,12 +78,12 @@ public class RegistriesResourceV1Test {
                     .log().all();
         });
 
-        List<RegistryRest> registries = List.of(valid1, valid2).stream().map(d -> {
+        List<Registry> registries = List.of(valid1, valid2).stream().map(d -> {
             return given()
                     .when().contentType(ContentType.JSON).body(d).post(BASE)
                     .then().statusCode(HTTP_OK)
                     .log().all()
-                    .extract().as(RegistryRest.class);
+                    .extract().as(Registry.class);
         }).collect(toList());
 
         given()
@@ -117,7 +117,7 @@ public class RegistriesResourceV1Test {
                 .when().get(BASE)
                 .then().statusCode(HTTP_OK)
                 .log().all()
-                .extract().as(RegistryListRest.class);
+                .extract().as(RegistryList.class);
 
         assertThat(res1.getItems(), equalTo(List.of()));
         assertThat(res1.getPage(), equalTo(1));
@@ -135,30 +135,30 @@ public class RegistriesResourceV1Test {
                 .log().all()
                 .extract().as(RegistryDeploymentRest.class).getId();
 
-        var valid1 = new RegistryCreateRest();
+        var valid1 = new RegistryCreate();
         valid1.setName("a");
 
-        var valid2 = new RegistryCreateRest();
+        var valid2 = new RegistryCreate();
         valid2.setName("bbbb");
 
         // Create
-        List<RegistryRest> registries = List.of(valid1, valid2).stream().map(d -> {
+        List<Registry> registries = List.of(valid1, valid2).stream().map(d -> {
             return given()
                     .when().contentType(ContentType.JSON).body(d).post(BASE)
                     .then().statusCode(HTTP_OK)
                     .log().all()
-                    .extract().as(RegistryRest.class);
+                    .extract().as(Registry.class);
         }).collect(toList());
 
-        List<RegistryRest> actualRegistries = given()
+        List<Registry> actualRegistries = given()
                 .when().get(BASE)
                 .then().statusCode(HTTP_OK)
                 .log().all()
-                .extract().as(RegistryListRest.class)
+                .extract().as(RegistryList.class)
                 .getItems();
 
-        assertThat(actualRegistries.stream().map(RegistryRest::getId).collect(toList()),
-                containsInAnyOrder(registries.stream().map(RegistryRest::getId).toArray()));
+        assertThat(actualRegistries.stream().map(Registry::getId).collect(toList()),
+                containsInAnyOrder(registries.stream().map(Registry::getId).toArray()));
 
         registries = TestUtil.waitForReady(registries);
 
@@ -186,7 +186,7 @@ public class RegistriesResourceV1Test {
         // Error 404
         given()
                 .when().get(BASE + "/1000")
-                .then().statusCode(HTTP_NOT_FOUND).body("code", equalTo("X-HTTP-CODE-404"))// TODO
+                .then().statusCode(HTTP_NOT_FOUND).body("code", equalTo("SRSMGT-ERROR-2"))// TODO
                 .log().all();
 
         var deployment = new RegistryDeploymentCreateRest();
@@ -200,21 +200,21 @@ public class RegistriesResourceV1Test {
                 .log().all()
                 .extract().as(RegistryDeploymentRest.class).getId();
 
-        var valid1 = new RegistryCreateRest();
+        var valid1 = new RegistryCreate();
         valid1.setName("a");
         valid1.setDescription("foo");
 
-        var valid2 = new RegistryCreateRest();
+        var valid2 = new RegistryCreate();
         valid2.setName("bbb");
         valid2.setDescription("hello world");
 
         // Create
-        List<RegistryRest> regs = List.of(valid1, valid2).stream().map(d -> {
+        List<Registry> regs = List.of(valid1, valid2).stream().map(d -> {
             return given()
                     .when().contentType(ContentType.JSON).body(d).post(BASE)
                     .then().statusCode(HTTP_OK)
                     .log().all()
-                    .extract().as(RegistryRest.class);
+                    .extract().as(Registry.class);
         }).collect(toList());
 
         delay(3 * 1000);
@@ -225,7 +225,7 @@ public class RegistriesResourceV1Test {
                     .when().get(BASE + "/" + reg.getId())
                     .then().statusCode(HTTP_OK)
                     .log().all()
-                    .extract().as(RegistryRest.class);
+                    .extract().as(Registry.class);
             assertNotNull(apiReg.getName());
             assertEquals(reg.getName(), apiReg.getName());
             assertNotNull(apiReg.getDescription());
@@ -239,10 +239,10 @@ public class RegistriesResourceV1Test {
             assertEquals(reg.getId(), apiReg.getId());
             assertEquals(reg.getKind(), apiReg.getKind());
             // The status could've changed at this point
-            if(apiReg.getStatus() == RegistryStatusValueRest.provisioning) {
+            if(apiReg.getStatus() == RegistryStatusValue.provisioning) {
                 assertEquals(reg.getRegistryUrl() /* null */, apiReg.getRegistryUrl());
             } else {
-                assertEquals(RegistryStatusValueRest.ready, apiReg.getStatus());
+                assertEquals(RegistryStatusValue.ready, apiReg.getStatus());
                 assertTrue(apiReg.getRegistryUrl().startsWith(deployment.getRegistryDeploymentUrl()));
             }
 
@@ -252,7 +252,7 @@ public class RegistriesResourceV1Test {
                     .get(BASE)
                 .then().statusCode(HTTP_OK)
                 .log().all()
-                .extract().as(RegistryListRest.class);
+                .extract().as(RegistryList.class);
             assertEquals(1, list.getTotal());
             assertNotNull(list.getItems().get(0));
             assertEquals(reg.getName(), list.getItems().get(0).getName());
@@ -265,10 +265,10 @@ public class RegistriesResourceV1Test {
             assertEquals(reg.getId(), list.getItems().get(0).getId());
             assertEquals(reg.getKind(), list.getItems().get(0).getKind());
             // The status could've changed at this point
-            if(list.getItems().get(0).getStatus() == RegistryStatusValueRest.provisioning) {
+            if(list.getItems().get(0).getStatus() == RegistryStatusValue.provisioning) {
                 assertEquals(reg.getRegistryUrl() /* null */, list.getItems().get(0).getRegistryUrl());
             } else {
-                assertEquals(RegistryStatusValueRest.ready, list.getItems().get(0).getStatus());
+                assertEquals(RegistryStatusValue.ready, list.getItems().get(0).getStatus());
                 assertTrue(list.getItems().get(0).getRegistryUrl().startsWith(deployment.getRegistryDeploymentUrl()));
             }
         });

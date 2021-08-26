@@ -3,7 +3,7 @@ package org.bf2.srs.fleetmanager.other;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentCreateRest;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreateRest;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreate;
 
 import static io.restassured.RestAssured.given;
 import static java.net.HttpURLConnection.HTTP_OK;
@@ -33,7 +33,7 @@ public class MemoryProfilerTest {
 
         for (int i = 0; i < 200; i++) {
 
-            var r = new RegistryCreateRest();
+            var r = new RegistryCreate();
             r.setName("registry" + i);
 
             given().log().all()

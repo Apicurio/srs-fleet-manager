@@ -2,12 +2,19 @@ package org.bf2.srs.fleetmanager.rest.publicapi.impl;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import io.quarkus.runtime.configuration.ProfileManager;
+import org.bf2.srs.fleetmanager.common.errors.UserError;
+import org.bf2.srs.fleetmanager.common.errors.UserErrorCode;
+import org.bf2.srs.fleetmanager.common.errors.UserErrorInfo;
+import org.bf2.srs.fleetmanager.errors.UserErrorMapper;
 import org.bf2.srs.fleetmanager.rest.config.CustomExceptionMapper;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.ErrorRest;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.Error;
+import org.bf2.srs.fleetmanager.rest.service.ErrorNotFoundException;
 import org.bf2.srs.fleetmanager.rest.service.model.Kind;
 import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
-import org.bf2.srs.fleetmanager.storage.StorageConflictException;
+import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -29,6 +36,8 @@ import static java.net.HttpURLConnection.*;
 @ApplicationScoped
 public class CustomExceptionMapperImpl implements CustomExceptionMapper {
 
+    private static final Logger log = LoggerFactory.getLogger(CustomExceptionMapperImpl.class);
+
     private static final Map<Class<? extends Exception>, Integer> CODE_MAP;
 
     private String quarkusProfile = ProfileManager.getActiveProfile();
@@ -39,12 +48,13 @@ public class CustomExceptionMapperImpl implements CustomExceptionMapper {
 
         map.put(RegistryNotFoundException.class, HTTP_NOT_FOUND);
         map.put(RegistryDeploymentNotFoundException.class, HTTP_NOT_FOUND);
+        map.put(ErrorNotFoundException.class, HTTP_NOT_FOUND);
 
         map.put(DateTimeParseException.class, HTTP_BAD_REQUEST);
         map.put(ConstraintViolationException.class, HTTP_BAD_REQUEST);
         map.put(JsonParseException.class, HTTP_BAD_REQUEST);
 
-        map.put(StorageConflictException.class, HTTP_CONFLICT);
+        map.put(RegistryStorageConflictException.class, HTTP_CONFLICT);
 
         CODE_MAP = Collections.unmodifiableMap(map);
     }
@@ -57,32 +67,46 @@ public class CustomExceptionMapperImpl implements CustomExceptionMapper {
     @Override
     public Response toResponse(Throwable exception) {
         Response.ResponseBuilder builder;
+
         int code;
         if (exception instanceof WebApplicationException) {
             WebApplicationException wae = (WebApplicationException) exception;
             Response response = wae.getResponse();
             builder = Response.fromResponse(response);
-            code = response.getStatus();
         } else {
             code = CODE_MAP.getOrDefault(exception.getClass(), HTTP_INTERNAL_ERROR);
             builder = Response.status(code);
         }
 
-        ErrorRest errorInfo = new ErrorRest();
-        // errorInfo.setId(""); TODO
+        UserErrorInfo ei = null;
+        if(exception instanceof UserError) {
+            ei = ((UserError) exception).getUserErrorInfo();
+        } else if(exception instanceof Exception && UserErrorMapper.hasMapping(((Exception)exception).getClass())) {
+            ei = UserErrorMapper.getMapping((Exception)exception);
+        }else{
+            ei = UserErrorInfo.create(UserErrorCode.ERROR_UNKNOWN);
+            log.warn("Processing an unknown error", exception);
+        }
+        Error errorInfo = new Error();
         errorInfo.setKind(Kind.ERROR);
-        // errorInfo.setHref(""); TODO
-        errorInfo.setCode("X-HTTP-CODE-" + code); // TODO
+        errorInfo.setId(Integer.toString(ei.getCode().getId()));
+        errorInfo.setHref("/api/serviceregistry_mgmt/v1/errors/" + errorInfo.getId());
+        errorInfo.setCode(ei.getCode().getCode());
+        errorInfo.setReason(ei.getReason());
         // errorInfo.setOperationId(""); TODO
 
-        if ("prod".equals(quarkusProfile)) {
-            errorInfo.setReason(exception.getClass().getCanonicalName() + ": " + exception.getMessage());
-        } else {
+
+        if (!"prod".equals(quarkusProfile)) {
+            var extendedReason = errorInfo.getReason();
+            extendedReason += ". Details:\n";
+            extendedReason += exception.getClass().getCanonicalName() + ": " + exception.getMessage() + "\n";
+
             StringWriter sw = new StringWriter(); // No need to close
             PrintWriter pw = new PrintWriter(sw); // No need to close
             exception.printStackTrace(pw);
-            errorInfo.setReason(exception.getClass().getCanonicalName() + ": " +
-                    exception.getMessage() + "\nStack Trace:\n" + sw.toString());
+            extendedReason += "Stack Trace:\n" + sw.toString();
+
+            errorInfo.setReason(extendedReason);
         }
 
         return builder.type(MediaType.APPLICATION_JSON)

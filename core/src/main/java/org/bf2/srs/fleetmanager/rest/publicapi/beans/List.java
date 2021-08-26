@@ -1,8 +1,6 @@
 
 package org.bf2.srs.fleetmanager.rest.publicapi.beans;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.annotation.processing.Generated;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -13,11 +11,10 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "kind",
     "page",
     "size",
-    "total",
-    "items"
+    "total"
 })
 @Generated("jsonschema2pojo")
-public class ErrorListRest {
+public class List {
 
     /**
      * 
@@ -47,13 +44,6 @@ public class ErrorListRest {
      */
     @JsonProperty("total")
     private Integer total;
-    /**
-     * 
-     * (Required)
-     * 
-     */
-    @JsonProperty("items")
-    private List<ErrorRest> items = new ArrayList<ErrorRest>();
 
     /**
      * 
@@ -133,26 +123,6 @@ public class ErrorListRest {
     @JsonProperty("total")
     public void setTotal(Integer total) {
         this.total = total;
-    }
-
-    /**
-     * 
-     * (Required)
-     * 
-     */
-    @JsonProperty("items")
-    public List<ErrorRest> getItems() {
-        return items;
-    }
-
-    /**
-     * 
-     * (Required)
-     * 
-     */
-    @JsonProperty("items")
-    public void setItems(List<ErrorRest> items) {
-        this.items = items;
     }
 
 }

@@ -18,10 +18,10 @@ import javax.validation.constraints.NotNull;
 @Setter
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class RegistryList extends AbstractList<Registry> {
+public class ErrorListDto extends AbstractList<ErrorDto> {
 
     @Builder
-    public RegistryList(@NotNull List<Registry> items, @NotNull Integer page, Integer size, Long total) {
-        super(Kind.REGISTRY_LIST, items, page, size, total);
+    public ErrorListDto(@NotNull List<ErrorDto> items, @NotNull Integer page, Integer size, Long total) {
+        super(Kind.ERROR_LIST, items, page, size, total);
     }
 }

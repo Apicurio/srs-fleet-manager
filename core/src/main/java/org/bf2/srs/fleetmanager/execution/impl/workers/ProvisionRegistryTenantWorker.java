@@ -1,28 +1,27 @@
 package org.bf2.srs.fleetmanager.execution.impl.workers;
 
 import org.bf2.srs.fleetmanager.execution.impl.tasks.ProvisionRegistryTenantTask;
-import org.bf2.srs.fleetmanager.execution.impl.tasks.RegistryHeartbeatTask;
 import org.bf2.srs.fleetmanager.execution.manager.Task;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
-import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValue;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
 import org.bf2.srs.fleetmanager.service.QuotaPlansService;
 import org.bf2.srs.fleetmanager.spi.TenantManagerService;
-import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
 import org.bf2.srs.fleetmanager.spi.model.CreateTenantRequest;
+import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
+import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
-import org.bf2.srs.fleetmanager.storage.StorageConflictException;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Optional;
+import java.util.UUID;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
-import java.util.Optional;
-import java.util.UUID;
 
 import static org.bf2.srs.fleetmanager.execution.impl.tasks.TaskType.PROVISION_REGISTRY_TENANT_T;
 import static org.bf2.srs.fleetmanager.execution.impl.workers.WorkerType.PROVISION_REGISTRY_TENANT_W;
@@ -60,7 +59,7 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
 
     @Transactional
     @Override
-    public void execute(Task aTask, WorkerContext ctl) throws StorageConflictException {
+    public void execute(Task aTask, WorkerContext ctl) throws RegistryStorageConflictException {
         // TODO Split along failure points?
         ProvisionRegistryTenantTask task = (ProvisionRegistryTenantTask) aTask;
 
@@ -111,7 +110,7 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
         }
 
         // NOTE: Failure point 5
-        registry.setStatus(RegistryStatusValue.READY.value());
+        registry.setStatus(RegistryStatusValueDto.READY.value());
         storage.createOrUpdateRegistry(registry);
 
         // TODO This task is (temporarily) not used. Enable when needed.
@@ -121,7 +120,7 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
 
     @Transactional
     @Override
-    public void finallyExecute(Task aTask, WorkerContext ctl, Optional<Exception> error) throws RegistryNotFoundException, StorageConflictException {
+    public void finallyExecute(Task aTask, WorkerContext ctl, Optional<Exception> error) throws RegistryNotFoundException, RegistryStorageConflictException {
 
         ProvisionRegistryTenantTask task = (ProvisionRegistryTenantTask) aTask;
 

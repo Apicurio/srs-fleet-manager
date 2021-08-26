@@ -6,9 +6,9 @@ import io.apicurio.multitenant.client.TenantManagerClient;
 import org.awaitility.Awaitility;
 import org.bf2.srs.fleetmanager.it.Utils.TenantInfo;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentCreateRest;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreateRest;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryRest;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValueRest;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.Registry;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreate;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValue;
 import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
 import org.junit.jupiter.api.Test;
 
@@ -34,20 +34,20 @@ class RegistryProvisioningIT extends SRSFleetManagerBaseIT {
         deployment.setRegistryDeploymentUrl("http://registry-test");
         FleetManagerApi.verifyCreateDeploymentNotAllowed(deployment, alice);
 
-        var registry1 = new RegistryCreateRest();
+        var registry1 = new RegistryCreate();
         registry1.setName("test-registry-1");
 
         var registry1Result = FleetManagerApi.createRegistry(registry1, alice);
 
-        assertNotEquals(RegistryStatusValueRest.failed, registry1Result.getStatus());
+        assertNotEquals(RegistryStatusValue.failed, registry1Result.getStatus());
 
         Awaitility.await("registry available").atMost(30, TimeUnit.SECONDS).pollInterval(5, TimeUnit.SECONDS)
                 .until(() -> {
                     var reg = FleetManagerApi.getRegistry(registry1Result.getId(), alice);
-                    return reg.getStatus().equals(RegistryStatusValueRest.ready);
+                    return reg.getStatus().equals(RegistryStatusValue.ready);
                 });
 
-        RegistryRest registry = FleetManagerApi.getRegistry(registry1Result.getId(), alice);
+        Registry registry = FleetManagerApi.getRegistry(registry1Result.getId(), alice);
 
         String internalTenantId = Utils.getTenantIdFromUrl(registry.getRegistryUrl());
 
@@ -81,29 +81,29 @@ class RegistryProvisioningIT extends SRSFleetManagerBaseIT {
         var bob = new AccountInfo("bobsorg", "bob", false, 3L);
 
         //create registries belonging to alice
-        var registry1 = new RegistryCreateRest();
+        var registry1 = new RegistryCreate();
         registry1.setName("test-registry-1");
         var aliceRegistry1 = FleetManagerApi.createRegistry(registry1, alice);
 
-        var registry2 = new RegistryCreateRest();
+        var registry2 = new RegistryCreate();
         registry2.setName("test-registry-2");
         var aliceRegistry2 = FleetManagerApi.createRegistry(registry2, alice);
 
         //create one registry belonging to rhadmin
-        var registry3 = new RegistryCreateRest();
+        var registry3 = new RegistryCreate();
         registry3.setName("test-registry-3");
         var rhadminRegistry = FleetManagerApi.createRegistry(registry3, rhadmin);
 
         //create one registry belonging to bob, bob is in a different organization, so creating it with same name should be ok
-        var registry4 = new RegistryCreateRest();
+        var registry4 = new RegistryCreate();
         registry4.setName("test-registry-1");
         var bobRegistry = FleetManagerApi.createRegistry(registry4, bob);
 
         //################## check read permissions
 
         //users in same org can see the same registries
-        var aliceView = FleetManagerApi.listRegistries(alice).stream().map(RegistryRest::getId).collect(Collectors.toList());
-        var rhadminView = FleetManagerApi.listRegistries(rhadmin).stream().map(RegistryRest::getId).collect(Collectors.toList());
+        var aliceView = FleetManagerApi.listRegistries(alice).stream().map(Registry::getId).collect(Collectors.toList());
+        var rhadminView = FleetManagerApi.listRegistries(rhadmin).stream().map(Registry::getId).collect(Collectors.toList());
 
         assertEquals(3, aliceView.size());
         assertEquals(3, rhadminView.size());
@@ -139,8 +139,8 @@ class RegistryProvisioningIT extends SRSFleetManagerBaseIT {
                 TenantInfo.builder().registryId(aliceRegistry1.getId()).tenantId(aliceRegistry1Tid).accountInfo(rhadmin).build()
         ));
 
-        aliceView = FleetManagerApi.listRegistries(alice).stream().map(RegistryRest::getId).collect(Collectors.toList());
-        rhadminView = FleetManagerApi.listRegistries(rhadmin).stream().map(RegistryRest::getId).collect(Collectors.toList());
+        aliceView = FleetManagerApi.listRegistries(alice).stream().map(Registry::getId).collect(Collectors.toList());
+        rhadminView = FleetManagerApi.listRegistries(rhadmin).stream().map(Registry::getId).collect(Collectors.toList());
 
         assertEquals(2, aliceView.size());
         assertEquals(2, rhadminView.size());
@@ -156,8 +156,8 @@ class RegistryProvisioningIT extends SRSFleetManagerBaseIT {
                 TenantInfo.builder().registryId(aliceRegistry2.getId()).tenantId(aliceRegistry2Tid).accountInfo(alice).build()
         ));
 
-        aliceView = FleetManagerApi.listRegistries(alice).stream().map(RegistryRest::getId).collect(Collectors.toList());
-        rhadminView = FleetManagerApi.listRegistries(rhadmin).stream().map(RegistryRest::getId).collect(Collectors.toList());
+        aliceView = FleetManagerApi.listRegistries(alice).stream().map(Registry::getId).collect(Collectors.toList());
+        rhadminView = FleetManagerApi.listRegistries(rhadmin).stream().map(Registry::getId).collect(Collectors.toList());
 
         assertEquals(1, aliceView.size());
         assertEquals(1, rhadminView.size());

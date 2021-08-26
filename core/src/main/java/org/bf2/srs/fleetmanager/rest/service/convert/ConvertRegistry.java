@@ -1,8 +1,8 @@
 package org.bf2.srs.fleetmanager.rest.service.convert;
 
-import org.bf2.srs.fleetmanager.rest.service.model.Registry;
-import org.bf2.srs.fleetmanager.rest.service.model.RegistryCreate;
-import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValue;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryCreateDto;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryDto;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentData;
 
@@ -19,14 +19,14 @@ import static java.util.Optional.ofNullable;
 @ApplicationScoped
 public class ConvertRegistry {
 
-    public Registry convert(@Valid @NotNull RegistryData registry) {
-        return Registry.builder()
+    public RegistryDto convert(@Valid @NotNull RegistryData registry) {
+        return RegistryDto.builder()
                 .id(registry.getId().toString())
                 .name(registry.getName())
                 .registryUrl(registry.getRegistryUrl())
                 .owner(registry.getOwner())
                 .orgId(registry.getOrgId())
-                .status(RegistryStatusValue.of(registry.getStatus()))
+                .status(RegistryStatusValueDto.of(registry.getStatus()))
                 .registryDeploymentId(ofNullable(registry.getRegistryDeployment()).map(RegistryDeploymentData::getId).orElse(null))
                 .createdAt(registry.getCreatedAt())
                 .updatedAt(registry.getUpdatedAt())
@@ -34,7 +34,7 @@ public class ConvertRegistry {
                 .build();
     }
 
-    public RegistryData convert(@Valid @NotNull RegistryCreate registryCreate, String subscriptionId, String owner, String orgId, Long ownerId) {
+    public RegistryData convert(@Valid @NotNull RegistryCreateDto registryCreate, String subscriptionId, String owner, String orgId, Long ownerId) {
         requireNonNull(registryCreate);
         return RegistryData.builder()
                 .name(registryCreate.getName())
@@ -42,7 +42,7 @@ public class ConvertRegistry {
                 .owner(owner)
                 .ownerId(ownerId)
                 .orgId(orgId)
-                .status(RegistryStatusValue.ACCEPTED.value())
+                .status(RegistryStatusValueDto.ACCEPTED.value())
                 .subscriptionId(subscriptionId)
                 .build();
     }

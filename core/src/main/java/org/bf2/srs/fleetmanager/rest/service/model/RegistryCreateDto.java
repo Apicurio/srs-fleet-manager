@@ -24,7 +24,7 @@ import static lombok.AccessLevel.PACKAGE;
 @Setter
 @EqualsAndHashCode
 @ToString
-public class RegistryCreate {
+public class RegistryCreateDto {
 
     /**
      * User-defined Registry name. Does not have to be unique.

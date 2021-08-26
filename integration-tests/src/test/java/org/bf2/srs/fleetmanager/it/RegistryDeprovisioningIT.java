@@ -4,9 +4,9 @@ import io.apicurio.multitenant.api.datamodel.TenantStatusValue;
 import io.apicurio.multitenant.api.datamodel.UpdateRegistryTenantRequest;
 import io.apicurio.multitenant.client.TenantManagerClient;
 import org.awaitility.Awaitility;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreateRest;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryRest;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValueRest;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.Registry;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreate;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValue;
 import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
 import org.junit.jupiter.api.Test;
 
@@ -23,20 +23,20 @@ class RegistryDeprovisioningIT extends SRSFleetManagerBaseIT {
 
         var alice = new AccountInfo("testDeprovisionRegistry", "alice", false, 10L);
 
-        var registry1 = new RegistryCreateRest();
+        var registry1 = new RegistryCreate();
         registry1.setName("registry1");
 
         var createdRegistry1 = FleetManagerApi.createRegistry(registry1, alice);
 
-        assertNotEquals(RegistryStatusValueRest.failed, createdRegistry1.getStatus());
+        assertNotEquals(RegistryStatusValue.failed, createdRegistry1.getStatus());
 
         Awaitility.await("registry1 available").atMost(30, SECONDS).pollInterval(5, SECONDS)
                 .until(() -> {
                     var reg = FleetManagerApi.getRegistry(createdRegistry1.getId(), alice);
-                    return reg.getStatus().equals(RegistryStatusValueRest.ready);
+                    return reg.getStatus().equals(RegistryStatusValue.ready);
                 });
 
-        RegistryRest registry = FleetManagerApi.getRegistry(createdRegistry1.getId(), alice);
+        Registry registry = FleetManagerApi.getRegistry(createdRegistry1.getId(), alice);
 
         String registry1TenantId = Utils.getTenantIdFromUrl(registry.getRegistryUrl());
 

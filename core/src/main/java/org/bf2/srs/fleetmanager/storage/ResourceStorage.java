@@ -16,21 +16,21 @@ public interface ResourceStorage {
 
     //*** Registry
 
-    boolean createOrUpdateRegistry(@Valid RegistryData registry) throws StorageConflictException;
+    boolean createOrUpdateRegistry(@Valid RegistryData registry) throws RegistryStorageConflictException;
 
     Optional<RegistryData> getRegistryById(@NotNull Long id);
 
     List<RegistryData> getAllRegistries();
 
-    void deleteRegistry(@NotNull Long id) throws RegistryNotFoundException, StorageConflictException;
+    void deleteRegistry(@NotNull Long id) throws RegistryNotFoundException, RegistryStorageConflictException;
 
     //*** RegistryDeployment
 
-    boolean createOrUpdateRegistryDeployment(@Valid RegistryDeploymentData rd) throws StorageConflictException;
+    boolean createOrUpdateRegistryDeployment(@Valid RegistryDeploymentData rd) throws RegistryDeploymentStorageConflictException;
 
     List<RegistryDeploymentData> getAllRegistryDeployments();
 
     Optional<RegistryDeploymentData> getRegistryDeploymentById(@NotNull Long id);
 
-    void deleteRegistryDeployment(@NotNull Long id) throws RegistryDeploymentNotFoundException, StorageConflictException;
+    void deleteRegistryDeployment(@NotNull Long id) throws RegistryDeploymentNotFoundException, RegistryDeploymentStorageConflictException;
 }

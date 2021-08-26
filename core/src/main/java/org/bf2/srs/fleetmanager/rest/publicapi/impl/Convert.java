@@ -1,13 +1,17 @@
 package org.bf2.srs.fleetmanager.rest.publicapi.impl;
 
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreateRest;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryListRest;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryRest;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValueRest;
-import org.bf2.srs.fleetmanager.rest.service.model.Registry;
-import org.bf2.srs.fleetmanager.rest.service.model.RegistryCreate;
-import org.bf2.srs.fleetmanager.rest.service.model.RegistryList;
-import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValue;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.Error;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.ErrorList;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.Registry;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreate;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryList;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValue;
+import org.bf2.srs.fleetmanager.rest.service.model.ErrorDto;
+import org.bf2.srs.fleetmanager.rest.service.model.ErrorListDto;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryCreateDto;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryDto;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryListDto;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
 
 import java.time.Instant;
 import java.util.Date;
@@ -18,33 +22,34 @@ import javax.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class Convert {
 
-    public RegistryCreate convert(RegistryCreateRest data) {
-        return RegistryCreate.builder()
+    public RegistryCreateDto convert(RegistryCreate data) {
+        return RegistryCreateDto.builder()
                 .name(data.getName())
                 .description(data.getDescription())
                 .build();
     }
 
-    public RegistryStatusValueRest convert(RegistryStatusValue data) {
+    public RegistryStatusValue convert(RegistryStatusValueDto data) {
         switch (data) {
             case ACCEPTED:
-                return RegistryStatusValueRest.accepted;
+                return RegistryStatusValue.accepted;
             case PROVISIONING:
-                return RegistryStatusValueRest.provisioning;
+                return RegistryStatusValue.provisioning;
             case READY:
-                return RegistryStatusValueRest.ready;
+                return RegistryStatusValue.ready;
             case FAILED:
-                return RegistryStatusValueRest.failed;
+                return RegistryStatusValue.failed;
             case REQUESTED_DEPROVISIONING:
-                return RegistryStatusValueRest.deprovision;
+                return RegistryStatusValue.deprovision;
             case DEPROVISIONING_DELETING:
-                return RegistryStatusValueRest.deleting;
+                return RegistryStatusValue.deleting;
+            default:
+                throw new IllegalStateException("Unexpected value: " + data);
         }
-        throw new IllegalStateException("Unreachable.");
     }
 
-    public RegistryRest convert(Registry data) {
-        RegistryRest res = new RegistryRest();
+    public Registry convert(RegistryDto data) {
+        Registry res = new Registry();
         res.setId(data.getId());
         res.setKind(data.getKind());
         res.setHref("");
@@ -60,8 +65,8 @@ public class Convert {
         return res;
     }
 
-    public RegistryListRest convert(RegistryList registries) {
-        RegistryListRest res = new RegistryListRest();
+    public RegistryList convert(RegistryListDto registries) {
+        RegistryList res = new RegistryList();
         res.setKind(registries.getKind());
         res.setPage(registries.getPage());
         res.setSize(registries.getSize());
@@ -73,5 +78,26 @@ public class Convert {
 
     public Date convert(Instant data) {
         return Date.from(data);
+    }
+
+    public Error convert(ErrorDto data) {
+        var res = new Error();
+        res.setId(data.getId());
+        res.setKind(data.getKind());
+        res.setHref(data.getHref());
+        res.setCode(data.getCode());
+        res.setReason(data.getReason());
+        res.setOperationId(data.getOperationId());
+        return res;
+    }
+
+    public ErrorList convert(ErrorListDto data) {
+        var res = new ErrorList();
+        res.setKind(data.getKind());
+        res.setPage(data.getPage());
+        res.setSize(data.getSize());
+        res.setTotal(data.getTotal().intValue()); // TODO Conversion
+        res.setItems(data.getItems().stream().map(this::convert).collect(Collectors.toList()));
+        return res;
     }
 }

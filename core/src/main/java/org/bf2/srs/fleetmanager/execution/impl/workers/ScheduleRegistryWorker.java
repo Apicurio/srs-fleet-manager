@@ -6,10 +6,10 @@ import org.bf2.srs.fleetmanager.execution.manager.Task;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentStatusValue;
-import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValue;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
-import org.bf2.srs.fleetmanager.storage.StorageConflictException;
+import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentData;
 import org.slf4j.Logger;
@@ -53,7 +53,7 @@ public class ScheduleRegistryWorker extends AbstractWorker {
 
     @Transactional
     @Override
-    public void execute(Task aTask, WorkerContext ctl) throws StorageConflictException {
+    public void execute(Task aTask, WorkerContext ctl) throws RegistryStorageConflictException {
         ScheduleRegistryTask task = (ScheduleRegistryTask) aTask;
 
         Optional<RegistryData> registryOptional = storage.getRegistryById(task.getRegistryId());
@@ -80,7 +80,7 @@ public class ScheduleRegistryWorker extends AbstractWorker {
         log.info("Scheduling {} to {}.", registry, registryDeployment); // TODO only available
 
         registry.setRegistryDeployment(registryDeployment);
-        registry.setStatus(RegistryStatusValue.PROVISIONING.value());
+        registry.setStatus(RegistryStatusValueDto.PROVISIONING.value());
 
         // NOTE: Failure point 3
         storage.createOrUpdateRegistry(registry);
@@ -89,7 +89,7 @@ public class ScheduleRegistryWorker extends AbstractWorker {
     }
 
     @Override
-    public void finallyExecute(Task aTask, WorkerContext ctl, Optional<Exception> error) throws RegistryNotFoundException, StorageConflictException {
+    public void finallyExecute(Task aTask, WorkerContext ctl, Optional<Exception> error) throws RegistryNotFoundException, RegistryStorageConflictException {
         ScheduleRegistryTask task = (ScheduleRegistryTask) aTask;
 
         // SUCCESS STATE

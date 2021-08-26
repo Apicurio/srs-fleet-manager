@@ -20,25 +20,25 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "description"
 })
 @Generated("jsonschema2pojo")
-public class RegistryCreateRest {
+public class RegistryCreate {
 
     /**
-     * User-defined Registry name. Does not have to be unique.
+     * User-defined Registry name. Required. Does not have to be unique.
      * 
      */
     @JsonProperty("name")
-    @JsonPropertyDescription("User-defined Registry name. Does not have to be unique.")
+    @JsonPropertyDescription("User-defined Registry name. Required. Does not have to be unique.")
     private String name;
     /**
-     * User-provided description of the new Registry instance.
+     * User-provided description of the new Registry instance. Not required.
      * 
      */
     @JsonProperty("description")
-    @JsonPropertyDescription("User-provided description of the new Registry instance.")
+    @JsonPropertyDescription("User-provided description of the new Registry instance. Not required.")
     private String description;
 
     /**
-     * User-defined Registry name. Does not have to be unique.
+     * User-defined Registry name. Required. Does not have to be unique.
      * 
      */
     @JsonProperty("name")
@@ -47,7 +47,7 @@ public class RegistryCreateRest {
     }
 
     /**
-     * User-defined Registry name. Does not have to be unique.
+     * User-defined Registry name. Required. Does not have to be unique.
      * 
      */
     @JsonProperty("name")
@@ -56,7 +56,7 @@ public class RegistryCreateRest {
     }
 
     /**
-     * User-provided description of the new Registry instance.
+     * User-provided description of the new Registry instance. Not required.
      * 
      */
     @JsonProperty("description")
@@ -65,7 +65,7 @@ public class RegistryCreateRest {
     }
 
     /**
-     * User-provided description of the new Registry instance.
+     * User-provided description of the new Registry instance. Not required.
      * 
      */
     @JsonProperty("description")
