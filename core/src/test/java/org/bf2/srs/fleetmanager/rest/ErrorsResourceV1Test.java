@@ -68,7 +68,7 @@ public class ErrorsResourceV1Test {
         assertEquals(1, errorList.getSize());
         assertEquals(UserErrorCode.getValueMap().size(), errorList.getTotal());
         assertEquals(1, errorList.getItems().size());
-        
+
         var error = errorList.getItems().get(0);
         // Error Code = 3
         assertEquals(Integer.toString(UserErrorCode.ERROR_FORMAT_DATETIME.getId()), error.getId());
