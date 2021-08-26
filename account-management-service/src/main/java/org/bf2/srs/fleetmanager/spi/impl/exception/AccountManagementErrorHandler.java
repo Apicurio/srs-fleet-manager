@@ -16,11 +16,11 @@ public class AccountManagementErrorHandler implements RestClientErrorHandler {
 
     @Override
     public ApicurioRestClientException parseError(Exception e) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(e);
     }
 
     @Override
     public ApicurioRestClientException parseInputSerializingError(JsonProcessingException e) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(e);
     }
 }
