@@ -134,6 +134,7 @@ public class TestInfraManager {
         appEnv.put("KEYCLOAK_URL", authConfig.keycloakUrl);
         appEnv.put("KEYCLOAK_REALM", authConfig.realm);
         appEnv.put("KEYCLOAK_API_CLIENT_ID", authConfig.clientId);
+        appEnv.put("AMS_SSO_ENABLED", "false");
 
         String tenantManagerAuthEnabledVar = System.getenv(TENANT_MANAGER_AUTH_ENABLED);
         tenantManagerAuthEnabled = tenantManagerAuthEnabledVar != null && tenantManagerAuthEnabledVar.equals("true");
@@ -174,10 +175,9 @@ public class TestInfraManager {
         appEnv.put("REGISTRY_QUOTA_PLANS_CONFIG_FILE", PLANS_CONFIG_FILE);
         appEnv.put("REGISTRY_QUOTA_PLANS_DEFAULT", "basic");
 
+
         appEnv.put("AMS_URL", amsUrl);
-        appEnv.put("SSO_TOKEN_ENDPOINT", authConfig.tokenEndpoint);
-        appEnv.put("SSO_CLIENT_ID", authConfig.clientId);
-        appEnv.put("SSO_CLIENT_SECRET", authConfig.clientSecret);
+
 
         Map<String, String> node1Env = new HashMap<>(appEnv);
         runFleetManager(node1Env, "node-1", fleetManagerPort);

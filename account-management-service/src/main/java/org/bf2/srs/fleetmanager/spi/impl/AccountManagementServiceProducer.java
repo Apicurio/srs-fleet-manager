@@ -28,14 +28,21 @@ public class AccountManagementServiceProducer {
     @ConfigProperty(name = "sso.client-secret")
     String ssoClientSecret;
 
+    @ConfigProperty(name = "sso.enabled")
+    boolean ssoEnabled;
+
     @UnlessBuildProfile("test")
     @Produces
     @ApplicationScoped
     public AccountManagementService produce() {
-
         logger.info("Using Account Management Service with Account Management URL: {}", endpoint);
-
-        final OidcAuth auth = new OidcAuth(ssoTokenEndpoint, ssoClientId, ssoClientSecret);
-        return new AccountManagementServiceImpl(new AccountManagementSystemRestClient(endpoint, Collections.emptyMap(), auth));
+        AccountManagementSystemRestClient restClient;
+        if (ssoEnabled) {
+            final OidcAuth auth = new OidcAuth(ssoTokenEndpoint, ssoClientId, ssoClientSecret);
+            restClient = new AccountManagementSystemRestClient(endpoint, Collections.emptyMap(), auth);
+        } else {
+            restClient = new AccountManagementSystemRestClient(endpoint, Collections.emptyMap(), null);
+        }
+        return new AccountManagementServiceImpl(restClient);
     }
 }

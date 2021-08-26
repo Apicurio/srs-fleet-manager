@@ -17,16 +17,6 @@ public class AmsWireMockServer {
         wireMockServer.start();
 
         wireMockServer.stubFor(WireMock.post(WireMock.urlEqualTo("/api/accounts_mgmt/v1/cluster_authorizations"))
-                .withRequestBody(WireMock.equalToJson("{\"account_username\":\"testUser.openshift\"," +
-                        " \"product_id\":\"rhosr\", " +
-                        "\"managed\":true, " +
-                        "\"byoc\":false, " +
-                        "\"cluster_id\":\"foobar\", " +
-                        "\"cloud_provider_id\":\"aws\", " +
-                        "\"reserve\":true, " +
-                        "\"availability_zone\":\"single\", " +
-                        "\"resources\":[{\"resource_type\":\"cluster.aws\", \"resource_name\":\"rhosr\", \"count\":1}]}")
-                )
                 .willReturn(WireMock.aResponse()
                         .withHeader("Content-Type", "application/json")
                         .withBody(
@@ -50,9 +40,6 @@ public class AmsWireMockServer {
                         )));
 
         wireMockServer.stubFor(WireMock.post(WireMock.urlEqualTo("/api/authorizations/v1/terms_review"))
-                .withRequestBody(WireMock.equalToJson("{\n" +
-                        "  \"account_username\": \"test.account.username\"}")
-                )
                 .willReturn(WireMock.aResponse()
                         .withHeader("Content-Type", "application/json")
                         .withBody(
