@@ -17,8 +17,6 @@ import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.bf2.srs.fleetmanager.rest.RegistriesResourceV1Test.BASE;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Jakub Senko <jsenko@redhat.com>
@@ -43,13 +41,13 @@ public class TestUtil {
 
         Awaitility.await("Registry deleting initiated").atMost(5, SECONDS).pollInterval(1, SECONDS)
                 .until(() -> registries.stream().allMatch(r -> {
-                    var tenant = tms.getTenantById(tmc, TestUtil.getTenantIdFromUrl(r.getRegistryUrl()));
+                    var tenant = tms.getTenantById(tmc, r.getId());
                     return TenantStatus.TO_BE_DELETED.equals(tenant.get().getStatus());
                 }));
 
         registries.forEach(r -> {
             var req = UpdateTenantRequest.builder()
-                    .id(TestUtil.getTenantIdFromUrl(r.getRegistryUrl()))
+                    .id(r.getId())
                     .status(TenantStatus.DELETED)
                     .build();
             tms.updateTenant(tmc, req);
@@ -81,12 +79,5 @@ public class TestUtil {
                 .when().get(BASE + "/" + r.getId())
                 .then().statusCode(HTTP_OK)
                 .extract().as(Registry.class)).collect(Collectors.toList());
-    }
-
-    public static String getTenantIdFromUrl(String registryUrl) {
-        assertNotNull(registryUrl);
-        var tokens = registryUrl.split("/t/");
-        assertEquals(2, tokens.length);
-        return tokens[1];
     }
 }

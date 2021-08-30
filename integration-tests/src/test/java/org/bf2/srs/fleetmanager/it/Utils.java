@@ -18,8 +18,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class Utils {
 
@@ -83,13 +81,6 @@ public class Utils {
         } else {
             return new TenantManagerClientImpl(infra.getTenantManagerUri());
         }
-    }
-
-    public static String getTenantIdFromUrl(String registryUrl) {
-        assertNotNull(registryUrl);
-        var tokens = registryUrl.split("/t/");
-        assertEquals(2, tokens.length);
-        return tokens[1];
     }
 
     @Builder
