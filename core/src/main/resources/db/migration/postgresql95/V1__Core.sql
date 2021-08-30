@@ -1,17 +1,17 @@
--- RegistryDeploymentStatusData
+-- Registry Deployment Status
 
-create table if not exists registrydeploymentstatusdata
+create table if not exists registrydeploymentstatus
 (
     id bigserial not null,
     lastupdated timestamp,
     value varchar(255)
 );
 
-alter table registrydeploymentstatusdata add constraint pk_registrydeploymentstatusdata primary key (id);
+alter table registrydeploymentstatus add constraint pk_registrydeploymentstatus primary key (id);
 
--- RegistryDeploymentData
+-- Registry Deployment
 
-create table if not exists registrydeploymentdata
+create table if not exists registrydeployment
 (
     id bigserial not null,
     name varchar(255),
@@ -20,15 +20,15 @@ create table if not exists registrydeploymentdata
     status_id bigint
 );
 
-alter table registrydeploymentdata add constraint pk_registrydeploymentdata primary key (id);
-alter table registrydeploymentdata add constraint uk_registrydeploymentdata_1 unique (registrydeploymenturl);
-alter table registrydeploymentdata add constraint uk_registrydeploymentdata_2 unique (tenantmanagerurl);
-alter table registrydeploymentdata add constraint uk_registrydeploymentdata_3 unique (name);
-alter table registrydeploymentdata add constraint fk_registrydeploymentdata_1 foreign key (status_id) references registrydeploymentstatusdata (id);
+alter table registrydeployment add constraint pk_registrydeployment primary key (id);
+alter table registrydeployment add constraint uk_registrydeployment_1 unique (registrydeploymenturl);
+alter table registrydeployment add constraint uk_registrydeployment_2 unique (tenantmanagerurl);
+alter table registrydeployment add constraint uk_registrydeployment_3 unique (name);
+alter table registrydeployment add constraint fk_registrydeployment_1 foreign key (status_id) references registrydeploymentstatus (id);
 
--- RegistryData
+-- Registry
 
-create table if not exists registrydata
+create table if not exists registry
 (
     id bigserial not null,
     name varchar(255) not null,
@@ -41,11 +41,12 @@ create table if not exists registrydata
     created_at timestamp,
     updated_at timestamp,
     org_id varchar(255) not null,
-    owner_id bigserial not null
+    owner_id bigserial not null,
+    subscription_id varchar(255)
 );
 
-alter table registrydata add constraint pk_registrydata primary key (id);
-alter table registrydata add constraint uk_registrydata_1 unique (registryurl);
-alter table registrydata add constraint uk_registrydata_2 unique (tenantid);
-alter table registrydata add constraint uk_registrydata_3 unique (org_id, name);
-alter table registrydata add constraint fk_registrydata_1 foreign key (registrydeployment_id) references registrydeploymentdata (id);
+alter table registry add constraint pk_registry primary key (id);
+alter table registry add constraint uk_registry_1 unique (registryurl);
+alter table registry add constraint uk_registry_2 unique (tenantid);
+alter table registry add constraint uk_registry_3 unique (org_id, name);
+alter table registry add constraint fk_registry_1 foreign key (registrydeployment_id) references registrydeployment (id);
