@@ -50,3 +50,8 @@ alter table registry add constraint uk_registry_1 unique (registryurl);
 alter table registry add constraint uk_registry_2 unique (tenantid);
 alter table registry add constraint uk_registry_3 unique (org_id, name);
 alter table registry add constraint fk_registry_1 foreign key (registrydeployment_id) references registrydeployment (id);
+
+create index idx_registry_1 on registry (name);
+create index idx_registry_2 on registry (status);
+create index idx_registry_3 on registry (org_id);
+create index idx_registry_4 on registry (owner_id);
