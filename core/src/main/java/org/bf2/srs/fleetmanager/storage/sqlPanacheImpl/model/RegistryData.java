@@ -24,7 +24,7 @@ import static lombok.AccessLevel.PACKAGE;
  * @author Jakub Senko <jsenko@redhat.com>
  */
 @Entity
-@Table(name = "registrydata")
+@Table(name = "registry")
 @NoArgsConstructor
 @AllArgsConstructor(access = PACKAGE)
 @Builder
