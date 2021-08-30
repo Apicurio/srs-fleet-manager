@@ -29,7 +29,7 @@ import static lombok.AccessLevel.PACKAGE;
  * @author Jakub Senko <jsenko@redhat.com>
  */
 @Entity
-@Table(name = "registrydeploymentstatusdata")
+@Table(name = "registrydeploymentstatus")
 @NoArgsConstructor
 @AllArgsConstructor(access = PACKAGE)
 @Builder
