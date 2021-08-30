@@ -38,11 +38,9 @@ class RegistryDeprovisioningIT extends SRSFleetManagerBaseIT {
 
         Registry registry = FleetManagerApi.getRegistry(createdRegistry1.getId(), alice);
 
-        String registry1TenantId = Utils.getTenantIdFromUrl(registry.getRegistryUrl());
-
         TenantManagerClient tenantManager = Utils.createTenantManagerClient();
 
-        var internalTenant = tenantManager.getTenant(registry1TenantId);
+        var internalTenant = tenantManager.getTenant(registry.getId());
         assertEquals(TenantStatusValue.READY, internalTenant.getStatus());
 
         FleetManagerApi.deleteRegistry(createdRegistry1.getId(), alice);
@@ -51,13 +49,13 @@ class RegistryDeprovisioningIT extends SRSFleetManagerBaseIT {
 
         Awaitility.await("registry1 deleting initiated").atMost(5, SECONDS).pollInterval(1, SECONDS)
                 .until(() -> {
-                    var tenant1 = tenantManager.getTenant(registry1TenantId);
+                    var tenant1 = tenantManager.getTenant(registry.getId());
                     return TenantStatusValue.TO_BE_DELETED.equals(tenant1.getStatus());
                 });
 
         var req = new UpdateRegistryTenantRequest();
         req.setStatus(TenantStatusValue.DELETED);
-        tenantManager.updateTenant(registry1TenantId, req);
+        tenantManager.updateTenant(registry.getId(), req);
 
         Awaitility.await("registry1 deleted").atMost(5, SECONDS).pollInterval(1, SECONDS)
                 .until(() -> {

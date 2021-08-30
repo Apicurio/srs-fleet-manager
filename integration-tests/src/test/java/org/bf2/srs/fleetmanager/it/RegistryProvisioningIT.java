@@ -49,11 +49,9 @@ class RegistryProvisioningIT extends SRSFleetManagerBaseIT {
 
         Registry registry = FleetManagerApi.getRegistry(registry1Result.getId(), alice);
 
-        String internalTenantId = Utils.getTenantIdFromUrl(registry.getRegistryUrl());
-
         TenantManagerClient tenantManager = Utils.createTenantManagerClient();
 
-        var internalTenant = tenantManager.getTenant(internalTenantId);
+        var internalTenant = tenantManager.getTenant(registry.getId());
 
         var resources = internalTenant.getResources();
 
@@ -129,14 +127,13 @@ class RegistryProvisioningIT extends SRSFleetManagerBaseIT {
 
         // Wait until we have the Registry URL
         aliceRegistry1 = Utils.waitForReady(aliceRegistry1, rhadmin);
-        var aliceRegistry1Tid = Utils.getTenantIdFromUrl(aliceRegistry1.getRegistryUrl());
 
         //org admin can delete registry owned by another user in the same org
         FleetManagerApi.deleteRegistry(aliceRegistry1.getId(), rhadmin);
 
         var tenantManager = Utils.createTenantManagerClient();
         Utils.waitForDeletion(tenantManager, List.of(
-                TenantInfo.builder().registryId(aliceRegistry1.getId()).tenantId(aliceRegistry1Tid).accountInfo(rhadmin).build()
+                TenantInfo.builder().registryId(aliceRegistry1.getId()).tenantId(aliceRegistry1.getId()).accountInfo(rhadmin).build()
         ));
 
         aliceView = FleetManagerApi.listRegistries(alice).stream().map(Registry::getId).collect(Collectors.toList());
@@ -147,13 +144,12 @@ class RegistryProvisioningIT extends SRSFleetManagerBaseIT {
 
         // Wait until we have the Registry URL
         aliceRegistry2 = Utils.waitForReady(aliceRegistry2, alice);
-        var aliceRegistry2Tid = Utils.getTenantIdFromUrl(aliceRegistry2.getRegistryUrl());
 
         //user can delete registry owned by himself
         FleetManagerApi.deleteRegistry(aliceRegistry2.getId(), alice);
 
         Utils.waitForDeletion(tenantManager, List.of(
-                TenantInfo.builder().registryId(aliceRegistry2.getId()).tenantId(aliceRegistry2Tid).accountInfo(alice).build()
+                TenantInfo.builder().registryId(aliceRegistry2.getId()).tenantId(aliceRegistry2.getId()).accountInfo(alice).build()
         ));
 
         aliceView = FleetManagerApi.listRegistries(alice).stream().map(Registry::getId).collect(Collectors.toList());
