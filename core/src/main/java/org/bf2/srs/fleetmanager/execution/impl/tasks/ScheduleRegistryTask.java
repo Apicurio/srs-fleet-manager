@@ -12,10 +12,10 @@ import static org.bf2.srs.fleetmanager.execution.impl.tasks.TaskType.SCHEDULE_RE
 @ToString(callSuper = true)
 public class ScheduleRegistryTask extends AbstractTask {
 
-    private long registryId;
+    private String registryId;
 
     @Builder
-    public ScheduleRegistryTask(long registryId) {
+    public ScheduleRegistryTask(String registryId) {
         super(SCHEDULE_REGISTRY_T);
         this.registryId = registryId;
     }

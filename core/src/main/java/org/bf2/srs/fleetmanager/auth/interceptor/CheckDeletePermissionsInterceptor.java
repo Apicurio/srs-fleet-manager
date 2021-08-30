@@ -40,7 +40,7 @@ public class CheckDeletePermissionsInterceptor {
     public Object intercept(InvocationContext context) throws Exception {
         if (isResolvable(securityIdentity)) {
             final AccountInfo accountInfo = authService.extractAccountInfo();
-            final Optional<RegistryData> registry = storage.getRegistryById(Long.parseLong(context.getParameters()[0].toString()));
+            final Optional<RegistryData> registry = storage.getRegistryById(context.getParameters()[0].toString());
             if (userCanDeleteInstance(accountInfo, registry)) {
                 return context.proceed();
             }

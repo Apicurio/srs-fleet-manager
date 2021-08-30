@@ -13,13 +13,13 @@ import static org.bf2.srs.fleetmanager.execution.impl.tasks.TaskType.PROVISION_R
 @ToString(callSuper = true)
 public class ProvisionRegistryTenantTask extends AbstractTask {
 
-    private long registryId;
+    private String registryId;
 
     @Setter
     private String registryTenantId;
 
     @Builder
-    public ProvisionRegistryTenantTask(long registryId) {
+    public ProvisionRegistryTenantTask(String registryId) {
         super(PROVISION_REGISTRY_TENANT_T);
         this.registryId = registryId;
     }

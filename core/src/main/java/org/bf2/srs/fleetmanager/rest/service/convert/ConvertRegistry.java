@@ -21,7 +21,7 @@ public class ConvertRegistry {
 
     public RegistryDto convert(@Valid @NotNull RegistryData registry) {
         return RegistryDto.builder()
-                .id(registry.getId().toString())
+                .id(registry.getId())
                 .name(registry.getName())
                 .registryUrl(registry.getRegistryUrl())
                 .owner(registry.getOwner())

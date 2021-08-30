@@ -63,7 +63,7 @@ public class RegistryHeartbeatWorker extends AbstractWorker {
                 case PROVISIONING:
                 case READY: {
                     var tmc = Utils.createTenantManagerConfig(registry.getRegistryDeployment());
-                    boolean isAvailable = tms.pingTenant(tmc, registry.getTenantId());
+                    boolean isAvailable = tms.pingTenant(tmc, registry.getId());
 
                     if (isAvailable) {
                         registry.setStatus(READY.value());

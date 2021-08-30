@@ -13,16 +13,16 @@ import org.bf2.srs.fleetmanager.execution.impl.tasks.deprovision.StartDeprovisio
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.rest.service.RegistryService;
 import org.bf2.srs.fleetmanager.rest.service.convert.ConvertRegistry;
-import org.bf2.srs.fleetmanager.rest.service.model.RegistryDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryCreateDto;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryListDto;
 import org.bf2.srs.fleetmanager.spi.AccountManagementService;
 import org.bf2.srs.fleetmanager.spi.ResourceLimitReachedException;
 import org.bf2.srs.fleetmanager.spi.TermsRequiredException;
 import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
-import org.bf2.srs.fleetmanager.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
+import org.bf2.srs.fleetmanager.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.PanacheRegistryRepository;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
 import org.bf2.srs.fleetmanager.util.BasicQuery;
@@ -75,6 +75,8 @@ public class RegistryServiceImpl implements RegistryService {
         final AccountInfo accountInfo = authService.extractAccountInfo();
         String subscriptionId = accountManagementService.createResource(accountInfo, "cluster.aws", UUID.randomUUID().toString(), productId);
         RegistryData registryData = convertRegistry.convert(registryCreate, subscriptionId, accountInfo.getAccountUsername(), accountInfo.getOrganizationId(), accountInfo.getAccountId());
+        // Generate the ID
+        registryData.setId(UUID.randomUUID().toString());
         storage.createOrUpdateRegistry(registryData);
         tasks.submit(ScheduleRegistryTask.builder().registryId(registryData.getId()).build());
         return convertRegistry.convert(registryData);
@@ -135,10 +137,9 @@ public class RegistryServiceImpl implements RegistryService {
     @CheckReadPermissions
     public RegistryDto getRegistry(String registryId) throws RegistryNotFoundException {
         try {
-            long id = Long.parseLong(registryId);
-            return storage.getRegistryById(id)
+            return storage.getRegistryById(registryId)
                     .map(convertRegistry::convert)
-                    .orElseThrow(() -> new RegistryNotFoundException(id));
+                    .orElseThrow(() -> new RegistryNotFoundException(registryId));
         } catch (NumberFormatException ex) {
             throw new RegistryNotFoundException(registryId);
         }
@@ -149,9 +150,8 @@ public class RegistryServiceImpl implements RegistryService {
     public void deleteRegistry(String registryId) throws RegistryNotFoundException, RegistryStorageConflictException {
         try {
             // Verify preconditions - Registry exists
-            long id = Long.parseLong(registryId);
-            storage.getRegistryById(id).orElseThrow(() -> new RegistryNotFoundException(registryId));
-            tasks.submit(StartDeprovisionRegistryTask.builder().registryId(id).build());
+            storage.getRegistryById(registryId).orElseThrow(() -> new RegistryNotFoundException(registryId));
+            tasks.submit(StartDeprovisionRegistryTask.builder().registryId(registryId).build());
         } catch (NumberFormatException ex) {
             throw new RegistryNotFoundException(registryId);
         }
