@@ -52,7 +52,7 @@ public class Convert {
         Registry res = new Registry();
         res.setId(data.getId());
         res.setKind(data.getKind());
-        res.setHref("");
+        res.setHref(data.getHref());
         res.setRegistryUrl(data.getRegistryUrl());
         res.setName(data.getName());
         res.setRegistryDeploymentId(Optional.ofNullable(data.getRegistryDeploymentId())
