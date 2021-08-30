@@ -30,10 +30,9 @@ alter table registrydeployment add constraint fk_registrydeployment_1 foreign ke
 
 create table if not exists registry
 (
-    id bigserial not null,
+    id varchar(255) not null,
     name varchar(255) not null,
     registryurl varchar(255),
-    tenantid varchar(255),
     registrydeployment_id bigint,
     description varchar(255),
     status varchar(255),
@@ -47,8 +46,7 @@ create table if not exists registry
 
 alter table registry add constraint pk_registry primary key (id);
 alter table registry add constraint uk_registry_1 unique (registryurl);
-alter table registry add constraint uk_registry_2 unique (tenantid);
-alter table registry add constraint uk_registry_3 unique (org_id, name);
+alter table registry add constraint uk_registry_2 unique (org_id, name);
 alter table registry add constraint fk_registry_1 foreign key (registrydeployment_id) references registrydeployment (id);
 
 create index idx_registry_1 on registry (name);
