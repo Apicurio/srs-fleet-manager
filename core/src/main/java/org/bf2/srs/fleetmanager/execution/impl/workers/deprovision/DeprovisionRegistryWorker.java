@@ -63,7 +63,7 @@ public class DeprovisionRegistryWorker extends AbstractWorker {
 
             // FAILURE POINT 2
             if (task.getRegistryTenantId() == null) {
-                final var tenantId = registry.getTenantId();
+                final var tenantId = registry.getId();
                 TenantManagerConfig tenantManagerConfig = Utils.createTenantManagerConfig(registryDeployment);
                 tms.deleteTenant(tenantManagerConfig, tenantId);
                 task.setRegistryTenantId(tenantId);

@@ -14,13 +14,13 @@ import static org.bf2.srs.fleetmanager.execution.impl.tasks.TaskType.START_DEPRO
 @ToString(callSuper = true)
 public class StartDeprovisionRegistryTask extends AbstractTask {
 
-    private long registryId;
+    private String registryId;
 
     @Setter
     private String registryTenantId;
 
     @Builder
-    public StartDeprovisionRegistryTask(long registryId) {
+    public StartDeprovisionRegistryTask(String registryId) {
         super(START_DEPROVISION_REGISTRY_T);
         this.registryId = registryId;
     }

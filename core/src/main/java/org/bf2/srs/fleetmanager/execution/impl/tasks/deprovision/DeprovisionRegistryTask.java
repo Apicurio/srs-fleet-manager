@@ -14,7 +14,7 @@ import static org.bf2.srs.fleetmanager.execution.impl.tasks.TaskType.DEPROVISION
 @ToString(callSuper = true)
 public class DeprovisionRegistryTask extends AbstractTask {
 
-    private long registryId;
+    private String registryId;
 
     @Setter
     private String registryTenantId;
@@ -23,7 +23,7 @@ public class DeprovisionRegistryTask extends AbstractTask {
     private boolean amsSuccess = false;
 
     @Builder
-    public DeprovisionRegistryTask(long registryId) {
+    public DeprovisionRegistryTask(String registryId) {
         super(DEPROVISION_REGISTRY_T);
         this.registryId = registryId;
     }

@@ -11,12 +11,10 @@ import lombok.ToString;
 import java.time.Instant;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 
 import static lombok.AccessLevel.PACKAGE;
 
@@ -35,13 +33,14 @@ import static lombok.AccessLevel.PACKAGE;
 public class RegistryData {
 
     /**
-     * (Optional when new)
+     * (Required)
+     *
+     * MUST be generated on insert.
      */
     @Id
-    @GeneratedValue
-    @Column(name = "id")
+    @Column(name = "id", nullable = false)
     @EqualsAndHashCode.Include
-    private Long id;
+    private String id;
 
     /**
      * (Optional)
@@ -54,12 +53,6 @@ public class RegistryData {
      */
     @Column(name = "registryurl", unique = true)
     private String registryUrl;
-
-    /**
-     * (Optional*)
-     */
-    @Column(name = "tenantid", unique = true)
-    private String tenantId;
 
     /**
      * (Optional*)

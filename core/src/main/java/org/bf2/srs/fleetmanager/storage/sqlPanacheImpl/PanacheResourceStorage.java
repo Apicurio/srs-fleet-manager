@@ -66,7 +66,7 @@ public class PanacheResourceStorage implements ResourceStorage {
     }
 
     @Override
-    public Optional<RegistryData> getRegistryById(Long id) {
+    public Optional<RegistryData> getRegistryById(String id) {
         requireNonNull(id);
         return ofNullable(registryRepository.findById(id));
     }
@@ -77,7 +77,7 @@ public class PanacheResourceStorage implements ResourceStorage {
     }
 
     @Override
-    public void deleteRegistry(Long id) throws RegistryNotFoundException, RegistryStorageConflictException {
+    public void deleteRegistry(String id) throws RegistryNotFoundException, RegistryStorageConflictException {
         RegistryData registry = getRegistryById(id)
                 .orElseThrow(() -> new RegistryNotFoundException(id));
         try {

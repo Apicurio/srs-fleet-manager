@@ -2,7 +2,6 @@ package org.bf2.srs.fleetmanager.execution.impl.workers;
 
 import org.bf2.srs.fleetmanager.execution.impl.tasks.ProvisionRegistryTenantTask;
 import org.bf2.srs.fleetmanager.execution.manager.Task;
-import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
 import org.bf2.srs.fleetmanager.service.QuotaPlansService;
@@ -18,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
-import java.util.UUID;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -41,9 +39,6 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
 
     @Inject
     TenantManagerService tmClient;
-
-    @Inject
-    TaskManager tasks;
 
     @Inject
     QuotaPlansService plansService;
@@ -77,25 +72,18 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
             ctl.retry();
         }
 
-        // Avoid accidentally creating orphan tenants
-        if (task.getRegistryTenantId() == null) {
-            registry.setTenantId(UUID.randomUUID().toString());
-        } else {
-            registry.setTenantId(task.getRegistryTenantId());
-        }
-
         String registryUrl = registryDeployment.getRegistryDeploymentUrl();
         if (!registryUrl.endsWith("/")) {
             registryUrl += "/";
         }
-        registryUrl += "t/" + registry.getTenantId();
+        registryUrl += "t/" + registry.getId();
         registry.setRegistryUrl(registryUrl);
 
         // Avoid accidentally creating orphan tenants
         if (task.getRegistryTenantId() == null) {
 
             CreateTenantRequest tenantRequest = CreateTenantRequest.builder()
-                    .tenantId(registry.getTenantId())
+                    .tenantId(registry.getId())
                     .createdBy(registry.getOwner())
                     .organizationId(registry.getOrgId())
                     .resources(plansService.getDefaultQuotaPlan().getResources())
@@ -106,7 +94,7 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
             // NOTE: Failure point 4
             tmClient.createTenant(tenantManager, tenantRequest);
 
-            task.setRegistryTenantId(registry.getTenantId());
+            task.setRegistryTenantId(registry.getId());
         }
 
         // NOTE: Failure point 5
@@ -131,14 +119,14 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
             registryDeployment = registry.getRegistryDeployment();
 
         // SUCCESS STATE
-        if (registry != null && registry.getTenantId() != null)
+        if (registry != null && registry.getRegistryUrl() != null)
             return;
 
         // Handle failures in "reverse" order
 
         // Cleanup orphan tenant
         if (registry != null && registryDeployment != null && task.getRegistryTenantId() != null) {
-            tmClient.deleteTenant(Utils.createTenantManagerConfig(registryDeployment), registry.getTenantId());
+            tmClient.deleteTenant(Utils.createTenantManagerConfig(registryDeployment), registry.getId());
         }
 
         // Remove registry entity

@@ -18,11 +18,11 @@ public interface ResourceStorage {
 
     boolean createOrUpdateRegistry(@Valid RegistryData registry) throws RegistryStorageConflictException;
 
-    Optional<RegistryData> getRegistryById(@NotNull Long id);
+    Optional<RegistryData> getRegistryById(@NotNull String id);
 
     List<RegistryData> getAllRegistries();
 
-    void deleteRegistry(@NotNull Long id) throws RegistryNotFoundException, RegistryStorageConflictException;
+    void deleteRegistry(@NotNull String id) throws RegistryNotFoundException, RegistryStorageConflictException;
 
     //*** RegistryDeployment
 
