@@ -209,15 +209,15 @@ objects:
                 name: ${TENANT_MANAGER_AUTH_SECRET_NAME}
                 key: client-secret
           - name: FLEET_MANAGER_AUTH_CLIENT_ID
-              valueFrom:
-                secretKeyRef:
-                  name: ${FLEET_MANAGER_AUTH_SECRET_NAME}
-                  key: client-id
+            valueFrom:
+              secretKeyRef:
+                name: ${FLEET_MANAGER_AUTH_SECRET_NAME}
+                key: client-id
           - name: FLEET_MANAGER_AUTH_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: ${FLEET_MANAGER_AUTH_SECRET_NAME}
-                  key: client-secret
+            valueFrom:
+              secretKeyRef:
+                name: ${FLEET_MANAGER_AUTH_SECRET_NAME}
+                key: client-secret
           - name: REGISTRY_DEPLOYMENTS_CONFIG_FILE
             value: /config/registry-deployments.yaml
             #workaround for schema updates
@@ -228,7 +228,10 @@ objects:
             value: /config/quota-plans.yaml
           - name: REGISTRY_QUOTA_PLANS_DEFAULT
             value: ${REGISTRY_QUOTA_PLANS_DEFAULT}
-
+          - name: AMS_URL
+            value: ${AMS_URL}
+          - name: SSO_TOKEN_ENDPOINT
+            value: ${SSO_TOKEN_ENDPOINT}
           livenessProbe:
             failureThreshold: 3
             httpGet:
