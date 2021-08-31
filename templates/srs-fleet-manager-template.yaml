@@ -403,3 +403,8 @@ parameters:
 - name: REGISTRY_QUOTA_PLANS_DEFAULT
   description: Default quota plan to apply registries
   value: basic
+
+- name: AMS_URL
+  value: "http://localhost:8091"
+- name: SSO_TOKEN_ENDPOINT
+  value: "http://localhost:8090"
