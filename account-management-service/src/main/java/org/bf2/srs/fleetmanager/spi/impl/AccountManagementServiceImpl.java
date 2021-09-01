@@ -17,7 +17,11 @@ import java.util.Collections;
  */
 public class AccountManagementServiceImpl implements AccountManagementService {
 
-    private final AccountManagementSystemRestClient restClient;
+	// FIXME make these configurable?
+    private static final String MAS_SITE_CODE = "ocm";
+	private static final String MAS_EVENT_CODE = "onlineService";
+	
+	private final AccountManagementSystemRestClient restClient;
 
     public AccountManagementServiceImpl(AccountManagementSystemRestClient restClient) {
         this.restClient = restClient;
@@ -29,6 +33,9 @@ public class AccountManagementServiceImpl implements AccountManagementService {
         boolean termsAccepted;
         final TermsReview termsReview = new TermsReview();
         termsReview.setAccountUsername(accountInfo.getAccountUsername());
+        termsReview.setEventCode(MAS_EVENT_CODE);
+        termsReview.setSiteCode(MAS_SITE_CODE);
+        
         final ResponseTermsReview responseTermsReview = restClient.termsReview(termsReview);
         termsAccepted = !responseTermsReview.getTermsRequired();
 
