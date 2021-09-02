@@ -1,6 +1,7 @@
 package org.bf2.srs.fleetmanager.common.errors;
 
 import lombok.Getter;
+import lombok.ToString;
 
 import java.util.Collections;
 import java.util.SortedMap;
@@ -16,6 +17,7 @@ import java.util.TreeMap;
  *
  * @author Jakub Senko <jsenko@redhat.com>
  */
+@ToString
 public enum UserErrorCode {
 
     ERROR_UNKNOWN(1, "Unspecified error", 0),
