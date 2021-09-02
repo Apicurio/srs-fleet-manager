@@ -5,6 +5,8 @@ import org.bf2.srs.fleetmanager.rest.service.ErrorNotFoundException;
 import org.bf2.srs.fleetmanager.rest.service.ErrorService;
 import org.bf2.srs.fleetmanager.rest.service.model.ErrorDto;
 import org.bf2.srs.fleetmanager.rest.service.model.ErrorListDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -17,8 +19,14 @@ import javax.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class ErrorServiceImpl implements ErrorService {
 
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
     @Override
     public ErrorListDto getErrors(Integer page, Integer size) {
+        page = (page != null) ? page : 1;
+        size = (size != null) ? size : 10;
+        log.debug("Loading errors. page='{}' size='{}'", page, size);
+        log.debug("subMap: {}", UserErrorCode.getValueMap().subMap((page - 1) * size + 1, page + size).values());
         var items = UserErrorCode.getValueMap().subMap((page - 1) * size + 1, page + size).values().stream().map(
                 uec -> ErrorDto.builder()
                         .id(Integer.toString(uec.getId()))

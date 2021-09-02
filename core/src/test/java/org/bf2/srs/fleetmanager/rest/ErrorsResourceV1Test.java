@@ -48,6 +48,11 @@ public class ErrorsResourceV1Test {
     void testGetErrors() {
 
         var errorList = given().log().all()
+                .when().contentType(ContentType.JSON).get(BASE)
+                .then().statusCode(HTTP_OK)
+                .extract().as(ErrorList.class);
+
+        errorList = given().log().all()
                 .when().contentType(ContentType.JSON).get(BASE + "?page={page}&size={size}", 1, UserErrorCode.getValueMap().size() * 2)
                 .then().statusCode(HTTP_OK)
                 .extract().as(ErrorList.class);
