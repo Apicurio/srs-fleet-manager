@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
 import javax.transaction.Transactional;
 
@@ -41,13 +42,15 @@ public class PanacheResourceStorage implements ResourceStorage {
     @Inject
     PanacheRegistryDeploymentRepository deploymentRepository;
 
+    @Inject
+    EntityManager em;
+
     @Override
     public boolean createOrUpdateRegistry(RegistryData registry) throws RegistryStorageConflictException {
         requireNonNull(registry);
         Optional<RegistryData> existing = empty();
         if (registry.getId() != null) {
             //TODO investigate using locks, such as optimistic locks
-            //why optional? if the entity comes with an id, the row have to exists, otherwise throw an exception
             existing = registryRepository.findByIdOptional(registry.getId());
         }
         try {
@@ -60,6 +63,8 @@ public class PanacheResourceStorage implements ResourceStorage {
         } catch (PersistenceException ex) {
             if (ex.getCause() instanceof ConstraintViolationException) {
                 throw new RegistryStorageConflictException();
+            } else {
+                throw ex;
             }
         }
         return existing.isEmpty();
@@ -85,6 +90,8 @@ public class PanacheResourceStorage implements ResourceStorage {
         } catch (PersistenceException ex) {
             if (ex.getCause() instanceof ConstraintViolationException) {
                 throw new RegistryStorageConflictException();
+            } else {
+                throw ex;
             }
         }
     }
@@ -92,21 +99,32 @@ public class PanacheResourceStorage implements ResourceStorage {
     //*** RegistryDeployment
 
     @Override
-    public boolean createOrUpdateRegistryDeployment(RegistryDeploymentData deployment) throws RegistryDeploymentStorageConflictException {
+    public boolean createOrUpdateRegistryDeployment(RegistryDeploymentData deployment) throws RegistryDeploymentStorageConflictException, RegistryDeploymentNotFoundException {
         requireNonNull(deployment); // TODO Is this necessary if using @Valid?
         Optional<RegistryDeploymentData> existing = empty();
         if (deployment.getId() != null) {
             //TODO investigate using locks, such as optimistic locks
-            //why optional? if the entity comes with an id, the row have to exists, otherwise throw an exception
             existing = deploymentRepository.findByIdOptional(deployment.getId());
+            if (existing.isEmpty()) {
+                throw new RegistryDeploymentNotFoundException(deployment.getId().toString());
+            }
         }
         try {
             final Instant now = Instant.now();
             deployment.getStatus().setLastUpdated(now);
-            deploymentRepository.persistAndFlush(deployment);
+
+            if (existing.isEmpty()) {
+                deploymentRepository.persistAndFlush(deployment);
+            } else {
+                em.merge(deployment);
+                em.flush();
+            }
+
         } catch (PersistenceException ex) {
             if (ex.getCause() instanceof ConstraintViolationException) {
                 throw new RegistryDeploymentStorageConflictException();
+            } else {
+                throw ex;
             }
         }
         return existing.isEmpty();
@@ -132,6 +150,8 @@ public class PanacheResourceStorage implements ResourceStorage {
         } catch (PersistenceException ex) {
             if (ex.getCause() instanceof ConstraintViolationException) {
                 throw new RegistryDeploymentStorageConflictException();
+            } else {
+                throw ex;
             }
         }
     }

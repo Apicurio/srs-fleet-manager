@@ -5,6 +5,7 @@ import org.bf2.srs.fleetmanager.execution.manager.Task;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentStatusValue;
 import org.bf2.srs.fleetmanager.spi.TenantManagerService;
+import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
 import org.bf2.srs.fleetmanager.storage.RegistryDeploymentStorageConflictException;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
 import org.slf4j.Logger;
@@ -46,7 +47,7 @@ public class RegistryDeploymentHeartbeatWorker extends AbstractWorker {
 
     @Transactional
     @Override
-    public void execute(Task aTask, WorkerContext ctl) throws RegistryDeploymentStorageConflictException {
+    public void execute(Task aTask, WorkerContext ctl) throws RegistryDeploymentStorageConflictException, RegistryDeploymentNotFoundException {
         var task = (RegistryDeploymentHeartbeatTask) aTask;
         var deploymentOptional = storage.getRegistryDeploymentById(task.getDeploymentId());
         if (deploymentOptional.isPresent()) {
