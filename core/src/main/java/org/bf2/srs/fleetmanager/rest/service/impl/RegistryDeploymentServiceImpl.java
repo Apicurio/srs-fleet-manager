@@ -54,7 +54,7 @@ public class RegistryDeploymentServiceImpl implements RegistryDeploymentService 
     Optional<File> deploymentsConfigFile;
 
     @Override
-    public void init() throws IOException, RegistryDeploymentStorageConflictException {
+    public void init() throws IOException, RegistryDeploymentStorageConflictException, RegistryDeploymentNotFoundException {
 
         if (deploymentsConfigFile.isEmpty()) {
             return;
@@ -95,9 +95,8 @@ public class RegistryDeploymentServiceImpl implements RegistryDeploymentService 
                 //deployment is new
                 deploymentData = convertRegistryDeployment.convert(dep);
             } else {
-                RegistryDeploymentData configured = convertRegistryDeployment.convert(dep);
-                if (deploymentData.getRegistryDeploymentUrl().equals(configured.getRegistryDeploymentUrl())
-                        && deploymentData.getTenantManagerUrl().equals(configured.getTenantManagerUrl())) {
+                if (deploymentData.getRegistryDeploymentUrl().equals(dep.getRegistryDeploymentUrl())
+                        && deploymentData.getTenantManagerUrl().equals(dep.getTenantManagerUrl())) {
                     //no changes in the deployment
                     continue;
                 }
@@ -116,11 +115,16 @@ public class RegistryDeploymentServiceImpl implements RegistryDeploymentService 
             throw new ForbiddenException();
         }
         RegistryDeploymentData deployment = convertRegistryDeployment.convert(deploymentCreate);
-        createOrUpdateRegistryDeployment(deployment);
+        try {
+            createOrUpdateRegistryDeployment(deployment);
+        } catch (RegistryDeploymentNotFoundException e) {
+            log.error("Unexpected error", e);
+            throw new RegistryDeploymentStorageConflictException();
+        }
         return convertRegistryDeployment.convert(deployment);
     }
 
-    private void createOrUpdateRegistryDeployment(RegistryDeploymentData deployment) throws RegistryDeploymentStorageConflictException {
+    private void createOrUpdateRegistryDeployment(RegistryDeploymentData deployment) throws RegistryDeploymentStorageConflictException, RegistryDeploymentNotFoundException {
         deployment.getStatus().setValue(RegistryDeploymentStatusValue.AVAILABLE.value());
         storage.createOrUpdateRegistryDeployment(deployment);
         // TODO This task is (temporarily) not used. Enable when needed.

@@ -14,7 +14,7 @@ import javax.validation.Valid;
  */
 public interface RegistryDeploymentService {
 
-    void init() throws IOException, RegistryDeploymentStorageConflictException;
+    void init() throws IOException, RegistryDeploymentStorageConflictException, RegistryDeploymentNotFoundException;
 
     List<RegistryDeployment> getRegistryDeployments();
 

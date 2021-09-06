@@ -26,7 +26,7 @@ public interface ResourceStorage {
 
     //*** RegistryDeployment
 
-    boolean createOrUpdateRegistryDeployment(@Valid RegistryDeploymentData rd) throws RegistryDeploymentStorageConflictException;
+    boolean createOrUpdateRegistryDeployment(@Valid RegistryDeploymentData rd) throws RegistryDeploymentStorageConflictException, RegistryDeploymentNotFoundException;
 
     List<RegistryDeploymentData> getAllRegistryDeployments();
 
