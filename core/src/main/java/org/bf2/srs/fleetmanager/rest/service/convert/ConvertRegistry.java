@@ -2,6 +2,7 @@ package org.bf2.srs.fleetmanager.rest.service.convert;
 
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryCreateDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDto;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryInstanceTypeValueDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentData;
@@ -31,10 +32,12 @@ public class ConvertRegistry {
                 .createdAt(registry.getCreatedAt())
                 .updatedAt(registry.getUpdatedAt())
                 .description(registry.getDescription())
+                .instanceType(RegistryInstanceTypeValueDto.of(registry.getInstanceType()))
                 .build();
     }
 
-    public RegistryData convert(@Valid @NotNull RegistryCreateDto registryCreate, String subscriptionId, String owner, String orgId, Long ownerId) {
+    public RegistryData convert(@Valid @NotNull RegistryCreateDto registryCreate,
+                                String subscriptionId, String owner, String orgId, Long ownerId, RegistryInstanceTypeValueDto instanceType) {
         requireNonNull(registryCreate);
         return RegistryData.builder()
                 .name(registryCreate.getName())
@@ -44,6 +47,7 @@ public class ConvertRegistry {
                 .orgId(orgId)
                 .status(RegistryStatusValueDto.ACCEPTED.value())
                 .subscriptionId(subscriptionId)
+                .instanceType(instanceType.value())
                 .build();
     }
 }
