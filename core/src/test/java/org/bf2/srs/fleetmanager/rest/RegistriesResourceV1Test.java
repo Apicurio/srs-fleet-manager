@@ -23,9 +23,7 @@ import static org.bf2.srs.fleetmanager.util.TestUtil.delay;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Jakub Senko <jsenko@redhat.com>
@@ -101,8 +99,8 @@ public class RegistriesResourceV1Test {
         });
 
         TestUtil.waitForDeletion(tms, TenantManagerConfig.builder()
-                .tenantManagerUrl(deployment.getTenantManagerUrl())
-                .registryDeploymentUrl(deployment.getRegistryDeploymentUrl()).build(),
+                        .tenantManagerUrl(deployment.getTenantManagerUrl())
+                        .registryDeploymentUrl(deployment.getRegistryDeploymentUrl()).build(),
                 registries);
 
         given()
@@ -238,8 +236,9 @@ public class RegistriesResourceV1Test {
             assertEquals(reg.getHref(), apiReg.getHref());
             assertEquals(reg.getId(), apiReg.getId());
             assertEquals(reg.getKind(), apiReg.getKind());
+            assertTrue(List.of("standard", "eval").contains(reg.getInstanceType().value()));
             // The status could've changed at this point
-            if(apiReg.getStatus() == RegistryStatusValue.provisioning) {
+            if (apiReg.getStatus() == RegistryStatusValue.provisioning) {
                 assertEquals(reg.getRegistryUrl() /* null */, apiReg.getRegistryUrl());
             } else {
                 assertEquals(RegistryStatusValue.ready, apiReg.getStatus());
@@ -247,12 +246,12 @@ public class RegistriesResourceV1Test {
             }
 
             var list = given()
-                .when()
+                    .when()
                     .queryParam("search", "name = " + reg.getName())
                     .get(BASE)
-                .then().statusCode(HTTP_OK)
-                .log().all()
-                .extract().as(RegistryList.class);
+                    .then().statusCode(HTTP_OK)
+                    .log().all()
+                    .extract().as(RegistryList.class);
             assertEquals(1, list.getTotal());
             assertNotNull(list.getItems().get(0));
             assertEquals(reg.getName(), list.getItems().get(0).getName());
@@ -264,8 +263,9 @@ public class RegistriesResourceV1Test {
             assertEquals(reg.getHref(), list.getItems().get(0).getHref());
             assertEquals(reg.getId(), list.getItems().get(0).getId());
             assertEquals(reg.getKind(), list.getItems().get(0).getKind());
+            assertEquals(reg.getInstanceType(), list.getItems().get(0).getInstanceType());
             // The status could've changed at this point
-            if(list.getItems().get(0).getStatus() == RegistryStatusValue.provisioning) {
+            if (list.getItems().get(0).getStatus() == RegistryStatusValue.provisioning) {
                 assertEquals(reg.getRegistryUrl() /* null */, list.getItems().get(0).getRegistryUrl());
             } else {
                 assertEquals(RegistryStatusValue.ready, list.getItems().get(0).getStatus());
