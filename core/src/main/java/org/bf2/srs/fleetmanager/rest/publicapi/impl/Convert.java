@@ -4,12 +4,14 @@ import org.bf2.srs.fleetmanager.rest.publicapi.beans.Error;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.ErrorList;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.Registry;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreate;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryInstanceTypeValue;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryList;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValue;
 import org.bf2.srs.fleetmanager.rest.service.model.ErrorDto;
 import org.bf2.srs.fleetmanager.rest.service.model.ErrorListDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryCreateDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDto;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryInstanceTypeValueDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryListDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
 
@@ -48,6 +50,10 @@ public class Convert {
         }
     }
 
+    public RegistryInstanceTypeValue convert(RegistryInstanceTypeValueDto data) {
+        return RegistryInstanceTypeValue.fromValue(data.value());
+    }
+
     public Registry convert(RegistryDto data) {
         Registry res = new Registry();
         res.setId(data.getId());
@@ -62,6 +68,7 @@ public class Convert {
         res.setCreatedAt(convert(data.getCreatedAt()));
         res.setUpdatedAt(convert(data.getUpdatedAt()));
         res.setDescription(data.getDescription());
+        res.setInstanceType(convert(data.getInstanceType()));
         return res;
     }
 

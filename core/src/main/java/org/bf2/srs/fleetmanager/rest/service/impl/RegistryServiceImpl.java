@@ -15,6 +15,7 @@ import org.bf2.srs.fleetmanager.rest.service.RegistryService;
 import org.bf2.srs.fleetmanager.rest.service.convert.ConvertRegistry;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryCreateDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDto;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryInstanceTypeValueDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryListDto;
 import org.bf2.srs.fleetmanager.spi.AccountManagementService;
 import org.bf2.srs.fleetmanager.spi.ResourceLimitReachedException;
@@ -74,7 +75,15 @@ public class RegistryServiceImpl implements RegistryService {
             throws RegistryStorageConflictException, TermsRequiredException, ResourceLimitReachedException {
         final AccountInfo accountInfo = authService.extractAccountInfo();
         String subscriptionId = accountManagementService.createResource(accountInfo, "cluster.aws", UUID.randomUUID().toString(), productId);
-        RegistryData registryData = convertRegistry.convert(registryCreate, subscriptionId, accountInfo.getAccountUsername(), accountInfo.getOrganizationId(), accountInfo.getAccountId());
+        /*
+         * TODO Select instance type here
+         *  - Determine type
+         *  - Determine if trial instance is available
+         *  - Update data in AMS
+         */
+        var instanceType = RegistryInstanceTypeValueDto.STANDARD;
+        RegistryData registryData = convertRegistry.convert(registryCreate, subscriptionId, accountInfo.getAccountUsername(),
+                accountInfo.getOrganizationId(), accountInfo.getAccountId(), instanceType);
         // Generate the ID
         registryData.setId(UUID.randomUUID().toString());
         storage.createOrUpdateRegistry(registryData);

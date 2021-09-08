@@ -123,6 +123,7 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
             return;
 
         // Handle failures in "reverse" order
+        // TODO In case of failure, return resource to AMS!
 
         // Cleanup orphan tenant
         if (registry != null && registryDeployment != null && task.getRegistryTenantId() != null) {
