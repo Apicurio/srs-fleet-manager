@@ -28,7 +28,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "owner",
     "description",
     "created_at",
-    "updated_at"
+    "updated_at",
+    "instance_type"
 })
 @Generated("jsonschema2pojo")
 public class Registry {
@@ -113,6 +114,17 @@ public class Registry {
     @JsonProperty("updated_at")
     @JsonPropertyDescription("ISO 8601 UTC timestamp.")
     private Date updatedAt;
+    /**
+     * "standard": Standard, full-featured Registry instance
+     * 
+     * "eval": Evaluation (Trial) instance, provided for a limited time
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty("instance_type")
+    @JsonPropertyDescription("\"standard\": Standard, full-featured Registry instance\n\n\"eval\": Evaluation (Trial) instance, provided for a limited time\n")
+    private RegistryInstanceTypeValue instanceType;
 
     /**
      * 
@@ -320,6 +332,32 @@ public class Registry {
     @JsonProperty("updated_at")
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    /**
+     * "standard": Standard, full-featured Registry instance
+     * 
+     * "eval": Evaluation (Trial) instance, provided for a limited time
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty("instance_type")
+    public RegistryInstanceTypeValue getInstanceType() {
+        return instanceType;
+    }
+
+    /**
+     * "standard": Standard, full-featured Registry instance
+     * 
+     * "eval": Evaluation (Trial) instance, provided for a limited time
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty("instance_type")
+    public void setInstanceType(RegistryInstanceTypeValue instanceType) {
+        this.instanceType = instanceType;
     }
 
 }
