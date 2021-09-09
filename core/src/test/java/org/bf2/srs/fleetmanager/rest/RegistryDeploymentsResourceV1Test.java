@@ -1,5 +1,6 @@
 package org.bf2.srs.fleetmanager.rest;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
@@ -18,6 +19,8 @@ import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Jakub Senko <jsenko@redhat.com>
@@ -191,26 +194,32 @@ class RegistryDeploymentsResourceV1Test {
         valid2.setRegistryDeploymentUrl("https://bazregistry");
 
         // Create
-        List<Integer> ids = List.of(valid1, valid2).stream().map(d -> {
+        List<RegistryDeploymentRest> rds = List.of(valid1, valid2).stream().map(d -> {
             return given()
                     .when().contentType(ContentType.JSON).body(d).post(BASE)
                     .then().statusCode(HTTP_OK)
                     .log().all()
-                    .extract().as(RegistryDeploymentRest.class).getId();
+                    .extract().as(RegistryDeploymentRest.class);
         }).collect(toList());
 
-        ids.forEach(id -> {
-            given()
-                    .when().get(BASE + "/" + id)
+        rds.forEach(rd -> {
+            var res = given()
+                    .log().all()
+                    .when().get(BASE + "/" + rd.getId())
                     // NOTE: Test framework assumes that JSON number is `int` instead of `long`.
-                    .then().statusCode(HTTP_OK).body("id", equalTo(id))
-                    .log().all();
+                    .then().statusCode(HTTP_OK);
+
+            var json = res.extract().as(JsonNode.class);
+            assertTrue(json.get("status").get("lastUpdated").asText().endsWith("Z"));
+
+            var apiRd = res.extract().as(RegistryDeploymentRest.class);
+            assertEquals(rd.getId(), apiRd.getId());
         });
 
         // Delete
-        ids.forEach(id -> {
+        rds.forEach(rd -> {
             given()
-                    .when().delete(BASE + "/" + id)
+                    .when().delete(BASE + "/" + rd.getId())
                     .then().statusCode(HTTP_NO_CONTENT)
                     .log().all();
         });

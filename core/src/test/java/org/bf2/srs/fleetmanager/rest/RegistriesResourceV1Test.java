@@ -1,5 +1,6 @@
 package org.bf2.srs.fleetmanager.rest;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentCreateRest;
@@ -219,11 +220,16 @@ public class RegistriesResourceV1Test {
 
         regs.forEach(reg -> {
 
-            var apiReg = given()
-                    .when().get(BASE + "/" + reg.getId())
-                    .then().statusCode(HTTP_OK)
+            var res = given()
                     .log().all()
-                    .extract().as(Registry.class);
+                    .when().get(BASE + "/" + reg.getId())
+                    .then().statusCode(HTTP_OK);
+
+            var json = res.extract().as(JsonNode.class);
+            assertTrue(json.get("created_at").asText().endsWith("Z"));
+            assertTrue(json.get("updated_at").asText().endsWith("Z"));
+
+            var apiReg = res.extract().as(Registry.class);
             assertNotNull(apiReg.getName());
             assertEquals(reg.getName(), apiReg.getName());
             assertNotNull(apiReg.getDescription());
