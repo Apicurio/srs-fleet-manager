@@ -30,7 +30,7 @@ public enum UserErrorCode {
     ERROR_ERROR_TYPE_NOT_FOUND(8, "Error type with id='%s' not found", 1),
     ERROR_REGISTRY_STORAGE_CONFLICT(9, "Data conflict. Make sure Registry with the given name does not already exist", 0);
 
-    public static final String ERROR_CODE_PREFIX = "SRSMGT-ERROR-";
+    public static final String ERROR_CODE_PREFIX = "SRS-MGMT-";
 
     private static final SortedMap<Integer, UserErrorCode> MAP; // Natural Integer ordering
 
