@@ -31,7 +31,7 @@ public class ErrorsResourceV1Test {
 
             assertEquals(e.getKey().toString(), error.getId());
             assertEquals("Error", error.getKind());
-            assertEquals("/api/connector_mgmt/v1/errors/" + e.getKey(), error.getHref());
+            assertEquals("/api/serviceregistry_mgmt/v1/errors/" + e.getKey(), error.getHref());
             assertEquals(e.getValue().getCode(), error.getCode());
             assertEquals(e.getValue().getReasonArgsCount(), error.getReason().chars().filter(ch -> ch == '?').count());
         });
