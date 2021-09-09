@@ -12,7 +12,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import javax.validation.ConstraintViolationException;
+import javax.ws.rs.NotSupportedException;
 
+/**
+ * This mapper maps exceptions to user errors for cases where the underlying exception
+ * has not been defined by us, and cannot implement {@link org.bf2.srs.fleetmanager.common.errors.UserError}.
+ *
+ * @author Jakub Senko <jsenko@redhat.com>
+ */
 public class UserErrorMapper {
 
     private static final Logger log = LoggerFactory.getLogger(UserErrorMapper.class);
@@ -24,8 +31,9 @@ public class UserErrorMapper {
         Map<Class<? extends Exception>, Function<Exception, UserErrorInfo>> map = new HashMap<>();
 
         map.put(DateTimeParseException.class, ex -> UserErrorInfo.create(UserErrorCode.ERROR_FORMAT_DATETIME));
-        map.put(ConstraintViolationException.class, ex -> UserErrorInfo.create(UserErrorCode.ERROR_FORMAT_REQUEST));
-        map.put(JsonParseException.class, ex -> UserErrorInfo.create(UserErrorCode.ERROR_FORMAT_REQUEST_JSON));
+        map.put(ConstraintViolationException.class, ex -> UserErrorInfo.create(UserErrorCode.ERROR_REQUEST_CONTENT_INVALID));
+        map.put(JsonParseException.class, ex -> UserErrorInfo.create(UserErrorCode.ERROR_FORMAT_JSON));
+        map.put(NotSupportedException.class, ex -> UserErrorInfo.create(UserErrorCode.ERROR_REQUEST_UNSUPPORTED_MEDIA_TYPE));
 
         MAP = Collections.unmodifiableMap(map);
     }
@@ -35,7 +43,7 @@ public class UserErrorMapper {
     }
 
     public static UserErrorInfo getMapping(Exception ex) {
-        if(!hasMapping(ex.getClass())) {
+        if (!hasMapping(ex.getClass())) {
             throw new IllegalArgumentException("No mapping for exception", ex);
         }
         return MAP.get(ex.getClass()).apply(ex);
