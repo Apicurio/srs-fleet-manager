@@ -17,6 +17,7 @@ import org.bf2.srs.fleetmanager.rest.service.model.RegistryCreateDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryInstanceTypeValueDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryListDto;
+import org.bf2.srs.fleetmanager.rest.service.model.ServiceStatusDto;
 import org.bf2.srs.fleetmanager.spi.AccountManagementService;
 import org.bf2.srs.fleetmanager.spi.ResourceLimitReachedException;
 import org.bf2.srs.fleetmanager.spi.TermsRequiredException;
@@ -70,6 +71,9 @@ public class RegistryServiceImpl implements RegistryService {
     @ConfigProperty(name = "srs-fleet-manager.registry.product-id")
     String productId;
 
+    @ConfigProperty(name = "srs-fleet-manager.max.eval.instances", defaultValue = "1000")
+    Integer maxEvalInstances;
+
     @Override
     public RegistryDto createRegistry(RegistryCreateDto registryCreate)
             throws RegistryStorageConflictException, TermsRequiredException, ResourceLimitReachedException {
@@ -78,7 +82,7 @@ public class RegistryServiceImpl implements RegistryService {
         /*
          * TODO Select instance type here
          *  - Determine type
-         *  - Determine if trial instance is available
+         *  - Determine if trial instance is available, use getServiceStatus method
          *  - Update data in AMS
          */
         var instanceType = RegistryInstanceTypeValueDto.STANDARD;
@@ -165,4 +169,17 @@ public class RegistryServiceImpl implements RegistryService {
             throw new RegistryNotFoundException(registryId);
         }
     }
+
+    @Override
+    public ServiceStatusDto getServiceStatus() {
+        List<Pair<String, Object>> conditions = new ArrayList<>();
+        conditions.add(Pair.of("instance_type", RegistryInstanceTypeValueDto.EVAL.value()));
+        var query = new SearchQuery(conditions);
+        long total = this.registryRepository.count(query.getQuery(), query.getArguments());
+
+        ServiceStatusDto status = new ServiceStatusDto();
+        status.setMaxEvalInstancesReached(total >= maxEvalInstances);
+        return status;
+    }
+
 }

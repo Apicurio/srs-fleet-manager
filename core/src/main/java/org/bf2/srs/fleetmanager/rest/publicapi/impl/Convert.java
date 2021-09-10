@@ -7,6 +7,7 @@ import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreate;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryInstanceTypeValue;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryList;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValue;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.ServiceStatus;
 import org.bf2.srs.fleetmanager.rest.service.model.ErrorDto;
 import org.bf2.srs.fleetmanager.rest.service.model.ErrorListDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryCreateDto;
@@ -14,6 +15,7 @@ import org.bf2.srs.fleetmanager.rest.service.model.RegistryDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryInstanceTypeValueDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryListDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
+import org.bf2.srs.fleetmanager.rest.service.model.ServiceStatusDto;
 
 import java.time.Instant;
 import java.util.Date;
@@ -105,6 +107,12 @@ public class Convert {
         res.setSize(data.getSize());
         res.setTotal(data.getTotal().intValue()); // TODO Conversion
         res.setItems(data.getItems().stream().map(this::convert).collect(Collectors.toList()));
+        return res;
+    }
+
+    public ServiceStatus convert(ServiceStatusDto status) {
+        ServiceStatus res = new ServiceStatus();
+        res.setMaxEvalInstancesReached(status.isMaxEvalInstancesReached());
         return res;
     }
 }
