@@ -33,6 +33,7 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.Validator;
 
 import io.quarkus.arc.DefaultBean;
+import io.quarkus.arc.profile.IfBuildProfile;
 import org.bf2.srs.fleetmanager.service.QuotaPlansService;
 import org.bf2.srs.fleetmanager.service.model.QuotaPlan;
 import org.bf2.srs.fleetmanager.service.model.QuotaPlansConfigList;
@@ -48,7 +49,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
  * @author Fabian Martinez
  */
 @ApplicationScoped
-@DefaultBean
+@IfBuildProfile("prod")
 public class FileQuotaPlansService implements QuotaPlansService {
 
     private final Logger log = LoggerFactory.getLogger(getClass());

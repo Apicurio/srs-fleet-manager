@@ -27,6 +27,7 @@ import org.bf2.srs.fleetmanager.rest.service.model.RegistryCreateDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryInstanceTypeValueDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryListDto;
+import org.bf2.srs.fleetmanager.rest.service.model.ServiceStatusDto;
 import org.bf2.srs.fleetmanager.spi.AccountManagementService;
 import org.bf2.srs.fleetmanager.spi.ResourceLimitReachedException;
 import org.bf2.srs.fleetmanager.spi.TermsRequiredException;
@@ -39,6 +40,7 @@ import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.PanacheRegistryRepository
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
 import org.bf2.srs.fleetmanager.util.BasicQuery;
 import org.bf2.srs.fleetmanager.util.SearchQuery;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
@@ -68,6 +70,9 @@ public class RegistryServiceImpl implements RegistryService {
 
     @Inject
     AccountManagementService accountManagementService;
+
+    @ConfigProperty(name = "srs-fleet-manager.max.eval.instances", defaultValue = "1000")
+    Integer maxEvalInstances;
 
     @Override
     public RegistryDto createRegistry(RegistryCreateDto registryCreate)
@@ -170,4 +175,17 @@ public class RegistryServiceImpl implements RegistryService {
             throw new RegistryNotFoundException(registryId);
         }
     }
+
+    @Override
+    public ServiceStatusDto getServiceStatus() {
+        List<Pair<String, Object>> conditions = new ArrayList<>();
+        conditions.add(Pair.of("instance_type", RegistryInstanceTypeValueDto.EVAL.value()));
+        var query = new SearchQuery(conditions);
+        long total = this.registryRepository.count(query.getQuery(), query.getArguments());
+
+        ServiceStatusDto status = new ServiceStatusDto();
+        status.setMaxEvalInstancesReached(total >= maxEvalInstances);
+        return status;
+    }
+
 }

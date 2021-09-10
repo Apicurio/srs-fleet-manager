@@ -78,26 +78,30 @@ public class CustomExceptionMapperImpl implements CustomExceptionMapper {
             builder = Response.status(code);
         }
 
-        UserErrorInfo ei = null;
-        if(exception instanceof UserError) {
-            ei = ((UserError) exception).getUserErrorInfo();
-        } else if(exception instanceof Exception && UserErrorMapper.hasMapping(((Exception)exception).getClass())) {
-            ei = UserErrorMapper.getMapping((Exception)exception);
-        }else{
-            ei = UserErrorInfo.create(UserErrorCode.ERROR_UNKNOWN);
-            log.warn("Processing an unknown error", exception);
+        UserErrorInfo uei = null;
+        if (exception instanceof UserError) {
+            uei = ((UserError) exception).getUserErrorInfo();
+        } else if (exception instanceof Exception && UserErrorMapper.hasMapping(((Exception) exception).getClass())) {
+            uei = UserErrorMapper.getMapping((Exception) exception);
+        } else {
+            uei = UserErrorInfo.create(UserErrorCode.ERROR_UNKNOWN);
         }
-        Error errorInfo = new Error();
-        errorInfo.setKind(Kind.ERROR);
-        errorInfo.setId(Integer.toString(ei.getCode().getId()));
-        errorInfo.setHref("/api/serviceregistry_mgmt/v1/errors/" + errorInfo.getId());
-        errorInfo.setCode(ei.getCode().getCode());
-        errorInfo.setReason(ei.getReason());
-        // errorInfo.setOperationId(""); TODO
 
+        if (uei.getCode() == UserErrorCode.ERROR_UNKNOWN) {
+            // This will also handle unknown errors that have been deliberately returned
+            log.warn("Processing an unknown exception (no specific user error has been defined)", exception);
+        }
+
+        Error ei = new Error();
+        ei.setKind(Kind.ERROR);
+        ei.setId(Integer.toString(uei.getCode().getId()));
+        ei.setHref("/api/serviceregistry_mgmt/v1/errors/" + ei.getId());
+        ei.setCode(uei.getCode().getCode());
+        ei.setReason(uei.getReason());
+        // ei.setOperationId(""); TODO
 
         if (!"prod".equals(quarkusProfile)) {
-            var extendedReason = errorInfo.getReason();
+            var extendedReason = ei.getReason();
             extendedReason += ". Details:\n";
             extendedReason += exception.getClass().getCanonicalName() + ": " + exception.getMessage() + "\n";
 
@@ -106,11 +110,11 @@ public class CustomExceptionMapperImpl implements CustomExceptionMapper {
             exception.printStackTrace(pw);
             extendedReason += "Stack Trace:\n" + sw.toString();
 
-            errorInfo.setReason(extendedReason);
+            ei.setReason(extendedReason);
         }
 
         return builder.type(MediaType.APPLICATION_JSON)
-                .entity(errorInfo)
+                .entity(ei)
                 .build();
     }
 }

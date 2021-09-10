@@ -29,6 +29,6 @@ public class RegistryStorageConflictException extends StorageException implement
 
     @Override
     public UserErrorInfo getUserErrorInfo() {
-        return UserErrorInfo.create(UserErrorCode.ERROR_REGISTRY_STORAGE_CONFLICT);
+        return UserErrorInfo.create(UserErrorCode.ERROR_REGISTRY_DATA_CONFLICT);
     }
 }

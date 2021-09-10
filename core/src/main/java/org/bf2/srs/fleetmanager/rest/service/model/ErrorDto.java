@@ -36,6 +36,6 @@ public class ErrorDto extends ObjectReferenceDto {
 
     @Override
     public String getHref() {
-        return "/api/connector_mgmt/v1/errors/" + getId();
+        return "/api/serviceregistry_mgmt/v1/errors/" + getId();
     }
 }

@@ -15,6 +15,11 @@ import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
 /**
+ * This is the common exception mapper for the entire REST API.
+ * Since we have multiple "sub" APIs (public and private),
+ * this enables a delegation of exception mapping logic to an exception mapper
+ * specific to the give "sub" API, based on the give path.
+ *
  * @author Jakub Senko <jsenko@redhat.com>
  */
 @ApplicationScoped
@@ -35,7 +40,7 @@ public class CommonExceptionMapper implements ExceptionMapper<Throwable> {
         if (mapper.isPresent()) {
             Response r = mapper.get().toResponse(exception);
             if (r.getStatusInfo().getFamily() == Family.SERVER_ERROR) {
-                log.error("Unhandled exception", exception);
+                log.error("Returning an HTTP 5xx error code because", exception);
             }
             return r;
         } else {

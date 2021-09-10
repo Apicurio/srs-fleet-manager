@@ -5,6 +5,7 @@ import org.bf2.srs.fleetmanager.rest.publicapi.beans.ErrorList;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.Registry;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreate;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryList;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.ServiceStatus;
 import org.bf2.srs.fleetmanager.rest.service.ErrorNotFoundException;
 import org.bf2.srs.fleetmanager.spi.ResourceLimitReachedException;
 import org.bf2.srs.fleetmanager.spi.TermsRequiredException;
@@ -72,4 +73,10 @@ public interface ApiResource {
     @GET
     @Produces("application/json")
     ErrorList getErrors(@Min(1) @QueryParam("page") Integer page, @Min(1) @Max(500) @QueryParam("size") Integer size);
+
+    @Path("/serviceregistry_mgmt/v1/status")
+    @GET
+    @Produces("application/json")
+    ServiceStatus getServiceStatus();
+
 }
