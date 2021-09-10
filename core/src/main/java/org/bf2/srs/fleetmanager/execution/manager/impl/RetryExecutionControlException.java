@@ -1,10 +1,10 @@
 package org.bf2.srs.fleetmanager.execution.manager.impl;
 
+import static lombok.AccessLevel.PRIVATE;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
-
-import static lombok.AccessLevel.PRIVATE;
 
 /**
  * @author Jakub Senko <jsenko@redhat.com>
@@ -13,6 +13,8 @@ import static lombok.AccessLevel.PRIVATE;
 @Getter
 @ToString
 public class RetryExecutionControlException extends ExecutionControlException {
+
+    private static final long serialVersionUID = -8571538574408626778L;
 
     private final int minRetries;
 
