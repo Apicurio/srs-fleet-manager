@@ -14,6 +14,7 @@ import java.util.function.Function;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.NotSupportedException;
 
+
 /**
  * This mapper maps exceptions to user errors for cases where the underlying exception
  * has not been defined by us, and cannot implement {@link org.bf2.srs.fleetmanager.common.errors.UserError}.
@@ -22,6 +23,7 @@ import javax.ws.rs.NotSupportedException;
  */
 public class UserErrorMapper {
 
+    @SuppressWarnings("unused")
     private static final Logger log = LoggerFactory.getLogger(UserErrorMapper.class);
 
     private static final Map<Class<? extends Exception>, Function<Exception, UserErrorInfo>> MAP;

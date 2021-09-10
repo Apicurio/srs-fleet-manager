@@ -22,6 +22,7 @@ import org.bf2.srs.fleetmanager.spi.AccountManagementService;
 import org.bf2.srs.fleetmanager.spi.ResourceLimitReachedException;
 import org.bf2.srs.fleetmanager.spi.TermsRequiredException;
 import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
+import org.bf2.srs.fleetmanager.spi.model.ResourceType;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
@@ -68,9 +69,6 @@ public class RegistryServiceImpl implements RegistryService {
     @Inject
     AccountManagementService accountManagementService;
 
-    @ConfigProperty(name = "srs-fleet-manager.registry.product-id")
-    String productId;
-
     @ConfigProperty(name = "srs-fleet-manager.max.eval.instances", defaultValue = "1000")
     Integer maxEvalInstances;
 
@@ -78,14 +76,17 @@ public class RegistryServiceImpl implements RegistryService {
     public RegistryDto createRegistry(RegistryCreateDto registryCreate)
             throws RegistryStorageConflictException, TermsRequiredException, ResourceLimitReachedException {
         final AccountInfo accountInfo = authService.extractAccountInfo();
-        String subscriptionId = accountManagementService.createResource(accountInfo, "cluster.aws", UUID.randomUUID().toString(), productId);
-        /*
-         * TODO Select instance type here
-         *  - Determine type
-         *  - Determine if trial instance is available, use getServiceStatus method
-         *  - Update data in AMS
-         */
-        var instanceType = RegistryInstanceTypeValueDto.STANDARD;
+
+        // Figure out if we are going to create a standard or eval instance.
+        ResourceType resourceType = accountManagementService.determineAllowedResourceType(accountInfo);
+
+        // Try to consume some quota from AMS for the appropriate resource type (standard or eval).  If successful
+        // we'll get back a subscriptionId - if not we'll throw an exception.
+        String subscriptionId = accountManagementService.createResource(accountInfo, resourceType);
+
+        // Convert to registry data and persist it in the DB.
+        RegistryInstanceTypeValueDto instanceType = resourceTypeToInstanceType(resourceType);
+
         RegistryData registryData = convertRegistry.convert(registryCreate, subscriptionId, accountInfo.getAccountUsername(),
                 accountInfo.getOrganizationId(), accountInfo.getAccountId(), instanceType);
         // Generate the ID
@@ -93,6 +94,10 @@ public class RegistryServiceImpl implements RegistryService {
         storage.createOrUpdateRegistry(registryData);
         tasks.submit(ScheduleRegistryTask.builder().registryId(registryData.getId()).build());
         return convertRegistry.convert(registryData);
+    }
+
+    private static RegistryInstanceTypeValueDto resourceTypeToInstanceType(ResourceType resourceType) {
+        return resourceType == ResourceType.REGISTRY_INSTANCE_STANDARD ? RegistryInstanceTypeValueDto.STANDARD : RegistryInstanceTypeValueDto.EVAL;
     }
 
     @Override

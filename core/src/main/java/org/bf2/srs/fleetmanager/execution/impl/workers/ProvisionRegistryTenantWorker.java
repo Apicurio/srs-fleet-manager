@@ -1,5 +1,14 @@
 package org.bf2.srs.fleetmanager.execution.impl.workers;
 
+import static org.bf2.srs.fleetmanager.execution.impl.tasks.TaskType.PROVISION_REGISTRY_TENANT_T;
+import static org.bf2.srs.fleetmanager.execution.impl.workers.WorkerType.PROVISION_REGISTRY_TENANT_W;
+
+import java.util.Optional;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+
 import org.bf2.srs.fleetmanager.execution.impl.tasks.ProvisionRegistryTenantTask;
 import org.bf2.srs.fleetmanager.execution.manager.Task;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
@@ -16,14 +25,6 @@ import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentD
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Optional;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-
-import static org.bf2.srs.fleetmanager.execution.impl.tasks.TaskType.PROVISION_REGISTRY_TENANT_T;
-import static org.bf2.srs.fleetmanager.execution.impl.workers.WorkerType.PROVISION_REGISTRY_TENANT_W;
-
 /**
  * This class MUST be thread safe. It should not contain state and inject thread safe beans only.
  *
@@ -32,6 +33,7 @@ import static org.bf2.srs.fleetmanager.execution.impl.workers.WorkerType.PROVISI
 @ApplicationScoped
 public class ProvisionRegistryTenantWorker extends AbstractWorker {
 
+    @SuppressWarnings("unused")
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     @Inject

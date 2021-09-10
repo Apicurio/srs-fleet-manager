@@ -1,5 +1,21 @@
 package org.bf2.srs.fleetmanager.spi.impl;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
+import org.bf2.srs.fleetmanager.spi.TenantManagerService;
+import org.bf2.srs.fleetmanager.spi.model.CreateTenantRequest;
+import org.bf2.srs.fleetmanager.spi.model.Tenant;
+import org.bf2.srs.fleetmanager.spi.model.TenantLimit;
+import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
+import org.bf2.srs.fleetmanager.spi.model.TenantStatus;
+import org.bf2.srs.fleetmanager.spi.model.UpdateTenantRequest;
+
 import io.apicurio.multitenant.api.datamodel.NewRegistryTenantRequest;
 import io.apicurio.multitenant.api.datamodel.RegistryTenant;
 import io.apicurio.multitenant.api.datamodel.ResourceType;
@@ -9,21 +25,6 @@ import io.apicurio.multitenant.api.datamodel.UpdateRegistryTenantRequest;
 import io.apicurio.multitenant.client.TenantManagerClient;
 import io.apicurio.multitenant.client.TenantManagerClientImpl;
 import io.apicurio.rest.client.auth.Auth;
-import org.bf2.srs.fleetmanager.spi.TenantManagerService;
-import org.bf2.srs.fleetmanager.spi.model.CreateTenantRequest;
-import org.bf2.srs.fleetmanager.spi.model.Tenant;
-import org.bf2.srs.fleetmanager.spi.model.TenantLimit;
-import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
-import org.bf2.srs.fleetmanager.spi.model.TenantStatus;
-import org.bf2.srs.fleetmanager.spi.model.UpdateTenantRequest;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 public class RestClientTenantManagerServiceImpl implements TenantManagerService {
 
@@ -101,6 +102,7 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public List<Tenant> getAllTenants(TenantManagerConfig tm) {
         var client = getClient(tm);

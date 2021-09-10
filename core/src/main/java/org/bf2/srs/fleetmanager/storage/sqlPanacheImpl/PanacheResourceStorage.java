@@ -1,5 +1,19 @@
 package org.bf2.srs.fleetmanager.storage.sqlPanacheImpl;
 
+import static java.util.Objects.requireNonNull;
+import static java.util.Optional.empty;
+import static java.util.Optional.ofNullable;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceException;
+import javax.transaction.Transactional;
+
 import org.bf2.srs.fleetmanager.logging.Logged;
 import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
 import org.bf2.srs.fleetmanager.storage.RegistryDeploymentStorageConflictException;
@@ -12,19 +26,6 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
-import javax.transaction.Transactional;
-
-import static java.util.Objects.requireNonNull;
-import static java.util.Optional.empty;
-import static java.util.Optional.ofNullable;
-
 /**
  * @author Jakub Senko <jsenko@redhat.com>
  * @author Fabian Martinez
@@ -34,6 +35,7 @@ import static java.util.Optional.ofNullable;
 @Logged
 public class PanacheResourceStorage implements ResourceStorage {
 
+    @SuppressWarnings("unused")
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     @Inject
