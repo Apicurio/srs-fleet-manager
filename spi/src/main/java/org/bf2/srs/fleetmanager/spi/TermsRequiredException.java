@@ -6,6 +6,8 @@ import org.bf2.srs.fleetmanager.common.errors.UserErrorInfo;
 
 public class TermsRequiredException extends Exception implements UserError {
 
+    private static final long serialVersionUID = -6365467755558560266L;
+
     private final String accountId;
 
     public TermsRequiredException(String accountId) {

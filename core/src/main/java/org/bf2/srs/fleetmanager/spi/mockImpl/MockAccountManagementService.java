@@ -1,13 +1,21 @@
 package org.bf2.srs.fleetmanager.spi.mockImpl;
 
 import org.bf2.srs.fleetmanager.spi.AccountManagementService;
+import org.bf2.srs.fleetmanager.spi.ResourceLimitReachedException;
+import org.bf2.srs.fleetmanager.spi.TermsRequiredException;
 import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
+import org.bf2.srs.fleetmanager.spi.model.ResourceType;
 
 public class MockAccountManagementService implements AccountManagementService {
 
-    //Just return true for the entitlements check call
     @Override
-    public String createResource(AccountInfo accountInfo, String resourceType, String clusterId, String productId) {
+    public ResourceType determineAllowedResourceType(AccountInfo accountInfo) {
+        return ResourceType.REGISTRY_INSTANCE_STANDARD;
+    }
+
+    @Override
+    public String createResource(AccountInfo accountInfo, ResourceType resourceType)
+            throws TermsRequiredException, ResourceLimitReachedException {
         return "mock-subscription";
     }
 

@@ -7,10 +7,11 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
 import java.util.Collections;
 import java.util.Optional;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
 
 @ApplicationScoped
 public class AccountManagementServiceProducer {
@@ -32,6 +33,9 @@ public class AccountManagementServiceProducer {
     @ConfigProperty(name = "sso.enabled")
     boolean ssoEnabled;
 
+    @Inject
+    AccountManagementServiceProperties amsProperties;
+
     @UnlessBuildProfile("test")
     @Produces
     @ApplicationScoped
@@ -44,6 +48,6 @@ public class AccountManagementServiceProducer {
         } else {
             restClient = new AccountManagementSystemRestClient(endpoint, Collections.emptyMap(), null);
         }
-        return new AccountManagementServiceImpl(restClient);
+        return new AccountManagementServiceImpl(restClient, amsProperties);
     }
 }
