@@ -16,6 +16,7 @@
 
 package org.bf2.srs.fleetmanager.service.impl;
 
+import io.quarkus.arc.DefaultBean;
 import io.quarkus.arc.profile.IfBuildProfile;
 import org.bf2.srs.fleetmanager.service.QuotaPlansService;
 import org.bf2.srs.fleetmanager.service.model.QuotaPlan;
@@ -32,7 +33,7 @@ import javax.enterprise.context.ApplicationScoped;
  * @author Fabian Martinez
  */
 @ApplicationScoped
-@IfBuildProfile("test")
+@DefaultBean // For dev & test profiles
 public class MockQuotaPlansService implements QuotaPlansService {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
