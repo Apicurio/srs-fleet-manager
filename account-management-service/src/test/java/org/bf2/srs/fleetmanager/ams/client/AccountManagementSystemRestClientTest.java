@@ -1,18 +1,21 @@
 package org.bf2.srs.fleetmanager.ams.client;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import java.util.Collections;
+
 import org.bf2.srs.fleetmanager.spi.impl.AccountManagementSystemRestClient;
 import org.bf2.srs.fleetmanager.spi.impl.model.request.ClusterAuthorization;
 import org.bf2.srs.fleetmanager.spi.impl.model.request.ReservedResource;
 import org.bf2.srs.fleetmanager.spi.impl.model.request.TermsReview;
-import org.bf2.srs.fleetmanager.spi.impl.model.response.ResponseTermsReview;
 import org.bf2.srs.fleetmanager.spi.impl.model.response.ClusterAuthorizationResponse;
+import org.bf2.srs.fleetmanager.spi.impl.model.response.Organization;
+import org.bf2.srs.fleetmanager.spi.impl.model.response.QuotaCostList;
+import org.bf2.srs.fleetmanager.spi.impl.model.response.ResponseTermsReview;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 public class AccountManagementSystemRestClientTest {
 
@@ -61,6 +64,26 @@ public class AccountManagementSystemRestClientTest {
     @Test
     public void deleteSubscription() {
         accountManagementSystemRestClient.deleteSubscription("1vJoDH2CWtf8ix7YDPt1fGWGBSg");
+    }
+
+    @Test
+    public void getOrganizationByExternalId() {
+        final Organization org = accountManagementSystemRestClient.getOrganizationByExternalId("12345");
+
+        Assertions.assertNotNull(org);
+        Assertions.assertEquals("1pcZDw72EPhdanw4pJEnrudOnyj", org.getId());
+    }
+
+    @Test
+    public void getQuotaCostList() {
+        final QuotaCostList quotaCostList = accountManagementSystemRestClient.getQuotaCostList("1pcZDw72EPhdanw4pJEnrudOnyj", true);
+
+        Assertions.assertNotNull(quotaCostList);
+        Assertions.assertEquals(20, quotaCostList.getTotal());
+        Assertions.assertNotNull(quotaCostList.getItems());
+        Assertions.assertFalse(quotaCostList.getItems().isEmpty());
+        Assertions.assertEquals(20, quotaCostList.getItems().size());
+        Assertions.assertEquals("add-on|addon-cluster-logging-operator", quotaCostList.getItems().get(0).getQuota_id());
     }
 
     @AfterAll
