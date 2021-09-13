@@ -245,6 +245,21 @@ objects:
             value: ${REGISTRY_INSTANCES_EVAL_MAX_COUNT_PER_USER}
           - name: REGISTRY_INSTANCES_EVAL_LIFETIME_SECONDS
             value: ${REGISTRY_INSTANCES_EVAL_LIFETIME_SECONDS}
+
+          - name: ENABLE_SENTRY
+            value: ${ENABLE_SENTRY}
+          - name: SENTRY_KEY
+            valueFrom:
+              secretKeyRef:
+                name:  ${SENTRY_KEY_SECRET_NAME}
+                key:  sentry-key
+          - name: SENTRY_URL
+            value: ${SENTRY_URL}
+          - name: SENTRY_PROJECT
+            value: ${SENTRY_PROJECT}
+          - name: SENTRY_DEBUG
+            value: ${SENTRY_DEBUG}
+
           livenessProbe:
             failureThreshold: 3
             httpGet:
@@ -436,3 +451,18 @@ parameters:
   value: "1"
 - name: REGISTRY_INSTANCES_EVAL_LIFETIME_SECONDS
   value: "172800" # 48 hours
+
+- name: ENABLE_SENTRY
+  value: "false"
+- name: SENTRY_KEY_SECRET_NAME
+  description: Secret name containing key for connecting to sentry
+  value: sentry-key-secret
+- name: SENTRY_URL
+  displayName: Sentry base URL
+  description: Base URL (without https://) of sentry server
+  value: "sentry.autom8.in"
+- name: SENTRY_PROJECT
+  displayName: Sentry Project ID
+  value: "31"
+- name: SENTRY_DEBUG
+  value: "false"
