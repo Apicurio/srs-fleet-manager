@@ -69,18 +69,25 @@ public class AmsWireMockServer {
                         .withHeader("Content-Type", "application/json")
                         .withBody(
                                 "{\r\n" +
-                                "  \"id\" : \"1pcZDw72EPhdanw4pJEnrudOnyj\",\r\n" +
-                                "  \"kind\" : \"Organization\",\r\n" +
-                                "  \"href\" : \"/api/accounts_mgmt/v1/organizations/1pcZDw72EPhdanw4pJEnrudOnyj\",\r\n" +
-                                "  \"name\" : \"Red Hat\",\r\n" +
-                                "  \"external_id\" : \"14221005\",\r\n" +
-                                "  \"ebs_account_id\" : \"7072918\"\r\n" +
-                                "}\r\n" +
-                                ""
+                                "    \"kind\": \"OrganizationList\",\r\n" +
+                                "    \"page\": 1,\r\n" +
+                                "    \"size\": 1,\r\n" +
+                                "    \"total\": 1,\r\n" +
+                                "    \"items\": [\r\n" +
+                                "        {\r\n" +
+                                "        \"id\" : \"1pcZDw72EPhdanw4pJEnrudOnyj\",\r\n" +
+                                "        \"kind\" : \"Organization\",\r\n" +
+                                "        \"href\" : \"/api/accounts_mgmt/v1/organizations/1pcZDw72EPhdanw4pJEnrudOnyj\",\r\n" +
+                                "        \"name\" : \"Red Hat\",\r\n" +
+                                "        \"external_id\" : \"14221005\",\r\n" +
+                                "        \"ebs_account_id\" : \"7072918\"\r\n" +
+                                "        }\r\n" +
+                                "    ]\r\n" +
+                                "}"
                         )));
 
         // Mock response for getting a list of QuotaCost objects for an org
-        WireMock.stubFor(WireMock.get(WireMock.urlMatching("/api/accounts_mgmt/v1/organizations/1pcZDw72EPhdanw4pJEnrudOnyj/quota_cost"))
+        WireMock.stubFor(WireMock.get(WireMock.urlEqualTo("/api/accounts_mgmt/v1/organizations/1pcZDw72EPhdanw4pJEnrudOnyj/quota_cost?fetchRelatedResources=true"))
                 .willReturn(WireMock.aResponse()
                         .withHeader("Content-Type", "application/json")
                         .withBody(
