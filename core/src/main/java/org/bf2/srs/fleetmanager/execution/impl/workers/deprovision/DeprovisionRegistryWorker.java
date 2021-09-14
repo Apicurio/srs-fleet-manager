@@ -12,8 +12,8 @@ import org.bf2.srs.fleetmanager.spi.AccountManagementService;
 import org.bf2.srs.fleetmanager.spi.TenantManagerService;
 import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
-import org.bf2.srs.fleetmanager.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
+import org.bf2.srs.fleetmanager.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentData;
 import org.slf4j.Logger;
@@ -69,6 +69,11 @@ public class DeprovisionRegistryWorker extends AbstractWorker {
                 task.setRegistryTenantId(tenantId);
                 log.debug("Tenant id='{}' delete request send.", tenantId);
             }
+
+            /* Considerations for eval instances:
+             * - No need for differentiating when returning subscriptions
+             * - Current amount of trial instances is determined directly from the database, so no need to intervene
+             */
 
             /* Return AMS entitlement
              * FAILURE POINT 3

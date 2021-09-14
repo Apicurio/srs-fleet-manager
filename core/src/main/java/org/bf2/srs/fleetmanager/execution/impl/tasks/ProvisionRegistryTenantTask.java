@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import static java.util.Objects.requireNonNull;
 import static org.bf2.srs.fleetmanager.execution.impl.tasks.TaskType.PROVISION_REGISTRY_TENANT_T;
 
 @NoArgsConstructor
@@ -21,6 +22,7 @@ public class ProvisionRegistryTenantTask extends AbstractTask {
     @Builder
     public ProvisionRegistryTenantTask(String registryId) {
         super(PROVISION_REGISTRY_TENANT_T);
+        requireNonNull(registryId);
         this.registryId = registryId;
     }
 }

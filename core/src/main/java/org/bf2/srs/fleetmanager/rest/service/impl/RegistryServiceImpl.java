@@ -19,10 +19,10 @@ import org.bf2.srs.fleetmanager.rest.service.model.RegistryInstanceTypeValueDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryListDto;
 import org.bf2.srs.fleetmanager.rest.service.model.ServiceStatusDto;
 import org.bf2.srs.fleetmanager.spi.AccountManagementService;
-import org.bf2.srs.fleetmanager.spi.TooManyEvalInstancesForUserException;
 import org.bf2.srs.fleetmanager.spi.EvalInstancesNotAllowedException;
 import org.bf2.srs.fleetmanager.spi.ResourceLimitReachedException;
 import org.bf2.srs.fleetmanager.spi.TermsRequiredException;
+import org.bf2.srs.fleetmanager.spi.TooManyEvalInstancesForUserException;
 import org.bf2.srs.fleetmanager.spi.TooManyInstancesException;
 import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
 import org.bf2.srs.fleetmanager.spi.model.ResourceType;
@@ -72,14 +72,16 @@ public class RegistryServiceImpl implements RegistryService {
     @Inject
     AccountManagementService accountManagementService;
 
-    @ConfigProperty(name = "srs-fleet-manager.eval.instances.allowed", defaultValue = "true")
-    boolean evalInstancesAllowed;
+    @ConfigProperty(name = "srs-fleet-manager.registry.instances.eval.enabled")
+    boolean evalInstancesEnabled;
 
-    @ConfigProperty(name = "srs-fleet-manager.eval.instances.per.user", defaultValue = "1")
+    @ConfigProperty(name = "srs-fleet-manager.registry.instances.eval.max-count-per-user")
     int maxEvalInstancesPerUser;
 
-    @ConfigProperty(name = "srs-fleet-manager.max.instances", defaultValue = "1000")
+    @ConfigProperty(name = "srs-fleet-manager.registry.instances.max-count")
     int maxInstances;
+
+    // srs-fleet-manager.registry.instances.eval.max-count
 
     @Override
     public RegistryDto createRegistry(RegistryCreateDto registryCreate)
@@ -98,22 +100,20 @@ public class RegistryServiceImpl implements RegistryService {
 
         if (resourceType == ResourceType.REGISTRY_INSTANCE_EVAL) {
             // Are eval instances allowed?
-            if (!evalInstancesAllowed) {
+            if (!evalInstancesEnabled) {
                 throw new EvalInstancesNotAllowedException();
             }
 
             // Limit the # of eval instances per user.  Need to check storage for list of eval registry instances.
-            if (resourceType == ResourceType.REGISTRY_INSTANCE_EVAL) {
-                List<RegistryData> registriesByOwner = storage.getRegistriesByOwner(accountInfo.getAccountUsername());
-                int evalInstanceCount = 0;
-                for (RegistryData registryData : registriesByOwner) {
-                    if (RegistryInstanceTypeValueDto.EVAL.value().equals(registryData.getInstanceType())) {
-                        evalInstanceCount++;
-                    }
+            List<RegistryData> registriesByOwner = storage.getRegistriesByOwner(accountInfo.getAccountUsername());
+            int evalInstanceCount = 0;
+            for (RegistryData registryData : registriesByOwner) { // TODO Perform a dedicated query
+                if (RegistryInstanceTypeValueDto.EVAL.value().equals(registryData.getInstanceType())) {
+                    evalInstanceCount++;
                 }
-                if (evalInstanceCount >= maxEvalInstancesPerUser) {
-                    throw new TooManyEvalInstancesForUserException();
-                }
+            }
+            if (evalInstanceCount >= maxEvalInstancesPerUser) {
+                throw new TooManyEvalInstancesForUserException();
             }
         }
 

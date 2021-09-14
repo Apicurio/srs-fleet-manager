@@ -1,17 +1,12 @@
 package org.bf2.srs.fleetmanager.execution.impl.workers;
 
-import static org.bf2.srs.fleetmanager.execution.impl.tasks.TaskType.PROVISION_REGISTRY_TENANT_T;
-import static org.bf2.srs.fleetmanager.execution.impl.workers.WorkerType.PROVISION_REGISTRY_TENANT_W;
-
-import java.util.Optional;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-
 import org.bf2.srs.fleetmanager.execution.impl.tasks.ProvisionRegistryTenantTask;
+import org.bf2.srs.fleetmanager.execution.impl.tasks.deprovision.EvalInstanceExpirationRegistryTask;
 import org.bf2.srs.fleetmanager.execution.manager.Task;
+import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
+import org.bf2.srs.fleetmanager.execution.manager.TaskSchedule;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryInstanceTypeValueDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
 import org.bf2.srs.fleetmanager.service.QuotaPlansService;
 import org.bf2.srs.fleetmanager.spi.TenantManagerService;
@@ -22,8 +17,19 @@ import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentData;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Optional;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+
+import static org.bf2.srs.fleetmanager.execution.impl.tasks.TaskType.PROVISION_REGISTRY_TENANT_T;
+import static org.bf2.srs.fleetmanager.execution.impl.workers.WorkerType.PROVISION_REGISTRY_TENANT_W;
 
 /**
  * This class MUST be thread safe. It should not contain state and inject thread safe beans only.
@@ -36,6 +42,9 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
     @SuppressWarnings("unused")
     private final Logger log = LoggerFactory.getLogger(getClass());
 
+    @ConfigProperty(name = "srs-fleet-manager.registry.instances.eval.lifetime-seconds")
+    Integer evalLifetimeSeconds;
+
     @Inject
     ResourceStorage storage;
 
@@ -44,6 +53,9 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
 
     @Inject
     QuotaPlansService plansService;
+
+    @Inject
+    TaskManager tasks;
 
     public ProvisionRegistryTenantWorker() {
         super(PROVISION_REGISTRY_TENANT_W);
@@ -97,6 +109,18 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
             tmClient.createTenant(tenantManager, tenantRequest);
 
             task.setRegistryTenantId(registry.getId());
+        }
+
+        // Add expiration task if this is an eval instance
+        if(RegistryInstanceTypeValueDto.of(registry.getInstanceType()) == RegistryInstanceTypeValueDto.EVAL) {
+            var expiration = Instant.now().plus(Duration.ofSeconds(evalLifetimeSeconds));
+            log.debug("Scheduling an expiration task for the eval instance {} to be executed at {}", registry, expiration);
+            ctl.delay(() -> tasks.submit(EvalInstanceExpirationRegistryTask.builder()
+                    .registryId(registry.getId())
+                    .schedule(TaskSchedule.builder()
+                            .firstExecuteAt(expiration)
+                            .build())
+                    .build()));
         }
 
         // NOTE: Failure point 5
