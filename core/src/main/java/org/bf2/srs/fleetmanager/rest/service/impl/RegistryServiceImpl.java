@@ -19,6 +19,8 @@ import org.bf2.srs.fleetmanager.rest.service.model.RegistryInstanceTypeValueDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryListDto;
 import org.bf2.srs.fleetmanager.rest.service.model.ServiceStatusDto;
 import org.bf2.srs.fleetmanager.spi.AccountManagementService;
+import org.bf2.srs.fleetmanager.spi.EvalInstanceAlreadyExistsException;
+import org.bf2.srs.fleetmanager.spi.EvalInstancesNotAllowedException;
 import org.bf2.srs.fleetmanager.spi.ResourceLimitReachedException;
 import org.bf2.srs.fleetmanager.spi.TermsRequiredException;
 import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
@@ -69,16 +71,39 @@ public class RegistryServiceImpl implements RegistryService {
     @Inject
     AccountManagementService accountManagementService;
 
+    @ConfigProperty(name = "srs-fleet-manager.eval.instances.allowed", defaultValue = "true")
+    boolean evalInstancesAllowed;
+
     @ConfigProperty(name = "srs-fleet-manager.max.eval.instances", defaultValue = "1000")
     Integer maxEvalInstances;
 
     @Override
     public RegistryDto createRegistry(RegistryCreateDto registryCreate)
-            throws RegistryStorageConflictException, TermsRequiredException, ResourceLimitReachedException {
+            throws RegistryStorageConflictException, TermsRequiredException, ResourceLimitReachedException,
+            EvalInstancesNotAllowedException, EvalInstanceAlreadyExistsException {
         final AccountInfo accountInfo = authService.extractAccountInfo();
 
         // Figure out if we are going to create a standard or eval instance.
         ResourceType resourceType = accountManagementService.determineAllowedResourceType(accountInfo);
+        if (resourceType == ResourceType.REGISTRY_INSTANCE_EVAL && !evalInstancesAllowed) {
+            throw new EvalInstancesNotAllowedException();
+        }
+
+        // If creating an eval instance, only allow one per user.  Need to check storage to see
+        // if one already exists.  Fail if it does.
+        if (resourceType == ResourceType.REGISTRY_INSTANCE_EVAL) {
+            List<RegistryData> registriesByOwner = storage.getRegistriesByOwner(accountInfo.getAccountUsername());
+            boolean hasEvalInstance = false;
+            for (RegistryData registryData : registriesByOwner) {
+                if (RegistryInstanceTypeValueDto.EVAL.value().equals(registryData.getInstanceType())) {
+                    hasEvalInstance = true;
+                    break;
+                }
+            }
+            if (hasEvalInstance) {
+                throw new EvalInstanceAlreadyExistsException();
+            }
+        }
 
         // Try to consume some quota from AMS for the appropriate resource type (standard or eval).  If successful
         // we'll get back a subscriptionId - if not we'll throw an exception.

@@ -1,12 +1,13 @@
 package org.bf2.srs.fleetmanager.storage;
 
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentData;
-
 import java.util.List;
 import java.util.Optional;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+
+import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
+import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentData;
 
 /**
  * @author Jakub Senko <jsenko@redhat.com>
@@ -22,6 +23,8 @@ public interface ResourceStorage {
 
     List<RegistryData> getAllRegistries();
 
+    List<RegistryData> getRegistriesByOwner(String owner);
+
     void deleteRegistry(@NotNull String id) throws RegistryNotFoundException, RegistryStorageConflictException;
 
     //*** RegistryDeployment
@@ -33,4 +36,5 @@ public interface ResourceStorage {
     Optional<RegistryDeploymentData> getRegistryDeploymentById(@NotNull Long id);
 
     void deleteRegistryDeployment(@NotNull Long id) throws RegistryDeploymentNotFoundException, RegistryDeploymentStorageConflictException;
+
 }

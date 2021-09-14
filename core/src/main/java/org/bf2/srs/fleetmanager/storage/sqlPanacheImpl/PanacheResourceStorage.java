@@ -84,6 +84,11 @@ public class PanacheResourceStorage implements ResourceStorage {
     }
 
     @Override
+    public List<RegistryData> getRegistriesByOwner(String owner) {
+        return registryRepository.list("owner", owner);
+    }
+
+    @Override
     public void deleteRegistry(String id) throws RegistryNotFoundException, RegistryStorageConflictException {
         RegistryData registry = getRegistryById(id)
                 .orElseThrow(() -> new RegistryNotFoundException(id));
