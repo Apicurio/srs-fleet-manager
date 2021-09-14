@@ -1,11 +1,11 @@
 package org.bf2.srs.fleetmanager.common.errors;
 
-import lombok.Getter;
-import lombok.ToString;
-
 import java.util.Collections;
 import java.util.SortedMap;
 import java.util.TreeMap;
+
+import lombok.Getter;
+import lombok.ToString;
 
 /**
  * A list of error codes together with a template for user-friendly description (error reason).
@@ -35,7 +35,10 @@ public enum UserErrorCode {
     ERROR_AMS_RESOURCE_LIMIT_REACHED(7, "The maximum number of allowed Registry instances has been reached", 0),
     ERROR_AMS_ACCOUNT_NOT_FOUND(11, "Client's account not found when checking entitlements: %s", 1),
 
-    ERROR_ERROR_TYPE_NOT_FOUND(8, "Error type with id='%s' not found", 1);
+    ERROR_ERROR_TYPE_NOT_FOUND(8, "Error type with id='%s' not found", 1),
+
+    ERROR_EVAL_INSTANCES_NOT_ALLOWED(12, "Evaluation instances not allowed.", 0),
+    ERROR_EVAL_INSTANCE_ALREADY_EXISTS(13, "Evaluation instance already exists for user.", 0);
 
     // Next ID: 12
 
