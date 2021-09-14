@@ -83,49 +83,52 @@ public class AccountManagementServiceImpl implements AccountManagementService {
         termsReview.setEventCode(amsProperties.termsEventCode);
         termsReview.setSiteCode(amsProperties.termsSiteCode);
 
+        // Check if the user has accepted the Terms & Conditions
         final ResponseTermsReview responseTermsReview = restClient.termsReview(termsReview);
         termsAccepted = !responseTermsReview.getTermsRequired();
-
-        if (termsAccepted) {
-
-            String productId = amsProperties.standardProductId;
-            String resourceName = amsProperties.standardResourceName;
-            if (resourceType == ResourceType.REGISTRY_INSTANCE_EVAL) {
-                productId = amsProperties.evalProductId;
-                resourceName = amsProperties.evalResourceName;
-            }
-
-            final var quotaResource = ReservedResource.builder()
-                    .resourceType(amsProperties.resourceType)
-                    .byoc(false)
-                    .resourceName(resourceName)
-                    .billingModel("marketplace")
-                    .availabilityZone("single")
-                    .count(1)
-                    .build();
-
-            final ClusterAuthorization clusterAuthorization = ClusterAuthorization.builder()
-                    .accountUsername(accountInfo.getAccountUsername())
-                    .productId(productId)
-                    .managed(true)
-                    .byoc(false)
-                    .cloudProviderId("aws")
-                    .reserve(true)
-                    .availabilityZone("single")
-                    .clusterId(UUID.randomUUID().toString())
-                    .resources(Collections.singletonList(quotaResource))
-                    .build();
-
-            final ClusterAuthorizationResponse clusterAuthorizationResponse = restClient.clusterAuthorization(clusterAuthorization);
-
-            if (clusterAuthorizationResponse.getAllowed()) {
-                return clusterAuthorizationResponse.getSubscription().getId();
-            } else {
-                //User not allowed to create resource
-                throw new ResourceLimitReachedException();
-            }
-        } else {
+        if (!termsAccepted) {
             throw new TermsRequiredException(accountInfo.getAccountUsername());
+        }
+
+        // Set the productId and resourceName based on if it's an Eval or Standard instance
+        String productId = amsProperties.standardProductId;
+        String resourceName = amsProperties.standardResourceName;
+        if (resourceType == ResourceType.REGISTRY_INSTANCE_EVAL) {
+            productId = amsProperties.evalProductId;
+            resourceName = amsProperties.evalResourceName;
+        }
+
+        // Build a quota resource ID to pass to AMS
+        final var quotaResource = ReservedResource.builder()
+                .resourceType(amsProperties.resourceType)
+                .byoc(false)
+                .resourceName(resourceName)
+                .billingModel("marketplace")
+                .availabilityZone("single")
+                .count(1)
+                .build();
+
+        // Create the cluster authorization REST operation input
+        final ClusterAuthorization clusterAuthorization = ClusterAuthorization.builder()
+                .accountUsername(accountInfo.getAccountUsername())
+                .productId(productId)
+                .managed(true)
+                .byoc(false)
+                .cloudProviderId("aws")
+                .reserve(true)
+                .availabilityZone("single")
+                .clusterId(UUID.randomUUID().toString())
+                .resources(Collections.singletonList(quotaResource))
+                .build();
+
+        // Consume quota from AMS via the AMS REST API
+        final ClusterAuthorizationResponse clusterAuthorizationResponse = restClient.clusterAuthorization(clusterAuthorization);
+
+        if (clusterAuthorizationResponse.getAllowed()) {
+            return clusterAuthorizationResponse.getSubscription().getId();
+        } else {
+            // User not allowed to create resource
+            throw new ResourceLimitReachedException();
         }
     }
 

@@ -1,17 +1,5 @@
 package org.bf2.srs.fleetmanager.rest.publicapi;
 
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.Error;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.ErrorList;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.Registry;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreate;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryList;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.ServiceStatus;
-import org.bf2.srs.fleetmanager.rest.service.ErrorNotFoundException;
-import org.bf2.srs.fleetmanager.spi.ResourceLimitReachedException;
-import org.bf2.srs.fleetmanager.spi.TermsRequiredException;
-import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
-import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
-
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.ws.rs.Consumes;
@@ -22,6 +10,20 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.Error;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.ErrorList;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.Registry;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreate;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryList;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.ServiceStatus;
+import org.bf2.srs.fleetmanager.rest.service.ErrorNotFoundException;
+import org.bf2.srs.fleetmanager.spi.EvalInstanceAlreadyExistsException;
+import org.bf2.srs.fleetmanager.spi.EvalInstancesNotAllowedException;
+import org.bf2.srs.fleetmanager.spi.ResourceLimitReachedException;
+import org.bf2.srs.fleetmanager.spi.TermsRequiredException;
+import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
+import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
 
 /**
  * A JAX-RS interface.  An implementation of this interface must be provided.
@@ -44,7 +46,9 @@ public interface ApiResource {
     @POST
     @Produces("application/json")
     @Consumes("application/json")
-    Registry createRegistry(RegistryCreate data) throws RegistryStorageConflictException, TermsRequiredException, ResourceLimitReachedException;
+    Registry createRegistry(RegistryCreate data)
+            throws RegistryStorageConflictException, TermsRequiredException, ResourceLimitReachedException,
+            EvalInstancesNotAllowedException, EvalInstanceAlreadyExistsException;
 
     /**
      * Gets the details of a single instance of a `Registry`.

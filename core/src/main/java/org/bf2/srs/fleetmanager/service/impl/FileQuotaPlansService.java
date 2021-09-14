@@ -32,8 +32,6 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validator;
 
-import io.quarkus.arc.DefaultBean;
-import io.quarkus.arc.profile.IfBuildProfile;
 import org.bf2.srs.fleetmanager.service.QuotaPlansService;
 import org.bf2.srs.fleetmanager.service.model.QuotaPlan;
 import org.bf2.srs.fleetmanager.service.model.QuotaPlansConfigList;
@@ -44,6 +42,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+
+import io.quarkus.arc.profile.IfBuildProfile;
 
 /**
  * @author Fabian Martinez
@@ -71,6 +71,7 @@ public class FileQuotaPlansService implements QuotaPlansService {
     @ConfigProperty(name = "registry.quota.plans.default", defaultValue = "default")
     String defaultQuotaPlan;
 
+    @Override
     public void init() throws IOException {
         log.debug("Using FileQuotaPlansService implementation of QuotaPlansService");
 
