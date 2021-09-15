@@ -33,7 +33,7 @@ public enum UserErrorCode {
 
     ERROR_AMS_TERMS_NOT_ACCEPTED(6, "Required terms have not been accepted for account id='%s'", 1),
     ERROR_AMS_RESOURCE_LIMIT_REACHED(7, "The maximum number of allowed Registry instances has been reached", 0),
-    ERROR_AMS_ACCOUNT_NOT_FOUND(11, "Client's account not found when checking entitlements: %s", 1),
+    ERROR_AMS_FAILED_TO_CHECK_QUOTA(11, "Could not check quota for user%s", 1),
 
     ERROR_ERROR_TYPE_NOT_FOUND(8, "Error type with id='%s' not found", 1),
 

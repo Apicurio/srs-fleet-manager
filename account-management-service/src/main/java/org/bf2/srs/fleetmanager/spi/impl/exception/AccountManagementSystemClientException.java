@@ -32,14 +32,7 @@ public class AccountManagementSystemClientException extends ApicurioRestClientEx
 
     @Override
     public UserErrorInfo getUserErrorInfo() {
-        if (cause.isPresent()) {
-            switch (cause.get().getCode()) {
-                case "ACCT-MGMT-7":
-                    return UserErrorInfo.create(UserErrorCode.ERROR_AMS_ACCOUNT_NOT_FOUND, cause.get().getReason());
-                default:
-                    break; // Bubble down to UserErrorCode.ERROR_UNKNOWN
-            }
-        }
-        return UserErrorInfo.create(UserErrorCode.ERROR_UNKNOWN);
+        var reason = cause.isPresent() ? ". " + cause.get().getReason() : ".";
+        return UserErrorInfo.create(UserErrorCode.ERROR_AMS_FAILED_TO_CHECK_QUOTA, reason);
     }
 }
