@@ -19,10 +19,11 @@ import org.bf2.srs.fleetmanager.rest.service.model.RegistryInstanceTypeValueDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryListDto;
 import org.bf2.srs.fleetmanager.rest.service.model.ServiceStatusDto;
 import org.bf2.srs.fleetmanager.spi.AccountManagementService;
-import org.bf2.srs.fleetmanager.spi.EvalInstanceAlreadyExistsException;
+import org.bf2.srs.fleetmanager.spi.TooManyEvalInstancesForUserException;
 import org.bf2.srs.fleetmanager.spi.EvalInstancesNotAllowedException;
 import org.bf2.srs.fleetmanager.spi.ResourceLimitReachedException;
 import org.bf2.srs.fleetmanager.spi.TermsRequiredException;
+import org.bf2.srs.fleetmanager.spi.TooManyInstancesException;
 import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
 import org.bf2.srs.fleetmanager.spi.model.ResourceType;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
@@ -74,34 +75,45 @@ public class RegistryServiceImpl implements RegistryService {
     @ConfigProperty(name = "srs-fleet-manager.eval.instances.allowed", defaultValue = "true")
     boolean evalInstancesAllowed;
 
-    @ConfigProperty(name = "srs-fleet-manager.max.eval.instances", defaultValue = "1000")
-    Integer maxEvalInstances;
+    @ConfigProperty(name = "srs-fleet-manager.eval.instances.per.user", defaultValue = "1")
+    int maxEvalInstancesPerUser;
+
+    @ConfigProperty(name = "srs-fleet-manager.max.instances", defaultValue = "1000")
+    int maxInstances;
 
     @Override
     public RegistryDto createRegistry(RegistryCreateDto registryCreate)
             throws RegistryStorageConflictException, TermsRequiredException, ResourceLimitReachedException,
-            EvalInstancesNotAllowedException, EvalInstanceAlreadyExistsException {
+            EvalInstancesNotAllowedException, TooManyEvalInstancesForUserException, TooManyInstancesException {
         final AccountInfo accountInfo = authService.extractAccountInfo();
+
+        // Make sure we have more instances available (max capacity not yet reached).
+        long instanceCount = getRegistryInstanceGlobalCount();
+        if (instanceCount >= maxInstances) {
+            throw new TooManyInstancesException();
+        }
 
         // Figure out if we are going to create a standard or eval instance.
         ResourceType resourceType = accountManagementService.determineAllowedResourceType(accountInfo);
-        if (resourceType == ResourceType.REGISTRY_INSTANCE_EVAL && !evalInstancesAllowed) {
-            throw new EvalInstancesNotAllowedException();
-        }
 
-        // If creating an eval instance, only allow one per user.  Need to check storage to see
-        // if one already exists.  Fail if it does.
         if (resourceType == ResourceType.REGISTRY_INSTANCE_EVAL) {
-            List<RegistryData> registriesByOwner = storage.getRegistriesByOwner(accountInfo.getAccountUsername());
-            boolean hasEvalInstance = false;
-            for (RegistryData registryData : registriesByOwner) {
-                if (RegistryInstanceTypeValueDto.EVAL.value().equals(registryData.getInstanceType())) {
-                    hasEvalInstance = true;
-                    break;
-                }
+            // Are eval instances allowed?
+            if (!evalInstancesAllowed) {
+                throw new EvalInstancesNotAllowedException();
             }
-            if (hasEvalInstance) {
-                throw new EvalInstanceAlreadyExistsException();
+
+            // Limit the # of eval instances per user.  Need to check storage for list of eval registry instances.
+            if (resourceType == ResourceType.REGISTRY_INSTANCE_EVAL) {
+                List<RegistryData> registriesByOwner = storage.getRegistriesByOwner(accountInfo.getAccountUsername());
+                int evalInstanceCount = 0;
+                for (RegistryData registryData : registriesByOwner) {
+                    if (RegistryInstanceTypeValueDto.EVAL.value().equals(registryData.getInstanceType())) {
+                        evalInstanceCount++;
+                    }
+                }
+                if (evalInstanceCount >= maxEvalInstancesPerUser) {
+                    throw new TooManyEvalInstancesForUserException();
+                }
             }
         }
 
@@ -202,14 +214,18 @@ public class RegistryServiceImpl implements RegistryService {
 
     @Override
     public ServiceStatusDto getServiceStatus() {
-        List<Pair<String, Object>> conditions = new ArrayList<>();
-        conditions.add(Pair.of("instance_type", RegistryInstanceTypeValueDto.EVAL.value()));
-        var query = new SearchQuery(conditions);
-        long total = this.registryRepository.count(query.getQuery(), query.getArguments());
+        long total = getRegistryInstanceGlobalCount();
 
         ServiceStatusDto status = new ServiceStatusDto();
-        status.setMaxEvalInstancesReached(total >= maxEvalInstances);
+        status.setMaxInstancesReached(total >= maxInstances);
         return status;
+    }
+
+    /**
+     * Queries the DB to get the total # of instances.
+     */
+    private long getRegistryInstanceGlobalCount() {
+        return this.registryRepository.count();
     }
 
 }

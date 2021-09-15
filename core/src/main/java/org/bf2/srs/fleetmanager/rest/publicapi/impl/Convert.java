@@ -1,5 +1,12 @@
 package org.bf2.srs.fleetmanager.rest.publicapi.impl;
 
+import java.time.Instant;
+import java.util.Date;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.ApplicationScoped;
+
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.Error;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.ErrorList;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.Registry;
@@ -16,12 +23,6 @@ import org.bf2.srs.fleetmanager.rest.service.model.RegistryInstanceTypeValueDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryListDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
 import org.bf2.srs.fleetmanager.rest.service.model.ServiceStatusDto;
-
-import java.time.Instant;
-import java.util.Date;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import javax.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class Convert {
@@ -112,7 +113,7 @@ public class Convert {
 
     public ServiceStatus convert(ServiceStatusDto status) {
         ServiceStatus res = new ServiceStatus();
-        res.setMaxEvalInstancesReached(status.isMaxEvalInstancesReached());
+        res.setMaxEvalInstancesReached(status.isMaxInstancesReached());
         return res;
     }
 }

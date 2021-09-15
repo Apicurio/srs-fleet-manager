@@ -44,5 +44,4 @@ public class AccountManagementServiceProperties {
     @ConfigProperty(name = "srs-fleet-manager.ams.resources.eval.product-id")
     String evalProductId;
 
-
 }

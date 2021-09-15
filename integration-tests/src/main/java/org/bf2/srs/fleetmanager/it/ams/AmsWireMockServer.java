@@ -52,7 +52,7 @@ public class AmsWireMockServer {
                         )));
 
         // Mock response for searching for an organization by its external org id
-        WireMock.stubFor(WireMock.get(WireMock.urlMatching("/api/accounts_mgmt/v1/organizations\\?search.+"))
+        wireMockServer.stubFor(WireMock.get(WireMock.urlMatching("/api/accounts_mgmt/v1/organizations\\?search.+"))
                 .willReturn(WireMock.aResponse()
                         .withHeader("Content-Type", "application/json")
                         .withBody(
@@ -76,7 +76,7 @@ public class AmsWireMockServer {
 
 
         // Mock response for getting a list of QuotaCost objects for an org
-        WireMock.stubFor(WireMock.get(WireMock.urlEqualTo("/api/accounts_mgmt/v1/organizations/1pcZDw72EPhdanw4pJEnrudOnyj/quota_cost?fetchRelatedResources=true"))
+        wireMockServer.stubFor(WireMock.get(WireMock.urlEqualTo("/api/accounts_mgmt/v1/organizations/1pcZDw72EPhdanw4pJEnrudOnyj/quota_cost?fetchRelatedResources=true"))
                 .willReturn(WireMock.aResponse()
                         .withHeader("Content-Type", "application/json")
                         .withBody(
