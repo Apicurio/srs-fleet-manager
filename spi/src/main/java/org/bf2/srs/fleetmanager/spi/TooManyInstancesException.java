@@ -23,11 +23,11 @@ import org.bf2.srs.fleetmanager.common.errors.UserErrorInfo;
 /**
  * @author eric.wittmann@gmail.com
  */
-public class EvalInstanceAlreadyExistsException extends Exception implements UserError {
+public class TooManyInstancesException extends Exception implements UserError {
 
-    private static final long serialVersionUID = -4082728585921201323L;
+    private static final long serialVersionUID = -1725162305642133772L;
 
-    public EvalInstanceAlreadyExistsException() {
+    public TooManyInstancesException() {
         super();
     }
 
@@ -38,6 +38,6 @@ public class EvalInstanceAlreadyExistsException extends Exception implements Use
 
     @Override
     public UserErrorInfo getUserErrorInfo() {
-        return UserErrorInfo.create(UserErrorCode.ERROR_EVAL_INSTANCE_ALREADY_EXISTS);
+        return UserErrorInfo.create(UserErrorCode.ERROR_TOO_MANY_INSTANCES);
     }
 }

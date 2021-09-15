@@ -32,6 +32,6 @@ import lombok.ToString;
 @ToString(callSuper = true)
 public class ServiceStatusDto {
 
-    private boolean maxEvalInstancesReached;
+    private boolean maxInstancesReached;
 
 }
