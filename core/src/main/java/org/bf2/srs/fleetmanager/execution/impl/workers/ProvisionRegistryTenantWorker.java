@@ -112,7 +112,7 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
         }
 
         // Add expiration task if this is an eval instance
-        if(RegistryInstanceTypeValueDto.of(registry.getInstanceType()) == RegistryInstanceTypeValueDto.EVAL) {
+        if(isEvalInstance(registry.getInstanceType())) {
             var expiration = Instant.now().plus(Duration.ofSeconds(evalLifetimeSeconds));
             log.debug("Scheduling an expiration task for the eval instance {} to be executed at {}", registry, expiration);
             ctl.delay(() -> tasks.submit(EvalInstanceExpirationRegistryTask.builder()
@@ -160,5 +160,9 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
         if (registry != null) {
             storage.deleteRegistry(registry.getId());
         }
+    }
+
+    private boolean isEvalInstance(String instanceType) {
+        return RegistryInstanceTypeValueDto.of(instanceType) == RegistryInstanceTypeValueDto.EVAL;
     }
 }
