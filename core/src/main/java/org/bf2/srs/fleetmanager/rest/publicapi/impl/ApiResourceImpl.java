@@ -13,10 +13,11 @@ import org.bf2.srs.fleetmanager.rest.publicapi.beans.ServiceStatus;
 import org.bf2.srs.fleetmanager.rest.service.ErrorNotFoundException;
 import org.bf2.srs.fleetmanager.rest.service.ErrorService;
 import org.bf2.srs.fleetmanager.rest.service.RegistryService;
-import org.bf2.srs.fleetmanager.spi.EvalInstanceAlreadyExistsException;
+import org.bf2.srs.fleetmanager.spi.TooManyEvalInstancesForUserException;
 import org.bf2.srs.fleetmanager.spi.EvalInstancesNotAllowedException;
 import org.bf2.srs.fleetmanager.spi.ResourceLimitReachedException;
 import org.bf2.srs.fleetmanager.spi.TermsRequiredException;
+import org.bf2.srs.fleetmanager.spi.TooManyInstancesException;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
 
@@ -45,7 +46,7 @@ public class ApiResourceImpl implements ApiResource {
     @Override
     public Registry createRegistry(RegistryCreate data)
             throws RegistryStorageConflictException, TermsRequiredException, ResourceLimitReachedException,
-            EvalInstancesNotAllowedException, EvalInstanceAlreadyExistsException {
+            EvalInstancesNotAllowedException, TooManyEvalInstancesForUserException, TooManyInstancesException {
         return convert.convert(registryService.createRegistry(convert.convert(data)));
     }
 

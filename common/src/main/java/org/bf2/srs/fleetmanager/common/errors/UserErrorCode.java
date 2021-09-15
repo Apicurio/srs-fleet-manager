@@ -38,9 +38,11 @@ public enum UserErrorCode {
     ERROR_ERROR_TYPE_NOT_FOUND(8, "Error type with id='%s' not found", 1),
 
     ERROR_EVAL_INSTANCES_NOT_ALLOWED(12, "Evaluation instances not allowed.", 0),
-    ERROR_EVAL_INSTANCE_ALREADY_EXISTS(13, "Evaluation instance already exists for user.", 0);
+    ERROR_EVAL_INSTANCES_EXCEEDED(13, "User already has the maximum number of allowed Evaluation instances.", 0),
+    ERROR_TOO_MANY_INSTANCES(14, "Total (global) number of instances exhausted.", 0),
+    ;
 
-    // Next ID: 12
+    // Next ID: 15
 
     public static final String ERROR_CODE_PREFIX = "SRS-MGMT-";
 

@@ -16,18 +16,23 @@
 
 package org.bf2.srs.fleetmanager.it;
 
-import io.restassured.http.ContentType;
-import io.smallrye.jwt.build.Jwt;
+import static io.restassured.RestAssured.given;
+import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
+import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
+
+import java.util.List;
+
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentCreateRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.Registry;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreate;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryList;
 import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
 
-import java.util.List;
-
-import static io.restassured.RestAssured.given;
-import static java.net.HttpURLConnection.*;
+import io.restassured.http.ContentType;
+import io.smallrye.jwt.build.Jwt;
 
 /**
  * @author Fabian Martinez
@@ -45,11 +50,11 @@ public class FleetManagerApi {
 
     public static Registry createRegistry(RegistryCreate registry, AccountInfo user) {
         return given()
+                .log().all()
                 .auth().oauth2(getAccessToken(user))
                 .when().contentType(ContentType.JSON).body(registry)
                 .post(BASE)
                 .then().statusCode(HTTP_OK)
-                .log().all()
                 .extract().as(Registry.class);
     }
 
