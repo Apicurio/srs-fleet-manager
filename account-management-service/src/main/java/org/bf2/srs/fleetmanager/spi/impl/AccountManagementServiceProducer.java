@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import java.util.Collections;
+import java.util.Optional;
 
 @ApplicationScoped
 public class AccountManagementServiceProducer {
@@ -38,7 +39,7 @@ public class AccountManagementServiceProducer {
         logger.info("Using Account Management Service with Account Management URL: {}", endpoint);
         AccountManagementSystemRestClient restClient;
         if (ssoEnabled) {
-            final OidcAuth auth = new OidcAuth(ssoTokenEndpoint, ssoClientId, ssoClientSecret);
+            final OidcAuth auth = new OidcAuth(ssoTokenEndpoint, ssoClientId, ssoClientSecret, Optional.of(new AccountManagementSystemErrorHandler()));
             restClient = new AccountManagementSystemRestClient(endpoint, Collections.emptyMap(), auth);
         } else {
             restClient = new AccountManagementSystemRestClient(endpoint, Collections.emptyMap(), null);
