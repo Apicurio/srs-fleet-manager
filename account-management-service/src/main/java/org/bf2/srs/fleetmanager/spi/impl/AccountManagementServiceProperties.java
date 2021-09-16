@@ -16,14 +16,14 @@
 
 package org.bf2.srs.fleetmanager.spi.impl;
 
-import javax.enterprise.context.ApplicationScoped;
-
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+import javax.inject.Singleton;
 
 /**
  * @author eric.wittmann@gmail.com
  */
-@ApplicationScoped
+@Singleton
 public class AccountManagementServiceProperties {
 
     @ConfigProperty(name = "srs-fleet-manager.ams.terms.mas-site-code", defaultValue = "ocm")
