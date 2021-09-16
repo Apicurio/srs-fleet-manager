@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
+import java.util.Optional;
 
 @ApplicationScoped
 public class TenantManagerClientProducer {
@@ -33,7 +34,7 @@ public class TenantManagerClientProducer {
     public TenantManagerService produce() {
         if (tenantManagerAuthEnabled) {
             log.info("Using Apicurio Registry REST TenantManagerClient with authentication enabled.");
-            return new RestClientTenantManagerServiceImpl(new OidcAuth(tenantManagerAuthServerUrl, tenantManagerAuthClientId, tenantManagerAuthSecret));
+            return new RestClientTenantManagerServiceImpl(new OidcAuth(tenantManagerAuthServerUrl, tenantManagerAuthClientId, tenantManagerAuthSecret, Optional.empty()));
         } else {
             log.info("Using Apicurio Registry REST TenantManagerClient.");
             return new RestClientTenantManagerServiceImpl();

@@ -16,6 +16,7 @@ import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -62,7 +63,7 @@ public class Utils {
         var infra = TestInfraManager.getInstance();
         if (infra.isTenantManagerAuthEnabled()) {
             var tmAuth = infra.getTenantManagerAuthConfig();
-            OidcAuth auth = new OidcAuth(tmAuth.tokenEndpoint, tmAuth.clientId, tmAuth.clientSecret);
+            OidcAuth auth = new OidcAuth(tmAuth.tokenEndpoint, tmAuth.clientId, tmAuth.clientSecret, Optional.empty());
             // TODO uncomment
             // {
             //     //verify tenant manager auth
