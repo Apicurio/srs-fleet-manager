@@ -1,13 +1,12 @@
-package org.bf2.srs.fleetmanager.spi.impl;
+package org.bf2.srs.fleetmanager.spi.impl.exception;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.apicurio.rest.client.auth.exception.AuthErrorHandler;
 import io.apicurio.rest.client.error.ApicurioRestClientException;
-import org.bf2.srs.fleetmanager.spi.impl.exception.AccountManagementSystemClientException;
 
 import java.io.InputStream;
 
-public class AccountManagementSystemErrorHandler extends AuthErrorHandler {
+public class AccountManagementSystemAuthErrorHandler extends AuthErrorHandler {
     @Override
     public ApicurioRestClientException handleErrorResponse(InputStream inputStream, int i) {
         return super.handleErrorResponse(inputStream, i);
