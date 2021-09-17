@@ -3,6 +3,7 @@ package org.bf2.srs.fleetmanager.spi.impl;
 import io.apicurio.rest.client.auth.OidcAuth;
 import io.quarkus.arc.profile.UnlessBuildProfile;
 import org.bf2.srs.fleetmanager.spi.AccountManagementService;
+import org.bf2.srs.fleetmanager.spi.impl.exception.AccountManagementSystemAuthErrorHandler;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +40,7 @@ public class AccountManagementServiceProducer {
         logger.info("Using Account Management Service with Account Management URL: {}", endpoint);
         AccountManagementSystemRestClient restClient;
         if (ssoEnabled) {
-            final OidcAuth auth = new OidcAuth(ssoTokenEndpoint, ssoClientId, ssoClientSecret, Optional.of(new AccountManagementSystemErrorHandler()));
+            final OidcAuth auth = new OidcAuth(ssoTokenEndpoint, ssoClientId, ssoClientSecret, Optional.of(new AccountManagementSystemAuthErrorHandler()));
             restClient = new AccountManagementSystemRestClient(endpoint, Collections.emptyMap(), auth);
         } else {
             restClient = new AccountManagementSystemRestClient(endpoint, Collections.emptyMap(), null);
