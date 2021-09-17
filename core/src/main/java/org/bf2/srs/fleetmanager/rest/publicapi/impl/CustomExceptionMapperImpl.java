@@ -10,6 +10,12 @@ import org.bf2.srs.fleetmanager.rest.config.CustomExceptionMapper;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.Error;
 import org.bf2.srs.fleetmanager.rest.service.ErrorNotFoundException;
 import org.bf2.srs.fleetmanager.rest.service.model.Kind;
+import org.bf2.srs.fleetmanager.spi.EvalInstancesNotAllowedException;
+import org.bf2.srs.fleetmanager.spi.ResourceLimitReachedException;
+import org.bf2.srs.fleetmanager.spi.TermsRequiredException;
+import org.bf2.srs.fleetmanager.spi.TooManyEvalInstancesForUserException;
+import org.bf2.srs.fleetmanager.spi.TooManyInstancesException;
+import org.bf2.srs.fleetmanager.spi.impl.exception.AccountManagementSystemClientException;
 import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
@@ -24,6 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.enterprise.context.ApplicationScoped;
 import javax.validation.ConstraintViolationException;
+import javax.ws.rs.NotSupportedException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -54,7 +61,17 @@ public class CustomExceptionMapperImpl implements CustomExceptionMapper {
         map.put(ConstraintViolationException.class, HTTP_BAD_REQUEST);
         map.put(JsonParseException.class, HTTP_BAD_REQUEST);
 
+        map.put(NotSupportedException.class, HTTP_UNSUPPORTED_TYPE);
+
+        map.put(AccountManagementSystemClientException.class, HTTP_INTERNAL_ERROR);
+        map.put(EvalInstancesNotAllowedException.class, HTTP_INTERNAL_ERROR);
+
         map.put(RegistryStorageConflictException.class, HTTP_CONFLICT);
+        map.put(ResourceLimitReachedException.class, HTTP_CONFLICT);
+        map.put(TermsRequiredException.class, HTTP_CONFLICT);
+        map.put(TooManyEvalInstancesForUserException.class, HTTP_CONFLICT);
+
+        map.put(TooManyInstancesException.class, HTTP_PAYMENT_REQUIRED);
 
         CODE_MAP = Collections.unmodifiableMap(map);
     }
