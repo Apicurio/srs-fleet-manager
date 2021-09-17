@@ -113,7 +113,7 @@ public class Convert {
 
     public ServiceStatus convert(ServiceStatusDto status) {
         ServiceStatus res = new ServiceStatus();
-        res.setMaxEvalInstancesReached(status.isMaxInstancesReached());
+        res.setMaxInstancesReached(status.isMaxInstancesReached());
         return res;
     }
 }
