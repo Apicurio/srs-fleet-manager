@@ -232,6 +232,10 @@ objects:
             value: ${AMS_URL}
           - name: SSO_TOKEN_ENDPOINT
             value: ${SSO_TOKEN_ENDPOINT}
+          - name: EVAL_RESOURCE_NAME
+            value: ${EVAL_RESOURCE_NAME}
+          - name: EVAL_PRODUCT_ID
+            value: ${EVAL_PRODUCT_ID}
           livenessProbe:
             failureThreshold: 3
             httpGet:
@@ -408,3 +412,8 @@ parameters:
   value: "http://localhost:8091"
 - name: SSO_TOKEN_ENDPOINT
   value: "http://localhost:8090"
+
+- name: EVAL_RESOURCE_NAME
+  value: "rhosrtrial"
+- name: EVAL_PRODUCT_ID
+  value: "RHOSRTrial"
