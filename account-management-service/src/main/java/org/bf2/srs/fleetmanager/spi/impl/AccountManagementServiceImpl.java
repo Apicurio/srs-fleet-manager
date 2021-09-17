@@ -90,6 +90,12 @@ public class AccountManagementServiceImpl implements AccountManagementService {
             throw new TermsRequiredException(accountInfo.getAccountUsername());
         }
 
+        // If we're creating an eval instance, don't bother invoking AMS - return a null subscriptionId
+        // TODO remove this once we have RHOSRTrial working.
+        if (resourceType == ResourceType.REGISTRY_INSTANCE_EVAL) {
+            return null;
+        }
+
         // Set the productId and resourceName based on if it's an Eval or Standard instance
         String productId = amsProperties.standardProductId;
         String resourceName = amsProperties.standardResourceName;
@@ -134,6 +140,10 @@ public class AccountManagementServiceImpl implements AccountManagementService {
 
     @Override
     public void deleteSubscription(String subscriptionId) {
-        restClient.deleteSubscription(subscriptionId);
+        // If the subscriptionId is null, it means we didn't reserve quota in AMS for this
+        // instances (likely because it's an Eval instance).
+        if (subscriptionId != null) {
+            restClient.deleteSubscription(subscriptionId);
+        }
     }
 }
