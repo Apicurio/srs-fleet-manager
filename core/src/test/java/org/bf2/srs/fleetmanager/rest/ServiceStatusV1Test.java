@@ -42,7 +42,7 @@ public class ServiceStatusV1Test {
                 .log().all()
                 .extract().as(ServiceStatus.class);
 
-        assertFalse(res1.getMaxEvalInstancesReached());
+        assertFalse(res1.getMaxInstancesReached());
 
 
     }
