@@ -1,8 +1,5 @@
 package org.bf2.srs.fleetmanager.spi.impl;
 
-import java.util.Collections;
-import java.util.UUID;
-
 import org.bf2.srs.fleetmanager.spi.AccountManagementService;
 import org.bf2.srs.fleetmanager.spi.ResourceLimitReachedException;
 import org.bf2.srs.fleetmanager.spi.TermsRequiredException;
@@ -17,15 +14,22 @@ import org.bf2.srs.fleetmanager.spi.impl.model.response.RelatedResource;
 import org.bf2.srs.fleetmanager.spi.impl.model.response.ResponseTermsReview;
 import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
 import org.bf2.srs.fleetmanager.spi.model.ResourceType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Collections;
+import java.util.UUID;
 
 /**
  * This service is in charge of check if a given user has the appropriate situation in order to ask for the requested resource
  */
 public class AccountManagementServiceImpl implements AccountManagementService {
 
-	private final AccountManagementSystemRestClient restClient;
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private final AccountManagementServiceProperties amsProperties;
+    private final AccountManagementSystemRestClient restClient;
+
+    private final AccountManagementServiceProperties amsProperties;
 
     /**
      * Constructor.
@@ -91,8 +95,10 @@ public class AccountManagementServiceImpl implements AccountManagementService {
         }
 
         // If we're creating an eval instance, don't bother invoking AMS - return a null subscriptionId
-        // TODO remove this once we have RHOSRTrial working.
+        // TODO Workaround: Remove this once we have RHOSRTrial working.
         if (resourceType == ResourceType.REGISTRY_INSTANCE_EVAL) {
+            log.warn("Creating an eval instance for '{}' in org '{}' without calling AMS. " +
+                    "This is a temporary workaround.", accountInfo.getAccountUsername(), accountInfo.getOrganizationId());
             return null;
         }
 
@@ -142,6 +148,7 @@ public class AccountManagementServiceImpl implements AccountManagementService {
     public void deleteSubscription(String subscriptionId) {
         // If the subscriptionId is null, it means we didn't reserve quota in AMS for this
         // instances (likely because it's an Eval instance).
+        // TODO Workaround: Remove this once we have RHOSRTrial working.
         if (subscriptionId != null) {
             restClient.deleteSubscription(subscriptionId);
         }

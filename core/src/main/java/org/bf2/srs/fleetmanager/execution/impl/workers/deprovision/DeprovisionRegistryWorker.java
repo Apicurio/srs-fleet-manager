@@ -7,6 +7,7 @@ import org.bf2.srs.fleetmanager.execution.impl.workers.Utils;
 import org.bf2.srs.fleetmanager.execution.impl.workers.WorkerType;
 import org.bf2.srs.fleetmanager.execution.manager.Task;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryInstanceTypeValueDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
 import org.bf2.srs.fleetmanager.spi.AccountManagementService;
 import org.bf2.srs.fleetmanager.spi.TenantManagerService;
@@ -84,7 +85,12 @@ public class DeprovisionRegistryWorker extends AbstractWorker {
              */
             if (!task.isAmsSuccess()) {
                 final String subscriptionId = registry.getSubscriptionId();
-                ams.deleteSubscription(subscriptionId);
+                // TODO Workaround: Remove this once we have RHOSRTrial working.
+                if(subscriptionId != null && RegistryInstanceTypeValueDto.of(registry.getInstanceType()) != RegistryInstanceTypeValueDto.EVAL) {
+                    ams.deleteSubscription(subscriptionId);
+                } else {
+                    log.warn("Deleting an eval instance {} without calling AMS. This is a temporary workaround.", registry.getId());
+                }
                 task.setAmsSuccess(true);
                 log.debug("Subscription (id='{}') for Registry (id='{}') deleted.", subscriptionId, registry.getId());
             }
