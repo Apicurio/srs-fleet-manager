@@ -232,10 +232,19 @@ objects:
             value: ${AMS_URL}
           - name: SSO_TOKEN_ENDPOINT
             value: ${SSO_TOKEN_ENDPOINT}
+          # Eval instances
           - name: EVAL_RESOURCE_NAME
             value: ${EVAL_RESOURCE_NAME}
           - name: EVAL_PRODUCT_ID
             value: ${EVAL_PRODUCT_ID}
+          - name: REGISTRY_INSTANCES_MAX_COUNT
+            value: ${REGISTRY_INSTANCES_MAX_COUNT}
+          - name: REGISTRY_INSTANCES_EVAL_ENABLED
+            value: ${REGISTRY_INSTANCES_EVAL_ENABLED}
+          - name: REGISTRY_INSTANCES_EVAL_MAX_COUNT_PER_USER
+            value: ${REGISTRY_INSTANCES_EVAL_MAX_COUNT_PER_USER}
+          - name: REGISTRY_INSTANCES_EVAL_LIFETIME_SECONDS
+            value: ${REGISTRY_INSTANCES_EVAL_LIFETIME_SECONDS}
           livenessProbe:
             failureThreshold: 3
             httpGet:
@@ -413,7 +422,17 @@ parameters:
 - name: SSO_TOKEN_ENDPOINT
   value: "http://localhost:8090"
 
+# === Eval Instances
+
 - name: EVAL_RESOURCE_NAME
   value: "rhosrtrial"
 - name: EVAL_PRODUCT_ID
   value: "RHOSRTrial"
+- name: REGISTRY_INSTANCES_MAX_COUNT
+  value: "1000"
+- name: REGISTRY_INSTANCES_EVAL_ENABLED
+  value: "true"
+- name: REGISTRY_INSTANCES_EVAL_MAX_COUNT_PER_USER
+  value: "1"
+- name: REGISTRY_INSTANCES_EVAL_LIFETIME_SECONDS
+  value: "172800" # 48 hours
