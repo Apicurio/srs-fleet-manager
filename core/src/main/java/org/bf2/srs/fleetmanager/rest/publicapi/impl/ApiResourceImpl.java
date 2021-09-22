@@ -20,7 +20,6 @@ import org.bf2.srs.fleetmanager.spi.TooManyEvalInstancesForUserException;
 import org.bf2.srs.fleetmanager.spi.TooManyInstancesException;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 /**
  * @author Jakub Senko <jsenko@redhat.com>
@@ -37,34 +36,23 @@ public class ApiResourceImpl implements ApiResource {
     @Inject
     ErrorService errorService;
 
-    @ConfigProperty(name = "srs-fleet-manager.registry.browser-url")
-    String browserUrl;
-
     @Override
     public RegistryList getRegistries(Integer page,
                                       Integer size,
                                       String orderBy, String search) {
-        RegistryList registries = convert.convert(registryService.getRegistries(page, size, orderBy, search));
-        registries.getItems().forEach(registry -> {
-            registry.setBrowserUrl(browserUrl.replace("$TENANT_ID", registry.getId()));
-        });
-        return registries;
+        return convert.convert(registryService.getRegistries(page, size, orderBy, search));
     }
 
     @Override
     public Registry createRegistry(RegistryCreate data)
             throws RegistryStorageConflictException, TermsRequiredException, ResourceLimitReachedException,
             EvalInstancesNotAllowedException, TooManyEvalInstancesForUserException, TooManyInstancesException {
-        Registry registry = convert.convert(registryService.createRegistry(convert.convert(data)));
-        registry.setBrowserUrl(browserUrl.replace("$TENANT_ID", registry.getId()));
-        return registry;
+        return convert.convert(registryService.createRegistry(convert.convert(data)));
     }
 
     @Override
     public Registry getRegistry(String id) throws RegistryNotFoundException {
-        Registry registry = convert.convert(registryService.getRegistry(id));
-        registry.setBrowserUrl(browserUrl.replace("$TENANT_ID", registry.getId()));
-        return registry;
+        return convert.convert(registryService.getRegistry(id));
     }
 
     @Override
