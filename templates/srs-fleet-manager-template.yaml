@@ -248,17 +248,11 @@ objects:
 
           - name: ENABLE_SENTRY
             value: ${ENABLE_SENTRY}
-          - name: SENTRY_KEY
+          - name: SENTRY_DSN
             valueFrom:
               secretKeyRef:
-                name:  ${SENTRY_KEY_SECRET_NAME}
-                key:  sentry-key
-          - name: SENTRY_URL
-            value: ${SENTRY_URL}
-          - name: SENTRY_PROJECT
-            value: ${SENTRY_PROJECT}
-          - name: SENTRY_DEBUG
-            value: ${SENTRY_DEBUG}
+                name:  ${SENTRY_DSN_SECRET_NAME}
+                key:  sentry-dsn
 
           livenessProbe:
             failureThreshold: 3
@@ -454,15 +448,6 @@ parameters:
 
 - name: ENABLE_SENTRY
   value: "false"
-- name: SENTRY_KEY_SECRET_NAME
-  description: Secret name containing key for connecting to sentry
-  value: sentry-key-secret
-- name: SENTRY_URL
-  displayName: Sentry base URL
-  description: Base URL (without https://) of sentry server
-  value: "sentry.autom8.in"
-- name: SENTRY_PROJECT
-  displayName: Sentry Project ID
-  value: "31"
-- name: SENTRY_DEBUG
-  value: "false"
+- name: SENTRY_DSN_SECRET_NAME
+  description: Secret name containing dsn for connecting to sentry
+  value: sentry-dsn-secret
