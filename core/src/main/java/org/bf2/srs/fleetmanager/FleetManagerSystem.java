@@ -16,10 +16,6 @@
 
 package org.bf2.srs.fleetmanager;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -43,10 +39,6 @@ public class FleetManagerSystem {
     @ConfigProperty(name = "srs-fleet-manager.version")
     String version;
 
-    @Inject
-    @ConfigProperty(name = "srs-fleet-manager.date")
-    String date;
-
     public String getName() {
         return name;
     }
@@ -57,21 +49,6 @@ public class FleetManagerSystem {
 
     public String getVersion() {
         return this.version;
-    }
-
-    /**
-     * @return the versionDate
-     */
-    public Date getDate() {
-        try {
-            if (date == null) {
-                return new Date();
-            } else {
-                return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(date);
-            }
-        } catch (ParseException e) {
-            return new Date();
-        }
     }
 
 }
