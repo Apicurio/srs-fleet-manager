@@ -1,5 +1,16 @@
 package org.bf2.srs.fleetmanager.execution.impl.workers;
 
+import static org.bf2.srs.fleetmanager.execution.impl.tasks.TaskType.PROVISION_REGISTRY_TENANT_T;
+import static org.bf2.srs.fleetmanager.execution.impl.workers.WorkerType.PROVISION_REGISTRY_TENANT_W;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Optional;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+
 import org.bf2.srs.fleetmanager.execution.impl.tasks.ProvisionRegistryTenantTask;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.deprovision.EvalInstanceExpirationRegistryTask;
 import org.bf2.srs.fleetmanager.execution.manager.Task;
@@ -20,16 +31,6 @@ import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentD
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Optional;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-
-import static org.bf2.srs.fleetmanager.execution.impl.tasks.TaskType.PROVISION_REGISTRY_TENANT_T;
-import static org.bf2.srs.fleetmanager.execution.impl.workers.WorkerType.PROVISION_REGISTRY_TENANT_W;
 
 /**
  * This class MUST be thread safe. It should not contain state and inject thread safe beans only.
@@ -87,10 +88,16 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
         }
 
         String registryUrl = registryDeployment.getRegistryDeploymentUrl();
-        if (!registryUrl.endsWith("/")) {
-            registryUrl += "/";
+        // New approach: configure the deployment URL with a replacement like:  https://$TENANT_ID.shrd.sr.openshift.com
+        if (registryUrl.contains("$TENANT_ID")) {
+            registryUrl = registryUrl.replace("$TENANT_ID", registry.getId());
+        } else {
+            // Old approach: configure the deployment URL without a replacement, and just add "/t/$TENANT_ID" to the end of it.
+            if (!registryUrl.endsWith("/")) {
+                registryUrl += "/";
+            }
+            registryUrl += "t/" + registry.getId();
         }
-        registryUrl += "t/" + registry.getId();
         registry.setRegistryUrl(registryUrl);
 
         // Avoid accidentally creating orphan tenants

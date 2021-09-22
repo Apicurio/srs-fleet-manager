@@ -2,7 +2,9 @@
 package org.bf2.srs.fleetmanager.rest.publicapi.beans;
 
 import java.util.Date;
+
 import javax.annotation.processing.Generated;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -14,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * Root Type for Registry
  * <p>
  * Service Registry instance within a multi-tenant deployment.
- * 
+ *
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
@@ -23,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "href",
     "status",
     "registryUrl",
+    "browserUrl",
     "name",
     "registryDeploymentId",
     "owner",
@@ -35,9 +38,9 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 public class Registry {
 
     /**
-     * 
+     *
      * (Required)
-     * 
+     *
      */
     @JsonProperty("id")
     private String id;
@@ -47,51 +50,53 @@ public class Registry {
     private String href;
     /**
      * "accepted": Registry status when accepted for processing.
-     * 
+     *
      * "provisioning": Registry status when provisioning a new instance.
-     * 
+     *
      * "ready": Registry status when ready for use.
-     * 
+     *
      * "failed": Registry status when the provisioning failed. When removing a Registry in this state,
      * the status transitions directly to "deleting".
-     * 
-     * 
+     *
+     *
      * "deprovision": Registry status when accepted for deprovisioning.
-     * 
+     *
      * "deleting": Registry status when deprovisioning.
-     * 
+     *
      * (Required)
-     * 
+     *
      */
     @JsonProperty("status")
     @JsonPropertyDescription("\"accepted\": Registry status when accepted for processing.\n\n\"provisioning\": Registry status when provisioning a new instance.\n\n\"ready\": Registry status when ready for use.\n\n\"failed\": Registry status when the provisioning failed. When removing a Registry in this state,\nthe status transitions directly to \"deleting\".\n\n\n\"deprovision\": Registry status when accepted for deprovisioning.\n\n\"deleting\": Registry status when deprovisioning.\n")
     private RegistryStatusValue status;
     @JsonProperty("registryUrl")
     private String registryUrl;
+    @JsonProperty("browserUrl")
+    private String browserUrl;
     /**
      * User-defined Registry name. Does not have to be unique.
-     * 
+     *
      */
     @JsonProperty("name")
     @JsonPropertyDescription("User-defined Registry name. Does not have to be unique.")
     private String name;
     /**
      * Identifier of a multi-tenant deployment, where this Service Registry instance resides.
-     * 
+     *
      */
     @JsonProperty("registryDeploymentId")
     @JsonPropertyDescription("Identifier of a multi-tenant deployment, where this Service Registry instance resides.")
     private Integer registryDeploymentId;
     /**
      * Registry instance owner
-     * 
+     *
      */
     @JsonProperty("owner")
     @JsonPropertyDescription("Registry instance owner")
     private String owner;
     /**
      * Description of the Registry instance.
-     * 
+     *
      */
     @JsonProperty("description")
     @JsonPropertyDescription("Description of the Registry instance.")
@@ -99,7 +104,7 @@ public class Registry {
     /**
      * ISO 8601 UTC timestamp.
      * (Required)
-     * 
+     *
      */
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
     @JsonProperty("created_at")
@@ -108,7 +113,7 @@ public class Registry {
     /**
      * ISO 8601 UTC timestamp.
      * (Required)
-     * 
+     *
      */
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
     @JsonProperty("updated_at")
@@ -116,20 +121,20 @@ public class Registry {
     private Date updatedAt;
     /**
      * "standard": Standard, full-featured Registry instance
-     * 
+     *
      * "eval": Evaluation (Trial) instance, provided for a limited time
-     * 
+     *
      * (Required)
-     * 
+     *
      */
     @JsonProperty("instance_type")
     @JsonPropertyDescription("\"standard\": Standard, full-featured Registry instance\n\n\"eval\": Evaluation (Trial) instance, provided for a limited time\n")
     private RegistryInstanceTypeValue instanceType;
 
     /**
-     * 
+     *
      * (Required)
-     * 
+     *
      */
     @JsonProperty("id")
     public String getId() {
@@ -137,9 +142,9 @@ public class Registry {
     }
 
     /**
-     * 
+     *
      * (Required)
-     * 
+     *
      */
     @JsonProperty("id")
     public void setId(String id) {
@@ -168,21 +173,21 @@ public class Registry {
 
     /**
      * "accepted": Registry status when accepted for processing.
-     * 
+     *
      * "provisioning": Registry status when provisioning a new instance.
-     * 
+     *
      * "ready": Registry status when ready for use.
-     * 
+     *
      * "failed": Registry status when the provisioning failed. When removing a Registry in this state,
      * the status transitions directly to "deleting".
-     * 
-     * 
+     *
+     *
      * "deprovision": Registry status when accepted for deprovisioning.
-     * 
+     *
      * "deleting": Registry status when deprovisioning.
-     * 
+     *
      * (Required)
-     * 
+     *
      */
     @JsonProperty("status")
     public RegistryStatusValue getStatus() {
@@ -191,21 +196,21 @@ public class Registry {
 
     /**
      * "accepted": Registry status when accepted for processing.
-     * 
+     *
      * "provisioning": Registry status when provisioning a new instance.
-     * 
+     *
      * "ready": Registry status when ready for use.
-     * 
+     *
      * "failed": Registry status when the provisioning failed. When removing a Registry in this state,
      * the status transitions directly to "deleting".
-     * 
-     * 
+     *
+     *
      * "deprovision": Registry status when accepted for deprovisioning.
-     * 
+     *
      * "deleting": Registry status when deprovisioning.
-     * 
+     *
      * (Required)
-     * 
+     *
      */
     @JsonProperty("status")
     public void setStatus(RegistryStatusValue status) {
@@ -222,9 +227,19 @@ public class Registry {
         this.registryUrl = registryUrl;
     }
 
+    @JsonProperty("browserUrl")
+    public String getBrowserUrl() {
+        return browserUrl;
+    }
+
+    @JsonProperty("browserUrl")
+    public void setBrowserUrl(String browserUrl) {
+        this.browserUrl = browserUrl;
+    }
+
     /**
      * User-defined Registry name. Does not have to be unique.
-     * 
+     *
      */
     @JsonProperty("name")
     public String getName() {
@@ -233,7 +248,7 @@ public class Registry {
 
     /**
      * User-defined Registry name. Does not have to be unique.
-     * 
+     *
      */
     @JsonProperty("name")
     public void setName(String name) {
@@ -242,7 +257,7 @@ public class Registry {
 
     /**
      * Identifier of a multi-tenant deployment, where this Service Registry instance resides.
-     * 
+     *
      */
     @JsonProperty("registryDeploymentId")
     public Integer getRegistryDeploymentId() {
@@ -251,7 +266,7 @@ public class Registry {
 
     /**
      * Identifier of a multi-tenant deployment, where this Service Registry instance resides.
-     * 
+     *
      */
     @JsonProperty("registryDeploymentId")
     public void setRegistryDeploymentId(Integer registryDeploymentId) {
@@ -260,7 +275,7 @@ public class Registry {
 
     /**
      * Registry instance owner
-     * 
+     *
      */
     @JsonProperty("owner")
     public String getOwner() {
@@ -269,7 +284,7 @@ public class Registry {
 
     /**
      * Registry instance owner
-     * 
+     *
      */
     @JsonProperty("owner")
     public void setOwner(String owner) {
@@ -278,7 +293,7 @@ public class Registry {
 
     /**
      * Description of the Registry instance.
-     * 
+     *
      */
     @JsonProperty("description")
     public String getDescription() {
@@ -287,7 +302,7 @@ public class Registry {
 
     /**
      * Description of the Registry instance.
-     * 
+     *
      */
     @JsonProperty("description")
     public void setDescription(String description) {
@@ -297,7 +312,7 @@ public class Registry {
     /**
      * ISO 8601 UTC timestamp.
      * (Required)
-     * 
+     *
      */
     @JsonProperty("created_at")
     public Date getCreatedAt() {
@@ -307,7 +322,7 @@ public class Registry {
     /**
      * ISO 8601 UTC timestamp.
      * (Required)
-     * 
+     *
      */
     @JsonProperty("created_at")
     public void setCreatedAt(Date createdAt) {
@@ -317,7 +332,7 @@ public class Registry {
     /**
      * ISO 8601 UTC timestamp.
      * (Required)
-     * 
+     *
      */
     @JsonProperty("updated_at")
     public Date getUpdatedAt() {
@@ -327,7 +342,7 @@ public class Registry {
     /**
      * ISO 8601 UTC timestamp.
      * (Required)
-     * 
+     *
      */
     @JsonProperty("updated_at")
     public void setUpdatedAt(Date updatedAt) {
@@ -336,11 +351,11 @@ public class Registry {
 
     /**
      * "standard": Standard, full-featured Registry instance
-     * 
+     *
      * "eval": Evaluation (Trial) instance, provided for a limited time
-     * 
+     *
      * (Required)
-     * 
+     *
      */
     @JsonProperty("instance_type")
     public RegistryInstanceTypeValue getInstanceType() {
@@ -349,11 +364,11 @@ public class Registry {
 
     /**
      * "standard": Standard, full-featured Registry instance
-     * 
+     *
      * "eval": Evaluation (Trial) instance, provided for a limited time
-     * 
+     *
      * (Required)
-     * 
+     *
      */
     @JsonProperty("instance_type")
     public void setInstanceType(RegistryInstanceTypeValue instanceType) {
