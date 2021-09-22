@@ -13,13 +13,14 @@ import org.bf2.srs.fleetmanager.rest.publicapi.beans.ServiceStatus;
 import org.bf2.srs.fleetmanager.rest.service.ErrorNotFoundException;
 import org.bf2.srs.fleetmanager.rest.service.ErrorService;
 import org.bf2.srs.fleetmanager.rest.service.RegistryService;
-import org.bf2.srs.fleetmanager.spi.TooManyEvalInstancesForUserException;
 import org.bf2.srs.fleetmanager.spi.EvalInstancesNotAllowedException;
 import org.bf2.srs.fleetmanager.spi.ResourceLimitReachedException;
 import org.bf2.srs.fleetmanager.spi.TermsRequiredException;
+import org.bf2.srs.fleetmanager.spi.TooManyEvalInstancesForUserException;
 import org.bf2.srs.fleetmanager.spi.TooManyInstancesException;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 /**
  * @author Jakub Senko <jsenko@redhat.com>
@@ -36,23 +37,34 @@ public class ApiResourceImpl implements ApiResource {
     @Inject
     ErrorService errorService;
 
+    @ConfigProperty(name = "srs-fleet-manager.registry.browser-url")
+    String browserUrl;
+
     @Override
     public RegistryList getRegistries(Integer page,
                                       Integer size,
                                       String orderBy, String search) {
-        return convert.convert(registryService.getRegistries(page, size, orderBy, search));
+        RegistryList registries = convert.convert(registryService.getRegistries(page, size, orderBy, search));
+        registries.getItems().forEach(registry -> {
+            registry.setBrowserUrl(browserUrl.replace("$TENANT_ID", registry.getId()));
+        });
+        return registries;
     }
 
     @Override
     public Registry createRegistry(RegistryCreate data)
             throws RegistryStorageConflictException, TermsRequiredException, ResourceLimitReachedException,
             EvalInstancesNotAllowedException, TooManyEvalInstancesForUserException, TooManyInstancesException {
-        return convert.convert(registryService.createRegistry(convert.convert(data)));
+        Registry registry = convert.convert(registryService.createRegistry(convert.convert(data)));
+        registry.setBrowserUrl(browserUrl.replace("$TENANT_ID", registry.getId()));
+        return registry;
     }
 
     @Override
     public Registry getRegistry(String id) throws RegistryNotFoundException {
-        return convert.convert(registryService.getRegistry(id));
+        Registry registry = convert.convert(registryService.getRegistry(id));
+        registry.setBrowserUrl(browserUrl.replace("$TENANT_ID", registry.getId()));
+        return registry;
     }
 
     @Override
