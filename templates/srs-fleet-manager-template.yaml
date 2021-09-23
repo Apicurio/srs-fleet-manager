@@ -247,6 +247,8 @@ objects:
             value: ${REGISTRY_INSTANCES_EVAL_MAX_COUNT_PER_USER}
           - name: REGISTRY_INSTANCES_EVAL_LIFETIME_SECONDS
             value: ${REGISTRY_INSTANCES_EVAL_LIFETIME_SECONDS}
+          - name: REGISTRY_BROWSER_URL
+            value: ${REGISTRY_BROWSER_URL}
           livenessProbe:
             failureThreshold: 3
             httpGet:
@@ -440,3 +442,5 @@ parameters:
   value: "1"
 - name: REGISTRY_INSTANCES_EVAL_LIFETIME_SECONDS
   value: "172800" # 48 hours
+- name: REGISTRY_BROWSER_URL
+  value: "https://console.redhat.com/beta/application-services/service-registry/t/TENANT_ID"
