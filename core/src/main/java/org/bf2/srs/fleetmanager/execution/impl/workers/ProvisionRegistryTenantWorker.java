@@ -40,7 +40,6 @@ import org.slf4j.LoggerFactory;
 @ApplicationScoped
 public class ProvisionRegistryTenantWorker extends AbstractWorker {
 
-    @SuppressWarnings("unused")
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     @ConfigProperty(name = "srs-fleet-manager.registry.instances.eval.lifetime-seconds")
@@ -88,11 +87,11 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
         }
 
         String registryUrl = registryDeployment.getRegistryDeploymentUrl();
-        // New approach: configure the deployment URL with a replacement like:  https://$TENANT_ID.shrd.sr.openshift.com
-        if (registryUrl.contains("$TENANT_ID")) {
-            registryUrl = registryUrl.replace("$TENANT_ID", registry.getId());
+        // New approach: configure the deployment URL with a replacement like:  https://TENANT_ID.shrd.sr.openshift.com
+        if (registryUrl.contains("TENANT_ID")) {
+            registryUrl = registryUrl.replace("TENANT_ID", registry.getId());
         } else {
-            // Old approach: configure the deployment URL without a replacement, and just add "/t/$TENANT_ID" to the end of it.
+            // Old approach: configure the deployment URL without a replacement, and just add "/t/TENANT_ID" to the end of it.
             if (!registryUrl.endsWith("/")) {
                 registryUrl += "/";
             }

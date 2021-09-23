@@ -76,7 +76,7 @@ public class Convert {
         res.setUpdatedAt(convert(data.getUpdatedAt()));
         res.setDescription(data.getDescription());
         res.setInstanceType(convert(data.getInstanceType()));
-        res.setBrowserUrl(browserUrl.replace("$TENANT_ID", res.getId()));
+        res.setBrowserUrl(browserUrl.replace("TENANT_ID", res.getId()));
         return res;
     }
 
