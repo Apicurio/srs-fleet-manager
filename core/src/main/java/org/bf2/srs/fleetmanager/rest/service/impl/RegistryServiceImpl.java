@@ -77,6 +77,9 @@ public class RegistryServiceImpl implements RegistryService {
     @ConfigProperty(name = "srs-fleet-manager.registry.instances.eval.enabled")
     boolean evalInstancesEnabled;
 
+    @ConfigProperty(name = "srs-fleet-manager.registry.instances.eval.only")
+    boolean evalInstancesOnlyEnabled;
+
     @ConfigProperty(name = "srs-fleet-manager.registry.instances.eval.max-count-per-user")
     int maxEvalInstancesPerUser;
 
@@ -96,7 +99,8 @@ public class RegistryServiceImpl implements RegistryService {
         }
 
         // Figure out if we are going to create a standard or eval instance.
-        ResourceType resourceType = accountManagementService.determineAllowedResourceType(accountInfo);
+        ResourceType resourceType = evalInstancesOnlyEnabled ? 
+        		ResourceType.REGISTRY_INSTANCE_EVAL : accountManagementService.determineAllowedResourceType(accountInfo);
 
         if (resourceType == ResourceType.REGISTRY_INSTANCE_EVAL) {
             // Are eval instances allowed?
