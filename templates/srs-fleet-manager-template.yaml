@@ -306,6 +306,9 @@ objects:
           - name: METRICS_CACHE_EXPIRATION_PERIOD_SECONDS
             value: ${METRICS_CACHE_EXPIRATION_PERIOD_SECONDS}
 
+          - name: REGISTRY_BROWSER_URL
+            value: ${REGISTRY_BROWSER_URL}
+
           livenessProbe:
             failureThreshold: 3
             httpGet:
@@ -547,3 +550,5 @@ parameters:
     but *some* metrics will report stale values (with the given delay).
     Keep in mind that multiple pods may compute the same metrics.
   value: "300"
+- name: REGISTRY_BROWSER_URL
+  value: "https://console.redhat.com/beta/application-services/service-registry/t/TENANT_ID"
