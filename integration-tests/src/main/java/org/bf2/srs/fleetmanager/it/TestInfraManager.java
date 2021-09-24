@@ -340,10 +340,10 @@ public class TestInfraManager {
 
         });
 
-        Awaitility.await("is reachable").atMost(30, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS)
+        Awaitility.await("is reachable").atMost(45, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS)
             .until(() -> HttpUtils.isReachable("localhost", 8585, "Tenant Manager"));
 
-        Awaitility.await("is ready").atMost(30, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS)
+        Awaitility.await("is ready").atMost(45, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS)
             .until(() -> HttpUtils.isReady(this.tenantManagerUrl, "/q/health/ready", false, "Tenant Manager"));
     }
 
@@ -395,10 +395,10 @@ public class TestInfraManager {
 
         });
 
-        Awaitility.await("is reachable").atMost(30, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS)
+        Awaitility.await("is reachable").atMost(45, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS)
             .until(() -> HttpUtils.isReachable("localhost", port, "fleet manager"));
 
-        Awaitility.await("is ready").atMost(30, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS)
+        Awaitility.await("is ready").atMost(45, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS)
             .until(() -> HttpUtils.isReady("http://localhost:" + port, "/q/health/ready", false, "fleet manager"));
     }
 
