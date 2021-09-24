@@ -126,6 +126,22 @@ objects:
           app: srs-fleet-manager
           template: srs-fleet-manager-template
       spec:
+        affinity:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                    - srs-fleet-manager
+                  - key: template
+                    operator: In
+                    values:
+                    - srs-fleet-manager-template
+                topologyKey: failure-domain.beta.kubernetes.io/zone
+              weight: 100
         serviceAccount: ${SERVICE_ACCOUNT_NAME}
         serviceAccountName: ${SERVICE_ACCOUNT_NAME}
         volumes:
