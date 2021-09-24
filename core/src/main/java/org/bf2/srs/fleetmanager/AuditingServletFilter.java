@@ -39,7 +39,7 @@ import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstan
  * @author Jakub Senko <jsenko@redhat.com>
  */
 @ApplicationScoped
-public class MainServletFilter implements Filter {
+public class AuditingServletFilter implements Filter {
 
     public static final String HEADER_X_FORWARDED_FOR = "x-forwarded-for";
 
