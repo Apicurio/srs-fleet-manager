@@ -6,11 +6,21 @@
 
     <filter>
         <filter-name>MainServletFilter</filter-name>
-        <filter-class>org.bf2.srs.fleetmanager.MainServletFilter</filter-class>
+        <filter-class>org.bf2.srs.fleetmanager.AuditingServletFilter</filter-class>
         <async-supported>true</async-supported>
     </filter>
     <filter-mapping>
         <filter-name>MainServletFilter</filter-name>
+        <url-pattern>/api/*</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>RestApiServletFilter</filter-name>
+        <filter-class>org.bf2.srs.fleetmanager.DisablePathServletFilter</filter-class>
+        <async-supported>true</async-supported>
+    </filter>
+    <filter-mapping>
+        <filter-name>RestApiServletFilter</filter-name>
         <url-pattern>/api/*</url-pattern>
     </filter-mapping>
 

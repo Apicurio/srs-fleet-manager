@@ -280,6 +280,8 @@ objects:
 
           - name: REGISTRY_BROWSER_URL
             value: ${REGISTRY_BROWSER_URL}
+          - name: REST_API_DISABLED_PATHS_PATTERNS
+            value: ${REST_API_DISABLED_PATHS_PATTERNS}
 
           livenessProbe:
             failureThreshold: 3
@@ -486,3 +488,5 @@ parameters:
 
 - name: REGISTRY_BROWSER_URL
   value: "https://console.redhat.com/beta/application-services/service-registry/t/TENANT_ID"
+- name: REST_API_DISABLED_PATHS_PATTERNS
+  value: ""

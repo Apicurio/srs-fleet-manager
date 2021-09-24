@@ -29,7 +29,6 @@ import io.quarkus.vertx.http.runtime.security.HttpCredentialTransport;
 import io.quarkus.vertx.http.runtime.security.QuarkusHttpUser;
 import io.smallrye.mutiny.Uni;
 import io.vertx.ext.web.RoutingContext;
-import org.bf2.srs.fleetmanager.MainServletFilter;
 import org.bf2.srs.fleetmanager.operation.auditing.AuditingEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +41,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 
-import static org.bf2.srs.fleetmanager.MainServletFilter.HEADER_X_FORWARDED_FOR;
+import static org.bf2.srs.fleetmanager.AuditingServletFilter.HEADER_X_FORWARDED_FOR;
 import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.*;
 
 /**
