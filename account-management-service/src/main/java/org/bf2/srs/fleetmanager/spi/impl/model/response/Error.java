@@ -37,38 +37,38 @@ public class Error {
     /**
      * (Optional)
      */
-    @JsonProperty("account_id")
+    @JsonProperty("href")
     @JsonPropertyDescription("")
     private String href;
     /**
      * (Optional)
      */
-    @JsonProperty("account_id")
+    @JsonProperty("id")
     @JsonPropertyDescription("")
     private String id;
     /**
      * (Optional)
      */
-    @JsonProperty("account_id")
+    @JsonProperty("kind")
     @JsonPropertyDescription("")
     @NotNull
     private String kind;
     /**
      * (Optional)
      */
-    @JsonProperty("account_id")
+    @JsonProperty("code")
     @JsonPropertyDescription("")
     private String code;
     /**
      * (Optional)
      */
-    @JsonProperty("account_id")
+    @JsonProperty("operation_id")
     @JsonPropertyDescription("")
     private String operationId;
     /**
      * (Optional)
      */
-    @JsonProperty("account_id")
+    @JsonProperty("reason")
     @JsonPropertyDescription("")
     private String reason;
 }
