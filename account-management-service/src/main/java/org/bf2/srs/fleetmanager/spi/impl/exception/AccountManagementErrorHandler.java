@@ -27,7 +27,7 @@ public class AccountManagementErrorHandler implements RestClientErrorHandler {
         } catch (JsonProcessingException e) {
             // Ignore and use the raw string
             log.debug("Could not parse Error entity from AMS response", e);
-            return new AccountManagementSystemClientException(res);
+            return new AccountManagementSystemClientException(res, statusCode);
         }
     }
 

@@ -1,12 +1,12 @@
 package org.bf2.srs.fleetmanager.rest.publicapi.impl;
 
 import com.fasterxml.jackson.core.JsonParseException;
-import io.micrometer.core.instrument.MeterRegistry;
 import io.quarkus.runtime.configuration.ProfileManager;
 import org.bf2.srs.fleetmanager.common.errors.UserError;
 import org.bf2.srs.fleetmanager.common.errors.UserErrorCode;
 import org.bf2.srs.fleetmanager.common.errors.UserErrorInfo;
 import org.bf2.srs.fleetmanager.errors.UserErrorMapper;
+import org.bf2.srs.fleetmanager.metrics.ExceptionMetrics;
 import org.bf2.srs.fleetmanager.rest.config.CustomExceptionMapper;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.Error;
 import org.bf2.srs.fleetmanager.rest.service.ErrorNotFoundException;
@@ -52,7 +52,7 @@ public class CustomExceptionMapperImpl implements CustomExceptionMapper {
     private String quarkusProfile = ProfileManager.getActiveProfile();
 
     @Inject
-    MeterRegistry meterRegistry;
+    ExceptionMetrics exceptionMetrics;
 
     static {
 
@@ -89,18 +89,7 @@ public class CustomExceptionMapperImpl implements CustomExceptionMapper {
     @Override
     public Response toResponse(Throwable exception) {
 
-        // Expose AMS errors as a metric
-        if(exception instanceof AccountManagementSystemClientException) {
-            AccountManagementSystemClientException ex = (AccountManagementSystemClientException) exception;
-            if(ex.getCauseEntity().isPresent() && ex.getStatusCode().isPresent()) { // The status code should always be there if cause is
-                meterRegistry.counter("ams.client.errors",
-                        "statusCode", ex.getStatusCode().get().toString(),
-                        "errorCode", ex.getCauseEntity().get().getCode()).increment();
-            } else {
-                // We don't have more info, report without the tags
-                meterRegistry.counter("ams.client.errors").increment();
-            }
-        }
+        exceptionMetrics.record(exception);
 
         Response.ResponseBuilder builder;
 

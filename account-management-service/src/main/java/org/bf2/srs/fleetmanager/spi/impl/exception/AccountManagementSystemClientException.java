@@ -25,6 +25,12 @@ public class AccountManagementSystemClientException extends ApicurioRestClientEx
         this.statusCode = Optional.of(statusCode);
     }
 
+    public AccountManagementSystemClientException(String message, int statusCode) {
+        super(message);
+        this.causeEntity = Optional.empty();
+        this.statusCode = Optional.of(statusCode);
+    }
+
     public AccountManagementSystemClientException(String message) {
         super(message);
         this.causeEntity = Optional.empty();
