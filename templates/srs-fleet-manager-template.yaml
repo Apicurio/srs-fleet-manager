@@ -126,6 +126,22 @@ objects:
           app: srs-fleet-manager
           template: srs-fleet-manager-template
       spec:
+        affinity:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                    - srs-fleet-manager
+                  - key: template
+                    operator: In
+                    values:
+                    - srs-fleet-manager-template
+                topologyKey: failure-domain.beta.kubernetes.io/zone
+              weight: 100
         serviceAccount: ${SERVICE_ACCOUNT_NAME}
         serviceAccountName: ${SERVICE_ACCOUNT_NAME}
         volumes:
@@ -241,6 +257,8 @@ objects:
             value: ${REGISTRY_INSTANCES_MAX_COUNT}
           - name: REGISTRY_INSTANCES_EVAL_ENABLED
             value: ${REGISTRY_INSTANCES_EVAL_ENABLED}
+          - name: REGISTRY_INSTANCES_EVAL_ONLY
+            value: ${REGISTRY_INSTANCES_EVAL_ONLY}
           - name: REGISTRY_INSTANCES_EVAL_MAX_COUNT_PER_USER
             value: ${REGISTRY_INSTANCES_EVAL_MAX_COUNT_PER_USER}
           - name: REGISTRY_INSTANCES_EVAL_LIFETIME_SECONDS
@@ -253,6 +271,9 @@ objects:
               secretKeyRef:
                 name:  ${SENTRY_DSN_SECRET_NAME}
                 key:  sentry-dsn
+
+          - name: REGISTRY_BROWSER_URL
+            value: ${REGISTRY_BROWSER_URL}
 
           livenessProbe:
             failureThreshold: 3
@@ -441,6 +462,8 @@ parameters:
   value: "1000"
 - name: REGISTRY_INSTANCES_EVAL_ENABLED
   value: "true"
+- name: REGISTRY_INSTANCES_EVAL_ONLY
+  value: "false"
 - name: REGISTRY_INSTANCES_EVAL_MAX_COUNT_PER_USER
   value: "1"
 - name: REGISTRY_INSTANCES_EVAL_LIFETIME_SECONDS
@@ -451,3 +474,6 @@ parameters:
 - name: SENTRY_DSN_SECRET_NAME
   description: Secret name containing dsn for connecting to sentry
   value: sentry-dsn-secret
+
+- name: REGISTRY_BROWSER_URL
+  value: "https://console.redhat.com/beta/application-services/service-registry/t/TENANT_ID"

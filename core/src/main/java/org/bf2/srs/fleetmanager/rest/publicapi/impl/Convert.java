@@ -23,9 +23,13 @@ import org.bf2.srs.fleetmanager.rest.service.model.RegistryInstanceTypeValueDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryListDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
 import org.bf2.srs.fleetmanager.rest.service.model.ServiceStatusDto;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @ApplicationScoped
 public class Convert {
+
+    @ConfigProperty(name = "srs-fleet-manager.registry.browser-url")
+    String browserUrl;
 
     public RegistryCreateDto convert(RegistryCreate data) {
         return RegistryCreateDto.builder()
@@ -72,6 +76,7 @@ public class Convert {
         res.setUpdatedAt(convert(data.getUpdatedAt()));
         res.setDescription(data.getDescription());
         res.setInstanceType(convert(data.getInstanceType()));
+        res.setBrowserUrl(browserUrl.replace("TENANT_ID", res.getId()));
         return res;
     }
 

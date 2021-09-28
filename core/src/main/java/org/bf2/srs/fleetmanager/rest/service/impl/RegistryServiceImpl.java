@@ -1,9 +1,19 @@
 package org.bf2.srs.fleetmanager.rest.service.impl;
 
-import io.quarkus.hibernate.orm.panache.PanacheQuery;
-import io.quarkus.panache.common.Page;
-import io.quarkus.panache.common.Sort;
-import io.quarkus.security.identity.SecurityIdentity;
+import static org.bf2.srs.fleetmanager.util.SecurityUtil.OWNER_ID_PLACEHOLDER;
+import static org.bf2.srs.fleetmanager.util.SecurityUtil.isResolvable;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
+import javax.validation.ValidationException;
+
 import org.apache.commons.lang3.tuple.Pair;
 import org.bf2.srs.fleetmanager.auth.AuthService;
 import org.bf2.srs.fleetmanager.auth.interceptor.CheckDeletePermissions;
@@ -35,18 +45,10 @@ import org.bf2.srs.fleetmanager.util.BasicQuery;
 import org.bf2.srs.fleetmanager.util.SearchQuery;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
-import javax.validation.ValidationException;
-
-import static org.bf2.srs.fleetmanager.util.SecurityUtil.OWNER_ID_PLACEHOLDER;
-import static org.bf2.srs.fleetmanager.util.SecurityUtil.isResolvable;
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
+import io.quarkus.panache.common.Page;
+import io.quarkus.panache.common.Sort;
+import io.quarkus.security.identity.SecurityIdentity;
 
 @ApplicationScoped
 public class RegistryServiceImpl implements RegistryService {
@@ -75,13 +77,14 @@ public class RegistryServiceImpl implements RegistryService {
     @ConfigProperty(name = "srs-fleet-manager.registry.instances.eval.enabled")
     boolean evalInstancesEnabled;
 
+    @ConfigProperty(name = "srs-fleet-manager.registry.instances.eval.only")
+    boolean evalInstancesOnlyEnabled;
+
     @ConfigProperty(name = "srs-fleet-manager.registry.instances.eval.max-count-per-user")
     int maxEvalInstancesPerUser;
 
     @ConfigProperty(name = "srs-fleet-manager.registry.instances.max-count")
     int maxInstances;
-
-    // srs-fleet-manager.registry.instances.eval.max-count
 
     @Override
     public RegistryDto createRegistry(RegistryCreateDto registryCreate)
@@ -96,7 +99,8 @@ public class RegistryServiceImpl implements RegistryService {
         }
 
         // Figure out if we are going to create a standard or eval instance.
-        ResourceType resourceType = accountManagementService.determineAllowedResourceType(accountInfo);
+        ResourceType resourceType = evalInstancesOnlyEnabled ? 
+        		ResourceType.REGISTRY_INSTANCE_EVAL : accountManagementService.determineAllowedResourceType(accountInfo);
 
         if (resourceType == ResourceType.REGISTRY_INSTANCE_EVAL) {
             // Are eval instances allowed?
