@@ -87,6 +87,11 @@
             <artifactId>quarkus-oidc</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>io.sentry</groupId>
+            <artifactId>sentry</artifactId>
+        </dependency>
+
         <!-- Quarkus TEST -->
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -146,6 +151,12 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>io.quarkus</groupId>
