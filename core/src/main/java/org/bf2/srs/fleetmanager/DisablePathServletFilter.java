@@ -40,11 +40,13 @@ public class DisablePathServletFilter implements Filter {
 
     @PostConstruct
     void init() {
-        disabledPathPatterns = disabledPathPatternsProperty.map(prop ->
-                Arrays.stream(prop.split(","))
-                        .map(Pattern::compile)
-                        .collect(Collectors.toList())
-        ).orElse(Collections.emptyList());
+        disabledPathPatterns = disabledPathPatternsProperty
+                .flatMap(prop -> prop.isBlank() ? Optional.empty() : Optional.of(prop)) // Ignore blank values
+                .map(prop ->
+                        Arrays.stream(prop.split(","))
+                                .map(Pattern::compile)
+                                .collect(Collectors.toList())
+                ).orElse(Collections.emptyList());
     }
 
     @Override
