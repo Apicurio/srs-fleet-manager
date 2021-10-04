@@ -28,14 +28,14 @@
         <!-- Quarkus -->
         <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
         <quarkus.platform.artifact-id>quarkus-universe-bom</quarkus.platform.artifact-id>
-        <quarkus.platform.version>1.13.2.Final</quarkus.platform.version>
+        <quarkus.platform.version>2.2.3.Final</quarkus.platform.version>
 
         <quarkus-plugin.version>${quarkus.platform.version}</quarkus-plugin.version>
 
         <!-- Other -->
         <lombok.version>1.18.16</lombok.version>
         <apicurio-registry-tenant-manager-client.version>2.1.0.Final</apicurio-registry-tenant-manager-client.version>
-        <apicurio-common-rest-client.version>0.0.7.Final</apicurio-common-rest-client.version>
+        <apicurio-common-rest-client.version>0.0.9.Final</apicurio-common-rest-client.version>
         <keycloak.version>11.0.3</keycloak.version>
         <keycloak.testcontainers.version>1.5.0</keycloak.testcontainers.version>
         <embedded-postgres.version>1.2.10</embedded-postgres.version>
@@ -132,7 +132,7 @@
 
             <dependency>
                 <groupId>io.apicurio</groupId>
-                <artifactId>apicurio-common-rest-client-auth</artifactId>
+                <artifactId>apicurio-common-rest-client-jdk</artifactId>
                 <version>${apicurio-common-rest-client.version}</version>
             </dependency>
 
