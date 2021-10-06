@@ -43,9 +43,9 @@ public class FleetManagerApi {
 
     public static void verifyApiIsSecured() {
         given()
+            .log().all()
             .when().get(BASE)
-            .then().statusCode(HTTP_UNAUTHORIZED)
-            .log().all();
+            .then().statusCode(HTTP_UNAUTHORIZED);
     }
 
     public static Registry createRegistry(RegistryCreate registry, AccountInfo user) {
@@ -60,19 +60,19 @@ public class FleetManagerApi {
 
     public static List<Registry> listRegistries(AccountInfo user) {
         return given()
+                .log().all()
                 .auth().oauth2(getAccessToken(user))
                 .when().get(BASE)
                 .then().statusCode(HTTP_OK)
-                .log().all()
                 .extract().as(RegistryList.class).getItems();
     }
 
     public static Registry getRegistry(String id, AccountInfo user) {
         return given()
+                .log().all()
                 .auth().oauth2(getAccessToken(user))
                 .when().get(BASE + "/" + id)
                 .then().statusCode(HTTP_OK)
-                .log().all()
                 .extract().as(Registry.class);
     }
 
@@ -85,26 +85,26 @@ public class FleetManagerApi {
 
     public static void deleteRegistry(String id, AccountInfo user) {
         given()
+            .log().all()
             .auth().oauth2(getAccessToken(user))
             .when().delete(BASE + "/" + id)
-            .then().statusCode(HTTP_NO_CONTENT)
-            .log().all();
+            .then().statusCode(HTTP_NO_CONTENT);
     }
 
     public static void verifyDeleteNotAllowed(String id, AccountInfo user) {
         given()
+            .log().all()
             .auth().oauth2(getAccessToken(user))
             .when().delete(BASE + "/" + id)
-            .then().statusCode(HTTP_FORBIDDEN)
-            .log().all();
+            .then().statusCode(HTTP_FORBIDDEN);
     }
 
     public static void verifyCreateDeploymentNotAllowed(RegistryDeploymentCreateRest deployment, AccountInfo user) {
         given()
+            .log().all()
             .auth().oauth2(getAccessToken(user))
             .when().contentType(ContentType.JSON).body(deployment).post("/api/serviceregistry_mgmt/v1/admin/registryDeployments")
-            .then().statusCode(HTTP_FORBIDDEN)
-            .log().all();
+            .then().statusCode(HTTP_FORBIDDEN);
     }
 
     private static String getAccessToken(AccountInfo account) {

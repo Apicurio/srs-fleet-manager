@@ -46,9 +46,9 @@ public class StaticRegistryDeploymentsTest {
     @Test
     public void testDeploymentsRegistered() {
         var deployments = given()
+                .log().all()
                 .when().get(BASE)
                 .then().statusCode(200)
-                .log().all()
                 .extract().as(new TypeRef<List<RegistryDeploymentRest>>() {
                 }).stream().collect(Collectors.toMap(d -> d.getName(), d -> d));
 
@@ -74,22 +74,22 @@ public class StaticRegistryDeploymentsTest {
         valid1.setRegistryDeploymentUrl("https://foo:8443");
 
         given()
+            .log().all()
             .when().contentType(ContentType.JSON).body(valid1).post(BASE)
             .then()
-            .log().all()
             .statusCode(HTTP_FORBIDDEN);
 
         var deployment1Id = given()
+                .log().all()
                 .when().get(BASE)
                 .then().statusCode(200)
-                .log().all()
                 .extract().as(new TypeRef<List<RegistryDeploymentRest>>() {
                 }).get(0).getId();
 
         given()
+            .log().all()
             .when().delete(BASE + "/" + deployment1Id)
-            .then().statusCode(HTTP_FORBIDDEN)
-            .log().all();
+            .then().statusCode(HTTP_FORBIDDEN);
 
     }
 

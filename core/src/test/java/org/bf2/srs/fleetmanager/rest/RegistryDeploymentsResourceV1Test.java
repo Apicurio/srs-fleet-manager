@@ -33,18 +33,18 @@ class RegistryDeploymentsResourceV1Test {
     @BeforeEach
     void cleanup() {
         List<Integer> actualIds = given()
+                .log().all()
                 .when().get(BASE)
                 .then().statusCode(200)
-                .log().all()
                 .extract().as(new TypeRef<List<RegistryDeploymentRest>>() {
                 }).stream().map(RegistryDeploymentRest::getId).collect(toList());
 
         // Delete
         actualIds.forEach(id -> {
             given()
+                    .log().all()
                     .when().delete(BASE + "/" + id)
-                    .then().statusCode(HTTP_NO_CONTENT)
-                    .log().all();
+                    .then().statusCode(HTTP_NO_CONTENT);
         });
     }
 
@@ -95,38 +95,39 @@ class RegistryDeploymentsResourceV1Test {
 
         // Error 415
         given()
+                .log().all()
                 .when().body(valid1).post(BASE)
-                .then().statusCode(HTTP_UNSUPPORTED_TYPE)
-                .log().all();
+                .then().statusCode(HTTP_UNSUPPORTED_TYPE);
 
         // Error 400
         List.of(invalid1, invalid2, invalid3, invalid4, invalid5, invalidJson1, invalidJson2).forEach(d -> {
             given()
+                    .log().all()
                     .when().contentType(ContentType.JSON).body(d).post(BASE)
-                    .then().statusCode(HTTP_BAD_REQUEST)
-                    .log().all();
+                    .then().statusCode(HTTP_BAD_REQUEST);
         });
 
         List<Integer> ids = List.of(valid1, valid2, valid3, valid4).stream().map(d -> {
             return given()
+                    .log().all()
                     .when().contentType(ContentType.JSON).body(d).post(BASE)
-                    .then().log().all()
+                    .then()
                     .statusCode(HTTP_OK)
                     .extract().as(RegistryDeploymentRest.class).getId();
         }).collect(toList());
 
         // Error 409
         given()
+                .log().all()
                 .when().contentType(ContentType.JSON).body(valid1).post(BASE)
-                .then().statusCode(HTTP_CONFLICT)
-                .log().all();
+                .then().statusCode(HTTP_CONFLICT);
 
         // Delete
         ids.forEach(id -> {
             given()
+                    .log().all()
                     .when().delete(BASE + "/" + id)
-                    .then().statusCode(HTTP_NO_CONTENT)
-                    .log().all();
+                    .then().statusCode(HTTP_NO_CONTENT);
         });
     }
 
@@ -134,9 +135,9 @@ class RegistryDeploymentsResourceV1Test {
     void testGetRegistryDeployments() {
 
         given()
+                .log().all()
                 .when().get(BASE)
-                .then().statusCode(HTTP_OK).body("", equalTo(JsonPath.from("[]").getList("")))
-                .log().all();
+                .then().statusCode(HTTP_OK).body("", equalTo(JsonPath.from("[]").getList("")));
 
         var valid1 = new RegistryDeploymentCreateRest();
         valid1.setName("a");
@@ -151,16 +152,16 @@ class RegistryDeploymentsResourceV1Test {
         // Create
         List<Integer> ids = List.of(valid1, valid2).stream().map(d -> {
             return given()
+                    .log().all()
                     .when().contentType(ContentType.JSON).body(d).post(BASE)
                     .then().statusCode(HTTP_OK)
-                    .log().all()
                     .extract().as(RegistryDeploymentRest.class).getId();
         }).collect(toList());
 
         List<Integer> actualIds = given()
+                .log().all()
                 .when().get(BASE)
                 .then().statusCode(200)
-                .log().all()
                 .extract().as(new TypeRef<List<RegistryDeploymentRest>>() {
                 }).stream().map(RegistryDeploymentRest::getId).collect(toList());
 
@@ -169,9 +170,9 @@ class RegistryDeploymentsResourceV1Test {
         // Delete
         ids.forEach(id -> {
             given()
+                    .log().all()
                     .when().delete(BASE + "/" + id)
-                    .then().statusCode(HTTP_NO_CONTENT)
-                    .log().all();
+                    .then().statusCode(HTTP_NO_CONTENT);
         });
     }
 
@@ -179,9 +180,9 @@ class RegistryDeploymentsResourceV1Test {
     void testGetRegistryDeployment() {
         // Error 404
         given()
+                .log().all()
                 .when().get(BASE + "/1000")
-                .then().statusCode(HTTP_NOT_FOUND).body("error_code", equalTo(404))
-                .log().all();
+                .then().statusCode(HTTP_NOT_FOUND).body("error_code", equalTo(404));
 
         var valid1 = new RegistryDeploymentCreateRest();
         valid1.setName("a");
@@ -196,9 +197,9 @@ class RegistryDeploymentsResourceV1Test {
         // Create
         List<RegistryDeploymentRest> rds = List.of(valid1, valid2).stream().map(d -> {
             return given()
+                    .log().all()
                     .when().contentType(ContentType.JSON).body(d).post(BASE)
                     .then().statusCode(HTTP_OK)
-                    .log().all()
                     .extract().as(RegistryDeploymentRest.class);
         }).collect(toList());
 
@@ -219,9 +220,9 @@ class RegistryDeploymentsResourceV1Test {
         // Delete
         rds.forEach(rd -> {
             given()
+                    .log().all()
                     .when().delete(BASE + "/" + rd.getId())
-                    .then().statusCode(HTTP_NO_CONTENT)
-                    .log().all();
+                    .then().statusCode(HTTP_NO_CONTENT);
         });
     }
 
@@ -229,9 +230,9 @@ class RegistryDeploymentsResourceV1Test {
     void testDeleteRegistryDeployment() {
 
         given()
+                .log().all()
                 .when().delete(BASE + "/1000")
-                .then().statusCode(HTTP_NOT_FOUND)
-                .log().all();
+                .then().statusCode(HTTP_NOT_FOUND);
     }
 
 }

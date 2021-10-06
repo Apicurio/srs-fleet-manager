@@ -11,11 +11,15 @@ import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryList;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValue;
 import org.bf2.srs.fleetmanager.spi.TenantManagerService;
 import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
+import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.PanacheRegistryDeploymentRepository;
+import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.PanacheRegistryRepository;
 import org.bf2.srs.fleetmanager.util.TestUtil;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 import static io.restassured.RestAssured.given;
 import static java.net.HttpURLConnection.*;
@@ -26,16 +30,35 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @author Jakub Senko <jsenko@redhat.com>
  */
 @QuarkusTest
 public class RegistriesResourceV1Test {
 
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
     public static final String BASE = "/api/serviceregistry_mgmt/v1/registries";
 
     @Inject
     TenantManagerService tms;
+
+    @Inject
+    PanacheRegistryRepository registryRepo;
+
+    @Inject
+    PanacheRegistryDeploymentRepository deploymentRepo;
+
+    @BeforeEach
+    @Transactional
+    void before() {
+        log.warn("Cleaning the database");
+        registryRepo.deleteAll();
+        deploymentRepo.deleteAll();
+    }
 
     @Test
     void testCreateRegistry() {
@@ -45,9 +68,9 @@ public class RegistriesResourceV1Test {
         deployment.setRegistryDeploymentUrl("https://registry");
 
         Integer deploymentId = given()
+                .log().all()
                 .when().contentType(ContentType.JSON).body(deployment).post("/api/serviceregistry_mgmt/v1/admin/registryDeployments")
                 .then().statusCode(HTTP_OK)
-                .log().all()
                 .extract().as(RegistryDeploymentRest.class).getId();
 
         var valid1 = new RegistryCreate();
@@ -65,23 +88,23 @@ public class RegistriesResourceV1Test {
 
         // Error 415
         given()
+                .log().all()
                 .when().body(valid1).post(BASE)
-                .then().statusCode(HTTP_UNSUPPORTED_TYPE)
-                .log().all();
+                .then().statusCode(HTTP_UNSUPPORTED_TYPE);
 
         // Error 400
         List.of(invalidJson1, invalidJson2).forEach(d -> {
             given()
+                    .log().all()
                     .when().contentType(ContentType.JSON).body(d).post(BASE)
-                    .then().statusCode(HTTP_BAD_REQUEST)
-                    .log().all();
+                    .then().statusCode(HTTP_BAD_REQUEST);
         });
 
         List<Registry> registries = List.of(valid1, valid2).stream().map(d -> {
             return given()
+                    .log().all()
                     .when().contentType(ContentType.JSON).body(d).post(BASE)
                     .then().statusCode(HTTP_OK)
-                    .log().all()
                     .extract().as(Registry.class);
         }).collect(toList());
 
@@ -94,9 +117,9 @@ public class RegistriesResourceV1Test {
         // Delete
         registries.forEach(id -> {
             given()
+                    .log().all()
                     .when().delete(BASE + "/" + id.getId())
-                    .then().statusCode(HTTP_NO_CONTENT)
-                    .log().all();
+                    .then().statusCode(HTTP_NO_CONTENT);
         });
 
         TestUtil.waitForDeletion(tms, TenantManagerConfig.builder()
@@ -105,17 +128,17 @@ public class RegistriesResourceV1Test {
                 registries);
 
         given()
+                .log().all()
                 .when().contentType(ContentType.JSON).delete("/api/serviceregistry_mgmt/v1/admin/registryDeployments/" + deploymentId)
-                .then().statusCode(HTTP_NO_CONTENT)
-                .log().all();
+                .then().statusCode(HTTP_NO_CONTENT);
     }
 
     @Test
     void testGetRegistries() {
         var res1 = given()
+                .log().all()
                 .when().get(BASE)
                 .then().statusCode(HTTP_OK)
-                .log().all()
                 .extract().as(RegistryList.class);
 
         assertThat(res1.getItems(), equalTo(List.of()));
@@ -129,9 +152,9 @@ public class RegistriesResourceV1Test {
         deployment.setRegistryDeploymentUrl("https://registry");
 
         Integer deploymentId = given()
+                .log().all()
                 .when().contentType(ContentType.JSON).body(deployment).post("/api/serviceregistry_mgmt/v1/admin/registryDeployments")
                 .then().statusCode(HTTP_OK)
-                .log().all()
                 .extract().as(RegistryDeploymentRest.class).getId();
 
         var valid1 = new RegistryCreate();
@@ -143,16 +166,16 @@ public class RegistriesResourceV1Test {
         // Create
         List<Registry> registries = List.of(valid1, valid2).stream().map(d -> {
             return given()
+                    .log().all()
                     .when().contentType(ContentType.JSON).body(d).post(BASE)
                     .then().statusCode(HTTP_OK)
-                    .log().all()
                     .extract().as(Registry.class);
         }).collect(toList());
 
         List<Registry> actualRegistries = given()
+                .log().all()
                 .when().get(BASE)
                 .then().statusCode(HTTP_OK)
-                .log().all()
                 .extract().as(RegistryList.class)
                 .getItems();
 
@@ -164,9 +187,9 @@ public class RegistriesResourceV1Test {
         // Delete
         registries.forEach(r -> {
             given()
+                    .log().all()
                     .when().delete(BASE + "/" + r.getId())
-                    .then().statusCode(HTTP_NO_CONTENT)
-                    .log().all();
+                    .then().statusCode(HTTP_NO_CONTENT);
         });
 
         TestUtil.waitForDeletion(tms, TenantManagerConfig.builder()
@@ -175,18 +198,18 @@ public class RegistriesResourceV1Test {
                 registries);
 
         given()
+                .log().all()
                 .when().contentType(ContentType.JSON).delete("/api/serviceregistry_mgmt/v1/admin/registryDeployments/" + deploymentId)
-                .then().statusCode(HTTP_NO_CONTENT)
-                .log().all();
+                .then().statusCode(HTTP_NO_CONTENT);
     }
 
     @Test
     void testGetRegistry() {
         // Error 404
         given()
+                .log().all()
                 .when().get(BASE + "/1000")
-                .then().statusCode(HTTP_NOT_FOUND).body("code", equalTo("SRS-MGMT-2"))// TODO
-                .log().all();
+                .then().statusCode(HTTP_NOT_FOUND).body("code", equalTo("SRS-MGMT-2")); // TODO
 
         var deployment = new RegistryDeploymentCreateRest();
         deployment.setName("a");
@@ -194,9 +217,9 @@ public class RegistriesResourceV1Test {
         deployment.setRegistryDeploymentUrl("https://registry");
 
         Integer deploymentId = given()
+                .log().all()
                 .when().contentType(ContentType.JSON).body(deployment).post("/api/serviceregistry_mgmt/v1/admin/registryDeployments")
                 .then().statusCode(HTTP_OK)
-                .log().all()
                 .extract().as(RegistryDeploymentRest.class).getId();
 
         var valid1 = new RegistryCreate();
@@ -210,9 +233,9 @@ public class RegistriesResourceV1Test {
         // Create
         List<Registry> regs = List.of(valid1, valid2).stream().map(d -> {
             return given()
+                    .log().all()
                     .when().contentType(ContentType.JSON).body(d).post(BASE)
                     .then().statusCode(HTTP_OK)
-                    .log().all()
                     .extract().as(Registry.class);
         }).collect(toList());
 
@@ -252,11 +275,11 @@ public class RegistriesResourceV1Test {
             }
 
             var list = given()
+                    .log().all()
                     .when()
                     .queryParam("search", "name = " + reg.getName())
                     .get(BASE)
                     .then().statusCode(HTTP_OK)
-                    .log().all()
                     .extract().as(RegistryList.class);
             assertEquals(1, list.getTotal());
             assertNotNull(list.getItems().get(0));
@@ -284,9 +307,9 @@ public class RegistriesResourceV1Test {
         // Delete
         regs.forEach(reg -> {
             given()
+                    .log().all()
                     .when().delete(BASE + "/" + reg.getId())
-                    .then().statusCode(HTTP_NO_CONTENT)
-                    .log().all();
+                    .then().statusCode(HTTP_NO_CONTENT);
         });
 
         TestUtil.waitForDeletion(tms, TenantManagerConfig.builder()
@@ -295,17 +318,17 @@ public class RegistriesResourceV1Test {
                 regs);
 
         given()
+                .log().all()
                 .when().contentType(ContentType.JSON).delete("/api/serviceregistry_mgmt/v1/admin/registryDeployments/" + deploymentId)
-                .then().statusCode(HTTP_NO_CONTENT)
-                .log().all();
+                .then().statusCode(HTTP_NO_CONTENT);
     }
 
     @Test
     void testDeleteRegistry() {
 
         given()
+                .log().all()
                 .when().delete(BASE + "/1000")
-                .then().statusCode(HTTP_NOT_FOUND)
-                .log().all();
+                .then().statusCode(HTTP_NOT_FOUND);
     }
 }
