@@ -37,9 +37,9 @@ public class ServiceStatusV1Test {
     public void testServiceStatus() {
 
         var res1 = given()
+                .log().all()
                 .when().get(BASE)
                 .then().statusCode(HTTP_OK)
-                .log().all()
                 .extract().as(ServiceStatus.class);
 
         assertFalse(res1.getMaxInstancesReached());
