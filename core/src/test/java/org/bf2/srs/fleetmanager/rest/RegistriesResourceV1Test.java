@@ -11,7 +11,13 @@ import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryList;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValue;
 import org.bf2.srs.fleetmanager.spi.TenantManagerService;
 import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
+import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
+import org.bf2.srs.fleetmanager.storage.RegistryDeploymentStorageConflictException;
+import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
+import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
+import org.bf2.srs.fleetmanager.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.util.TestUtil;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -33,6 +39,31 @@ import static org.junit.jupiter.api.Assertions.*;
 public class RegistriesResourceV1Test {
 
     public static final String BASE = "/api/serviceregistry_mgmt/v1/registries";
+
+    @Inject
+    ResourceStorage storage;
+
+    @BeforeEach
+    void cleanup() {
+        storage.getAllRegistries()
+                .forEach(d -> {
+                    try {
+                        storage.deleteRegistry(d.getId());
+                    } catch (RegistryNotFoundException | RegistryStorageConflictException e) {
+                        throw new IllegalStateException(e);
+                    }
+                });
+        assertEquals(0, storage.getAllRegistries().size());
+        storage.getAllRegistryDeployments()
+                .forEach(d -> {
+                    try {
+                        storage.deleteRegistryDeployment(d.getId());
+                    } catch (RegistryDeploymentNotFoundException | RegistryDeploymentStorageConflictException e) {
+                        throw new IllegalStateException(e);
+                    }
+                });
+        assertEquals(0, storage.getAllRegistryDeployments().size());
+    }
 
     @Inject
     TenantManagerService tms;
@@ -91,23 +122,11 @@ public class RegistriesResourceV1Test {
 
         registries = TestUtil.waitForReady(registries);
 
-        // Delete
-        registries.forEach(id -> {
-            given()
-                    .when().delete(BASE + "/" + id.getId())
-                    .then().statusCode(HTTP_NO_CONTENT)
-                    .log().all();
-        });
-
         TestUtil.waitForDeletion(tms, TenantManagerConfig.builder()
                         .tenantManagerUrl(deployment.getTenantManagerUrl())
                         .registryDeploymentUrl(deployment.getRegistryDeploymentUrl()).build(),
                 registries);
 
-        given()
-                .when().contentType(ContentType.JSON).delete("/api/serviceregistry_mgmt/v1/admin/registryDeployments/" + deploymentId)
-                .then().statusCode(HTTP_NO_CONTENT)
-                .log().all();
     }
 
     @Test
@@ -161,23 +180,10 @@ public class RegistriesResourceV1Test {
 
         registries = TestUtil.waitForReady(registries);
 
-        // Delete
-        registries.forEach(r -> {
-            given()
-                    .when().delete(BASE + "/" + r.getId())
-                    .then().statusCode(HTTP_NO_CONTENT)
-                    .log().all();
-        });
-
         TestUtil.waitForDeletion(tms, TenantManagerConfig.builder()
                         .tenantManagerUrl(deployment.getTenantManagerUrl())
                         .registryDeploymentUrl(deployment.getRegistryDeploymentUrl()).build(),
                 registries);
-
-        given()
-                .when().contentType(ContentType.JSON).delete("/api/serviceregistry_mgmt/v1/admin/registryDeployments/" + deploymentId)
-                .then().statusCode(HTTP_NO_CONTENT)
-                .log().all();
     }
 
     @Test
@@ -281,23 +287,11 @@ public class RegistriesResourceV1Test {
 
         regs = TestUtil.waitForReady(regs);
 
-        // Delete
-        regs.forEach(reg -> {
-            given()
-                    .when().delete(BASE + "/" + reg.getId())
-                    .then().statusCode(HTTP_NO_CONTENT)
-                    .log().all();
-        });
 
         TestUtil.waitForDeletion(tms, TenantManagerConfig.builder()
                         .tenantManagerUrl(deployment.getTenantManagerUrl())
                         .registryDeploymentUrl(deployment.getRegistryDeploymentUrl()).build(),
                 regs);
-
-        given()
-                .when().contentType(ContentType.JSON).delete("/api/serviceregistry_mgmt/v1/admin/registryDeployments/" + deploymentId)
-                .then().statusCode(HTTP_NO_CONTENT)
-                .log().all();
     }
 
     @Test
