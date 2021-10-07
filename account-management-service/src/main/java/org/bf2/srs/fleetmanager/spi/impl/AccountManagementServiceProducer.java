@@ -2,6 +2,7 @@ package org.bf2.srs.fleetmanager.spi.impl;
 
 import io.apicurio.rest.client.auth.OidcAuth;
 import io.quarkus.arc.profile.UnlessBuildProfile;
+import io.vertx.core.Vertx;
 import org.bf2.srs.fleetmanager.spi.AccountManagementService;
 import org.bf2.srs.fleetmanager.spi.impl.exception.AccountManagementSystemAuthErrorHandler;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -37,6 +38,9 @@ public class AccountManagementServiceProducer {
     @Inject
     AccountManagementServiceProperties amsProperties;
 
+    @Inject
+    Vertx vertx;
+
     @UnlessBuildProfile("test")
     @Produces
     @ApplicationScoped
@@ -45,9 +49,9 @@ public class AccountManagementServiceProducer {
         AccountManagementSystemRestClient restClient;
         if (ssoEnabled) {
             final OidcAuth auth = new OidcAuth(ssoTokenEndpoint, ssoClientId, ssoClientSecret, Optional.of(new AccountManagementSystemAuthErrorHandler()));
-            restClient = new AccountManagementSystemRestClient(endpoint, Collections.emptyMap(), auth);
+            restClient = new AccountManagementSystemRestClient(vertx, endpoint, Collections.emptyMap(), auth);
         } else {
-            restClient = new AccountManagementSystemRestClient(endpoint, Collections.emptyMap(), null);
+            restClient = new AccountManagementSystemRestClient(vertx, endpoint, Collections.emptyMap(), null);
         }
         return new AccountManagementServiceImpl(restClient, amsProperties);
     }

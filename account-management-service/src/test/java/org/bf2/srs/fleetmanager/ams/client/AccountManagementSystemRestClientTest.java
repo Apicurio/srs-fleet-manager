@@ -2,6 +2,7 @@ package org.bf2.srs.fleetmanager.ams.client;
 
 import java.util.Collections;
 
+import io.vertx.core.Vertx;
 import org.bf2.srs.fleetmanager.spi.impl.AccountManagementSystemRestClient;
 import org.bf2.srs.fleetmanager.spi.impl.model.request.ClusterAuthorization;
 import org.bf2.srs.fleetmanager.spi.impl.model.request.ReservedResource;
@@ -25,7 +26,7 @@ public class AccountManagementSystemRestClientTest {
     @BeforeAll
     public static void startServer() throws JsonProcessingException {
         final String mockServerUrl = amsWireMockServer.start();
-        accountManagementSystemRestClient = new AccountManagementSystemRestClient(mockServerUrl, Collections.emptyMap(), null);
+        accountManagementSystemRestClient = new AccountManagementSystemRestClient(Vertx.vertx(), mockServerUrl, Collections.emptyMap(), null);
     }
 
     @Test

@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import io.vertx.core.Vertx;
 import org.bf2.srs.fleetmanager.spi.TenantManagerService;
 import org.bf2.srs.fleetmanager.spi.model.CreateTenantRequest;
 import org.bf2.srs.fleetmanager.spi.model.Tenant;
@@ -29,26 +30,22 @@ import io.apicurio.rest.client.auth.Auth;
 public class RestClientTenantManagerServiceImpl implements TenantManagerService {
 
     private final Auth auth;
+    private final Vertx vertx;
 
     // TODO Data is never deleted! Prevent OOM error.
     private Map<String, TenantManagerClientImpl> pool = new ConcurrentHashMap<String, TenantManagerClientImpl>();
 
-    public RestClientTenantManagerServiceImpl() {
-        this(null);
+    public RestClientTenantManagerServiceImpl(Vertx vertx) {
+        this(null, vertx);
     }
 
-    public RestClientTenantManagerServiceImpl(Auth auth) {
+    public RestClientTenantManagerServiceImpl(Auth auth, Vertx vertx) {
         this.auth = auth;
+        this.vertx = vertx;
     }
 
     private TenantManagerClient getClient(TenantManagerConfig tm) {
-        return pool.computeIfAbsent(tm.getTenantManagerUrl(), k -> {
-            if (auth != null) {
-                return new TenantManagerClientImpl(tm.getTenantManagerUrl(), Collections.emptyMap(), auth);
-            } else {
-                return new TenantManagerClientImpl(tm.getTenantManagerUrl());
-            }
-        });
+        return pool.computeIfAbsent(tm.getTenantManagerUrl(), k -> new TenantManagerClientImpl(vertx, tm.getTenantManagerUrl(), Collections.emptyMap(), auth));
     }
 
     private Tenant convert(RegistryTenant data) {

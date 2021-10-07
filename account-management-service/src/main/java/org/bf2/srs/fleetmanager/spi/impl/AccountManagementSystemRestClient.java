@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.apicurio.rest.client.VertxHttpClient;
+import io.vertx.core.Vertx;
 import org.bf2.srs.fleetmanager.spi.impl.exception.AccountManagementErrorHandler;
 import org.bf2.srs.fleetmanager.spi.impl.exception.AccountManagementSystemClientException;
 import org.bf2.srs.fleetmanager.spi.impl.model.request.ClusterAuthorization;
@@ -19,7 +21,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.apicurio.rest.client.JdkHttpClient;
 import io.apicurio.rest.client.auth.OidcAuth;
 import io.apicurio.rest.client.request.Operation;
 import io.apicurio.rest.client.request.Request;
@@ -30,8 +31,8 @@ public class AccountManagementSystemRestClient {
     private final ApicurioHttpClient client;
     private final ObjectMapper mapper;
 
-    public AccountManagementSystemRestClient(String endpoint, Map<String, Object> configs, OidcAuth auth) {
-        this.client = new JdkHttpClient(endpoint, configs, auth, new AccountManagementErrorHandler());
+    public AccountManagementSystemRestClient(Vertx vertx, String endpoint, Map<String, Object> configs, OidcAuth auth) {
+        this.client = new VertxHttpClient(vertx, endpoint, configs, auth, new AccountManagementErrorHandler());
         this.mapper = new ObjectMapper();
     }
 
