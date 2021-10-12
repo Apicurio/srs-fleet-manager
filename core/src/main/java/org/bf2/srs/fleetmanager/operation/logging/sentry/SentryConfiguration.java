@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bf2.srs.fleetmanager.logging.sentry;
+package org.bf2.srs.fleetmanager.operation.logging.sentry;
 
 import java.util.logging.LogManager;
 

@@ -24,7 +24,7 @@ public class ExceptionMetrics {
 
     public void record(Throwable t) {
         // Expose AMS errors as a metric
-        if (t instanceof AccountManagementSystemClientException) {
+        if (t instanceof AccountManagementSystemClientException) { // TODO Could not use the class here when built using -Dev property
             AccountManagementSystemClientException ex = (AccountManagementSystemClientException) t;
             log.debug("Recording metric for an AMS error.", ex);
             List<Tag> tags = new ArrayList<>(2);
