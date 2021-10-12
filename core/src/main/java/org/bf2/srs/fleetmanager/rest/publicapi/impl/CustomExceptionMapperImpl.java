@@ -7,6 +7,7 @@ import org.bf2.srs.fleetmanager.common.errors.UserErrorCode;
 import org.bf2.srs.fleetmanager.common.errors.UserErrorInfo;
 import org.bf2.srs.fleetmanager.errors.UserErrorMapper;
 import org.bf2.srs.fleetmanager.metrics.ExceptionMetrics;
+import org.bf2.srs.fleetmanager.operation.OperationContext;
 import org.bf2.srs.fleetmanager.rest.config.CustomExceptionMapper;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.Error;
 import org.bf2.srs.fleetmanager.rest.service.ErrorNotFoundException;
@@ -54,6 +55,9 @@ public class CustomExceptionMapperImpl implements CustomExceptionMapper {
     @Inject
     ExceptionMetrics exceptionMetrics;
 
+    @Inject
+    OperationContext opCtx;
+
     static {
 
         Map<Class<? extends Exception>, Integer> map = new HashMap<>();
@@ -68,6 +72,7 @@ public class CustomExceptionMapperImpl implements CustomExceptionMapper {
 
         map.put(NotSupportedException.class, HTTP_UNSUPPORTED_TYPE);
 
+        // TODO Could not use the class here when built using -Dev property
         map.put(AccountManagementSystemClientException.class, HTTP_INTERNAL_ERROR);
         map.put(EvalInstancesNotAllowedException.class, HTTP_INTERNAL_ERROR);
 
@@ -123,7 +128,7 @@ public class CustomExceptionMapperImpl implements CustomExceptionMapper {
         ei.setHref("/api/serviceregistry_mgmt/v1/errors/" + ei.getId());
         ei.setCode(uei.getCode().getCode());
         ei.setReason(uei.getReason());
-        // ei.setOperationId(""); TODO
+        ei.setOperationId(opCtx.getOperationId());
 
         if (!"prod".equals(quarkusProfile)) {
             var extendedReason = ei.getReason();

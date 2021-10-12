@@ -1,6 +1,7 @@
 package org.bf2.srs.fleetmanager.execution.manager;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.bf2.srs.fleetmanager.operation.OperationContextData;
 
 /**
  * @author Jakub Senko <jsenko@redhat.com>
@@ -19,4 +20,11 @@ public interface Task {
     String getType();
 
     TaskSchedule getSchedule();
+
+    /**
+     * May return null.
+     */
+    OperationContextData getOperationContextData();
+
+    void setOperationContextData(OperationContextData operationContextData);
 }

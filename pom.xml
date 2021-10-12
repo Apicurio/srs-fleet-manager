@@ -231,6 +231,7 @@
                 </property>
             </activation>
             <modules>
+                <module>common</module>
                 <module>spi</module>
                 <module>core</module>
             </modules>

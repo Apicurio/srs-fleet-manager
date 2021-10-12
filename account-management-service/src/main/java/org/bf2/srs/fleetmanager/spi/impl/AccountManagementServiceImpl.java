@@ -1,8 +1,12 @@
 package org.bf2.srs.fleetmanager.spi.impl;
 
+import io.apicurio.rest.client.auth.OidcAuth;
+import io.quarkus.arc.profile.UnlessBuildProfile;
+import org.bf2.srs.fleetmanager.common.operation.auditing.Audited;
 import org.bf2.srs.fleetmanager.spi.AccountManagementService;
 import org.bf2.srs.fleetmanager.spi.ResourceLimitReachedException;
 import org.bf2.srs.fleetmanager.spi.TermsRequiredException;
+import org.bf2.srs.fleetmanager.spi.impl.exception.AccountManagementSystemAuthErrorHandler;
 import org.bf2.srs.fleetmanager.spi.impl.model.request.ClusterAuthorization;
 import org.bf2.srs.fleetmanager.spi.impl.model.request.ReservedResource;
 import org.bf2.srs.fleetmanager.spi.impl.model.request.TermsReview;
@@ -14,33 +18,60 @@ import org.bf2.srs.fleetmanager.spi.impl.model.response.RelatedResource;
 import org.bf2.srs.fleetmanager.spi.impl.model.response.ResponseTermsReview;
 import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
 import org.bf2.srs.fleetmanager.spi.model.ResourceType;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
+import java.util.Optional;
 import java.util.UUID;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.KEY_AMS_SUBSCRIPTION_ID;
 
 /**
  * This service is in charge of check if a given user has the appropriate situation in order to ask for the requested resource
  */
+@UnlessBuildProfile("test")
+@ApplicationScoped
 public class AccountManagementServiceImpl implements AccountManagementService {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    private final AccountManagementSystemRestClient restClient;
+    @ConfigProperty(name = "account-management-system.url")
+    String endpoint;
 
-    private final AccountManagementServiceProperties amsProperties;
+    @ConfigProperty(name = "sso.token.endpoint")
+    String ssoTokenEndpoint;
 
-    /**
-     * Constructor.
-     * @param restClient
-     * @param amsProperties
-     */
-    public AccountManagementServiceImpl(AccountManagementSystemRestClient restClient, AccountManagementServiceProperties amsProperties) {
-        this.restClient = restClient;
-        this.amsProperties = amsProperties;
+    @ConfigProperty(name = "sso.client-id")
+    String ssoClientId;
+
+    @ConfigProperty(name = "sso.client-secret")
+    String ssoClientSecret;
+
+    @ConfigProperty(name = "sso.enabled")
+    boolean ssoEnabled;
+
+    @Inject
+    AccountManagementServiceProperties amsProperties;
+
+    private AccountManagementSystemRestClient restClient;
+
+    @PostConstruct
+    void init() {
+        log.info("Using Account Management Service with Account Management URL: {}", endpoint);
+        if (ssoEnabled) {
+            final OidcAuth auth = new OidcAuth(ssoTokenEndpoint, ssoClientId, ssoClientSecret, Optional.of(new AccountManagementSystemAuthErrorHandler()));
+            restClient = new AccountManagementSystemRestClient(endpoint, Collections.emptyMap(), auth);
+        } else {
+            restClient = new AccountManagementSystemRestClient(endpoint, Collections.emptyMap(), null);
+        }
     }
 
+    @Audited
     @Override
     public ResourceType determineAllowedResourceType(AccountInfo accountInfo) {
         Organization organization = restClient.getOrganizationByExternalId(accountInfo.getOrganizationId());
@@ -54,8 +85,7 @@ public class AccountManagementServiceImpl implements AccountManagementService {
                 // We only care about QuotaCost with "allowed" > 0 and with at least one related resource.
                 if (quotaCost.getAllowed() != null && quotaCost.getAllowed() > 0 &&
                         quotaCost.getRelated_resources() != null && !quotaCost.getRelated_resources().isEmpty() &&
-                        isRhosrStandardQuota(quotaCost))
-                {
+                        isRhosrStandardQuota(quotaCost)) {
                     return ResourceType.REGISTRY_INSTANCE_STANDARD;
                 }
             }
@@ -67,6 +97,7 @@ public class AccountManagementServiceImpl implements AccountManagementService {
 
     /**
      * Returns true if the given QuotaCost object represents standard RHOSR quota.
+     *
      * @param quotaCost
      */
     private boolean isRhosrStandardQuota(QuotaCost quotaCost) {
@@ -78,6 +109,7 @@ public class AccountManagementServiceImpl implements AccountManagementService {
         return false;
     }
 
+    @Audited(extractResult = KEY_AMS_SUBSCRIPTION_ID)
     @Override
     public String createResource(AccountInfo accountInfo, ResourceType resourceType) throws TermsRequiredException, ResourceLimitReachedException {
 
@@ -144,6 +176,7 @@ public class AccountManagementServiceImpl implements AccountManagementService {
         }
     }
 
+    @Audited(extractParameters = {"0", KEY_AMS_SUBSCRIPTION_ID})
     @Override
     public void deleteSubscription(String subscriptionId) {
         // If the subscriptionId is null, it means we didn't reserve quota in AMS for this

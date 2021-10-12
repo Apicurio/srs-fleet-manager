@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bf2.srs.fleetmanager.logging;
+package org.bf2.srs.fleetmanager.operation.logging;
 
 import org.bf2.srs.fleetmanager.App;
 import org.slf4j.Logger;
