@@ -1,6 +1,7 @@
 package org.bf2.srs.fleetmanager.spi.impl.exception;
 
 import io.apicurio.rest.client.error.ApicurioRestClientException;
+import lombok.Getter;
 import org.bf2.srs.fleetmanager.common.errors.UserError;
 import org.bf2.srs.fleetmanager.common.errors.UserErrorCode;
 import org.bf2.srs.fleetmanager.common.errors.UserErrorInfo;
@@ -12,27 +13,40 @@ public class AccountManagementSystemClientException extends ApicurioRestClientEx
 
     private static final long serialVersionUID = 1L;
 
-    private final Optional<Error> cause;
+    @Getter
+    private final Optional<Error> causeEntity;
 
-    public AccountManagementSystemClientException(Error cause) {
-        super(String.format("Error found when executing action with kind: %s, code: %s, href: %s, id: %s, operationId: %s, and reason: %s",
-                cause.getKind(), cause.getCode(), cause.getHref(), cause.getId(), cause.getOperationId(), cause.getReason()));
-        this.cause = Optional.of(cause);
+    @Getter
+    private final Optional<Integer> statusCode;
+
+    public AccountManagementSystemClientException(Error causeEntity, int statusCode) {
+        super(String.format("Error '%s' found when executing action. Returned status code is '%s'", causeEntity, statusCode));
+        this.causeEntity = Optional.of(causeEntity);
+        this.statusCode = Optional.of(statusCode);
+    }
+
+    public AccountManagementSystemClientException(String message, int statusCode) {
+        super(message);
+        this.causeEntity = Optional.empty();
+        this.statusCode = Optional.of(statusCode);
     }
 
     public AccountManagementSystemClientException(String message) {
         super(message);
-        this.cause = Optional.empty();
+        this.causeEntity = Optional.empty();
+        this.statusCode = Optional.empty();
     }
 
     public AccountManagementSystemClientException(Throwable error) {
         super(error.getMessage());
-        this.cause = Optional.empty();
+        this.causeEntity = Optional.empty();
+        this.statusCode = Optional.empty();
     }
 
     @Override
     public UserErrorInfo getUserErrorInfo() {
-        var reason = cause.isPresent() ? ". " + cause.get().getReason() : ".";
+        // TODO Do we want to expose underlying error reason to the users?
+        var reason = causeEntity.map(error -> ". " + error.getReason()).orElse(".");
         return UserErrorInfo.create(UserErrorCode.ERROR_AMS_FAILED_TO_CHECK_QUOTA, reason);
     }
 }

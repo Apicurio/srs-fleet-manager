@@ -6,6 +6,7 @@ import org.bf2.srs.fleetmanager.common.errors.UserError;
 import org.bf2.srs.fleetmanager.common.errors.UserErrorCode;
 import org.bf2.srs.fleetmanager.common.errors.UserErrorInfo;
 import org.bf2.srs.fleetmanager.errors.UserErrorMapper;
+import org.bf2.srs.fleetmanager.metrics.ExceptionMetrics;
 import org.bf2.srs.fleetmanager.rest.config.CustomExceptionMapper;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.Error;
 import org.bf2.srs.fleetmanager.rest.service.ErrorNotFoundException;
@@ -29,6 +30,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.NotSupportedException;
 import javax.ws.rs.WebApplicationException;
@@ -48,6 +50,9 @@ public class CustomExceptionMapperImpl implements CustomExceptionMapper {
     private static final Map<Class<? extends Exception>, Integer> CODE_MAP;
 
     private String quarkusProfile = ProfileManager.getActiveProfile();
+
+    @Inject
+    ExceptionMetrics exceptionMetrics;
 
     static {
 
@@ -83,6 +88,9 @@ public class CustomExceptionMapperImpl implements CustomExceptionMapper {
 
     @Override
     public Response toResponse(Throwable exception) {
+
+        exceptionMetrics.record(exception);
+
         Response.ResponseBuilder builder;
 
         int code;
