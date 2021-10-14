@@ -28,7 +28,7 @@ mvn clean install -Ddev -Dquarkus.container-image.build=true
 which can be executed using:
 
 ```shell script
-docker run -p 8080:8080 {user}/srs-fleet-manager-core:0.1.0-SNAPSHOT
+docker run -p 8080:8080 {user}/srs-fleet-manager-core:0.1.0
 ```
 
 ## Building SR-MSA for production use
@@ -60,7 +60,7 @@ See `dist/openshift/README.md` for information about deploying the required comp
 
 ```shell script
 docker run -p 5432:5432 -e 'POSTGRES_PASSWORD=postgres' -d postgres
-docker run --network host -p 8080:8080 -e 'SERVICE_API_DATASOURCE_URL=jdbc:postgresql://localhost:5432/postgres' {user}/srs-fleet-manager-core:0.1.0-SNAPSHOT
+docker run --network host -p 8080:8080 -e 'SERVICE_API_DATASOURCE_URL=jdbc:postgresql://localhost:5432/postgres' {user}/srs-fleet-manager-core:0.1.0
 ```
 
 ## Configuring auth
