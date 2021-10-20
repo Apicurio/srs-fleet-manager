@@ -4,12 +4,15 @@ import io.quarkus.test.junit.QuarkusTest;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.TestTask;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.TestTask.BasicCommand;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.TestTask.RetryCommand;
+import org.bf2.srs.fleetmanager.operation.OperationContext;
 import org.bf2.srs.fleetmanager.util.TestTags;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.Instant;
+import javax.enterprise.context.control.ActivateRequestContext;
 import javax.inject.Inject;
 
 import static java.lang.Long.valueOf;
@@ -32,6 +35,17 @@ public class TaskManagerTest {
 
     @Inject
     DataCollector data;
+
+    @Inject
+    OperationContext opCtx;
+
+    @BeforeEach
+    void beforeEach() {
+        // Activate Operation Context
+        if (opCtx.isContextDataLoaded())
+            throw new IllegalStateException("Unexpected state: Operation Context is already loaded");
+        opCtx.loadNewContextData();
+    }
 
     @Test
     void testInputs() {

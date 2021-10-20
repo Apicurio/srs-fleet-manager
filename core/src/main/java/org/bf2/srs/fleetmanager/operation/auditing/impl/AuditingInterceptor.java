@@ -88,9 +88,11 @@ public class AuditingInterceptor {
 
         // Parameter extraction via extractors
         for (Object param : context.getParameters()) {
-            var extractor = PARAMETER_EXTRACTORS.get(param.getClass());
-            if (extractor != null) {
-                extractor.accept(param, event);
+            if(param != null) {
+                var extractor = PARAMETER_EXTRACTORS.get(param.getClass());
+                if (extractor != null) {
+                    extractor.accept(param, event);
+                }
             }
         }
 

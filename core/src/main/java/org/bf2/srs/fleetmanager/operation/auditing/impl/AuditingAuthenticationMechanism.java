@@ -16,6 +16,7 @@
 
 package org.bf2.srs.fleetmanager.operation.auditing.impl;
 
+import io.quarkus.arc.profile.UnlessBuildProfile;
 import io.quarkus.oidc.runtime.BearerAuthenticationMechanism;
 import io.quarkus.oidc.runtime.OidcAuthenticationMechanism;
 import io.quarkus.security.identity.IdentityProviderManager;
@@ -51,6 +52,7 @@ import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstan
  * @author Fabian Martinez
  * @author Jakub Senko <jsenko@redhat.com>
  */
+@UnlessBuildProfile("test") // OIDC auth is disabled during testing (%test.quarkus.oidc.enabled=false)
 @Alternative
 @Priority(1)
 @ApplicationScoped

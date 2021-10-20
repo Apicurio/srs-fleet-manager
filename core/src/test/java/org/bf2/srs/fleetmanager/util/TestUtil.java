@@ -39,7 +39,10 @@ public class TestUtil {
 
     public static void waitForDeletion(TenantManagerService tms, TenantManagerConfig tmc, List<Registry> registries) {
 
-        Awaitility.await("Registry deleting initiated").atMost(5, SECONDS).pollInterval(1, SECONDS)
+        Awaitility.await("Registry deleting initiated")
+                .atMost(5, SECONDS)
+                .pollInterval(1, SECONDS)
+                .pollInSameThread() // To preserve the Operation Context for TenantManagerService execution.
                 .until(() -> registries.stream().allMatch(r -> {
                     var tenant = tms.getTenantById(tmc, r.getId());
                     return TenantStatus.TO_BE_DELETED.equals(tenant.get().getStatus());
