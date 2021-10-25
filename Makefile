@@ -1,26 +1,51 @@
 APICURIO_REGISTRY_REPO?=https://github.com/Apicurio/apicurio-registry.git
 APICURIO_REGISTRY_BRANCH?=mas-sr
 
-# builds and runs unit tests for srs-fleet-manager app
+COMMON_ARGS=-Dmaven.javadoc.skip=true --no-transfer-progress -DtrimStackTrace=false
+
+
+help:
+	@echo ""
+	@echo "Please use \`make <target>' where <target> is one of:-"
+	@grep -E '^\.PHONY: [a-zA-Z_-]+ .*?## .*$$' $(MAKEFILE_LIST)  | awk 'BEGIN {FS = "(: |##)"}; {printf "\033[36m%-42s\033[0m %s\n", $$2, $$3}'
+	@echo ""
+	@echo "=> EXTRA_ARGS: You can pass additional build args by overriding the value of this variable. By Default, it doesn't pass any additional flags."
+	@echo ""
+.PHONY: help
+
+
+dev-build:
+	mvn install -Ddev $(COMMON_ARGS) $(EXTRA_ARGS)
+.PHONY: dev-build ## Builds the simplified development version (using mocks instead of external dependencies)
+
+
+dev-run:
+	mvn install quarkus:dev -Ddev $(COMMON_ARGS) $(EXTRA_ARGS)
+.PHONY: dev-run ## Builds the simplified development version, and runs it using Quarkus dev mode
+
+
 build:
-	mvn install -Dmaven.javadoc.skip=true --no-transfer-progress -DtrimStackTrace=false $(EXTRA_ARGS)
-.PHONY: build
+	mvn install $(COMMON_ARGS) $(EXTRA_ARGS)
+.PHONY: build ## Builds and runs unit tests
+
 
 integration-tests:
-	mvn verify -Pit -pl integration-tests -Dmaven.javadoc.skip=true --no-transfer-progress -DtrimStackTrace=false
-.PHONY: integration-tests
+	mvn verify -Pit -pl integration-tests $(COMMON_ARGS) $(EXTRA_ARGS)
+.PHONY: integration-tests  ## Builds and runs integration tests
 
-# builds tenant-manager required dependencies and builds srs-fleet-manager app
+
 build-project: build-tenant-manager-deps build
-.PHONY: build-project
+.PHONY: build-project  ## Builds the required dependencies (Tenant Manager) and then builds SRS Fleet Manager
 
-# builds srs-fleet-manager app and it's dependencies and integration tests
+
 pr-check: build-project integration-tests
-.PHONY: pr-check
+.PHONY: pr-check ## Builds SRS Fleet Manager with the required dependencies, and executes integration tests
+
 
 build-tenant-manager-deps: pull-apicurio-registry
 	cd apicurio-registry; mvn install -Pprod -Pmultitenancy -pl 'multitenancy/tenant-manager-client,multitenancy/tenant-manager-api' -am -DskipTests
 .PHONY: build-tenant-manager-deps
+
 
 pull-apicurio-registry:
 ifeq (,$(wildcard ./apicurio-registry))
