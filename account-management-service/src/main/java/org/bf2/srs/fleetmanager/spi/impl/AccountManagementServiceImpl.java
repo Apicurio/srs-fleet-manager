@@ -7,6 +7,7 @@ import org.bf2.srs.fleetmanager.spi.AccountManagementService;
 import org.bf2.srs.fleetmanager.spi.ResourceLimitReachedException;
 import org.bf2.srs.fleetmanager.spi.TermsRequiredException;
 import org.bf2.srs.fleetmanager.spi.impl.exception.AccountManagementSystemAuthErrorHandler;
+import org.bf2.srs.fleetmanager.spi.impl.exception.AccountManagementSystemClientException;
 import org.bf2.srs.fleetmanager.spi.impl.model.request.ClusterAuthorization;
 import org.bf2.srs.fleetmanager.spi.impl.model.request.ReservedResource;
 import org.bf2.srs.fleetmanager.spi.impl.model.request.TermsReview;
@@ -74,25 +75,29 @@ public class AccountManagementServiceImpl implements AccountManagementService {
     @Audited
     @Override
     public ResourceType determineAllowedResourceType(AccountInfo accountInfo) {
-        Organization organization = restClient.getOrganizationByExternalId(accountInfo.getOrganizationId());
-        String orgId = organization.getId();
+        try {
+            Organization organization = restClient.getOrganizationByExternalId(accountInfo.getOrganizationId());
+            String orgId = organization.getId();
 
-        // Check QuotaCostList for a RHOSR entry with "allowed" quota > 0.  If found, then
-        // return "Standard" as the resource type to create.
-        QuotaCostList quotaCostList = restClient.getQuotaCostList(orgId, true);
-        if (quotaCostList.getSize() > 0) {
-            for (QuotaCost quotaCost : quotaCostList.getItems()) {
-                // We only care about QuotaCost with "allowed" > 0 and with at least one related resource.
-                if (quotaCost.getAllowed() != null && quotaCost.getAllowed() > 0 &&
-                        quotaCost.getRelated_resources() != null && !quotaCost.getRelated_resources().isEmpty() &&
-                        isRhosrStandardQuota(quotaCost)) {
-                    return ResourceType.REGISTRY_INSTANCE_STANDARD;
+            // Check QuotaCostList for a RHOSR entry with "allowed" quota > 0.  If found, then
+            // return "Standard" as the resource type to create.
+            QuotaCostList quotaCostList = restClient.getQuotaCostList(orgId, true);
+            if (quotaCostList.getSize() > 0) {
+                for (QuotaCost quotaCost : quotaCostList.getItems()) {
+                    // We only care about QuotaCost with "allowed" > 0 and with at least one related resource.
+                    if (quotaCost.getAllowed() != null && quotaCost.getAllowed() > 0 &&
+                            quotaCost.getRelated_resources() != null && !quotaCost.getRelated_resources().isEmpty() &&
+                            isRhosrStandardQuota(quotaCost)) {
+                        return ResourceType.REGISTRY_INSTANCE_STANDARD;
+                    }
                 }
             }
-        }
 
-        // Default to only allow eval.
-        return ResourceType.REGISTRY_INSTANCE_EVAL;
+            // Default to only allow eval.
+            return ResourceType.REGISTRY_INSTANCE_EVAL;
+        } catch (AccountManagementSystemClientException ex) {
+            throw ex.convert();
+        }
     }
 
     /**
@@ -112,78 +117,85 @@ public class AccountManagementServiceImpl implements AccountManagementService {
     @Audited(extractResult = KEY_AMS_SUBSCRIPTION_ID)
     @Override
     public String createResource(AccountInfo accountInfo, ResourceType resourceType) throws TermsRequiredException, ResourceLimitReachedException {
+        try {
+            boolean termsAccepted;
+            final TermsReview termsReview = new TermsReview();
+            termsReview.setAccountUsername(accountInfo.getAccountUsername());
+            termsReview.setEventCode(amsProperties.termsEventCode);
+            termsReview.setSiteCode(amsProperties.termsSiteCode);
 
-        boolean termsAccepted;
-        final TermsReview termsReview = new TermsReview();
-        termsReview.setAccountUsername(accountInfo.getAccountUsername());
-        termsReview.setEventCode(amsProperties.termsEventCode);
-        termsReview.setSiteCode(amsProperties.termsSiteCode);
+            // Check if the user has accepted the Terms & Conditions
+            final ResponseTermsReview responseTermsReview = restClient.termsReview(termsReview);
+            termsAccepted = !responseTermsReview.getTermsRequired();
+            if (!termsAccepted) {
+                throw new TermsRequiredException(accountInfo.getAccountUsername());
+            }
 
-        // Check if the user has accepted the Terms & Conditions
-        final ResponseTermsReview responseTermsReview = restClient.termsReview(termsReview);
-        termsAccepted = !responseTermsReview.getTermsRequired();
-        if (!termsAccepted) {
-            throw new TermsRequiredException(accountInfo.getAccountUsername());
-        }
+            // If we're creating an eval instance, don't bother invoking AMS - return a null subscriptionId
+            // TODO Workaround: Remove this once we have RHOSRTrial working.
+            if (resourceType == ResourceType.REGISTRY_INSTANCE_EVAL) {
+                log.warn("Creating an eval instance for '{}' in org '{}' without calling AMS. " +
+                        "This is a temporary workaround.", accountInfo.getAccountUsername(), accountInfo.getOrganizationId());
+                return null;
+            }
 
-        // If we're creating an eval instance, don't bother invoking AMS - return a null subscriptionId
-        // TODO Workaround: Remove this once we have RHOSRTrial working.
-        if (resourceType == ResourceType.REGISTRY_INSTANCE_EVAL) {
-            log.warn("Creating an eval instance for '{}' in org '{}' without calling AMS. " +
-                    "This is a temporary workaround.", accountInfo.getAccountUsername(), accountInfo.getOrganizationId());
-            return null;
-        }
+            // Set the productId and resourceName based on if it's an Eval or Standard instance
+            String productId = amsProperties.standardProductId;
+            String resourceName = amsProperties.standardResourceName;
+            if (resourceType == ResourceType.REGISTRY_INSTANCE_EVAL) {
+                productId = amsProperties.evalProductId;
+                resourceName = amsProperties.evalResourceName;
+            }
 
-        // Set the productId and resourceName based on if it's an Eval or Standard instance
-        String productId = amsProperties.standardProductId;
-        String resourceName = amsProperties.standardResourceName;
-        if (resourceType == ResourceType.REGISTRY_INSTANCE_EVAL) {
-            productId = amsProperties.evalProductId;
-            resourceName = amsProperties.evalResourceName;
-        }
+            // Build a quota resource ID to pass to AMS
+            final var quotaResource = ReservedResource.builder()
+                    .resourceType(amsProperties.resourceType)
+                    .byoc(false)
+                    .resourceName(resourceName)
+                    .billingModel("marketplace")
+                    .availabilityZone("single")
+                    .count(1)
+                    .build();
 
-        // Build a quota resource ID to pass to AMS
-        final var quotaResource = ReservedResource.builder()
-                .resourceType(amsProperties.resourceType)
-                .byoc(false)
-                .resourceName(resourceName)
-                .billingModel("marketplace")
-                .availabilityZone("single")
-                .count(1)
-                .build();
+            // Create the cluster authorization REST operation input
+            final ClusterAuthorization clusterAuthorization = ClusterAuthorization.builder()
+                    .accountUsername(accountInfo.getAccountUsername())
+                    .productId(productId)
+                    .managed(true)
+                    .byoc(false)
+                    .cloudProviderId("aws")
+                    .reserve(true)
+                    .availabilityZone("single")
+                    .clusterId(UUID.randomUUID().toString())
+                    .resources(Collections.singletonList(quotaResource))
+                    .build();
 
-        // Create the cluster authorization REST operation input
-        final ClusterAuthorization clusterAuthorization = ClusterAuthorization.builder()
-                .accountUsername(accountInfo.getAccountUsername())
-                .productId(productId)
-                .managed(true)
-                .byoc(false)
-                .cloudProviderId("aws")
-                .reserve(true)
-                .availabilityZone("single")
-                .clusterId(UUID.randomUUID().toString())
-                .resources(Collections.singletonList(quotaResource))
-                .build();
+            // Consume quota from AMS via the AMS REST API
+            final ClusterAuthorizationResponse clusterAuthorizationResponse = restClient.clusterAuthorization(clusterAuthorization);
 
-        // Consume quota from AMS via the AMS REST API
-        final ClusterAuthorizationResponse clusterAuthorizationResponse = restClient.clusterAuthorization(clusterAuthorization);
-
-        if (clusterAuthorizationResponse.getAllowed()) {
-            return clusterAuthorizationResponse.getSubscription().getId();
-        } else {
-            // User not allowed to create resource
-            throw new ResourceLimitReachedException();
+            if (clusterAuthorizationResponse.getAllowed()) {
+                return clusterAuthorizationResponse.getSubscription().getId();
+            } else {
+                // User not allowed to create resource
+                throw new ResourceLimitReachedException();
+            }
+        } catch (AccountManagementSystemClientException ex) {
+            throw ex.convert();
         }
     }
 
     @Audited(extractParameters = {"0", KEY_AMS_SUBSCRIPTION_ID})
     @Override
     public void deleteSubscription(String subscriptionId) {
-        // If the subscriptionId is null, it means we didn't reserve quota in AMS for this
-        // instances (likely because it's an Eval instance).
-        // TODO Workaround: Remove this once we have RHOSRTrial working.
-        if (subscriptionId != null) {
-            restClient.deleteSubscription(subscriptionId);
+        try {
+            // If the subscriptionId is null, it means we didn't reserve quota in AMS for this
+            // instances (likely because it's an Eval instance).
+            // TODO Workaround: Remove this once we have RHOSRTrial working.
+            if (subscriptionId != null) {
+                restClient.deleteSubscription(subscriptionId);
+            }
+        } catch (AccountManagementSystemClientException ex) {
+            throw ex.convert();
         }
     }
 }

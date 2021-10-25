@@ -2,14 +2,13 @@ package org.bf2.srs.fleetmanager.spi.impl.exception;
 
 import io.apicurio.rest.client.error.ApicurioRestClientException;
 import lombok.Getter;
-import org.bf2.srs.fleetmanager.common.errors.UserError;
-import org.bf2.srs.fleetmanager.common.errors.UserErrorCode;
-import org.bf2.srs.fleetmanager.common.errors.UserErrorInfo;
+import org.bf2.srs.fleetmanager.spi.AccountManagementServiceClientException;
 import org.bf2.srs.fleetmanager.spi.impl.model.response.Error;
+import org.bf2.srs.fleetmanager.spi.model.AMSError;
 
 import java.util.Optional;
 
-public class AccountManagementSystemClientException extends ApicurioRestClientException implements UserError {
+public class AccountManagementSystemClientException extends ApicurioRestClientException {
 
     private static final long serialVersionUID = 1L;
 
@@ -43,10 +42,11 @@ public class AccountManagementSystemClientException extends ApicurioRestClientEx
         this.statusCode = Optional.empty();
     }
 
-    @Override
-    public UserErrorInfo getUserErrorInfo() {
-        // TODO Do we want to expose underlying error reason to the users?
-        var reason = causeEntity.map(error -> ". " + error.getReason()).orElse(".");
-        return UserErrorInfo.create(UserErrorCode.ERROR_AMS_FAILED_TO_CHECK_QUOTA, reason);
+    public AccountManagementServiceClientException convert() {
+        var newCauseEntity = this.causeEntity.map(e -> AMSError.builder()
+                .code(e.getCode())
+                .reason(e.getReason())
+                .build());
+        return new AccountManagementServiceClientException(newCauseEntity, this.statusCode, this);
     }
 }
