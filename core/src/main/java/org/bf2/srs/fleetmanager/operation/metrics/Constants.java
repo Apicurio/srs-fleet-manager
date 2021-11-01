@@ -1,4 +1,4 @@
-package org.bf2.srs.fleetmanager.metrics;
+package org.bf2.srs.fleetmanager.operation.metrics;
 
 /**
  * @author Jakub Senko <jsenko@redhat.com>

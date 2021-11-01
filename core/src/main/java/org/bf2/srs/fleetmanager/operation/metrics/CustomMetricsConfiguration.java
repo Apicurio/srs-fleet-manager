@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bf2.srs.fleetmanager.metrics;
+package org.bf2.srs.fleetmanager.operation.metrics;
 
 import javax.enterprise.inject.Produces;
 import javax.inject.Singleton;

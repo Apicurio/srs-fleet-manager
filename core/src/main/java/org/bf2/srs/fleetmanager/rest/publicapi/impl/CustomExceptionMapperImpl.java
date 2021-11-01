@@ -6,7 +6,7 @@ import org.bf2.srs.fleetmanager.common.errors.UserError;
 import org.bf2.srs.fleetmanager.common.errors.UserErrorCode;
 import org.bf2.srs.fleetmanager.common.errors.UserErrorInfo;
 import org.bf2.srs.fleetmanager.errors.UserErrorMapper;
-import org.bf2.srs.fleetmanager.metrics.ExceptionMetrics;
+import org.bf2.srs.fleetmanager.operation.metrics.ExceptionMetrics;
 import org.bf2.srs.fleetmanager.operation.OperationContext;
 import org.bf2.srs.fleetmanager.rest.config.CustomExceptionMapper;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.Error;

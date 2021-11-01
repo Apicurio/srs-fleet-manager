@@ -1,4 +1,4 @@
-package org.bf2.srs.fleetmanager.metrics;
+package org.bf2.srs.fleetmanager.operation.metrics;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tag;
