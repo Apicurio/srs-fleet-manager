@@ -14,7 +14,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
 import javax.transaction.Transactional;
 
-import org.bf2.srs.fleetmanager.logging.Logged;
+import org.bf2.srs.fleetmanager.operation.logging.Logged;
 import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
 import org.bf2.srs.fleetmanager.storage.RegistryDeploymentStorageConflictException;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;

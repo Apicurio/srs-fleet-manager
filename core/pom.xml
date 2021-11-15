@@ -86,10 +86,13 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-oidc</artifactId>
         </dependency>
-
         <dependency>
             <groupId>io.sentry</groupId>
             <artifactId>sentry</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-undertow</artifactId>
         </dependency>
 
         <!-- Quarkus TEST -->
@@ -137,12 +140,6 @@
         </dependency>
 
         <dependency>
-            <groupId>io.apicurio</groupId>
-            <artifactId>apicurio-registry-tenant-manager-client</artifactId>
-            <version>${apicurio-registry-tenant-manager-client.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
         </dependency>
@@ -151,6 +148,11 @@
             <groupId>org.bf2</groupId>
             <artifactId>srs-fleet-manager-common</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.bf2</groupId>
+            <artifactId>srs-fleet-manager-spi</artifactId>
         </dependency>
 
     </dependencies>
@@ -187,7 +189,8 @@
                                     <message>
                                         See https://github.com/quarkusio/quarkus/issues/13871 .
                                         Because of this issue, even though the compile settings target Java 11,
-                                        if you compile with JDK version > 11, you'll get java.lang.UnsupportedClassVersionError
+                                        if you compile with JDK version > 11, you'll get
+                                        java.lang.UnsupportedClassVersionError
                                         when you execute with older JVM versions. Therefore this rule forces the JDK
                                         version until the issue is resolved.
                                     </message>
@@ -200,7 +203,7 @@
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                   <excludedGroups>${skipGroups}</excludedGroups>
+                    <excludedGroups>${skipGroups}</excludedGroups>
                     <systemPropertyVariables>
                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
                         <maven.home>${maven.home}</maven.home>
@@ -219,10 +222,6 @@
             </activation>
             <dependencies>
                 <!-- Modules -->
-                <dependency>
-                    <groupId>org.bf2</groupId>
-                    <artifactId>srs-fleet-manager-spi</artifactId>
-                </dependency>
                 <dependency>
                     <groupId>org.bf2</groupId>
                     <artifactId>srs-fleet-manager-tenant-manager-client</artifactId>
@@ -244,10 +243,6 @@
 
             <dependencies>
                 <!-- Modules -->
-                <dependency>
-                    <groupId>org.bf2</groupId>
-                    <artifactId>srs-fleet-manager-spi</artifactId>
-                </dependency>
             </dependencies>
         </profile>
 

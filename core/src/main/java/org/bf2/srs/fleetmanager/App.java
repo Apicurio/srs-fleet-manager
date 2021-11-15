@@ -3,7 +3,7 @@ package org.bf2.srs.fleetmanager;
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
-import org.bf2.srs.fleetmanager.logging.sentry.SentryConfiguration;
+import org.bf2.srs.fleetmanager.operation.logging.sentry.SentryConfiguration;
 import org.bf2.srs.fleetmanager.rest.service.RegistryDeploymentService;
 import org.bf2.srs.fleetmanager.service.QuotaPlansService;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.migration.MigrationService;

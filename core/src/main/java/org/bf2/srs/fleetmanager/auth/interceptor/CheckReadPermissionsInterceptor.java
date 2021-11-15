@@ -10,6 +10,7 @@ import org.bf2.srs.fleetmanager.util.SecurityUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Priority;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
@@ -23,6 +24,7 @@ import static org.bf2.srs.fleetmanager.util.SecurityUtil.isResolvable;
 
 @CheckReadPermissions
 @Interceptor
+@Priority(Interceptor.Priority.APPLICATION)
 public class CheckReadPermissionsInterceptor {
 
     private final Logger log = LoggerFactory.getLogger(getClass());

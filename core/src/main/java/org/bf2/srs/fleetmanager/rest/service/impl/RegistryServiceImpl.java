@@ -1,23 +1,14 @@
 package org.bf2.srs.fleetmanager.rest.service.impl;
 
-import static org.bf2.srs.fleetmanager.util.SecurityUtil.OWNER_ID_PLACEHOLDER;
-import static org.bf2.srs.fleetmanager.util.SecurityUtil.isResolvable;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
-import javax.validation.ValidationException;
-
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
+import io.quarkus.panache.common.Page;
+import io.quarkus.panache.common.Sort;
+import io.quarkus.security.identity.SecurityIdentity;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bf2.srs.fleetmanager.auth.AuthService;
 import org.bf2.srs.fleetmanager.auth.interceptor.CheckDeletePermissions;
 import org.bf2.srs.fleetmanager.auth.interceptor.CheckReadPermissions;
+import org.bf2.srs.fleetmanager.common.operation.auditing.Audited;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.ScheduleRegistryTask;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.deprovision.StartDeprovisionRegistryTask;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
@@ -45,10 +36,19 @@ import org.bf2.srs.fleetmanager.util.BasicQuery;
 import org.bf2.srs.fleetmanager.util.SearchQuery;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import io.quarkus.hibernate.orm.panache.PanacheQuery;
-import io.quarkus.panache.common.Page;
-import io.quarkus.panache.common.Sort;
-import io.quarkus.security.identity.SecurityIdentity;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
+import javax.validation.ValidationException;
+
+import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.KEY_REGISTRY_ID;
+import static org.bf2.srs.fleetmanager.util.SecurityUtil.OWNER_ID_PLACEHOLDER;
+import static org.bf2.srs.fleetmanager.util.SecurityUtil.isResolvable;
 
 @ApplicationScoped
 public class RegistryServiceImpl implements RegistryService {
@@ -86,6 +86,7 @@ public class RegistryServiceImpl implements RegistryService {
     @ConfigProperty(name = "srs-fleet-manager.registry.instances.max-count")
     int maxInstances;
 
+    @Audited
     @Override
     public RegistryDto createRegistry(RegistryCreateDto registryCreate)
             throws RegistryStorageConflictException, TermsRequiredException, ResourceLimitReachedException,
@@ -99,8 +100,8 @@ public class RegistryServiceImpl implements RegistryService {
         }
 
         // Figure out if we are going to create a standard or eval instance.
-        ResourceType resourceType = evalInstancesOnlyEnabled ? 
-        		ResourceType.REGISTRY_INSTANCE_EVAL : accountManagementService.determineAllowedResourceType(accountInfo);
+        ResourceType resourceType = evalInstancesOnlyEnabled ?
+                ResourceType.REGISTRY_INSTANCE_EVAL : accountManagementService.determineAllowedResourceType(accountInfo);
 
         if (resourceType == ResourceType.REGISTRY_INSTANCE_EVAL) {
             // Are eval instances allowed?
@@ -141,6 +142,7 @@ public class RegistryServiceImpl implements RegistryService {
         return resourceType == ResourceType.REGISTRY_INSTANCE_STANDARD ? RegistryInstanceTypeValueDto.STANDARD : RegistryInstanceTypeValueDto.EVAL;
     }
 
+    @Audited
     @Override
     public RegistryListDto getRegistries(Integer page, Integer size, String orderBy, String search) {
         // Defaults
@@ -194,6 +196,7 @@ public class RegistryServiceImpl implements RegistryService {
 
     @Override
     @CheckReadPermissions
+    @Audited(extractParameters = {"0", KEY_REGISTRY_ID})
     public RegistryDto getRegistry(String registryId) throws RegistryNotFoundException {
         try {
             return storage.getRegistryById(registryId)
@@ -205,6 +208,7 @@ public class RegistryServiceImpl implements RegistryService {
     }
 
     @Override
+    @Audited(extractParameters = {"0", KEY_REGISTRY_ID})
     @CheckDeletePermissions
     public void deleteRegistry(String registryId) throws RegistryNotFoundException, RegistryStorageConflictException {
         try {
@@ -217,6 +221,7 @@ public class RegistryServiceImpl implements RegistryService {
     }
 
     @Override
+    @Audited
     public ServiceStatusDto getServiceStatus() {
         long total = getRegistryInstanceGlobalCount();
 

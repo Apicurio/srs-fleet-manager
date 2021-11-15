@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Red Hat
+ * Copyright 2021 Red Hat
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bf2.srs.fleetmanager.logging;
+package org.bf2.srs.fleetmanager.operation.logging;
 
 import org.bf2.srs.fleetmanager.App;
 import org.slf4j.Logger;

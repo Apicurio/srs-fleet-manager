@@ -3,6 +3,7 @@ package org.bf2.srs.fleetmanager.rest;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
+import org.bf2.srs.fleetmanager.operation.OperationContext;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentCreateRest;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.Registry;
@@ -52,12 +53,19 @@ public class RegistriesResourceV1Test {
     @Inject
     PanacheRegistryDeploymentRepository deploymentRepo;
 
+    @Inject
+    OperationContext opCtx;
+
     @BeforeEach
     @Transactional
-    void before() {
+    void beforeEach() {
         log.warn("Cleaning the database");
         registryRepo.deleteAll();
         deploymentRepo.deleteAll();
+        // Activate Operation Context
+        if (opCtx.isContextDataLoaded())
+            throw new IllegalStateException("Unexpected state: Operation Context is already loaded");
+        opCtx.loadNewContextData();
     }
 
     @Test

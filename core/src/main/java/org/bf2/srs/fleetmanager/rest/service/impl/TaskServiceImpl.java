@@ -1,5 +1,6 @@
 package org.bf2.srs.fleetmanager.rest.service.impl;
 
+import org.bf2.srs.fleetmanager.common.operation.auditing.Audited;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.execution.manager.TaskNotFoundException;
 import org.bf2.srs.fleetmanager.rest.service.TaskService;
@@ -10,6 +11,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
+import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.KEY_TASK_ID;
 
 /**
  * @author Jakub Senko <jsenko@redhat.com>
@@ -24,6 +27,7 @@ public class TaskServiceImpl implements TaskService {
     ConvertTask convertTask;
 
     @Override
+    @Audited
     public List<Task> getTasks() {
         return taskManager.getAllTasks().stream()
                 .map(convertTask::convert)
@@ -31,6 +35,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Audited(extractParameters = {"0", KEY_TASK_ID})
     public Task getTask(String id) throws TaskNotFoundException {
         return taskManager.getTaskById(id)
                 .map(convertTask::convert)
