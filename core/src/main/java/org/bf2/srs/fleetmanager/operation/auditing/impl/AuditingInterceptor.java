@@ -16,6 +16,7 @@
 
 package org.bf2.srs.fleetmanager.operation.auditing.impl;
 
+import io.quarkus.security.identity.SecurityIdentity;
 import org.bf2.srs.fleetmanager.common.operation.auditing.Audited;
 import org.bf2.srs.fleetmanager.operation.auditing.AuditingEvent;
 import org.bf2.srs.fleetmanager.operation.auditing.AuditingService;
@@ -52,6 +53,9 @@ public class AuditingInterceptor {
     @Inject
     AuditingService auditing;
 
+    @Inject
+    SecurityIdentity securityIdentity;
+
     @AroundInvoke
     public Object intercept(InvocationContext context) throws Exception {
 
@@ -61,6 +65,10 @@ public class AuditingInterceptor {
                     context.getMethod().getName() + "' must contain an even number of elements.");
 
         var event = new AuditingEvent();
+
+        if (securityIdentity != null && !securityIdentity.isAnonymous()) {
+            event.addData("principalId", securityIdentity.getPrincipal().getName());
+        }
 
         // Event ID
         var eventId = annotation.eventId();
