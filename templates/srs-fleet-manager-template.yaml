@@ -254,6 +254,20 @@ objects:
             value: ${AMS_URL}
           - name: SSO_TOKEN_ENDPOINT
             value: ${SSO_TOKEN_ENDPOINT}
+          - name: AMS_TERMS_SITE_CODE
+            value: ${AMS_TERMS_SITE_CODE}
+          - name: AMS_TERMS_EVENT_CODE
+            value: ${AMS_TERMS_EVENT_CODE}
+          - name: RESOURCE_TYPE
+            value: ${RESOURCE_TYPE}
+          - name: RESOURCE_NAME
+            value: ${RESOURCE_NAME}
+          - name: PRODUCT_ID
+            value: ${PRODUCT_ID}
+          - name: EVAL_RESOURCE_NAME
+            value: ${EVAL_RESOURCE_NAME}
+          - name: EVAL_PRODUCT_ID
+            value: ${EVAL_PRODUCT_ID}
           # Eval instances
           - name: EVAL_RESOURCE_NAME
             value: ${EVAL_RESOURCE_NAME}
@@ -462,6 +476,20 @@ parameters:
   value: "http://localhost:8091"
 - name: SSO_TOKEN_ENDPOINT
   value: "http://localhost:8090"
+- name: AMS_TERMS_SITE_CODE
+  value: ocm
+- name: AMS_TERMS_EVENT_CODE
+  value: onlineService
+- name: RESOURCE_TYPE
+  value: "cluster.aws"
+- name: RESOURCE_NAME
+  value: rhosr
+- name: PRODUCT_ID
+  value: RHOSR
+- name: EVAL_RESOURCE_NAME
+  value: rhosr
+- name: EVAL_PRODUCT_ID
+  value: RHOSRTrial
 
 # === Eval Instances
 
