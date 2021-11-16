@@ -75,7 +75,7 @@ objects:
     labels:
       app: srs-fleet-manager
       template: srs-fleet-manager-template
-      component: srs-fleet-manager-envoy
+      component: srs-fleet-manager-envoy-metrics
     name: srs-fleet-manager-envoy-metrics
   spec:
     ports:
