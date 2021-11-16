@@ -82,6 +82,7 @@ objects:
     - port: 9000
       protocol: TCP
       targetPort: 9000
+      name: metrics
     selector:
       app: srs-fleet-manager
       template: srs-fleet-manager-template
