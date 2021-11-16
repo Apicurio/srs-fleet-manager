@@ -283,6 +283,9 @@ objects:
           - name: REST_API_DISABLED_PATHS_PATTERNS
             value: ${REST_API_DISABLED_PATHS_PATTERNS}
 
+          - name: CORS_ALLOWED_ORIGINS
+            value: ${CORS_ALLOWED_ORIGINS}
+
           livenessProbe:
             failureThreshold: 3
             httpGet:
@@ -489,4 +492,8 @@ parameters:
 - name: REGISTRY_BROWSER_URL
   value: "https://console.redhat.com/beta/application-services/service-registry/t/TENANT_ID"
 - name: REST_API_DISABLED_PATHS_PATTERNS
+  value: ""
+
+- name: CORS_ALLOWED_ORIGINS
+  description: Allowed origins for cors. The expected value is a regex to be used as pattern.
   value: ""
