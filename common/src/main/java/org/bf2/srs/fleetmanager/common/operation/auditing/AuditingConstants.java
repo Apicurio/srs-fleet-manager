@@ -54,4 +54,6 @@ public interface AuditingConstants {
     String KEY_USER_ERROR_ID = "user_error_id";
 
     String KEY_TASK_ID = "task_id";
+
+    String KEY_PRINCIPAL_ID = "principal_id";
 }
