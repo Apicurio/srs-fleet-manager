@@ -67,7 +67,7 @@ public class AuditingInterceptor {
         var event = new AuditingEvent();
 
         if (securityIdentity != null && !securityIdentity.isAnonymous()) {
-            event.addData("principalId", securityIdentity.getPrincipal().getName());
+            event.addData(KEY_PRINCIPAL_ID, securityIdentity.getPrincipal().getName());
         }
 
         // Event ID
