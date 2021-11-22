@@ -46,6 +46,9 @@ build-tenant-manager-deps: pull-apicurio-registry
 	cd apicurio-registry; mvn install -Pprod -Pmultitenancy -pl 'multitenancy/tenant-manager-client,multitenancy/tenant-manager-api' -am -DskipTests
 .PHONY: build-tenant-manager-deps
 
+update-tenant-manager-dep-version: pull-apicurio-registry
+	mvn versions:set-property -Dproperty=apicurio-registry-tenant-manager-client.version -DgenerateBackupPoms=false -DnewVersion=$(shell xq .project.version apicurio-registry/pom.xml -r)
+.PHONY: update-tenant-manager-dep-version
 
 pull-apicurio-registry:
 ifeq (,$(wildcard ./apicurio-registry))
