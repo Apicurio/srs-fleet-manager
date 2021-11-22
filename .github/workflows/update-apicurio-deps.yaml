@@ -23,7 +23,7 @@ jobs:
         run: |
           cd "${{ github.workspace }}"
           sudo apt-get install jq
-          sudo apt-get install xq
+          sudo apt-get install yq
         
       - name: Run version update
         run: make update-tenant-manager-dep-version
