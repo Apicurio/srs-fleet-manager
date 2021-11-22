@@ -22,6 +22,7 @@ jobs:
       - name: Prepare Build of SRS Fleet Manager
         run: |
           cd "${{ github.workspace }}"
+          pip install xq
         
       - name: Run version update
         run: make update-tenant-manager-dep-version
