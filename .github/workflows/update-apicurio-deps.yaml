@@ -26,8 +26,7 @@ jobs:
       - name: Install jq and yq
         run: |
           sudo apt-get install jq
-          sudo wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/3.3.0/yq_linux_amd64
-          sudo chmod +x /usr/local/bin/yq
+          pip3 install yq
 
       - name: Run version update
         run: make update-tenant-manager-dep-version
