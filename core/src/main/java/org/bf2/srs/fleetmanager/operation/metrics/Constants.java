@@ -19,4 +19,10 @@ public interface Constants {
      * Error code returned in the Error entity by AMS.
      */
     String TAG_AMS_CLIENT_ERROR_CODE = "errorCode";
+
+    String USAGE_STATISTICS_REGISTRIES = PREFIX + "usage.registries";
+    String USAGE_STATISTICS_ACTIVE_USERS = PREFIX + "usage.activeUsers";
+    String USAGE_STATISTICS_ACTIVE_ORGANISATIONS = PREFIX + "usage.activeOrganisations";
+
+    String TAG_USAGE_STATISTICS_STATUS = "status";
 }

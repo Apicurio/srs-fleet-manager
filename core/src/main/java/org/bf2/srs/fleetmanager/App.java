@@ -4,6 +4,7 @@ import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.operation.logging.sentry.SentryConfiguration;
+import org.bf2.srs.fleetmanager.operation.metrics.UsageMetrics;
 import org.bf2.srs.fleetmanager.rest.service.RegistryDeploymentService;
 import org.bf2.srs.fleetmanager.service.QuotaPlansService;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.migration.MigrationService;
@@ -34,10 +35,14 @@ public class App {
     @Inject
     SentryConfiguration sentry;
 
+    @Inject
+    UsageMetrics usageMetrics;
+
     void onStart(@Observes StartupEvent ev) throws Exception {
         try {
             sentry.init();
             migrationService.runMigration();
+            usageMetrics.init();
             taskManager.start();
             deploymentService.init();
             plansService.init();
