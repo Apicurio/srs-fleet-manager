@@ -3,6 +3,7 @@ package org.bf2.srs.fleetmanager.rest.service.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -19,12 +20,22 @@ public enum RegistryInstanceTypeValueDto {
 
     private final String value;
 
-    private static final Map<String, RegistryInstanceTypeValueDto> CONSTANTS = new HashMap<>();
+    private static Map<String, RegistryInstanceTypeValueDto> CONSTANTS;
 
     static {
+        var constants = new HashMap<String, RegistryInstanceTypeValueDto>();
         for (RegistryInstanceTypeValueDto c : values()) {
-            CONSTANTS.put(c.value, c);
+            constants.put(c.value, c);
         }
+        CONSTANTS = Collections.unmodifiableMap(constants);
+    }
+
+    /**
+     * Returns an unmodifiable mapping from String constants to all instances of this class.
+     * The String constants are used to represent the data in a persistence layer.
+     */
+    public static Map<String, RegistryInstanceTypeValueDto> getConstants() {
+        return CONSTANTS;
     }
 
     RegistryInstanceTypeValueDto(String value) {
