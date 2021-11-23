@@ -47,6 +47,7 @@ build-tenant-manager-deps: pull-apicurio-registry
 .PHONY: build-tenant-manager-deps
 
 update-tenant-manager-dep-version: pull-apicurio-registry
+	@echo "Updating apicurio deps to version "$(shell xq .project.version apicurio-registry/pom.xml -r)
 	mvn versions:set-property -Dproperty=apicurio-registry-tenant-manager-client.version -DgenerateBackupPoms=false -DnewVersion=$(shell xq .project.version apicurio-registry/pom.xml -r)
 .PHONY: update-tenant-manager-dep-version
 

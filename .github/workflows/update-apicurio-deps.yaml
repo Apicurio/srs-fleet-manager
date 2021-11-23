@@ -31,6 +31,12 @@ jobs:
       - name: Run version update
         run: make update-tenant-manager-dep-version
 
+      - name: Build SRS Fleet Manager
+        env:
+          EXTRA_ARGS: -DskipGroups=none
+        run: |
+          make pr-check
+
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
         with:
@@ -44,3 +50,11 @@ jobs:
             [1]: https://github.com/peter-evans/create-pull-request
           branch: update-apicurio-dependencies
           delete-branch: true
+
+      - name: Notify of version update failure
+        if: ${{ failure() }}
+        uses: Co-qn/google-chat-notification@releases/v1
+        with:
+          name: ${{ github.workflow }}
+          url: ${{ secrets.GOOGLE_CHAT_WEBHOOK }}
+          status: ${{ job.status }}
