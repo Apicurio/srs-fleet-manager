@@ -26,7 +26,7 @@ import lombok.ToString;
 import java.util.Map;
 
 /**
- * @author Fabian Martinez
+ * @author Jakub Senko <jsenko@redhat.com>
  */
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
