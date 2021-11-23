@@ -20,6 +20,8 @@ import static org.bf2.srs.fleetmanager.operation.metrics.Constants.*;
 public class UsageMetrics {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
+    
+    private static final Object DUMMY = new Object(); // Prevents NaN values on gauges, caused by garbage collection
 
     @Inject
     MeterRegistry metrics;
@@ -49,13 +51,13 @@ public class UsageMetrics {
         nextExpiration = Instant.now().plus(Duration.ofSeconds(stagger));
 
         for (var entry : getUsageStatisticsCached().getRegistryCountPerStatus().entrySet()) {
-            metrics.gauge(USAGE_STATISTICS_REGISTRIES, Tags.of(TAG_USAGE_STATISTICS_STATUS, entry.getKey().value()), new Object(),
+            metrics.gauge(USAGE_STATISTICS_REGISTRIES, Tags.of(TAG_USAGE_STATISTICS_STATUS, entry.getKey().value()), DUMMY,
                     x -> getUsageStatisticsCached().getRegistryCountPerStatus().get(entry.getKey()));
         }
 
-        metrics.gauge(USAGE_STATISTICS_ACTIVE_USERS, new Object(),
+        metrics.gauge(USAGE_STATISTICS_ACTIVE_USERS, DUMMY,
                 x -> getUsageStatisticsCached().getActiveUserCount());
-        metrics.gauge(USAGE_STATISTICS_ACTIVE_ORGANISATIONS, new Object(),
+        metrics.gauge(USAGE_STATISTICS_ACTIVE_ORGANISATIONS, DUMMY,
                 x -> getUsageStatisticsCached().getActiveOrganisationCount());
     }
 
