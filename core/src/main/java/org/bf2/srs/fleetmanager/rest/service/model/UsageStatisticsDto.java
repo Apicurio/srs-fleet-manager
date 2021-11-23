@@ -37,6 +37,8 @@ public class UsageStatisticsDto {
 
     private final Map<RegistryStatusValueDto, Long> registryCountPerStatus;
 
+    private final Map<RegistryInstanceTypeValueDto, Long> registryCountPerType;
+
     private final long activeUserCount;
 
     private final long activeOrganisationCount;

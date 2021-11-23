@@ -236,8 +236,15 @@ public class RegistryServiceImpl implements RegistryService {
             countPerStatusConverted.put(entry.getValue(), countPerStatus.getOrDefault(entry.getKey(), 0L));
         }
 
+        var countPerTypeConverted = new EnumMap<RegistryInstanceTypeValueDto, Long>(RegistryInstanceTypeValueDto.class);
+        var countPerType = storage.getRegistryCountPerType();
+        for (var entry : RegistryInstanceTypeValueDto.getConstants().entrySet()) {
+            countPerTypeConverted.put(entry.getValue(), countPerType.getOrDefault(entry.getKey(), 0L));
+        }
+
         return UsageStatisticsDto.builder()
                 .registryCountPerStatus(countPerStatusConverted)
+                .registryCountPerType(countPerTypeConverted)
                 .activeUserCount(storage.getRegistryOwnerCount())
                 .activeOrganisationCount(storage.getRegistryOrganisationCount())
                 .build();

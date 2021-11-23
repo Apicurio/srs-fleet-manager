@@ -198,6 +198,21 @@ public class PanacheResourceStorage implements ResourceStorage {
 
     @Override
     @Transactional
+    public Map<String, Long> getRegistryCountPerType() {
+        var res = new HashMap<String, Long>();
+        List<Object[]> queryRes = (List<Object[]>) this.registryRepository.getEntityManager()
+                .createQuery("select r.instanceType, count(r) from RegistryData r group by r.instanceType")
+                .getResultList();
+        for (Object[] qr : queryRes) {
+            if (qr.length != 2)
+                throw new IllegalStateException("Unexpected number of columns in the result row: " + qr.length);
+            res.put((String) qr[0], ((Number) qr[1]).longValue());
+        }
+        return res;
+    }
+
+    @Override
+    @Transactional
     public long getRegistryOwnerCount() {
         try {
             return this.registryRepository.getEntityManager()

@@ -20,9 +20,11 @@ public interface Constants {
      */
     String TAG_AMS_CLIENT_ERROR_CODE = "errorCode";
 
-    String USAGE_STATISTICS_REGISTRIES = PREFIX + "usage.registries";
-    String USAGE_STATISTICS_ACTIVE_USERS = PREFIX + "usage.activeUsers";
-    String USAGE_STATISTICS_ACTIVE_ORGANISATIONS = PREFIX + "usage.activeOrganisations";
+    String USAGE_STATISTICS_REGISTRIES_STATUS = PREFIX + "usage.registries.status";
+    String USAGE_STATISTICS_REGISTRIES_TYPE = PREFIX + "usage.registries.type";
+    String USAGE_STATISTICS_ACTIVE_USERS = PREFIX + "usage.users";
+    String USAGE_STATISTICS_ACTIVE_ORGANISATIONS = PREFIX + "usage.organisations";
 
     String TAG_USAGE_STATISTICS_STATUS = "status";
+    String TAG_USAGE_STATISTICS_TYPE = "type";
 }
