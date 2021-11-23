@@ -1,7 +1,6 @@
 package org.bf2.srs.fleetmanager.storage.sqlPanacheImpl;
 
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
-import io.quarkus.panache.common.Parameters;
 import io.quarkus.panache.common.Sort;
 import org.bf2.srs.fleetmanager.operation.logging.Logged;
 import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
@@ -177,18 +176,6 @@ public class PanacheResourceStorage implements ResourceStorage {
         return this.registryRepository.find(query.getQuery(), sort, query.getArguments());
     }
 
-    private boolean ownerIdExists(long ownerId) {
-        return this.registryRepository.find("select r from registry r where r.ownerId = :ownerId limit 1",
-                Parameters.with("ownerId", ownerId))
-                .firstResultOptional()
-                .isPresent();
-    }
-
-    private boolean organisationIdExists(String organisationId) {
-        return this.registryRepository.find("select r from registry r where r.orgId = :orgId limit 1",
-                Parameters.with("orgId", organisationId))
-                .firstResultOptional()
-                .isPresent();
     @Override
     public long getRegistryCountTotal() {
         return this.registryRepository.count();
