@@ -301,6 +301,9 @@ objects:
           - name: CORS_ALLOWED_ORIGINS
             value: ${CORS_ALLOWED_ORIGINS}
 
+          - name: METRICS_CACHE_EXPIRATION_PERIOD_SECONDS
+            value: ${METRICS_CACHE_EXPIRATION_PERIOD_SECONDS}
+
           livenessProbe:
             failureThreshold: 3
             httpGet:
@@ -526,3 +529,10 @@ parameters:
 - name: CORS_ALLOWED_ORIGINS
   description: Allowed origins for cors. The expected value is a regex to be used as pattern.
   value: ""
+
+- name: METRICS_CACHE_EXPIRATION_PERIOD_SECONDS
+  description: >-
+    Expiration period for the metrics cache. Higher values may reduce database load,
+    but *some* metrics will report stale values (with the given delay).
+    Keep in mind that multiple pods may compute the same metrics.
+  value: "300"
