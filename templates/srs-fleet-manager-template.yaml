@@ -60,6 +60,9 @@ objects:
       app: srs-fleet-manager
       template: srs-fleet-manager-template
       component: srs-fleet-manager-envoy
+    annotations:
+      description: Exposes and load balances the srs-fleet-manager pods going through envoy beforehand
+      service.alpha.openshift.io/serving-cert-secret-name: srs-fleet-manager-envoy-tls
     name: srs-fleet-manager-envoy
   spec:
     ports:
@@ -161,6 +164,9 @@ objects:
         - name: db-ssl-ca
           secret:
             secretName: ${DATABASE_SSL_CA_SECRET_NAME}
+        - name: envoy-tls
+          secret:
+            secretName: srs-fleet-manager-envoy-tls
         containers:
         - name: srs-fleet-manager
           image: ${IMAGE_REGISTRY}/${IMAGE_REPOSITORY}:${IMAGE_TAG}
@@ -340,6 +346,8 @@ objects:
           image: ${ENVOY_IMAGE}
           imagePullPolicy: IfNotPresent
           volumeMounts:
+          - name: envoy-tls
+            mountPath: /secrets/tls
           - name: envoy-config
             mountPath: /configs/envoy
           - name: envoy-unix-sockets
@@ -381,6 +389,17 @@ objects:
               memory: 512Mi
               cpu: 500m
 
+
+- kind: PodDisruptionBudget
+  apiVersion: policy/v1
+  metadata:
+    name: srs-fleet-manager-pdb
+  spec:
+    maxUnavailabe: "50%"
+    selector:
+      matchLabels:
+        app: srs-fleet-manager
+        template: srs-fleet-manager-template
 
 parameters:
 
