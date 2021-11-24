@@ -43,7 +43,7 @@ pr-check: build-project integration-tests
 
 
 build-tenant-manager-deps: pull-apicurio-registry
-	cd apicurio-registry; mvn install -Pprod -Pmultitenancy -pl 'multitenancy/tenant-manager-client,multitenancy/tenant-manager-api' -am -DskipTests
+	cd apicurio-registry; mvn install -Pprod -Pmultitenancy -pl 'multitenancy/tenant-manager-client,multitenancy/tenant-manager-api' -am -DskipTests --no-transfer-progress
 .PHONY: build-tenant-manager-deps
 
 update-tenant-manager-dep-version: pull-apicurio-registry
