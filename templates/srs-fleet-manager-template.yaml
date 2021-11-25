@@ -271,10 +271,6 @@ objects:
             value: ${RESOURCE_NAME}
           - name: PRODUCT_ID
             value: ${PRODUCT_ID}
-          - name: EVAL_RESOURCE_NAME
-            value: ${EVAL_RESOURCE_NAME}
-          - name: EVAL_PRODUCT_ID
-            value: ${EVAL_PRODUCT_ID}
           # Eval instances
           - name: EVAL_RESOURCE_NAME
             value: ${EVAL_RESOURCE_NAME}
@@ -512,10 +508,6 @@ parameters:
   value: rhosr
 - name: PRODUCT_ID
   value: RHOSR
-- name: EVAL_RESOURCE_NAME
-  value: rhosr
-- name: EVAL_PRODUCT_ID
-  value: RHOSRTrial
 
 # === Eval Instances
 
