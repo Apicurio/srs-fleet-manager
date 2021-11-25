@@ -91,7 +91,6 @@ public class AuditingAuthenticationMechanism implements HttpAuthenticationMechan
                 AuditingServiceImpl.recordEventNoContext(event);
             }
         };
-        log.info("Setting audit wrapper {}", context.statusCode());
         context.put(QuarkusHttpUser.AUTH_FAILURE_HANDLER, auditWrapper);
 
         return oidcAuthenticationMechanism.authenticate(context, identityProviderManager);
