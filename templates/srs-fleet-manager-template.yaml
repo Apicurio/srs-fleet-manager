@@ -60,6 +60,9 @@ objects:
       app: srs-fleet-manager
       template: srs-fleet-manager-template
       component: srs-fleet-manager-envoy
+    annotations:
+      description: Exposes and load balances the srs-fleet-manager pods going through envoy beforehand
+      service.alpha.openshift.io/serving-cert-secret-name: srs-fleet-manager-envoy-tls
     name: srs-fleet-manager-envoy
   spec:
     ports:
@@ -75,13 +78,14 @@ objects:
     labels:
       app: srs-fleet-manager
       template: srs-fleet-manager-template
-      component: srs-fleet-manager-envoy
+      component: srs-fleet-manager-envoy-metrics
     name: srs-fleet-manager-envoy-metrics
   spec:
     ports:
     - port: 9000
       protocol: TCP
       targetPort: 9000
+      name: metrics
     selector:
       app: srs-fleet-manager
       template: srs-fleet-manager-template
@@ -160,6 +164,9 @@ objects:
         - name: db-ssl-ca
           secret:
             secretName: ${DATABASE_SSL_CA_SECRET_NAME}
+        - name: envoy-tls
+          secret:
+            secretName: srs-fleet-manager-envoy-tls
         containers:
         - name: srs-fleet-manager
           image: ${IMAGE_REGISTRY}/${IMAGE_REPOSITORY}:${IMAGE_TAG}
@@ -254,6 +261,16 @@ objects:
             value: ${AMS_URL}
           - name: SSO_TOKEN_ENDPOINT
             value: ${SSO_TOKEN_ENDPOINT}
+          - name: AMS_TERMS_SITE_CODE
+            value: ${AMS_TERMS_SITE_CODE}
+          - name: AMS_TERMS_EVENT_CODE
+            value: ${AMS_TERMS_EVENT_CODE}
+          - name: RESOURCE_TYPE
+            value: ${RESOURCE_TYPE}
+          - name: RESOURCE_NAME
+            value: ${RESOURCE_NAME}
+          - name: PRODUCT_ID
+            value: ${PRODUCT_ID}
           # Eval instances
           - name: EVAL_RESOURCE_NAME
             value: ${EVAL_RESOURCE_NAME}
@@ -280,6 +297,14 @@ objects:
 
           - name: REGISTRY_BROWSER_URL
             value: ${REGISTRY_BROWSER_URL}
+          - name: REST_API_DISABLED_PATHS_PATTERNS
+            value: ${REST_API_DISABLED_PATHS_PATTERNS}
+
+          - name: CORS_ALLOWED_ORIGINS
+            value: ${CORS_ALLOWED_ORIGINS}
+
+          - name: METRICS_CACHE_EXPIRATION_PERIOD_SECONDS
+            value: ${METRICS_CACHE_EXPIRATION_PERIOD_SECONDS}
 
           livenessProbe:
             failureThreshold: 3
@@ -317,6 +342,8 @@ objects:
           image: ${ENVOY_IMAGE}
           imagePullPolicy: IfNotPresent
           volumeMounts:
+          - name: envoy-tls
+            mountPath: /secrets/tls
           - name: envoy-config
             mountPath: /configs/envoy
           - name: envoy-unix-sockets
@@ -358,6 +385,17 @@ objects:
               memory: 512Mi
               cpu: 500m
 
+
+- kind: PodDisruptionBudget
+  apiVersion: policy/v1
+  metadata:
+    name: srs-fleet-manager-pdb
+  spec:
+    maxUnavailabe: "50%"
+    selector:
+      matchLabels:
+        app: srs-fleet-manager
+        template: srs-fleet-manager-template
 
 parameters:
 
@@ -460,6 +498,16 @@ parameters:
   value: "http://localhost:8091"
 - name: SSO_TOKEN_ENDPOINT
   value: "http://localhost:8090"
+- name: AMS_TERMS_SITE_CODE
+  value: ocm
+- name: AMS_TERMS_EVENT_CODE
+  value: onlineService
+- name: RESOURCE_TYPE
+  value: "cluster.aws"
+- name: RESOURCE_NAME
+  value: rhosr
+- name: PRODUCT_ID
+  value: RHOSR
 
 # === Eval Instances
 
@@ -486,3 +534,16 @@ parameters:
 
 - name: REGISTRY_BROWSER_URL
   value: "https://console.redhat.com/beta/application-services/service-registry/t/TENANT_ID"
+- name: REST_API_DISABLED_PATHS_PATTERNS
+  value: ""
+
+- name: CORS_ALLOWED_ORIGINS
+  description: Allowed origins for cors. The expected value is a regex to be used as pattern.
+  value: ""
+
+- name: METRICS_CACHE_EXPIRATION_PERIOD_SECONDS
+  description: >-
+    Expiration period for the metrics cache. Higher values may reduce database load,
+    but *some* metrics will report stale values (with the given delay).
+    Keep in mind that multiple pods may compute the same metrics.
+  value: "300"

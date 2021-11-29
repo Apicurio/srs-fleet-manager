@@ -28,6 +28,12 @@ jobs:
         run: |
           cd "${{ github.workspace }}"
 
+      - name: Build SRS Fleet Manager in dev mode
+        env:
+          EXTRA_ARGS: -DskipGroups=none
+        run: |
+          make dev-build
+
       - name: Build SRS Fleet Manager
         env:
           EXTRA_ARGS: -DskipGroups=none

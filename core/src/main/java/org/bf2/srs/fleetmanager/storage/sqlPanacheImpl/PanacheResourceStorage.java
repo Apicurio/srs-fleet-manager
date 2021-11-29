@@ -1,20 +1,8 @@
 package org.bf2.srs.fleetmanager.storage.sqlPanacheImpl;
 
-import static java.util.Objects.requireNonNull;
-import static java.util.Optional.empty;
-import static java.util.Optional.ofNullable;
-
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
-import javax.transaction.Transactional;
-
-import org.bf2.srs.fleetmanager.logging.Logged;
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
+import io.quarkus.panache.common.Sort;
+import org.bf2.srs.fleetmanager.operation.logging.Logged;
 import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
 import org.bf2.srs.fleetmanager.storage.RegistryDeploymentStorageConflictException;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
@@ -22,9 +10,26 @@ import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentData;
+import org.bf2.srs.fleetmanager.util.SearchQuery;
 import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.PersistenceException;
+import javax.transaction.Transactional;
+
+import static java.util.Objects.requireNonNull;
+import static java.util.Optional.empty;
+import static java.util.Optional.ofNullable;
 
 /**
  * @author Jakub Senko <jsenko@redhat.com>
@@ -61,6 +66,7 @@ public class PanacheResourceStorage implements ResourceStorage {
                 registry.setCreatedAt(now);
             }
             registry.setUpdatedAt(now);
+
             registryRepository.persistAndFlush(registry);
         } catch (PersistenceException ex) {
             if (ex.getCause() instanceof ConstraintViolationException) {
@@ -94,6 +100,7 @@ public class PanacheResourceStorage implements ResourceStorage {
                 .orElseThrow(() -> new RegistryNotFoundException(id));
         try {
             registryRepository.delete(registry);
+
         } catch (PersistenceException ex) {
             if (ex.getCause() instanceof ConstraintViolationException) {
                 throw new RegistryStorageConflictException();
@@ -160,6 +167,71 @@ public class PanacheResourceStorage implements ResourceStorage {
             } else {
                 throw ex;
             }
+        }
+    }
+
+    @Override
+    public PanacheQuery<RegistryData> executeRegistrySearchQuery(SearchQuery query, Sort sort) {
+        // Leaking Panache internals to the caller. TODO Maybe refactor?
+        return this.registryRepository.find(query.getQuery(), sort, query.getArguments());
+    }
+
+    @Override
+    public long getRegistryCountTotal() {
+        return this.registryRepository.count();
+    }
+
+    @Override
+    @Transactional
+    public Map<String, Long> getRegistryCountPerStatus() {
+        var res = new HashMap<String, Long>();
+        List<Object[]> queryRes = (List<Object[]>) this.registryRepository.getEntityManager()
+                .createQuery("select r.status, count(r) from RegistryData r group by r.status")
+                .getResultList();
+        for (Object[] qr : queryRes) {
+            if (qr.length != 2)
+                throw new IllegalStateException("Unexpected number of columns in the result row: " + qr.length);
+            res.put((String) qr[0], ((Number) qr[1]).longValue());
+        }
+        return res;
+    }
+
+    @Override
+    @Transactional
+    public Map<String, Long> getRegistryCountPerType() {
+        var res = new HashMap<String, Long>();
+        List<Object[]> queryRes = (List<Object[]>) this.registryRepository.getEntityManager()
+                .createQuery("select r.instanceType, count(r) from RegistryData r group by r.instanceType")
+                .getResultList();
+        for (Object[] qr : queryRes) {
+            if (qr.length != 2)
+                throw new IllegalStateException("Unexpected number of columns in the result row: " + qr.length);
+            res.put((String) qr[0], ((Number) qr[1]).longValue());
+        }
+        return res;
+    }
+
+    @Override
+    @Transactional
+    public long getRegistryOwnerCount() {
+        try {
+            return this.registryRepository.getEntityManager()
+                    .createQuery("select count(distinct r.ownerId) from RegistryData r", Long.class)
+                    .getSingleResult();
+        } catch (NoResultException ex) {
+            return 0;
+        }
+    }
+
+    @Override
+    @Transactional
+    public long getRegistryOrganisationCount() {
+        try {
+            return this.registryRepository.getEntityManager()
+                    .createQuery("select count(distinct r.orgId) from RegistryData r", Long.class)
+                    .getSingleResult();
+        } catch (NoResultException ex) {
+            return 0;
         }
     }
 }

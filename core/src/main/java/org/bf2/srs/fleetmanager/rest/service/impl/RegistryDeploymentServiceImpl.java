@@ -1,6 +1,7 @@
 package org.bf2.srs.fleetmanager.rest.service.impl;
 
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import org.bf2.srs.fleetmanager.common.operation.auditing.Audited;
 import org.bf2.srs.fleetmanager.rest.service.RegistryDeploymentService;
 import org.bf2.srs.fleetmanager.rest.service.convert.ConvertRegistryDeployment;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeployment;
@@ -32,6 +33,7 @@ import javax.validation.Validator;
 import javax.ws.rs.ForbiddenException;
 
 import static java.util.stream.Collectors.toList;
+import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.KEY_DEPLOYMENT_ID;
 
 /**
  * @author Jakub Senko <jsenko@redhat.com>
@@ -70,7 +72,7 @@ public class RegistryDeploymentServiceImpl implements RegistryDeploymentService 
 
         Set<String> names = new HashSet<>();
         List<String> duplicatedNames = staticDeployments.stream()
-                .map(d-> {
+                .map(d -> {
                     Set<ConstraintViolation<RegistryDeploymentCreate>> errors = validator.validate(d);
                     if (!errors.isEmpty()) {
                         throw new ConstraintViolationException(errors);
@@ -110,6 +112,7 @@ public class RegistryDeploymentServiceImpl implements RegistryDeploymentService 
     }
 
     @Override
+    @Audited
     public RegistryDeployment createRegistryDeployment(@Valid RegistryDeploymentCreate deploymentCreate) throws RegistryDeploymentStorageConflictException {
         if (deploymentsConfigFile.isPresent()) {
             throw new ForbiddenException();
@@ -134,6 +137,7 @@ public class RegistryDeploymentServiceImpl implements RegistryDeploymentService 
     }
 
     @Override
+    @Audited
     public List<RegistryDeployment> getRegistryDeployments() {
         return storage.getAllRegistryDeployments().stream()
                 .map(convertRegistryDeployment::convert)
@@ -141,6 +145,7 @@ public class RegistryDeploymentServiceImpl implements RegistryDeploymentService 
     }
 
     @Override
+    @Audited(extractParameters = {"0", KEY_DEPLOYMENT_ID})
     public RegistryDeployment getRegistryDeployment(Long id) throws RegistryDeploymentNotFoundException {
         return storage.getRegistryDeploymentById(id)
                 .map(convertRegistryDeployment::convert)
@@ -148,6 +153,7 @@ public class RegistryDeploymentServiceImpl implements RegistryDeploymentService 
     }
 
     @Override
+    @Audited(extractParameters = {"0", KEY_DEPLOYMENT_ID})
     public void deleteRegistryDeployment(Long id) throws RegistryDeploymentNotFoundException, RegistryDeploymentStorageConflictException {
         if (deploymentsConfigFile.isPresent()) {
             throw new ForbiddenException();

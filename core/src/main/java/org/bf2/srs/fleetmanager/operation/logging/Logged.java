@@ -1,4 +1,4 @@
-package org.bf2.srs.fleetmanager.logging;
+package org.bf2.srs.fleetmanager.operation.logging;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -1,23 +1,14 @@
 package org.bf2.srs.fleetmanager.rest.service.impl;
 
-import static org.bf2.srs.fleetmanager.util.SecurityUtil.OWNER_ID_PLACEHOLDER;
-import static org.bf2.srs.fleetmanager.util.SecurityUtil.isResolvable;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
-import javax.validation.ValidationException;
-
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
+import io.quarkus.panache.common.Page;
+import io.quarkus.panache.common.Sort;
+import io.quarkus.security.identity.SecurityIdentity;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bf2.srs.fleetmanager.auth.AuthService;
 import org.bf2.srs.fleetmanager.auth.interceptor.CheckDeletePermissions;
 import org.bf2.srs.fleetmanager.auth.interceptor.CheckReadPermissions;
+import org.bf2.srs.fleetmanager.common.operation.auditing.Audited;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.ScheduleRegistryTask;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.deprovision.StartDeprovisionRegistryTask;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
@@ -27,7 +18,9 @@ import org.bf2.srs.fleetmanager.rest.service.model.RegistryCreateDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryInstanceTypeValueDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryListDto;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
 import org.bf2.srs.fleetmanager.rest.service.model.ServiceStatusDto;
+import org.bf2.srs.fleetmanager.rest.service.model.UsageStatisticsDto;
 import org.bf2.srs.fleetmanager.spi.AccountManagementService;
 import org.bf2.srs.fleetmanager.spi.EvalInstancesNotAllowedException;
 import org.bf2.srs.fleetmanager.spi.ResourceLimitReachedException;
@@ -39,16 +32,25 @@ import org.bf2.srs.fleetmanager.spi.model.ResourceType;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.PanacheRegistryRepository;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
 import org.bf2.srs.fleetmanager.util.BasicQuery;
 import org.bf2.srs.fleetmanager.util.SearchQuery;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import io.quarkus.hibernate.orm.panache.PanacheQuery;
-import io.quarkus.panache.common.Page;
-import io.quarkus.panache.common.Sort;
-import io.quarkus.security.identity.SecurityIdentity;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
+import javax.validation.ValidationException;
+
+import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.KEY_REGISTRY_ID;
+import static org.bf2.srs.fleetmanager.util.SecurityUtil.OWNER_ID_PLACEHOLDER;
+import static org.bf2.srs.fleetmanager.util.SecurityUtil.isResolvable;
 
 @ApplicationScoped
 public class RegistryServiceImpl implements RegistryService {
@@ -61,9 +63,6 @@ public class RegistryServiceImpl implements RegistryService {
 
     @Inject
     ConvertRegistry convertRegistry;
-
-    @Inject
-    PanacheRegistryRepository registryRepository;
 
     @Inject
     Instance<SecurityIdentity> securityIdentity;
@@ -86,6 +85,7 @@ public class RegistryServiceImpl implements RegistryService {
     @ConfigProperty(name = "srs-fleet-manager.registry.instances.max-count")
     int maxInstances;
 
+    @Audited
     @Override
     public RegistryDto createRegistry(RegistryCreateDto registryCreate)
             throws RegistryStorageConflictException, TermsRequiredException, ResourceLimitReachedException,
@@ -93,14 +93,14 @@ public class RegistryServiceImpl implements RegistryService {
         final AccountInfo accountInfo = authService.extractAccountInfo();
 
         // Make sure we have more instances available (max capacity not yet reached).
-        long instanceCount = getRegistryInstanceGlobalCount();
+        long instanceCount = storage.getRegistryCountTotal();
         if (instanceCount >= maxInstances) {
             throw new TooManyInstancesException();
         }
 
         // Figure out if we are going to create a standard or eval instance.
-        ResourceType resourceType = evalInstancesOnlyEnabled ? 
-        		ResourceType.REGISTRY_INSTANCE_EVAL : accountManagementService.determineAllowedResourceType(accountInfo);
+        ResourceType resourceType = evalInstancesOnlyEnabled ?
+                ResourceType.REGISTRY_INSTANCE_EVAL : accountManagementService.determineAllowedResourceType(accountInfo);
 
         if (resourceType == ResourceType.REGISTRY_INSTANCE_EVAL) {
             // Are eval instances allowed?
@@ -141,6 +141,7 @@ public class RegistryServiceImpl implements RegistryService {
         return resourceType == ResourceType.REGISTRY_INSTANCE_STANDARD ? RegistryInstanceTypeValueDto.STANDARD : RegistryInstanceTypeValueDto.EVAL;
     }
 
+    @Audited
     @Override
     public RegistryListDto getRegistries(Integer page, Integer size, String orderBy, String search) {
         // Defaults
@@ -181,19 +182,19 @@ public class RegistryServiceImpl implements RegistryService {
 
         var query = new SearchQuery(conditions);
 
-        long total = this.registryRepository.count(query.getQuery(), query.getArguments());
-        PanacheQuery<RegistryData> itemsQuery = this.registryRepository.find(query.getQuery(), sort, query.getArguments());
+        PanacheQuery<RegistryData> itemsQuery = storage.executeRegistrySearchQuery(query, sort);
 
         var items = itemsQuery.page(Page.of(page - 1, size)).stream().map(convertRegistry::convert)
                 .collect(Collectors.toList());
         return RegistryListDto.builder().items(items)
                 .page(page)
                 .size(size)
-                .total(total).build();
+                .total(itemsQuery.count()).build();
     }
 
     @Override
     @CheckReadPermissions
+    @Audited(extractParameters = {"0", KEY_REGISTRY_ID})
     public RegistryDto getRegistry(String registryId) throws RegistryNotFoundException {
         try {
             return storage.getRegistryById(registryId)
@@ -205,6 +206,7 @@ public class RegistryServiceImpl implements RegistryService {
     }
 
     @Override
+    @Audited(extractParameters = {"0", KEY_REGISTRY_ID})
     @CheckDeletePermissions
     public void deleteRegistry(String registryId) throws RegistryNotFoundException, RegistryStorageConflictException {
         try {
@@ -217,19 +219,34 @@ public class RegistryServiceImpl implements RegistryService {
     }
 
     @Override
+    @Audited
     public ServiceStatusDto getServiceStatus() {
-        long total = getRegistryInstanceGlobalCount();
+        long total = storage.getRegistryCountTotal();
 
         ServiceStatusDto status = new ServiceStatusDto();
         status.setMaxInstancesReached(total >= maxInstances);
         return status;
     }
 
-    /**
-     * Queries the DB to get the total # of instances.
-     */
-    private long getRegistryInstanceGlobalCount() {
-        return this.registryRepository.count();
-    }
+    @Override
+    public UsageStatisticsDto getUsageStatistics() {
+        var countPerStatusConverted = new EnumMap<RegistryStatusValueDto, Long>(RegistryStatusValueDto.class);
+        var countPerStatus = storage.getRegistryCountPerStatus();
+        for (var entry : RegistryStatusValueDto.getConstants().entrySet()) {
+            countPerStatusConverted.put(entry.getValue(), countPerStatus.getOrDefault(entry.getKey(), 0L));
+        }
 
+        var countPerTypeConverted = new EnumMap<RegistryInstanceTypeValueDto, Long>(RegistryInstanceTypeValueDto.class);
+        var countPerType = storage.getRegistryCountPerType();
+        for (var entry : RegistryInstanceTypeValueDto.getConstants().entrySet()) {
+            countPerTypeConverted.put(entry.getValue(), countPerType.getOrDefault(entry.getKey(), 0L));
+        }
+
+        return UsageStatisticsDto.builder()
+                .registryCountPerStatus(countPerStatusConverted)
+                .registryCountPerType(countPerTypeConverted)
+                .activeUserCount(storage.getRegistryOwnerCount())
+                .activeOrganisationCount(storage.getRegistryOrganisationCount())
+                .build();
+    }
 }

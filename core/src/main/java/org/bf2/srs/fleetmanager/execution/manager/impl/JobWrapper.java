@@ -2,9 +2,11 @@ package org.bf2.srs.fleetmanager.execution.manager.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
+import org.bf2.srs.fleetmanager.common.SerDesObjectMapperProducer;
 import org.bf2.srs.fleetmanager.execution.manager.Task;
 import org.bf2.srs.fleetmanager.execution.manager.Worker;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
+import org.bf2.srs.fleetmanager.operation.OperationContext;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -17,6 +19,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.control.ActivateRequestContext;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
@@ -43,8 +46,7 @@ public class JobWrapper implements Job {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    @Inject
-    ObjectMapper mapper;
+    ObjectMapper mapper = SerDesObjectMapperProducer.getMapper();
 
     @Inject
     Instance<Worker> workers;
@@ -52,8 +54,12 @@ public class JobWrapper implements Job {
     @Inject
     QuartzTaskManager taskManager;
 
+    @Inject
+    OperationContext opCtx;
+
     @Override
     @SneakyThrows
+    @ActivateRequestContext
     public void execute(JobExecutionContext quartzJobContext) {
 
         Task task = loadTask(quartzJobContext);
@@ -131,6 +137,7 @@ public class JobWrapper implements Job {
                             task, worker, wCtx, next);
                     taskManager.rerigger(task, next);
                 } else {
+
                     try {
                         log.debug("Task Manager (task = {}, worker = {}, workerContext = {}): Executing finallyExecute. Last exception = {}",
                                 task, worker, wCtx, lastException);
@@ -169,11 +176,26 @@ public class JobWrapper implements Job {
         if (serialized == null) {
             throw new IllegalStateException("Task not found in job detail.");
         }
-        return mapper.readValue(serialized, Task.class);
+        var task = mapper.readValue(serialized, Task.class);
+        // Load Operation Context
+        var ctxData = task.getOperationContextData();
+        if (opCtx.isContextDataLoaded())
+            throw new IllegalStateException("Unexpected state: Operation Context is already loaded");
+        if (ctxData == null) {
+            log.debug("Creating a new Operation Context. This should only happen when running old tasks, due to upgrades.");
+            opCtx.loadNewContextData();
+        } else {
+            log.debug("Loading existing Operation Context with ID {}.", ctxData.getOperationId());
+            opCtx.loadContextData(ctxData);
+        }
+        return task;
     }
 
     @SneakyThrows
     private void saveTask(JobExecutionContext context, Task task) {
+        // Save Operation Context
+        var ctxData = opCtx.getContextData();
+        task.setOperationContextData(ctxData);
         String serialized = mapper.writeValueAsString(task);
         context.getJobDetail().getJobDataMap().put(jobDetailKeyForTask(), serialized);
     }

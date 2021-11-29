@@ -1,21 +1,5 @@
 package org.bf2.srs.fleetmanager.spi.impl;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-
-import org.bf2.srs.fleetmanager.spi.TenantManagerService;
-import org.bf2.srs.fleetmanager.spi.model.CreateTenantRequest;
-import org.bf2.srs.fleetmanager.spi.model.Tenant;
-import org.bf2.srs.fleetmanager.spi.model.TenantLimit;
-import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
-import org.bf2.srs.fleetmanager.spi.model.TenantStatus;
-import org.bf2.srs.fleetmanager.spi.model.UpdateTenantRequest;
-
 import io.apicurio.multitenant.api.datamodel.NewRegistryTenantRequest;
 import io.apicurio.multitenant.api.datamodel.RegistryTenant;
 import io.apicurio.multitenant.api.datamodel.ResourceType;
@@ -25,20 +9,64 @@ import io.apicurio.multitenant.api.datamodel.UpdateRegistryTenantRequest;
 import io.apicurio.multitenant.client.TenantManagerClient;
 import io.apicurio.multitenant.client.TenantManagerClientImpl;
 import io.apicurio.rest.client.auth.Auth;
+import io.apicurio.rest.client.auth.OidcAuth;
+import io.quarkus.arc.profile.UnlessBuildProfile;
+import org.bf2.srs.fleetmanager.common.operation.auditing.Audited;
+import org.bf2.srs.fleetmanager.spi.TenantManagerService;
+import org.bf2.srs.fleetmanager.spi.model.CreateTenantRequest;
+import org.bf2.srs.fleetmanager.spi.model.Tenant;
+import org.bf2.srs.fleetmanager.spi.model.TenantLimit;
+import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
+import org.bf2.srs.fleetmanager.spi.model.TenantStatus;
+import org.bf2.srs.fleetmanager.spi.model.UpdateTenantRequest;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+
+import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.KEY_TENANT_ID;
+
+@UnlessBuildProfile("test")
+@ApplicationScoped
 public class RestClientTenantManagerServiceImpl implements TenantManagerService {
 
-    private final Auth auth;
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
+    @ConfigProperty(name = "srs-fleet-manager.tenant-manager.auth.server-url.configured")
+    String tenantManagerAuthServerUrl;
+
+    @ConfigProperty(name = "srs-fleet-manager.tenant-manager.auth.client-id")
+    String tenantManagerAuthClientId;
+
+    @ConfigProperty(name = "srs-fleet-manager.tenant-manager.auth.secret")
+    String tenantManagerAuthSecret;
+
+    @ConfigProperty(name = "srs-fleet-manager.tenant-manager.auth.enabled")
+    boolean tenantManagerAuthEnabled;
+
+    private Auth auth;
 
     // TODO Data is never deleted! Prevent OOM error.
     private Map<String, TenantManagerClientImpl> pool = new ConcurrentHashMap<String, TenantManagerClientImpl>();
 
-    public RestClientTenantManagerServiceImpl() {
-        this(null);
-    }
-
-    public RestClientTenantManagerServiceImpl(Auth auth) {
-        this.auth = auth;
+    @PostConstruct
+    void init() {
+        if (tenantManagerAuthEnabled) {
+            log.info("Using Apicurio Registry REST TenantManagerClient with authentication enabled.");
+            this.auth = new OidcAuth(tenantManagerAuthServerUrl, tenantManagerAuthClientId, tenantManagerAuthSecret, Optional.empty());
+        } else {
+            log.info("Using Apicurio Registry REST TenantManagerClient.");
+            this.auth = null;
+        }
     }
 
     private TenantManagerClient getClient(TenantManagerConfig tm) {
@@ -67,6 +95,7 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
         return res;
     }
 
+    @Audited
     @Override
     public Tenant createTenant(TenantManagerConfig tm, CreateTenantRequest tenantRequest) {
         var client = getClient(tm);
@@ -91,6 +120,7 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
         return convert(tenant);
     }
 
+    @Audited(extractParameters = {"1", KEY_TENANT_ID})
     @Override
     public Optional<Tenant> getTenantById(TenantManagerConfig tm, String tenantId) {
         var client = getClient(tm);
@@ -102,6 +132,7 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
         }
     }
 
+    @Audited
     @SuppressWarnings("deprecation")
     @Override
     public List<Tenant> getAllTenants(TenantManagerConfig tm) {
@@ -111,6 +142,7 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
                 .collect(Collectors.toList());
     }
 
+    @Audited
     @Override
     public void updateTenant(TenantManagerConfig tm, UpdateTenantRequest req) {
         var client = getClient(tm);
@@ -118,6 +150,7 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
         client.updateTenant(req.getId(), internalReq);
     }
 
+    @Audited(extractParameters = {"1", KEY_TENANT_ID})
     @Override
     public void deleteTenant(TenantManagerConfig tm, String tenantId) {
         var client = getClient(tm);
