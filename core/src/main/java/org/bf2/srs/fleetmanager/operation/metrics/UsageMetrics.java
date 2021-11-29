@@ -3,6 +3,8 @@ package org.bf2.srs.fleetmanager.operation.metrics;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
 import org.bf2.srs.fleetmanager.rest.service.RegistryService;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryInstanceTypeValueDto;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
 import org.bf2.srs.fleetmanager.rest.service.model.UsageStatisticsDto;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
@@ -50,14 +52,14 @@ public class UsageMetrics {
         }
         nextExpiration = Instant.now().plus(Duration.ofSeconds(stagger));
 
-        for (var entry : getUsageStatisticsCached().getRegistryCountPerStatus().entrySet()) {
-            metrics.gauge(USAGE_STATISTICS_REGISTRIES_STATUS, Tags.of(TAG_USAGE_STATISTICS_STATUS, entry.getKey().value()), DUMMY,
-                    x -> getUsageStatisticsCached().getRegistryCountPerStatus().get(entry.getKey()));
+        for (RegistryStatusValueDto status : RegistryStatusValueDto.values()) {
+            metrics.gauge(USAGE_STATISTICS_REGISTRIES_STATUS, Tags.of(TAG_USAGE_STATISTICS_STATUS, status.value()), DUMMY,
+                    x -> getUsageStatisticsCached().getRegistryCountPerStatus().get(status));
         }
 
-        for (var entry : getUsageStatisticsCached().getRegistryCountPerType().entrySet()) {
-            metrics.gauge(USAGE_STATISTICS_REGISTRIES_TYPE, Tags.of(TAG_USAGE_STATISTICS_TYPE, entry.getKey().value()), DUMMY,
-                    x -> getUsageStatisticsCached().getRegistryCountPerType().get(entry.getKey()));
+        for (RegistryInstanceTypeValueDto type : RegistryInstanceTypeValueDto.values()) {
+            metrics.gauge(USAGE_STATISTICS_REGISTRIES_TYPE, Tags.of(TAG_USAGE_STATISTICS_TYPE, type.value()), DUMMY,
+                    x -> getUsageStatisticsCached().getRegistryCountPerType().get(type));
         }
 
         metrics.gauge(USAGE_STATISTICS_ACTIVE_USERS, DUMMY,
