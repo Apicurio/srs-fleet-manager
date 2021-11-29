@@ -53,13 +53,13 @@ public class UsageMetrics {
         nextExpiration = Instant.now().plus(Duration.ofSeconds(stagger));
 
         for (RegistryStatusValueDto status : RegistryStatusValueDto.values()) {
-            metrics.gauge(USAGE_STATISTICS_REGISTRIES_STATUS, Tags.of(TAG_USAGE_STATISTICS_STATUS, status.value()), DUMMY,
-                    x -> getUsageStatisticsCached().getRegistryCountPerStatus().get(status));
+            metrics.gauge(USAGE_STATISTICS_REGISTRIES_STATUS, Tags.of(TAG_USAGE_STATISTICS_STATUS, status.value()), status,
+                    ctx -> getUsageStatisticsCached().getRegistryCountPerStatus().get(ctx));
         }
 
         for (RegistryInstanceTypeValueDto type : RegistryInstanceTypeValueDto.values()) {
-            metrics.gauge(USAGE_STATISTICS_REGISTRIES_TYPE, Tags.of(TAG_USAGE_STATISTICS_TYPE, type.value()), DUMMY,
-                    x -> getUsageStatisticsCached().getRegistryCountPerType().get(type));
+            metrics.gauge(USAGE_STATISTICS_REGISTRIES_TYPE, Tags.of(TAG_USAGE_STATISTICS_TYPE, type.value()), type,
+                    ctx -> getUsageStatisticsCached().getRegistryCountPerType().get(ctx));
         }
 
         metrics.gauge(USAGE_STATISTICS_ACTIVE_USERS, DUMMY,
