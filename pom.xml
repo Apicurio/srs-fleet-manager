@@ -6,12 +6,12 @@
 
     <groupId>org.bf2</groupId>
     <artifactId>srs-fleet-manager-parent</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.0-1</version>
     <packaging>pom</packaging>
 
     <properties>
         <surefire-plugin.version>2.22.1</surefire-plugin.version>
-        <mas.build.number>0</mas.build.number>
+        <mas.build.number>1</mas.build.number>
 
         <!-- Compile -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
