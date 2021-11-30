@@ -1,7 +1,16 @@
 package org.bf2.srs.fleetmanager.spi.impl;
 
-import io.apicurio.rest.client.auth.OidcAuth;
-import io.quarkus.arc.profile.UnlessBuildProfile;
+import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.KEY_AMS_SUBSCRIPTION_ID;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import org.bf2.srs.fleetmanager.common.operation.auditing.Audited;
 import org.bf2.srs.fleetmanager.spi.AccountManagementService;
 import org.bf2.srs.fleetmanager.spi.ResourceLimitReachedException;
@@ -23,14 +32,8 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.Optional;
-import java.util.UUID;
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.KEY_AMS_SUBSCRIPTION_ID;
+import io.apicurio.rest.client.auth.OidcAuth;
+import io.quarkus.arc.profile.UnlessBuildProfile;
 
 /**
  * This service is in charge of check if a given user has the appropriate situation in order to ask for the requested resource
@@ -118,15 +121,23 @@ public class AccountManagementServiceImpl implements AccountManagementService {
     @Override
     public String createResource(AccountInfo accountInfo, ResourceType resourceType) throws TermsRequiredException, ResourceLimitReachedException {
         try {
-            boolean termsAccepted;
-            final TermsReview termsReview = new TermsReview();
-            termsReview.setAccountUsername(accountInfo.getAccountUsername());
-            termsReview.setEventCode(amsProperties.termsEventCode);
-            termsReview.setSiteCode(amsProperties.termsSiteCode);
+            boolean termsAccepted = false;
+            String siteCode = amsProperties.termsSiteCode;
+            List<String> eventCodes = amsProperties.termsEventCode;
 
-            // Check if the user has accepted the Terms & Conditions
-            final ResponseTermsReview responseTermsReview = restClient.termsReview(termsReview);
-            termsAccepted = !responseTermsReview.getTermsRequired();
+            for (String eventCode : eventCodes) {
+                final TermsReview termsReview = new TermsReview();
+                termsReview.setAccountUsername(accountInfo.getAccountUsername());
+                termsReview.setSiteCode(siteCode);
+                termsReview.setEventCode(eventCode);
+
+                // Check if the user has accepted the Terms & Conditions
+                final ResponseTermsReview responseTermsReview = restClient.termsReview(termsReview);
+                boolean accepted = !responseTermsReview.getTermsRequired();
+                // Terms are accepted if *any* of the T&C checks come back as "accepted"
+                termsAccepted = termsAccepted || accepted;
+            }
+
             if (!termsAccepted) {
                 throw new TermsRequiredException(accountInfo.getAccountUsername());
             }

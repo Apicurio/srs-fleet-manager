@@ -16,9 +16,11 @@
 
 package org.bf2.srs.fleetmanager.spi.impl;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import java.util.List;
 
 import javax.inject.Singleton;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 /**
  * @author eric.wittmann@gmail.com
@@ -29,7 +31,7 @@ public class AccountManagementServiceProperties {
     @ConfigProperty(name = "srs-fleet-manager.ams.terms.mas-site-code", defaultValue = "ocm")
     String termsSiteCode;
     @ConfigProperty(name = "srs-fleet-manager.ams.terms.mas-event-code", defaultValue = "onlineService")
-    String termsEventCode;
+    List<String> termsEventCode;
 
     @ConfigProperty(name = "srs-fleet-manager.ams.resources.resource-type")
     String resourceType;
