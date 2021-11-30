@@ -11,6 +11,7 @@
 
     <properties>
         <surefire-plugin.version>2.22.1</surefire-plugin.version>
+        <mas.build.number>8</mas.build.number>
 
         <!-- Compile -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
