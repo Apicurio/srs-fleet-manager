@@ -1,6 +1,19 @@
 package org.bf2.srs.fleetmanager.execution.manager;
 
-import io.quarkus.test.junit.QuarkusTest;
+import static java.lang.Long.valueOf;
+import static java.time.Duration.ofMillis;
+import static java.time.Duration.ofSeconds;
+import static java.time.Instant.now;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import java.time.Duration;
+import java.time.Instant;
+
+import javax.inject.Inject;
+
 import org.bf2.srs.fleetmanager.execution.impl.tasks.TestTask;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.TestTask.BasicCommand;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.TestTask.RetryCommand;
@@ -10,19 +23,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
-import java.time.Instant;
-import javax.enterprise.context.control.ActivateRequestContext;
-import javax.inject.Inject;
-
-import static java.lang.Long.valueOf;
-import static java.time.Duration.ofMillis;
-import static java.time.Duration.ofSeconds;
-import static java.time.Instant.now;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.jupiter.api.Assertions.fail;
+import io.quarkus.test.junit.QuarkusTest;
 
 /**
  * @author Jakub Senko <jsenko@redhat.com>
