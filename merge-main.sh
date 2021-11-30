@@ -1,8 +1,14 @@
 #!/bin/sh
 
-echo "Merging latest changes from the master branch!"
-git fetch upstream main
-git merge upstream/main
+if [[ -z $UPSTREAM_REMOTE ]] ; then
+  UPSTREAM_REMOTE="upstream"
+fi
+
+SOURCE_BRANCH="main"
+
+echo "Merging latest changes from the $SOURCE_BRANCH branch!"
+git fetch $UPSTREAM_REMOTE $SOURCE_BRANCH
+git merge $UPSTREAM_REMOTE/$SOURCE_BRANCH
 
 echo "Merge complete.  Check for conflicts!"
 echo ""
@@ -39,14 +45,15 @@ echo "---"
 CONTINUE="no"
 while [ "x$CONTINUE" != "xyes" ]
 do
-  read -p "OK to push changes to 'mas-sr' branch? [yes]" CONTINUE
-  if [[ -z $CONTINUE ]] ; then
-    CONTINUE=yes
-  fi
+  read -p "OK to push changes to 'mas-sr' branch? [yes required]" CONTINUE
+  # Require yes to avoid accidents
+  #if [[ -z $CONTINUE ]] ; then
+  #  CONTINUE=yes
+  #fi
 done
 
 git add .
 git commit -m "Updated MAS version to $NEW_VERSION and build number to $NEW_MAS_BUILD_NUMBER"
-git push upstream mas-sr
+git push $UPSTREAM_REMOTE mas-sr
 
 echo "All done!  Everything was successful.  Great job.  You're killing it!"
