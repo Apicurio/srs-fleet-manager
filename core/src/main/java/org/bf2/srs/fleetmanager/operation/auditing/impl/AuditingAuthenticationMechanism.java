@@ -16,6 +16,25 @@
 
 package org.bf2.srs.fleetmanager.operation.auditing.impl;
 
+import static org.bf2.srs.fleetmanager.AuditingServletFilter.HEADER_X_FORWARDED_FOR;
+import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.KEY_ERROR_MESSAGE;
+import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.KEY_REQUEST_FORWARDED_FOR;
+import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.KEY_REQUEST_METHOD;
+import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.KEY_REQUEST_PATH;
+import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.KEY_REQUEST_SOURCE_IP;
+import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.KEY_RESPONSE_CODE;
+
+import java.util.Collections;
+import java.util.Set;
+import java.util.function.BiConsumer;
+
+import javax.annotation.Priority;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Alternative;
+import javax.inject.Inject;
+
+import org.bf2.srs.fleetmanager.operation.auditing.AuditingEvent;
+
 import io.quarkus.arc.profile.UnlessBuildProfile;
 import io.quarkus.oidc.runtime.BearerAuthenticationMechanism;
 import io.quarkus.oidc.runtime.OidcAuthenticationMechanism;
@@ -29,20 +48,6 @@ import io.quarkus.vertx.http.runtime.security.HttpCredentialTransport;
 import io.quarkus.vertx.http.runtime.security.QuarkusHttpUser;
 import io.smallrye.mutiny.Uni;
 import io.vertx.ext.web.RoutingContext;
-import org.bf2.srs.fleetmanager.operation.auditing.AuditingEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Collections;
-import java.util.Set;
-import java.util.function.BiConsumer;
-import javax.annotation.Priority;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Alternative;
-import javax.inject.Inject;
-
-import static org.bf2.srs.fleetmanager.AuditingServletFilter.HEADER_X_FORWARDED_FOR;
-import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.*;
 
 /**
  * Custom HttpAuthenticationMechanism that simply wraps OidcAuthenticationMechanism.
@@ -57,7 +62,7 @@ import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstan
 @ApplicationScoped
 public class AuditingAuthenticationMechanism implements HttpAuthenticationMechanism {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+//    private final Logger log = LoggerFactory.getLogger(getClass());
 
     @Inject
     OidcAuthenticationMechanism oidcAuthenticationMechanism;
