@@ -1,8 +1,8 @@
 #!/bin/sh
 
 echo "Merging latest changes from the master branch!"
-git fetch upstream master
-git merge upstream/master
+git fetch upstream main
+git merge upstream/main
 
 echo "Merge complete.  Check for conflicts!"
 echo ""
