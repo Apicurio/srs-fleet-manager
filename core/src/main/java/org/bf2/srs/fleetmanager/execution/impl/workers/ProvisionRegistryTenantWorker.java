@@ -20,6 +20,7 @@ import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryInstanceTypeValueDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
 import org.bf2.srs.fleetmanager.service.QuotaPlansService;
+import org.bf2.srs.fleetmanager.spi.AccountManagementService;
 import org.bf2.srs.fleetmanager.spi.TenantManagerService;
 import org.bf2.srs.fleetmanager.spi.model.CreateTenantRequest;
 import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
@@ -56,6 +57,9 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
 
     @Inject
     TaskManager tasks;
+
+    @Inject
+    AccountManagementService accountManagementService;
 
     public ProvisionRegistryTenantWorker() {
         super(PROVISION_REGISTRY_TENANT_W);
@@ -154,8 +158,11 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
         if (registry != null && registry.getRegistryUrl() != null)
             return;
 
+        //Cleanup orphan susbcription, if it's null, it's not needed since it will likely be an eval instance
+        if (registry != null && registryDeployment != null && registry.getSubscriptionId() != null) {
+            accountManagementService.deleteSubscription(registry.getSubscriptionId());
+        }
         // Handle failures in "reverse" order
-        // TODO In case of failure, return resource to AMS!
 
         // Cleanup orphan tenant
         if (registry != null && registryDeployment != null && task.getRegistryTenantId() != null) {
