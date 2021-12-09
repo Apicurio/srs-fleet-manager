@@ -93,7 +93,8 @@ public class UsageMetrics {
             } finally {
                 ctx.deactivate();
             }
-        });
+        })
+        .register(metrics);
 
         Gauge.builder(USAGE_STATISTICS_ACTIVE_ORGANISATIONS, () -> {
             Arc.initialize();
@@ -104,7 +105,8 @@ public class UsageMetrics {
             } finally {
                 ctx.deactivate();
             }
-        });
+        })
+        .register(metrics);
     }
 
     public synchronized UsageStatisticsDto getUsageStatisticsCached() {

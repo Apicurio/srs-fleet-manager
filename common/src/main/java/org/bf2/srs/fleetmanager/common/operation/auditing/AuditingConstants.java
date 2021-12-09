@@ -44,7 +44,7 @@ public interface AuditingConstants {
 
     String KEY_TENANT_ID = "tenant_id";
     String KEY_TENANT_ORG_ID = "tenant_org_id";
-    String KEY_TENANT_USER = "tenant_org_id";
+    String KEY_TENANT_USER = "tenant_username";
 
     String KEY_AMS_RESOURCE_TYPE = "ams_resource_type";
     String KEY_AMS_SUBSCRIPTION_ID = "ams_subscription_id";
