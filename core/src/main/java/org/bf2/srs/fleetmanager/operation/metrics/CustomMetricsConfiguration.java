@@ -16,6 +16,9 @@
 
 package org.bf2.srs.fleetmanager.operation.metrics;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.enterprise.inject.Produces;
 import javax.inject.Singleton;
 
@@ -41,10 +44,18 @@ public class CustomMetricsConfiguration {
 
             @Override
             public Id map(Id id) {
-                if(id.getName().startsWith(REQUESTS_TIMER_METRIC) && isServiceRegistryManagementApiCall(id)) {
-                    //adding this tag due to bug in micrometer?
-                    //micrometer doing this with the uri tag uri="/api/serviceregistry_mgmt/v{id}/registries/{id}"
-                    return id.withTag(Tag.of("api", "serviceregistry_mgmt"));
+                if(id.getName().startsWith(REQUESTS_TIMER_METRIC)) {
+                    List<Tag> tags = new ArrayList<>(id.getTags());
+                    if (isServiceRegistryManagementApiCall(id)) {
+                        tags.add(Tag.of("api", "serviceregistry_mgmt"));
+                    }
+                    //removing "uri" tag due to bug in micrometer
+                    //micrometer registering uri like this uri="/api/serviceregistry_mgmt/v1/registries/ef8e3c82-9dc1-484b-813d-d2aa64bbb56c"
+                    //this is really bad, there are ways to configure micrometer to make the uri generic, but we are not using uri in our alerts so just removing it is easier
+                    tags.removeIf(t -> {
+                        return "uri".equals(t.getKey());
+                    });
+                    return id.replaceTags(tags);
                 }
                 return id;
             }
