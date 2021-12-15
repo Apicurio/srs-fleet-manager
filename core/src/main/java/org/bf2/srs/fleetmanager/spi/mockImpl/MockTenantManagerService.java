@@ -54,14 +54,12 @@ public class MockTenantManagerService implements TenantManagerService {
         return tenant;
     }
 
-    @Audited(extractParameters = {"1", KEY_TENANT_ID})
     @Override
     public Optional<Tenant> getTenantById(TenantManagerConfig tm, String tenantId) {
         init(tm);
         return Optional.ofNullable(testData.get(tm).get(tenantId));
     }
 
-    @Audited
     @Override
     public List<Tenant> getAllTenants(TenantManagerConfig tm) {
         init(tm);

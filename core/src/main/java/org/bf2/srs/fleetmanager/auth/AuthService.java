@@ -49,7 +49,7 @@ public class AuthService {
         AccountInfo accountInfo = new AccountInfo(defaultOrg, OWNER_PLACEHOLDER, false, OWNER_ID_PLACEHOLDER);
         if (SecurityUtil.isResolvable(securityIdentity)) {
             if (isTokenResolvable()) {
-                log.debug("Extracting account information from the authentication token");
+                log.trace("Extracting account information from the authentication token");
                 final String username = jwt.get().getName();
                 final String organizationId = (String) jwt.get().claim(organizationIdClaimName).orElse(defaultOrg);
                 final Long accountId = Long.parseLong((String) jwt.get().claim(accountIdClaim).orElse(defaultAccountId));

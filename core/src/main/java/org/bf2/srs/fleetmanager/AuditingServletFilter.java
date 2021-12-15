@@ -57,8 +57,10 @@ public class AuditingServletFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
         // Activate Operation Context
-        if (opCtx.isContextDataLoaded())
+        if (opCtx.isContextDataLoaded()) {
             throw new IllegalStateException("Unexpected state: Operation Context is already loaded");
+        }
+
         opCtx.loadNewContextData();
 
         var req = (HttpServletRequest) request;
