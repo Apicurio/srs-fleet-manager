@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 /**
  * @author Fabian Martinez
  */
-public class ApiSecurityTest extends SRSFleetManagerBaseIT {
+public class ApiSecurityIT extends SRSFleetManagerBaseIT {
 
     @Test
     void testOpenEndpoints() {
