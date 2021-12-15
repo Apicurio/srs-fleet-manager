@@ -137,7 +137,6 @@ public class RegistryDeploymentServiceImpl implements RegistryDeploymentService 
     }
 
     @Override
-    @Audited
     public List<RegistryDeployment> getRegistryDeployments() {
         return storage.getAllRegistryDeployments().stream()
                 .map(convertRegistryDeployment::convert)
@@ -145,7 +144,6 @@ public class RegistryDeploymentServiceImpl implements RegistryDeploymentService 
     }
 
     @Override
-    @Audited(extractParameters = {"0", KEY_DEPLOYMENT_ID})
     public RegistryDeployment getRegistryDeployment(Long id) throws RegistryDeploymentNotFoundException {
         return storage.getRegistryDeploymentById(id)
                 .map(convertRegistryDeployment::convert)
