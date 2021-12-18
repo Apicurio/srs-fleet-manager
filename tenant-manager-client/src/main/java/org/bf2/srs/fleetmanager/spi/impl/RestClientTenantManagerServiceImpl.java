@@ -124,7 +124,6 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
         return convert(tenant);
     }
 
-    @Audited(extractParameters = {"1", KEY_TENANT_ID})
     @Override
     public Optional<Tenant> getTenantById(TenantManagerConfig tm, String tenantId) {
         var client = getClient(tm);
@@ -136,7 +135,6 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
         }
     }
 
-    @Audited
     @SuppressWarnings("deprecation")
     @Override
     public List<Tenant> getAllTenants(TenantManagerConfig tm) {
