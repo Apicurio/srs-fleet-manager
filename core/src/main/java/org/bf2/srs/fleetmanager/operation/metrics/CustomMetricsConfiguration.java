@@ -22,6 +22,8 @@ import java.util.List;
 import javax.enterprise.inject.Produces;
 import javax.inject.Singleton;
 
+import org.bf2.srs.fleetmanager.common.metrics.Constants;
+
 import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.Meter.Id;
@@ -34,6 +36,10 @@ import io.micrometer.core.instrument.distribution.DistributionStatisticConfig;
 @Singleton
 public class CustomMetricsConfiguration {
 
+    /**
+     * Micrometer default http metrics will be removed after we migrate our dashboards and alerts to the new custom metrics "rest_requests"
+     */
+    @Deprecated
     private static final String REQUESTS_TIMER_METRIC = "http.server.requests";
 
     @Produces
@@ -62,7 +68,13 @@ public class CustomMetricsConfiguration {
 
             @Override
             public DistributionStatisticConfig configure(Meter.Id id, DistributionStatisticConfig config) {
-                if(id.getName().startsWith(REQUESTS_TIMER_METRIC)) {
+                if(id.getName().startsWith(Constants.REST_REQUESTS)) {
+                    return DistributionStatisticConfig.builder()
+                        .percentiles(0.5, 0.95, 0.99)
+                        .serviceLevelObjectives(0.1 * factor, 1.0 * factor, 2.0 * factor, 5.0 * factor, 10.0 * factor, 30.0 * factor)
+                        .build()
+                        .merge(config);
+                } else if(id.getName().startsWith(REQUESTS_TIMER_METRIC)) {
                     return DistributionStatisticConfig.builder()
                         .percentiles(0.5, 0.95, 0.99)
                         .serviceLevelObjectives(0.1 * factor, 1.0 * factor, 2.0 * factor, 5.0 * factor, 10.0 * factor, 30.0 * factor)

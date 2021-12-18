@@ -17,14 +17,15 @@
 package org.bf2.srs.fleetmanager.operation.auditing.impl;
 
 import static org.bf2.srs.fleetmanager.AuditingServletFilter.HEADER_X_FORWARDED_FOR;
+import static org.bf2.srs.fleetmanager.common.metrics.Constants.*;
 import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.KEY_ERROR_MESSAGE;
 import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.KEY_REQUEST_FORWARDED_FOR;
 import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.KEY_REQUEST_METHOD;
 import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.KEY_REQUEST_PATH;
 import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.KEY_REQUEST_SOURCE_IP;
 import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.KEY_RESPONSE_CODE;
-
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
@@ -34,7 +35,10 @@ import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 
 import org.bf2.srs.fleetmanager.operation.auditing.AuditingEvent;
+import org.bf2.srs.fleetmanager.operation.metrics.TimerService;
 
+import io.micrometer.core.instrument.Tag;
+import io.micrometer.core.instrument.Timer;
 import io.quarkus.arc.profile.UnlessBuildProfile;
 import io.quarkus.oidc.runtime.BearerAuthenticationMechanism;
 import io.quarkus.oidc.runtime.OidcAuthenticationMechanism;
@@ -64,6 +68,9 @@ public class AuditingAuthenticationMechanism implements HttpAuthenticationMechan
 
     @Inject
     OidcAuthenticationMechanism oidcAuthenticationMechanism;
+
+    @Inject
+    TimerService timerService;
 
     private final BearerAuthenticationMechanism bearerAuth = new BearerAuthenticationMechanism();
 
@@ -96,7 +103,16 @@ public class AuditingAuthenticationMechanism implements HttpAuthenticationMechan
         };
         context.put(QuarkusHttpUser.AUTH_FAILURE_HANDLER, auditWrapper);
 
-        return oidcAuthenticationMechanism.authenticate(context, identityProviderManager);
+        Timer.Sample sample = timerService.start();
+
+        return oidcAuthenticationMechanism.authenticate(context, identityProviderManager)
+                    .onItemOrFailure()
+                        .invoke((securityIdentity, throwable) -> {
+                            timerService.record(AUTH_TIMER,
+                                            AUTH_TIMER_DESCRIPTION,
+                                            throwable == null ? null : List.of(Tag.of(TAG_STATUS_CODE_FAMILY, "4xx")),
+                                            sample);
+                        });
     }
 
     @Override
