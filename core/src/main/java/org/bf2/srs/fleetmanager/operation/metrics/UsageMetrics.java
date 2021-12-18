@@ -19,7 +19,7 @@ import java.util.Random;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import static org.bf2.srs.fleetmanager.operation.metrics.Constants.*;
+import static org.bf2.srs.fleetmanager.common.metrics.Constants.*;
 
 @ApplicationScoped
 public class UsageMetrics {
