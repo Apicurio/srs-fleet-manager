@@ -11,6 +11,7 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.bf2.srs.fleetmanager.common.metrics.Constants;
 import org.bf2.srs.fleetmanager.common.operation.auditing.Audited;
 import org.bf2.srs.fleetmanager.spi.AccountManagementService;
 import org.bf2.srs.fleetmanager.spi.ResourceLimitReachedException;
@@ -33,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.apicurio.rest.client.auth.OidcAuth;
+import io.micrometer.core.annotation.Timed;
 import io.quarkus.arc.profile.UnlessBuildProfile;
 
 /**
@@ -75,6 +77,7 @@ public class AccountManagementServiceImpl implements AccountManagementService {
         }
     }
 
+    @Timed(value = Constants.AMS_DETERMINE_ALLOWED_INSTANCE_TIMER, description = Constants.AMS_TIMER_DESCRIPTION)
     @Audited
     @Override
     public ResourceType determineAllowedResourceType(AccountInfo accountInfo) {
@@ -117,6 +120,7 @@ public class AccountManagementServiceImpl implements AccountManagementService {
         return false;
     }
 
+    @Timed(value = Constants.AMS_CREATE_TIMER, description = Constants.AMS_TIMER_DESCRIPTION)
     @Audited(extractResult = KEY_AMS_SUBSCRIPTION_ID)
     @Override
     public String createResource(AccountInfo accountInfo, ResourceType resourceType) throws TermsRequiredException, ResourceLimitReachedException {
@@ -195,6 +199,7 @@ public class AccountManagementServiceImpl implements AccountManagementService {
         }
     }
 
+    @Timed(value = Constants.AMS_DELETE_TIMER, description = Constants.AMS_TIMER_DESCRIPTION)
     @Audited(extractParameters = {"0", KEY_AMS_SUBSCRIPTION_ID})
     @Override
     public void deleteSubscription(String subscriptionId) {

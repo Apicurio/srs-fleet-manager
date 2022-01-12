@@ -1,7 +1,6 @@
 package org.bf2.srs.fleetmanager.rest.service.impl;
 
 import org.bf2.srs.fleetmanager.common.errors.UserErrorCode;
-import org.bf2.srs.fleetmanager.common.operation.auditing.Audited;
 import org.bf2.srs.fleetmanager.rest.service.ErrorNotFoundException;
 import org.bf2.srs.fleetmanager.rest.service.ErrorService;
 import org.bf2.srs.fleetmanager.rest.service.model.ErrorDto;
@@ -14,8 +13,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.enterprise.context.ApplicationScoped;
 
-import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.KEY_USER_ERROR_ID;
-
 /**
  * @author Jakub Senko <jsenko@redhat.com>
  */
@@ -25,7 +22,6 @@ public class ErrorServiceImpl implements ErrorService {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     @Override
-    @Audited
     public ErrorListDto getErrors(Integer page, Integer size) {
         page = (page != null) ? page : 1;
         size = (size != null) ? size : 10;
@@ -48,7 +44,6 @@ public class ErrorServiceImpl implements ErrorService {
     }
 
     @Override
-    @Audited(extractParameters = {"0", KEY_USER_ERROR_ID})
     public ErrorDto getError(int id) throws ErrorNotFoundException {
         return Optional.ofNullable(UserErrorCode.getValueMap().get(id)).map(
                 uec -> ErrorDto.builder()

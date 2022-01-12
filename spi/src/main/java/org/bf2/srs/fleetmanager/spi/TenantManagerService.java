@@ -13,8 +13,6 @@ public interface TenantManagerService {
 
     Tenant createTenant(TenantManagerConfig tm, CreateTenantRequest tenantRequest);
 
-    //void updateTenant(TenantManagerConfig tm, String tenantId, UpdateTenantRequest request);
-
     Optional<Tenant> getTenantById(TenantManagerConfig tm, String tenantId);
 
     /**

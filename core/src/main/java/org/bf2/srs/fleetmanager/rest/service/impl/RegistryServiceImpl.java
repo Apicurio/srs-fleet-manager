@@ -141,7 +141,6 @@ public class RegistryServiceImpl implements RegistryService {
         return resourceType == ResourceType.REGISTRY_INSTANCE_STANDARD ? RegistryInstanceTypeValueDto.STANDARD : RegistryInstanceTypeValueDto.EVAL;
     }
 
-    @Audited
     @Override
     public RegistryListDto getRegistries(Integer page, Integer size, String orderBy, String search) {
         // Defaults
@@ -194,7 +193,6 @@ public class RegistryServiceImpl implements RegistryService {
 
     @Override
     @CheckReadPermissions
-    @Audited(extractParameters = {"0", KEY_REGISTRY_ID})
     public RegistryDto getRegistry(String registryId) throws RegistryNotFoundException {
         try {
             return storage.getRegistryById(registryId)
@@ -219,7 +217,6 @@ public class RegistryServiceImpl implements RegistryService {
     }
 
     @Override
-    @Audited
     public ServiceStatusDto getServiceStatus() {
         long total = storage.getRegistryCountTotal();
 

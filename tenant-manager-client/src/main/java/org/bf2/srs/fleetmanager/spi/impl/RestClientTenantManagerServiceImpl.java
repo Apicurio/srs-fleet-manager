@@ -10,7 +10,10 @@ import io.apicurio.multitenant.client.TenantManagerClient;
 import io.apicurio.multitenant.client.TenantManagerClientImpl;
 import io.apicurio.rest.client.auth.Auth;
 import io.apicurio.rest.client.auth.OidcAuth;
+import io.micrometer.core.annotation.Timed;
 import io.quarkus.arc.profile.UnlessBuildProfile;
+
+import org.bf2.srs.fleetmanager.common.metrics.Constants;
 import org.bf2.srs.fleetmanager.common.operation.auditing.Audited;
 import org.bf2.srs.fleetmanager.spi.TenantManagerService;
 import org.bf2.srs.fleetmanager.spi.model.CreateTenantRequest;
@@ -95,6 +98,7 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
         return res;
     }
 
+    @Timed(value = Constants.TENANT_MANAGER_CREATE_TENANT_TIMER, description = Constants.TENANT_MANAGER_DESCRIPTION)
     @Audited
     @Override
     public Tenant createTenant(TenantManagerConfig tm, CreateTenantRequest tenantRequest) {
@@ -120,7 +124,6 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
         return convert(tenant);
     }
 
-    @Audited(extractParameters = {"1", KEY_TENANT_ID})
     @Override
     public Optional<Tenant> getTenantById(TenantManagerConfig tm, String tenantId) {
         var client = getClient(tm);
@@ -132,7 +135,6 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
         }
     }
 
-    @Audited
     @SuppressWarnings("deprecation")
     @Override
     public List<Tenant> getAllTenants(TenantManagerConfig tm) {
@@ -150,6 +152,7 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
         client.updateTenant(req.getId(), internalReq);
     }
 
+    @Timed(value = Constants.TENANT_MANAGER_DELETE_TENANT_TIMER, description = Constants.TENANT_MANAGER_DESCRIPTION)
     @Audited(extractParameters = {"1", KEY_TENANT_ID})
     @Override
     public void deleteTenant(TenantManagerConfig tm, String tenantId) {
