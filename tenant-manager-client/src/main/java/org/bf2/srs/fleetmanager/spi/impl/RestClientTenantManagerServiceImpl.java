@@ -8,8 +8,11 @@ import io.apicurio.multitenant.api.datamodel.TenantStatusValue;
 import io.apicurio.multitenant.api.datamodel.UpdateRegistryTenantRequest;
 import io.apicurio.multitenant.client.TenantManagerClient;
 import io.apicurio.multitenant.client.TenantManagerClientImpl;
+import io.apicurio.rest.client.JdkHttpClientProvider;
 import io.apicurio.rest.client.auth.Auth;
 import io.apicurio.rest.client.auth.OidcAuth;
+import io.apicurio.rest.client.auth.exception.AuthErrorHandler;
+import io.apicurio.rest.client.spi.ApicurioHttpClient;
 import io.micrometer.core.annotation.Timed;
 import io.quarkus.arc.profile.UnlessBuildProfile;
 
@@ -65,7 +68,8 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
     void init() {
         if (tenantManagerAuthEnabled) {
             log.info("Using Apicurio Registry REST TenantManagerClient with authentication enabled.");
-            this.auth = new OidcAuth(tenantManagerAuthServerUrl, tenantManagerAuthClientId, tenantManagerAuthSecret, Optional.empty());
+            ApicurioHttpClient httpClient = new JdkHttpClientProvider().create(tenantManagerAuthServerUrl, Collections.emptyMap(), null, new AuthErrorHandler());
+            this.auth = new OidcAuth(httpClient, tenantManagerAuthClientId, tenantManagerAuthSecret);
         } else {
             log.info("Using Apicurio Registry REST TenantManagerClient.");
             this.auth = null;
