@@ -4,7 +4,10 @@ import io.apicurio.multitenant.api.datamodel.TenantStatusValue;
 import io.apicurio.multitenant.api.datamodel.UpdateRegistryTenantRequest;
 import io.apicurio.multitenant.client.TenantManagerClient;
 import io.apicurio.multitenant.client.TenantManagerClientImpl;
+import io.apicurio.rest.client.JdkHttpClientProvider;
 import io.apicurio.rest.client.auth.OidcAuth;
+import io.apicurio.rest.client.auth.exception.AuthErrorHandler;
+import io.apicurio.rest.client.spi.ApicurioHttpClient;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -16,8 +19,6 @@ import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class Utils {
@@ -63,7 +64,8 @@ public class Utils {
         var infra = TestInfraManager.getInstance();
         if (infra.isTenantManagerAuthEnabled()) {
             var tmAuth = infra.getTenantManagerAuthConfig();
-            OidcAuth auth = new OidcAuth(tmAuth.tokenEndpoint, tmAuth.clientId, tmAuth.clientSecret, Optional.empty());
+            ApicurioHttpClient httpClient = new JdkHttpClientProvider().create(tmAuth.tokenEndpoint, Collections.emptyMap(), null, new AuthErrorHandler());
+            OidcAuth auth = new OidcAuth(httpClient, tmAuth.clientId, tmAuth.clientSecret);
             // TODO uncomment
             // {
             //     //verify tenant manager auth

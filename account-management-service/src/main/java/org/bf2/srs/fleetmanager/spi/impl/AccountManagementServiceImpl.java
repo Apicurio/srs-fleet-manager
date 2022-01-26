@@ -4,13 +4,14 @@ import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstan
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import io.apicurio.rest.client.JdkHttpClientProvider;
+import io.apicurio.rest.client.spi.ApicurioHttpClient;
 import org.bf2.srs.fleetmanager.common.metrics.Constants;
 import org.bf2.srs.fleetmanager.common.operation.auditing.Audited;
 import org.bf2.srs.fleetmanager.spi.AccountManagementService;
@@ -70,7 +71,8 @@ public class AccountManagementServiceImpl implements AccountManagementService {
     void init() {
         log.info("Using Account Management Service with Account Management URL: {}", endpoint);
         if (ssoEnabled) {
-            final OidcAuth auth = new OidcAuth(ssoTokenEndpoint, ssoClientId, ssoClientSecret, Optional.of(new AccountManagementSystemAuthErrorHandler()));
+            ApicurioHttpClient httpClient = new JdkHttpClientProvider().create(ssoTokenEndpoint, Collections.emptyMap(), null, new AccountManagementSystemAuthErrorHandler());
+            final OidcAuth auth = new OidcAuth(httpClient, ssoClientId, ssoClientSecret);
             restClient = new AccountManagementSystemRestClient(endpoint, Collections.emptyMap(), auth);
         } else {
             restClient = new AccountManagementSystemRestClient(endpoint, Collections.emptyMap(), null);

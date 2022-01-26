@@ -35,8 +35,8 @@
 
         <!-- Other -->
         <lombok.version>1.18.16</lombok.version>
-        <apicurio-registry-tenant-manager-client.version>2.1.4-14</apicurio-registry-tenant-manager-client.version>
-        <apicurio-common-rest-client.version>0.1.0.Final</apicurio-common-rest-client.version>
+        <apicurio-registry-tenant-manager-client.version>2.1.6-17</apicurio-registry-tenant-manager-client.version>
+        <apicurio-common-rest-client.version>0.1.6.Final</apicurio-common-rest-client.version>
         <keycloak.version>11.0.3</keycloak.version>
         <keycloak.testcontainers.version>1.5.0</keycloak.testcontainers.version>
         <embedded-postgres.version>1.2.10</embedded-postgres.version>
