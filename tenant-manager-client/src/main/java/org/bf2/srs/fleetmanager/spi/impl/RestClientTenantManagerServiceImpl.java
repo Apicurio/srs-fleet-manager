@@ -12,6 +12,7 @@ import io.apicurio.rest.client.JdkHttpClientProvider;
 import io.apicurio.rest.client.auth.Auth;
 import io.apicurio.rest.client.auth.OidcAuth;
 import io.apicurio.rest.client.auth.exception.AuthErrorHandler;
+import io.apicurio.rest.client.config.ApicurioClientConfig;
 import io.apicurio.rest.client.spi.ApicurioHttpClient;
 import io.micrometer.core.annotation.Timed;
 import io.quarkus.arc.profile.UnlessBuildProfile;
@@ -31,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -38,7 +40,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
-
 import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.KEY_TENANT_ID;
 
 @UnlessBuildProfile("test")
@@ -59,13 +60,18 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
     @ConfigProperty(name = "srs-fleet-manager.tenant-manager.auth.enabled")
     boolean tenantManagerAuthEnabled;
 
+    @ConfigProperty(name = "srs-fleet-manager.tenant-manager.ssl.ca.path")
+    Optional<String> tenantManagerCAFilePath;
+
     private Auth auth;
+    private Map<String, Object> clientConfigs;
 
     // TODO Data is never deleted! Prevent OOM error.
     private Map<String, TenantManagerClientImpl> pool = new ConcurrentHashMap<String, TenantManagerClientImpl>();
 
     @PostConstruct
     void init() {
+
         if (tenantManagerAuthEnabled) {
             log.info("Using Apicurio Registry REST TenantManagerClient with authentication enabled.");
             ApicurioHttpClient httpClient = new JdkHttpClientProvider().create(tenantManagerAuthServerUrl, Collections.emptyMap(), null, new AuthErrorHandler());
@@ -74,15 +80,15 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
             log.info("Using Apicurio Registry REST TenantManagerClient.");
             this.auth = null;
         }
+        this.clientConfigs = new HashMap<>();
+        if (tenantManagerCAFilePath.isPresent() && !tenantManagerCAFilePath.get().isBlank()) {
+            clientConfigs.put(ApicurioClientConfig.APICURIO_REQUEST_CA_BUNDLE_LOCATION, tenantManagerCAFilePath.get());
+        }
     }
 
     private TenantManagerClient getClient(TenantManagerConfig tm) {
         return pool.computeIfAbsent(tm.getTenantManagerUrl(), k -> {
-            if (auth != null) {
-                return new TenantManagerClientImpl(tm.getTenantManagerUrl(), Collections.emptyMap(), auth);
-            } else {
-                return new TenantManagerClientImpl(tm.getTenantManagerUrl());
-            }
+            return new TenantManagerClientImpl(tm.getTenantManagerUrl(), clientConfigs, auth);
         });
     }
 

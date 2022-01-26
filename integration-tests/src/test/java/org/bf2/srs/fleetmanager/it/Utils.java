@@ -19,8 +19,6 @@ import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class Utils {
