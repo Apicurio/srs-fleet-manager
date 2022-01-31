@@ -33,6 +33,7 @@ import java.util.Map;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.validation.ConstraintViolationException;
+import javax.validation.ValidationException;
 import javax.ws.rs.NotSupportedException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -69,6 +70,7 @@ public class CustomExceptionMapperImpl implements CustomExceptionMapper {
         map.put(DateTimeParseException.class, HTTP_BAD_REQUEST);
         map.put(ConstraintViolationException.class, HTTP_BAD_REQUEST);
         map.put(JsonParseException.class, HTTP_BAD_REQUEST);
+        map.put(ValidationException.class, HTTP_BAD_REQUEST);
 
         map.put(NotSupportedException.class, HTTP_UNSUPPORTED_TYPE);
 
