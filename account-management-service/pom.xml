@@ -17,13 +17,20 @@
     <dependencies>
 
         <dependency>
+            <groupId>org.bf2</groupId>
+            <artifactId>srs-fleet-manager-spi</artifactId>
+        </dependency>
+
+        <!-- Quarkus -->
+
+        <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-arc</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.bf2</groupId>
-            <artifactId>srs-fleet-manager-spi</artifactId>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-smallrye-fault-tolerance</artifactId>
         </dependency>
 
         <dependency>

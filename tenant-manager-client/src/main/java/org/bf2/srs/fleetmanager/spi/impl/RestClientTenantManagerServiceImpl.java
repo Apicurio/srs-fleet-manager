@@ -16,7 +16,6 @@ import io.apicurio.rest.client.config.ApicurioClientConfig;
 import io.apicurio.rest.client.spi.ApicurioHttpClient;
 import io.micrometer.core.annotation.Timed;
 import io.quarkus.arc.profile.UnlessBuildProfile;
-
 import org.bf2.srs.fleetmanager.common.metrics.Constants;
 import org.bf2.srs.fleetmanager.common.operation.auditing.Audited;
 import org.bf2.srs.fleetmanager.spi.TenantManagerService;
@@ -27,6 +26,8 @@ import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
 import org.bf2.srs.fleetmanager.spi.model.TenantStatus;
 import org.bf2.srs.fleetmanager.spi.model.UpdateTenantRequest;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.faulttolerance.Retry;
+import org.eclipse.microprofile.faulttolerance.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +41,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+
 import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.KEY_TENANT_ID;
 
 @UnlessBuildProfile("test")
@@ -110,6 +112,8 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
 
     @Timed(value = Constants.TENANT_MANAGER_CREATE_TENANT_TIMER, description = Constants.TENANT_MANAGER_DESCRIPTION)
     @Audited
+    @Retry // 3 retries, 200ms jitter
+    @Timeout(3000) // 3000ms
     @Override
     public Tenant createTenant(TenantManagerConfig tm, CreateTenantRequest tenantRequest) {
         var client = getClient(tm);
@@ -134,6 +138,8 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
         return convert(tenant);
     }
 
+    @Retry // 3 retries, 200ms jitter
+    @Timeout(3000) // 3000ms
     @Override
     public Optional<Tenant> getTenantById(TenantManagerConfig tm, String tenantId) {
         var client = getClient(tm);
@@ -145,6 +151,8 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
         }
     }
 
+    @Retry // 3 retries, 200ms jitter
+    @Timeout(3000) // 3000ms
     @SuppressWarnings("deprecation")
     @Override
     public List<Tenant> getAllTenants(TenantManagerConfig tm) {
@@ -155,6 +163,8 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
     }
 
     @Audited
+    @Retry // 3 retries, 200ms jitter
+    @Timeout(3000) // 3000ms
     @Override
     public void updateTenant(TenantManagerConfig tm, UpdateTenantRequest req) {
         var client = getClient(tm);
@@ -164,6 +174,8 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
 
     @Timed(value = Constants.TENANT_MANAGER_DELETE_TENANT_TIMER, description = Constants.TENANT_MANAGER_DESCRIPTION)
     @Audited(extractParameters = {"1", KEY_TENANT_ID})
+    @Retry // 3 retries, 200ms jitter
+    @Timeout(3000) // 3000ms
     @Override
     public void deleteTenant(TenantManagerConfig tm, String tenantId) {
         var client = getClient(tm);

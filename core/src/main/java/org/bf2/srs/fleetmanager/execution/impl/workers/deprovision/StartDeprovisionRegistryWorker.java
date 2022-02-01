@@ -1,6 +1,7 @@
 package org.bf2.srs.fleetmanager.execution.impl.workers.deprovision;
 
 import org.bf2.srs.fleetmanager.execution.impl.tasks.TaskType;
+import org.bf2.srs.fleetmanager.execution.impl.tasks.config.ExecutionProperties;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.deprovision.DeprovisionRegistryTask;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.deprovision.StartDeprovisionRegistryTask;
 import org.bf2.srs.fleetmanager.execution.impl.workers.AbstractWorker;
@@ -10,12 +11,13 @@ import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
-import org.bf2.srs.fleetmanager.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
+import org.bf2.srs.fleetmanager.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
 import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -34,6 +36,9 @@ public class StartDeprovisionRegistryWorker extends AbstractWorker {
 
     @Inject
     TaskManager tasks;
+
+    @Inject
+    ExecutionProperties props;
 
     public StartDeprovisionRegistryWorker() {
         super(WorkerType.START_DEPROVISION_REGISTRY_W);
@@ -55,31 +60,46 @@ public class StartDeprovisionRegistryWorker extends AbstractWorker {
         if (registryOptional.isPresent()) { // FAILURE POINT 1
 
             var registry = registryOptional.get();
+
+            var force = registry.getCreatedAt()
+                    .plus(props.getDeprovisionStuckInstanceTimeout())
+                    .isAfter(Instant.now());
+            if (force) {
+                log.warn("Registry instance '{}' is forced to be deprovisioned.", registry);
+            }
+
+            var deprovision = force;
+
             var status = RegistryStatusValueDto.of(registry.getStatus());
             switch (status) {
                 case ACCEPTED:
                 case PROVISIONING:
-                    log.debug("Provisioning in progress. Retrying.");
-                    ctl.retry();
-                    return; // Unreachable
+                    if (!force) {
+                        log.debug("Provisioning in progress. Retrying.");
+                        ctl.retry();
+                    }
+                    break;
                 case READY:
-                case FAILED: {
-                    // Continue
-                    // Since we're not waiting, skip directly to "deleting" status.
-                    // registry.setStatus(RegistryStatusValue.REQUESTED_DEPROVISIONING.value());
-                    registry.setStatus(RegistryStatusValueDto.DEPROVISIONING_DELETING.value());
-                    storage.createOrUpdateRegistry(registry); // FAILURE POINT 2
-                    ctl.delay(() -> tasks.submit(DeprovisionRegistryTask.builder().registryId(registry.getId()).build()));
-                    return;
-                }
+                case FAILED:
+                    deprovision = true;
+                    break;
                 case REQUESTED_DEPROVISIONING:
                 case DEPROVISIONING_DELETING:
-                    log.debug("Deprovisioning is already in progress. Stopping.");
-                    ctl.stop();
-                    return; // Unreachable
+                    if (!force) {
+                        log.debug("Deprovisioning is already in progress. Stopping. Registry = {}", registry);
+                        ctl.stop();
+                    }
+                    break;
                 default:
-                    throw new IllegalStateException("Unexpected value: " + status);
+                    throw new IllegalStateException("Unexpected status value: " + status);
             }
+
+            if (deprovision) {
+                registry.setStatus(RegistryStatusValueDto.DEPROVISIONING_DELETING.value());
+                storage.createOrUpdateRegistry(registry); // FAILURE POINT 2
+                ctl.delay(() -> tasks.submit(DeprovisionRegistryTask.builder().registryId(registry.getId()).build()));
+            }
+
         } else {
             log.warn("Registry id='{}' not found. Stopping.", task.getRegistryId());
             ctl.stop();
@@ -102,7 +122,7 @@ public class StartDeprovisionRegistryWorker extends AbstractWorker {
 
             // FAILURE
             // Nothing to do, user can retry
-            log.warn("Failed to start deprovisioning of Registry: {}", registry);
+            log.warn("Failed to start deprovisioning of Registry '{}'. Check the status to see if the instance is stuck.", registry);
         } else {
             log.warn("Could not find Registry (ID = {}).", task.getRegistryId());
         }

@@ -31,6 +31,8 @@ import org.bf2.srs.fleetmanager.spi.impl.model.response.ResponseTermsReview;
 import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
 import org.bf2.srs.fleetmanager.spi.model.ResourceType;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.faulttolerance.Retry;
+import org.eclipse.microprofile.faulttolerance.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,6 +83,8 @@ public class AccountManagementServiceImpl implements AccountManagementService {
 
     @Timed(value = Constants.AMS_DETERMINE_ALLOWED_INSTANCE_TIMER, description = Constants.AMS_TIMER_DESCRIPTION)
     @Audited
+    @Retry // 3 retries, 200ms jitter
+    @Timeout(3000) // 3000ms
     @Override
     public ResourceType determineAllowedResourceType(AccountInfo accountInfo) {
         try {
@@ -124,6 +128,8 @@ public class AccountManagementServiceImpl implements AccountManagementService {
 
     @Timed(value = Constants.AMS_CREATE_TIMER, description = Constants.AMS_TIMER_DESCRIPTION)
     @Audited(extractResult = KEY_AMS_SUBSCRIPTION_ID)
+    @Retry(abortOn = {ResourceLimitReachedException.class}) // 3 retries, 200ms jitter
+    @Timeout(3000) // 3000ms
     @Override
     public String createResource(AccountInfo accountInfo, ResourceType resourceType) throws TermsRequiredException, ResourceLimitReachedException {
         try {
@@ -203,6 +209,8 @@ public class AccountManagementServiceImpl implements AccountManagementService {
 
     @Timed(value = Constants.AMS_DELETE_TIMER, description = Constants.AMS_TIMER_DESCRIPTION)
     @Audited(extractParameters = {"0", KEY_AMS_SUBSCRIPTION_ID})
+    @Retry // 3 retries, 200ms jitter
+    @Timeout(3000) // 3000ms
     @Override
     public void deleteSubscription(String subscriptionId) {
         try {
