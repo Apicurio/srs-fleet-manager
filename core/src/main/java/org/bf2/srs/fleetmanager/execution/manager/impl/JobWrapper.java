@@ -119,9 +119,10 @@ public class JobWrapper implements Job {
                     lastException = null;
                 }
 
-                if (lastException != null)
-                    log.warn("Task Manager (task = {}, worker = {}, workerContext = {}): Task threw an exception during execution: {}",
-                            task, worker, wCtx, anEx);
+                if (lastException != null) {
+                    log.warn("Task Manager (task = {}, worker = {}, workerContext = {}, nextExecution = {}): Task threw an exception during execution: {}",
+                            task, worker, wCtx, next, anEx);
+                }
 
                 wCtx.setRetryAttempts(wCtx.getRetryAttempts() + 1);
 
@@ -133,8 +134,14 @@ public class JobWrapper implements Job {
 
                 // Scheduling
                 if (next != null) {
-                    log.debug("Task Manager (task = {}, worker = {}, workerContext = {}): Rescheduling task at {}.",
-                            task, worker, wCtx, next);
+                    if (wCtx.getRetryAttempts() == wCtx.getMinRetries()) {
+                        log.info("Task Manager (task = {}, worker = {}, workerContext = {}): Last rescheduling at {}.",
+                                task, worker, wCtx, next);
+                    } else {
+                        log.debug("Task Manager (task = {}, worker = {}, workerContext = {}): Rescheduling task at {}.",
+                                task, worker, wCtx, next);
+                    }
+
                     taskManager.rerigger(task, next);
                 } else {
 
