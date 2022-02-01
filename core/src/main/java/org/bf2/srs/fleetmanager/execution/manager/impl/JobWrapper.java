@@ -203,13 +203,12 @@ public class JobWrapper implements Job {
     private static Duration backoff(int retries) {
         if (retries < 0)
             throw new IllegalArgumentException("Argument must be non-negative.");
-        if (retries == 0)
-            return ZERO;
-        if (retries > 63) {
-            // Prevent overflow: 1L << (64 - 1) = -9223372036854775808
+        if (retries > 20) {
+            // Prevent overflow
             return ofSeconds(MAX_RETRY_DELAY_SEC);
         }
-        long delay = 1L << (retries - 1);
+        // delay = 2^(retries + 2)
+        long delay = 1L << (retries + 2);
         return (delay > MAX_RETRY_DELAY_SEC) ?
                 ofSeconds(MAX_RETRY_DELAY_SEC) : ofSeconds(delay);
     }
