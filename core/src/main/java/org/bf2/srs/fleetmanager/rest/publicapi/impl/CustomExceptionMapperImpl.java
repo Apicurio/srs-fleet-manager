@@ -21,6 +21,7 @@ import org.bf2.srs.fleetmanager.spi.TooManyInstancesException;
 import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
+import org.eclipse.microprofile.faulttolerance.exceptions.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,6 +84,9 @@ public class CustomExceptionMapperImpl implements CustomExceptionMapper {
         map.put(TooManyEvalInstancesForUserException.class, HTTP_CONFLICT);
 
         map.put(TooManyInstancesException.class, HTTP_PAYMENT_REQUIRED);
+
+        map.put(TimeoutException.class, HTTP_UNAVAILABLE);
+        map.put(InterruptedException.class, HTTP_UNAVAILABLE);
 
         CODE_MAP = Collections.unmodifiableMap(map);
     }
