@@ -1,6 +1,7 @@
 package org.bf2.srs.fleetmanager.ams;
 
 import lombok.Getter;
+import org.bf2.srs.fleetmanager.common.operation.faulttolerance.FaultToleranceConstants;
 import org.bf2.srs.fleetmanager.common.operation.faulttolerance.RetryUnwrap;
 import org.bf2.srs.fleetmanager.common.operation.faulttolerance.RetryWrapperException;
 import org.bf2.srs.fleetmanager.spi.impl.exception.AccountManagementSystemClientException;
@@ -16,7 +17,7 @@ public class RetryMock {
     @Getter
     private int counter = 0;
 
-    @Timeout(3000) // 3000ms
+    @Timeout(FaultToleranceConstants.TIMEOUT_MS)
     @RetryUnwrap
     @Retry(retryOn = {RetryWrapperException.class}) // 3 retries, 200ms jitter
     public String runRetriesWithTimeout(int failedAttempts, int millis) throws Exception {
@@ -34,7 +35,7 @@ public class RetryMock {
         return runRetriesWithTimeout(failedAttempts, 0);
     }
 
-    @Timeout(3000) // 3000ms
+    @Timeout(FaultToleranceConstants.TIMEOUT_MS)
     @RetryUnwrap
     @Retry(retryOn = {RetryWrapperException.class}) // 3 retries, 200ms jitter
     public String withoutRetry1() {
@@ -43,7 +44,7 @@ public class RetryMock {
         throw ex.convert();
     }
 
-    @Timeout(3000) // 3000ms
+    @Timeout(FaultToleranceConstants.TIMEOUT_MS)
     @RetryUnwrap
     @Retry(retryOn = {RetryWrapperException.class}) // 3 retries, 200ms jitter
     public String withoutRetry2() {
@@ -52,7 +53,7 @@ public class RetryMock {
         throw ex.convert();
     }
 
-    @Timeout(3000) // 3000ms
+    @Timeout(FaultToleranceConstants.TIMEOUT_MS)
     @RetryUnwrap
     @Retry(retryOn = {RetryWrapperException.class}) // 3 retries, 200ms jitter
     public String withRetry1() {
@@ -61,7 +62,7 @@ public class RetryMock {
         throw ex.convert();
     }
 
-    @Timeout(3000) // 3000ms
+    @Timeout(FaultToleranceConstants.TIMEOUT_MS)
     @RetryUnwrap
     @Retry(retryOn = {RetryWrapperException.class}) // 3 retries, 200ms jitter
     public String withRetry2() {
@@ -70,7 +71,7 @@ public class RetryMock {
         throw ex.convert();
     }
 
-    @Timeout(3000) // 3000ms
+    @Timeout(FaultToleranceConstants.TIMEOUT_MS)
     @RetryUnwrap
     @Retry(retryOn = {RetryWrapperException.class}) // 3 retries, 200ms jitter
     public String timeout(int millis) throws InterruptedException {

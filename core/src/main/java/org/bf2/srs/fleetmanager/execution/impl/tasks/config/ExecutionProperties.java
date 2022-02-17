@@ -8,7 +8,7 @@ import javax.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class ExecutionProperties {
 
-    @ConfigProperty(name = "srs-fleet-manager.execution.deprovisioning.deprovision-stuck-instance-timeout-seconds", defaultValue = "3600")
+    @ConfigProperty(name = "srs-fleet-manager.execution.deprovisioning.stuck-instance-timeout-seconds", defaultValue = "3600")
     Integer deprovisionStuckInstanceTimeoutSeconds;
 
     public Duration getDeprovisionStuckInstanceTimeout() {

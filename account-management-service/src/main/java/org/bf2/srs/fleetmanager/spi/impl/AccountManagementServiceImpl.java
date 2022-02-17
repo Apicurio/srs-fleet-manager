@@ -7,6 +7,7 @@ import io.micrometer.core.annotation.Timed;
 import io.quarkus.arc.profile.UnlessBuildProfile;
 import org.bf2.srs.fleetmanager.common.metrics.Constants;
 import org.bf2.srs.fleetmanager.common.operation.auditing.Audited;
+import org.bf2.srs.fleetmanager.common.operation.faulttolerance.FaultToleranceConstants;
 import org.bf2.srs.fleetmanager.common.operation.faulttolerance.RetryUnwrap;
 import org.bf2.srs.fleetmanager.common.operation.faulttolerance.RetryWrapperException;
 import org.bf2.srs.fleetmanager.spi.AccountManagementService;
@@ -83,7 +84,7 @@ public class AccountManagementServiceImpl implements AccountManagementService {
 
     @Timed(value = Constants.AMS_DETERMINE_ALLOWED_INSTANCE_TIMER, description = Constants.AMS_TIMER_DESCRIPTION)
     @Audited
-    @Timeout(3000) // 3000ms
+    @Timeout(FaultToleranceConstants.TIMEOUT_MS)
     @RetryUnwrap
     @Retry(retryOn = {RetryWrapperException.class}) // 3 retries, 200ms jitter
     @Override
@@ -129,7 +130,7 @@ public class AccountManagementServiceImpl implements AccountManagementService {
 
     @Timed(value = Constants.AMS_CREATE_TIMER, description = Constants.AMS_TIMER_DESCRIPTION)
     @Audited(extractResult = KEY_AMS_SUBSCRIPTION_ID)
-    @Timeout(3000) // 3000ms
+    @Timeout(FaultToleranceConstants.TIMEOUT_MS)
     @RetryUnwrap
     @Retry(retryOn = {RetryWrapperException.class}) // 3 retries, 200ms jitter
     @Override
@@ -211,7 +212,7 @@ public class AccountManagementServiceImpl implements AccountManagementService {
 
     @Timed(value = Constants.AMS_DELETE_TIMER, description = Constants.AMS_TIMER_DESCRIPTION)
     @Audited(extractParameters = {"0", KEY_AMS_SUBSCRIPTION_ID})
-    @Timeout(3000) // 3000ms
+    @Timeout(FaultToleranceConstants.TIMEOUT_MS)
     @RetryUnwrap
     @Retry(retryOn = {RetryWrapperException.class}) // 3 retries, 200ms jitter
     @Override
