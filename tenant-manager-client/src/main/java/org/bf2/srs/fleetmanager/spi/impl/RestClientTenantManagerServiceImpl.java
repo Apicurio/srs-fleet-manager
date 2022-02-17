@@ -19,6 +19,7 @@ import io.micrometer.core.annotation.Timed;
 import io.quarkus.arc.profile.UnlessBuildProfile;
 import org.bf2.srs.fleetmanager.common.metrics.Constants;
 import org.bf2.srs.fleetmanager.common.operation.auditing.Audited;
+import org.bf2.srs.fleetmanager.common.operation.faulttolerance.FaultToleranceConstants;
 import org.bf2.srs.fleetmanager.spi.TenantManagerService;
 import org.bf2.srs.fleetmanager.spi.model.CreateTenantRequest;
 import org.bf2.srs.fleetmanager.spi.model.Tenant;
@@ -113,7 +114,7 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
 
     @Timed(value = Constants.TENANT_MANAGER_CREATE_TENANT_TIMER, description = Constants.TENANT_MANAGER_DESCRIPTION)
     @Audited
-    @Timeout(3000) // 3000ms
+    @Timeout(FaultToleranceConstants.TIMEOUT_MS)
     @Retry(retryOn = {TenantManagerClientException.class}) // 3 retries, 200ms jitter
     @Override
     public Tenant createTenant(TenantManagerConfig tm, CreateTenantRequest tenantRequest) {
@@ -139,7 +140,7 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
         return convert(tenant);
     }
 
-    @Timeout(3000) // 3000ms
+    @Timeout(FaultToleranceConstants.TIMEOUT_MS)
     @Retry(retryOn = {TenantManagerClientException.class}) // 3 retries, 200ms jitter
     @Override
     public Optional<Tenant> getTenantById(TenantManagerConfig tm, String tenantId) {
@@ -152,7 +153,7 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
         }
     }
 
-    @Timeout(3000) // 3000ms
+    @Timeout(FaultToleranceConstants.TIMEOUT_MS)
     @Retry(retryOn = {TenantManagerClientException.class}) // 3 retries, 200ms jitter
     @SuppressWarnings("deprecation")
     @Override
@@ -164,7 +165,7 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
     }
 
     @Audited
-    @Timeout(3000) // 3000ms
+    @Timeout(FaultToleranceConstants.TIMEOUT_MS)
     @Retry(retryOn = {TenantManagerClientException.class}) // 3 retries, 200ms jitter
     @Override
     public void updateTenant(TenantManagerConfig tm, UpdateTenantRequest req) {
@@ -175,7 +176,7 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
 
     @Timed(value = Constants.TENANT_MANAGER_DELETE_TENANT_TIMER, description = Constants.TENANT_MANAGER_DESCRIPTION)
     @Audited(extractParameters = {"1", KEY_TENANT_ID})
-    @Timeout(3000) // 3000ms
+    @Timeout(FaultToleranceConstants.TIMEOUT_MS)
     @Retry(retryOn = {TenantManagerClientException.class}) // 3 retries, 200ms jitter
     @Override
     public void deleteTenant(TenantManagerConfig tm, String tenantId) {

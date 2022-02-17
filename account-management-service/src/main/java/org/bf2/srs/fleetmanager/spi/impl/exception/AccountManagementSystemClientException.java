@@ -2,8 +2,8 @@ package org.bf2.srs.fleetmanager.spi.impl.exception;
 
 import io.apicurio.rest.client.error.ApicurioRestClientException;
 import lombok.Getter;
-import org.bf2.srs.fleetmanager.spi.AccountManagementServiceClientException;
 import org.bf2.srs.fleetmanager.common.operation.faulttolerance.RetryWrapperException;
+import org.bf2.srs.fleetmanager.spi.AccountManagementServiceClientException;
 import org.bf2.srs.fleetmanager.spi.impl.model.response.Error;
 import org.bf2.srs.fleetmanager.spi.model.AMSError;
 
@@ -53,7 +53,7 @@ public class AccountManagementSystemClientException extends ApicurioRestClientEx
 
     private boolean shouldRetry() {
         if (statusCode.isPresent()) {
-            return statusCode.get() / 100 == 5;
+            return statusCode.get() / 100 == 5; // Test if this is the 5xx error code
         }
         if(causeException.isPresent()) {
             return causeException.get() instanceof IOException;
