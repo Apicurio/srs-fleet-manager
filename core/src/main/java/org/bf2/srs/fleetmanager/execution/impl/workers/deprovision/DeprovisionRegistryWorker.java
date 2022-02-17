@@ -29,7 +29,6 @@ import javax.transaction.Transactional;
 /**
  * @author Jakub Senko <jsenko@redhat.com>
  */
-@UnlessBuildProfile("test")
 @ApplicationScoped
 public class DeprovisionRegistryWorker extends AbstractWorker {
 

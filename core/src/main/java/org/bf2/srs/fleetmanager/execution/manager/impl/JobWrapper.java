@@ -18,12 +18,13 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.control.ActivateRequestContext;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
-import static java.time.Duration.ZERO;
 import static java.time.Duration.ofSeconds;
 import static java.time.Instant.now;
 import static java.util.Objects.requireNonNull;
@@ -57,6 +58,8 @@ public class JobWrapper implements Job {
     @Inject
     OperationContext opCtx;
 
+    private Set<Class<? extends Worker>> workerExclusions = ConcurrentHashMap.newKeySet();
+
     @Override
     @SneakyThrows
     @ActivateRequestContext
@@ -64,7 +67,9 @@ public class JobWrapper implements Job {
 
         Task task = loadTask(quartzJobContext);
 
-        List<Worker> selectedWorkers = workers.stream().filter(w -> w.supports(task)).collect(toList());
+        List<Worker> selectedWorkers = workers.stream()
+                .filter(w -> w.supports(task) && !workerExclusions.contains(w.getClass()))
+                .collect(toList());
 
         for (Worker worker : selectedWorkers) {
 
@@ -227,5 +232,12 @@ public class JobWrapper implements Job {
             return now().plus(schedule.getInterval());
         else
             return null; // TODO Optional
+    }
+
+    /**
+     * Testing support, so we can e.g. replace a specific worker with another.
+     */
+    public Set<Class<? extends Worker>> getWorkerExclusions() {
+        return workerExclusions;
     }
 }
