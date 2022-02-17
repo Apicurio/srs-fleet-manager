@@ -2,8 +2,10 @@ package org.bf2.srs.fleetmanager.execution.workflows;
 
 import io.quarkus.test.junit.QuarkusTest;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.deprovision.StartDeprovisionRegistryTask;
+import org.bf2.srs.fleetmanager.execution.impl.workers.deprovision.DeprovisionRegistryWorker;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.execution.manager.TaskSchedule;
+import org.bf2.srs.fleetmanager.execution.manager.impl.JobWrapper;
 import org.bf2.srs.fleetmanager.operation.OperationContext;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryInstanceTypeValueDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
@@ -42,6 +44,9 @@ public class DeprovisioningTest {
     @Inject
     DeprovisionRegistryTestWorker testWorker;
 
+    @Inject
+    JobWrapper jobWrapper;
+
     @BeforeEach
     void beforeEach() {
         // Activate Operation Context
@@ -53,6 +58,8 @@ public class DeprovisioningTest {
     @Test
     @Tag(TestTags.SLOW)
     void testForcedDeprovisioning() throws RegistryStorageConflictException {
+        jobWrapper.getWorkerExclusions().add(DeprovisionRegistryWorker.class);
+
         // Create Registry
         var registry = RegistryData.builder()
                 .id(UUID.randomUUID().toString())
@@ -92,5 +99,7 @@ public class DeprovisioningTest {
         assertFalse(storage.getRegistryById(registry.getId()).isPresent());
         assertTrue(testWorker.getHasBeenExecuted().get());
         testWorker.getHasBeenExecuted().set(false);
+
+        jobWrapper.getWorkerExclusions().clear();
     }
 }
