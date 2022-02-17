@@ -1,5 +1,6 @@
 package org.bf2.srs.fleetmanager.execution.impl.workers.deprovision;
 
+import io.quarkus.arc.profile.UnlessBuildProfile;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.TaskType;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.deprovision.DeprovisionRegistryTask;
 import org.bf2.srs.fleetmanager.execution.impl.workers.AbstractWorker;
@@ -28,6 +29,7 @@ import javax.transaction.Transactional;
 /**
  * @author Jakub Senko <jsenko@redhat.com>
  */
+@UnlessBuildProfile("test")
 @ApplicationScoped
 public class DeprovisionRegistryWorker extends AbstractWorker {
 

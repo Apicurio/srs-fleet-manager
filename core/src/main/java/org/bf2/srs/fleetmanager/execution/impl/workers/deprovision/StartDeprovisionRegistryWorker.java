@@ -61,9 +61,10 @@ public class StartDeprovisionRegistryWorker extends AbstractWorker {
 
             var registry = registryOptional.get();
 
-            var force = registry.getCreatedAt()
-                    .plus(props.getDeprovisionStuckInstanceTimeout())
-                    .isAfter(Instant.now());
+            var force = Instant.now().isAfter(
+                    registry.getCreatedAt()
+                            .plus(props.getDeprovisionStuckInstanceTimeout()));
+
             if (force) {
                 log.warn("Registry instance '{}' is forced to be deprovisioned.", registry);
             }

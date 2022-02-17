@@ -28,6 +28,7 @@ public abstract class AbstractTask implements Task {
 
     protected String type;
 
+    @Setter
     protected TaskSchedule schedule;
 
     @Setter
