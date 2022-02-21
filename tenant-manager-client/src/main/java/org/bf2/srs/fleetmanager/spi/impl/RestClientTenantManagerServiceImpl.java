@@ -8,6 +8,7 @@ import io.apicurio.multitenant.api.datamodel.TenantStatusValue;
 import io.apicurio.multitenant.api.datamodel.UpdateRegistryTenantRequest;
 import io.apicurio.multitenant.client.TenantManagerClient;
 import io.apicurio.multitenant.client.TenantManagerClientImpl;
+import io.apicurio.multitenant.client.exception.TenantManagerClientException;
 import io.apicurio.rest.client.JdkHttpClientProvider;
 import io.apicurio.rest.client.auth.Auth;
 import io.apicurio.rest.client.auth.OidcAuth;
@@ -16,9 +17,9 @@ import io.apicurio.rest.client.config.ApicurioClientConfig;
 import io.apicurio.rest.client.spi.ApicurioHttpClient;
 import io.micrometer.core.annotation.Timed;
 import io.quarkus.arc.profile.UnlessBuildProfile;
-
 import org.bf2.srs.fleetmanager.common.metrics.Constants;
 import org.bf2.srs.fleetmanager.common.operation.auditing.Audited;
+import org.bf2.srs.fleetmanager.common.operation.faulttolerance.FaultToleranceConstants;
 import org.bf2.srs.fleetmanager.spi.TenantManagerService;
 import org.bf2.srs.fleetmanager.spi.model.CreateTenantRequest;
 import org.bf2.srs.fleetmanager.spi.model.Tenant;
@@ -27,6 +28,8 @@ import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
 import org.bf2.srs.fleetmanager.spi.model.TenantStatus;
 import org.bf2.srs.fleetmanager.spi.model.UpdateTenantRequest;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.faulttolerance.Retry;
+import org.eclipse.microprofile.faulttolerance.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +43,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+
 import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.KEY_TENANT_ID;
 
 @UnlessBuildProfile("test")
@@ -110,6 +114,8 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
 
     @Timed(value = Constants.TENANT_MANAGER_CREATE_TENANT_TIMER, description = Constants.TENANT_MANAGER_DESCRIPTION)
     @Audited
+    @Timeout(FaultToleranceConstants.TIMEOUT_MS)
+    @Retry(retryOn = {TenantManagerClientException.class}) // 3 retries, 200ms jitter
     @Override
     public Tenant createTenant(TenantManagerConfig tm, CreateTenantRequest tenantRequest) {
         var client = getClient(tm);
@@ -134,6 +140,8 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
         return convert(tenant);
     }
 
+    @Timeout(FaultToleranceConstants.TIMEOUT_MS)
+    @Retry(retryOn = {TenantManagerClientException.class}) // 3 retries, 200ms jitter
     @Override
     public Optional<Tenant> getTenantById(TenantManagerConfig tm, String tenantId) {
         var client = getClient(tm);
@@ -145,6 +153,8 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
         }
     }
 
+    @Timeout(FaultToleranceConstants.TIMEOUT_MS)
+    @Retry(retryOn = {TenantManagerClientException.class}) // 3 retries, 200ms jitter
     @SuppressWarnings("deprecation")
     @Override
     public List<Tenant> getAllTenants(TenantManagerConfig tm) {
@@ -155,6 +165,8 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
     }
 
     @Audited
+    @Timeout(FaultToleranceConstants.TIMEOUT_MS)
+    @Retry(retryOn = {TenantManagerClientException.class}) // 3 retries, 200ms jitter
     @Override
     public void updateTenant(TenantManagerConfig tm, UpdateTenantRequest req) {
         var client = getClient(tm);
@@ -164,6 +176,8 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
 
     @Timed(value = Constants.TENANT_MANAGER_DELETE_TENANT_TIMER, description = Constants.TENANT_MANAGER_DESCRIPTION)
     @Audited(extractParameters = {"1", KEY_TENANT_ID})
+    @Timeout(FaultToleranceConstants.TIMEOUT_MS)
+    @Retry(retryOn = {TenantManagerClientException.class}) // 3 retries, 200ms jitter
     @Override
     public void deleteTenant(TenantManagerConfig tm, String tenantId) {
         var client = getClient(tm);

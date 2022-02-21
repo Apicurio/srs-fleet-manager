@@ -18,12 +18,13 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.control.ActivateRequestContext;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
-import static java.time.Duration.ZERO;
 import static java.time.Duration.ofSeconds;
 import static java.time.Instant.now;
 import static java.util.Objects.requireNonNull;
@@ -57,6 +58,8 @@ public class JobWrapper implements Job {
     @Inject
     OperationContext opCtx;
 
+    private Set<Class<? extends Worker>> workerExclusions = ConcurrentHashMap.newKeySet();
+
     @Override
     @SneakyThrows
     @ActivateRequestContext
@@ -64,7 +67,9 @@ public class JobWrapper implements Job {
 
         Task task = loadTask(quartzJobContext);
 
-        List<Worker> selectedWorkers = workers.stream().filter(w -> w.supports(task)).collect(toList());
+        List<Worker> selectedWorkers = workers.stream()
+                .filter(w -> w.supports(task) && !workerExclusions.contains(w.getClass()))
+                .collect(toList());
 
         for (Worker worker : selectedWorkers) {
 
@@ -119,9 +124,10 @@ public class JobWrapper implements Job {
                     lastException = null;
                 }
 
-                if (lastException != null)
-                    log.warn("Task Manager (task = {}, worker = {}, workerContext = {}): Task threw an exception during execution: {}",
-                            task, worker, wCtx, anEx);
+                if (lastException != null) {
+                    log.warn("Task Manager (task = {}, worker = {}, workerContext = {}, nextExecution = {}): Task threw an exception during execution: {}",
+                            task, worker, wCtx, next, anEx);
+                }
 
                 wCtx.setRetryAttempts(wCtx.getRetryAttempts() + 1);
 
@@ -133,8 +139,14 @@ public class JobWrapper implements Job {
 
                 // Scheduling
                 if (next != null) {
-                    log.debug("Task Manager (task = {}, worker = {}, workerContext = {}): Rescheduling task at {}.",
-                            task, worker, wCtx, next);
+                    if (wCtx.getRetryAttempts() == wCtx.getMinRetries()) {
+                        log.info("Task Manager (task = {}, worker = {}, workerContext = {}): Last rescheduling at {}.",
+                                task, worker, wCtx, next);
+                    } else {
+                        log.debug("Task Manager (task = {}, worker = {}, workerContext = {}): Rescheduling task at {}.",
+                                task, worker, wCtx, next);
+                    }
+
                     taskManager.rerigger(task, next);
                 } else {
 
@@ -203,13 +215,12 @@ public class JobWrapper implements Job {
     private static Duration backoff(int retries) {
         if (retries < 0)
             throw new IllegalArgumentException("Argument must be non-negative.");
-        if (retries == 0)
-            return ZERO;
-        if (retries > 63) {
-            // Prevent overflow: 1L << (64 - 1) = -9223372036854775808
+        if (retries > 20) {
+            // Prevent overflow
             return ofSeconds(MAX_RETRY_DELAY_SEC);
         }
-        long delay = 1L << (retries - 1);
+        // delay = 2^(retries + 2)
+        long delay = 1L << (retries + 2);
         return (delay > MAX_RETRY_DELAY_SEC) ?
                 ofSeconds(MAX_RETRY_DELAY_SEC) : ofSeconds(delay);
     }
@@ -221,5 +232,12 @@ public class JobWrapper implements Job {
             return now().plus(schedule.getInterval());
         else
             return null; // TODO Optional
+    }
+
+    /**
+     * Testing support, so we can e.g. replace a specific worker with another.
+     */
+    public Set<Class<? extends Worker>> getWorkerExclusions() {
+        return workerExclusions;
     }
 }
