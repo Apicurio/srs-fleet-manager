@@ -1,6 +1,5 @@
 package org.bf2.srs.fleetmanager.execution.impl.workers.deprovision;
 
-import io.quarkus.arc.profile.UnlessBuildProfile;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.TaskType;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.deprovision.DeprovisionRegistryTask;
 import org.bf2.srs.fleetmanager.execution.impl.workers.AbstractWorker;
@@ -87,7 +86,7 @@ public class DeprovisionRegistryWorker extends AbstractWorker {
             if (!task.isAmsSuccess()) {
                 final String subscriptionId = registry.getSubscriptionId();
                 // TODO Workaround: Remove this once we have RHOSRTrial working.
-                if(subscriptionId != null && RegistryInstanceTypeValueDto.of(registry.getInstanceType()) != RegistryInstanceTypeValueDto.EVAL) {
+                if (subscriptionId != null && RegistryInstanceTypeValueDto.of(registry.getInstanceType()) != RegistryInstanceTypeValueDto.EVAL) {
                     ams.deleteSubscription(subscriptionId);
                 } else {
                     log.warn("Deleting an eval instance {} without calling AMS. This is a temporary workaround.", registry.getId());
