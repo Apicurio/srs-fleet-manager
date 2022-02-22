@@ -20,14 +20,20 @@ public class AccountManagementErrorHandler implements RestClientErrorHandler {
     @Override
     public ApicurioRestClientException handleErrorResponse(InputStream inputStream, int statusCode) {
         String res = IoUtil.toString(inputStream);
+        Error errorEntity = null;
         try {
             // Try to parse it as an Error entity
-            Error error = MAPPER.readValue(res, Error.class);
-            return new AccountManagementSystemClientException(error, statusCode);
+            errorEntity = MAPPER.readValue(res, Error.class);
         } catch (JsonProcessingException e) {
             // Ignore and use the raw string
-            log.debug("Could not parse Error entity from AMS response", e);
-            return new AccountManagementSystemClientException(res, statusCode);
+            log.warn("Could not parse Error entity from AMS response", e);
+        }
+        if(statusCode == 404) {
+            return errorEntity != null ? new SubscriptionNotFoundAMSCException(errorEntity, statusCode)
+                    : new SubscriptionNotFoundAMSCException(res, statusCode);
+        } else {
+            return errorEntity != null ? new AccountManagementSystemClientException(errorEntity, statusCode)
+                    : new AccountManagementSystemClientException(res, statusCode);
         }
     }
 

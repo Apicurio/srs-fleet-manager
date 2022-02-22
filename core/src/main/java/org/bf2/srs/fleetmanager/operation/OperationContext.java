@@ -1,12 +1,15 @@
 package org.bf2.srs.fleetmanager.operation;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.sentry.Sentry;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Objects;
 import java.util.UUID;
 import javax.enterprise.context.RequestScoped;
+
+import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.KEY_OPERATION_ID;
 
 /**
  * Operation Context represents metadata belonging to an execution of a single operation.
@@ -40,11 +43,13 @@ public class OperationContext {
     public void loadContextData(OperationContextData data) {
         Objects.requireNonNull(data);
         this.contextData = data;
+        initSentry();
     }
 
     public void loadNewContextData() {
         contextData = new OperationContextData();
         contextData.setOperationId(UUID.randomUUID().toString());
+        initSentry();
     }
 
     public OperationContextData getContextData() {
@@ -55,5 +60,10 @@ public class OperationContext {
     public String getOperationId() {
         ensureContextDataIsLoaded();
         return this.contextData.getOperationId();
+    }
+
+    private void initSentry() {
+        Sentry.getContext().addExtra(KEY_OPERATION_ID, this.getOperationId());
+        Sentry.getContext().addTag(KEY_OPERATION_ID, this.getOperationId());
     }
 }

@@ -1,5 +1,6 @@
 package org.bf2.srs.fleetmanager.execution.impl.workers.deprovision;
 
+import io.apicurio.multitenant.client.exception.RegistryTenantNotFoundException;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.TaskType;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.deprovision.DeprovisionRegistryTask;
 import org.bf2.srs.fleetmanager.execution.impl.workers.AbstractWorker;
@@ -11,6 +12,7 @@ import org.bf2.srs.fleetmanager.rest.service.model.RegistryInstanceTypeValueDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
 import org.bf2.srs.fleetmanager.spi.AccountManagementService;
 import org.bf2.srs.fleetmanager.spi.TenantManagerService;
+import org.bf2.srs.fleetmanager.spi.impl.exception.SubscriptionNotFoundAMSCException;
 import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
@@ -66,7 +68,11 @@ public class DeprovisionRegistryWorker extends AbstractWorker {
             if (task.getRegistryTenantId() == null) {
                 final var tenantId = registry.getId();
                 TenantManagerConfig tenantManagerConfig = Utils.createTenantManagerConfig(registryDeployment);
-                tms.deleteTenant(tenantManagerConfig, tenantId);
+                try {
+                    tms.deleteTenant(tenantManagerConfig, tenantId);
+                } catch (RegistryTenantNotFoundException ex) {
+                    log.info("Tenant id='{}' does not exist (already deleted?).", tenantId);
+                }
                 task.setRegistryTenantId(tenantId);
                 log.debug("Tenant id='{}' delete request send.", tenantId);
             }
@@ -87,7 +93,11 @@ public class DeprovisionRegistryWorker extends AbstractWorker {
                 final String subscriptionId = registry.getSubscriptionId();
                 // TODO Workaround: Remove this once we have RHOSRTrial working.
                 if (subscriptionId != null && RegistryInstanceTypeValueDto.of(registry.getInstanceType()) != RegistryInstanceTypeValueDto.EVAL) {
-                    ams.deleteSubscription(subscriptionId);
+                    try {
+                        ams.deleteSubscription(subscriptionId);
+                    } catch (SubscriptionNotFoundAMSCException ex) {
+                        log.info("Subscription ID '{}' for tenant ID '{}' does not exist (already deleted?).", subscriptionId, task.getRegistryTenantId());
+                    }
                 } else {
                     log.warn("Deleting an eval instance {} without calling AMS. This is a temporary workaround.", registry.getId());
                 }
