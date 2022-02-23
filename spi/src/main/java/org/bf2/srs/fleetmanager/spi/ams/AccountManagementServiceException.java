@@ -4,11 +4,16 @@ import lombok.Getter;
 import org.bf2.srs.fleetmanager.common.errors.UserError;
 import org.bf2.srs.fleetmanager.common.errors.UserErrorCode;
 import org.bf2.srs.fleetmanager.common.errors.UserErrorInfo;
+import org.bf2.srs.fleetmanager.common.operation.faulttolerance.CanRetry;
 import org.bf2.srs.fleetmanager.spi.ams.model.AMSError;
 
+import java.io.IOException;
 import java.util.Optional;
 
-public class AccountManagementServiceClientException extends RuntimeException implements UserError {
+/**
+ * @author Jakub Senko <m@jsenko.net>
+ */
+public class AccountManagementServiceException extends Exception implements UserError, CanRetry {
 
     private static final long serialVersionUID = -8929778890921534692L;
 
@@ -18,7 +23,7 @@ public class AccountManagementServiceClientException extends RuntimeException im
     @Getter
     private final Optional<Integer> statusCode;
 
-    public AccountManagementServiceClientException(Optional<AMSError> causeEntity, Optional<Integer> statusCode, Exception cause) {
+    public AccountManagementServiceException(Optional<AMSError> causeEntity, Optional<Integer> statusCode, Exception cause) {
         super(cause.getMessage(), cause);
         this.causeEntity = causeEntity;
         this.statusCode = statusCode;
@@ -26,8 +31,19 @@ public class AccountManagementServiceClientException extends RuntimeException im
 
     @Override
     public UserErrorInfo getUserErrorInfo() {
-        // TODO Do we want to expose underlying error reason to the users?
         var reason = causeEntity.map(error -> ". " + error.getReason()).orElse(".");
+        // TODO This exception can be used more generally than what the error code suggests.
         return UserErrorInfo.create(UserErrorCode.ERROR_AMS_FAILED_TO_CHECK_QUOTA, reason);
+    }
+
+    @Override
+    public boolean retry() {
+        if (statusCode.isPresent()) {
+            return statusCode.get() / 100 == 5; // Test if this is the 5xx error code
+        }
+        if (getCause() instanceof IOException) {
+            return true;
+        }
+        return false;
     }
 }

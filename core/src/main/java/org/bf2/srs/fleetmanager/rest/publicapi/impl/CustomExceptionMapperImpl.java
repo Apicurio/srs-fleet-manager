@@ -12,7 +12,7 @@ import org.bf2.srs.fleetmanager.rest.config.CustomExceptionMapper;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.Error;
 import org.bf2.srs.fleetmanager.rest.service.ErrorNotFoundException;
 import org.bf2.srs.fleetmanager.rest.service.model.Kind;
-import org.bf2.srs.fleetmanager.spi.ams.AccountManagementServiceClientException;
+import org.bf2.srs.fleetmanager.spi.ams.AccountManagementServiceException;
 import org.bf2.srs.fleetmanager.spi.common.EvalInstancesNotAllowedException;
 import org.bf2.srs.fleetmanager.spi.ams.ResourceLimitReachedException;
 import org.bf2.srs.fleetmanager.spi.ams.TermsRequiredException;
@@ -75,7 +75,7 @@ public class CustomExceptionMapperImpl implements CustomExceptionMapper {
 
         map.put(NotSupportedException.class, HTTP_UNSUPPORTED_TYPE);
 
-        map.put(AccountManagementServiceClientException.class, HTTP_INTERNAL_ERROR);
+        map.put(AccountManagementServiceException.class, HTTP_INTERNAL_ERROR);
         map.put(EvalInstancesNotAllowedException.class, HTTP_INTERNAL_ERROR);
 
         map.put(RegistryStorageConflictException.class, HTTP_CONFLICT);

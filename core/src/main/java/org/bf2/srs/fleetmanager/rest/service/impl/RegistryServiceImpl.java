@@ -22,9 +22,10 @@ import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
 import org.bf2.srs.fleetmanager.rest.service.model.ServiceStatusDto;
 import org.bf2.srs.fleetmanager.rest.service.model.UsageStatisticsDto;
 import org.bf2.srs.fleetmanager.spi.ams.AccountManagementService;
-import org.bf2.srs.fleetmanager.spi.common.EvalInstancesNotAllowedException;
+import org.bf2.srs.fleetmanager.spi.ams.AccountManagementServiceException;
 import org.bf2.srs.fleetmanager.spi.ams.ResourceLimitReachedException;
 import org.bf2.srs.fleetmanager.spi.ams.TermsRequiredException;
+import org.bf2.srs.fleetmanager.spi.common.EvalInstancesNotAllowedException;
 import org.bf2.srs.fleetmanager.spi.common.TooManyEvalInstancesForUserException;
 import org.bf2.srs.fleetmanager.spi.common.TooManyInstancesException;
 import org.bf2.srs.fleetmanager.spi.common.model.AccountInfo;
@@ -89,7 +90,8 @@ public class RegistryServiceImpl implements RegistryService {
     @Override
     public RegistryDto createRegistry(RegistryCreateDto registryCreate)
             throws RegistryStorageConflictException, TermsRequiredException, ResourceLimitReachedException,
-            EvalInstancesNotAllowedException, TooManyEvalInstancesForUserException, TooManyInstancesException {
+            EvalInstancesNotAllowedException, TooManyEvalInstancesForUserException, TooManyInstancesException,
+            AccountManagementServiceException {
         final AccountInfo accountInfo = authService.extractAccountInfo();
 
         // Make sure we have more instances available (max capacity not yet reached).

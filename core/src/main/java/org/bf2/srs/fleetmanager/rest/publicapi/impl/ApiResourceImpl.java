@@ -1,8 +1,5 @@
 package org.bf2.srs.fleetmanager.rest.publicapi.impl;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
 import org.bf2.srs.fleetmanager.rest.publicapi.ApiResource;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.Error;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.ErrorList;
@@ -13,13 +10,17 @@ import org.bf2.srs.fleetmanager.rest.publicapi.beans.ServiceStatus;
 import org.bf2.srs.fleetmanager.rest.service.ErrorNotFoundException;
 import org.bf2.srs.fleetmanager.rest.service.ErrorService;
 import org.bf2.srs.fleetmanager.rest.service.RegistryService;
-import org.bf2.srs.fleetmanager.spi.common.EvalInstancesNotAllowedException;
+import org.bf2.srs.fleetmanager.spi.ams.AccountManagementServiceException;
 import org.bf2.srs.fleetmanager.spi.ams.ResourceLimitReachedException;
 import org.bf2.srs.fleetmanager.spi.ams.TermsRequiredException;
+import org.bf2.srs.fleetmanager.spi.common.EvalInstancesNotAllowedException;
 import org.bf2.srs.fleetmanager.spi.common.TooManyEvalInstancesForUserException;
 import org.bf2.srs.fleetmanager.spi.common.TooManyInstancesException;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 /**
  * @author Jakub Senko <jsenko@redhat.com>
@@ -46,7 +47,8 @@ public class ApiResourceImpl implements ApiResource {
     @Override
     public Registry createRegistry(RegistryCreate data)
             throws RegistryStorageConflictException, TermsRequiredException, ResourceLimitReachedException,
-            EvalInstancesNotAllowedException, TooManyEvalInstancesForUserException, TooManyInstancesException {
+            EvalInstancesNotAllowedException, TooManyEvalInstancesForUserException, TooManyInstancesException,
+            AccountManagementServiceException {
         return convert.convert(registryService.createRegistry(convert.convert(data)));
     }
 

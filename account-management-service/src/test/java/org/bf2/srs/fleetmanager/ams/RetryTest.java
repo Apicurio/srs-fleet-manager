@@ -1,7 +1,7 @@
 package org.bf2.srs.fleetmanager.ams;
 
 import io.quarkus.test.junit.QuarkusTest;
-import org.bf2.srs.fleetmanager.spi.ams.AccountManagementServiceClientException;
+import org.bf2.srs.fleetmanager.spi.ams.AccountManagementServiceException;
 import org.eclipse.microprofile.faulttolerance.exceptions.TimeoutException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,7 +35,7 @@ public class RetryTest {
         try {
             mock.runRetries(4);
             Assertions.fail("Should throw an exception");
-        } catch (AccountManagementServiceClientException ex) {
+        } catch (AccountManagementServiceException ex) {
             // ok
         } catch (Exception ex) {
             Assertions.fail("Unexpected exception" + ex);
@@ -47,7 +47,7 @@ public class RetryTest {
         try {
             mock.withRetry1();
             Assertions.fail("Should throw an exception");
-        } catch (AccountManagementServiceClientException ex) {
+        } catch (AccountManagementServiceException ex) {
             Assertions.assertEquals(4, mock.getCounter());
         } catch (Exception ex) {
             Assertions.fail("Unexpected exception" + ex);
@@ -56,7 +56,7 @@ public class RetryTest {
         try {
             mock.withRetry2();
             Assertions.fail("Should throw an exception");
-        } catch (AccountManagementServiceClientException ex) {
+        } catch (AccountManagementServiceException ex) {
             Assertions.assertEquals(4, mock.getCounter());
         } catch (Exception ex) {
             Assertions.fail("Unexpected exception" + ex);
@@ -68,7 +68,7 @@ public class RetryTest {
         try {
             mock.withoutRetry1();
             Assertions.fail("Should throw an exception");
-        } catch (AccountManagementServiceClientException ex) {
+        } catch (AccountManagementServiceException ex) {
             Assertions.assertEquals(1, mock.getCounter());
         } catch (Exception ex) {
             Assertions.fail("Unexpected exception" + ex);
@@ -77,7 +77,7 @@ public class RetryTest {
         try {
             mock.withoutRetry2();
             Assertions.fail("Should throw an exception");
-        } catch (AccountManagementServiceClientException ex) {
+        } catch (AccountManagementServiceException ex) {
             Assertions.assertEquals(1, mock.getCounter());
         } catch (Exception ex) {
             Assertions.fail("Unexpected exception" + ex);

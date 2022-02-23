@@ -9,21 +9,25 @@ import org.bf2.srs.fleetmanager.common.metrics.Constants;
 import org.bf2.srs.fleetmanager.common.operation.auditing.Audited;
 import org.bf2.srs.fleetmanager.common.operation.faulttolerance.FaultToleranceConstants;
 import org.bf2.srs.fleetmanager.common.operation.faulttolerance.RetryUnwrap;
+import org.bf2.srs.fleetmanager.common.operation.faulttolerance.RetryWrap;
 import org.bf2.srs.fleetmanager.common.operation.faulttolerance.RetryWrapperException;
 import org.bf2.srs.fleetmanager.spi.ams.AccountManagementService;
+import org.bf2.srs.fleetmanager.spi.ams.AccountManagementServiceException;
 import org.bf2.srs.fleetmanager.spi.ams.ResourceLimitReachedException;
+import org.bf2.srs.fleetmanager.spi.ams.SubscriptionNotFoundServiceException;
 import org.bf2.srs.fleetmanager.spi.ams.TermsRequiredException;
 import org.bf2.srs.fleetmanager.spi.ams.impl.exception.AccountManagementSystemAuthErrorHandler;
 import org.bf2.srs.fleetmanager.spi.ams.impl.exception.AccountManagementSystemClientException;
-import org.bf2.srs.fleetmanager.spi.ams.impl.model.response.QuotaCost;
-import org.bf2.srs.fleetmanager.spi.ams.impl.model.response.QuotaCostList;
-import org.bf2.srs.fleetmanager.spi.ams.impl.model.response.RelatedResource;
-import org.bf2.srs.fleetmanager.spi.ams.impl.model.response.ResponseTermsReview;
+import org.bf2.srs.fleetmanager.spi.ams.impl.exception.ExceptionConvert;
 import org.bf2.srs.fleetmanager.spi.ams.impl.model.request.ClusterAuthorization;
 import org.bf2.srs.fleetmanager.spi.ams.impl.model.request.ReservedResource;
 import org.bf2.srs.fleetmanager.spi.ams.impl.model.request.TermsReview;
 import org.bf2.srs.fleetmanager.spi.ams.impl.model.response.ClusterAuthorizationResponse;
 import org.bf2.srs.fleetmanager.spi.ams.impl.model.response.Organization;
+import org.bf2.srs.fleetmanager.spi.ams.impl.model.response.QuotaCost;
+import org.bf2.srs.fleetmanager.spi.ams.impl.model.response.QuotaCostList;
+import org.bf2.srs.fleetmanager.spi.ams.impl.model.response.RelatedResource;
+import org.bf2.srs.fleetmanager.spi.ams.impl.model.response.ResponseTermsReview;
 import org.bf2.srs.fleetmanager.spi.common.model.AccountInfo;
 import org.bf2.srs.fleetmanager.spi.common.model.ResourceType;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -87,8 +91,9 @@ public class AccountManagementServiceImpl implements AccountManagementService {
     @Timeout(FaultToleranceConstants.TIMEOUT_MS)
     @RetryUnwrap
     @Retry(retryOn = {RetryWrapperException.class}) // 3 retries, 200ms jitter
+    @RetryWrap
     @Override
-    public ResourceType determineAllowedResourceType(AccountInfo accountInfo) {
+    public ResourceType determineAllowedResourceType(AccountInfo accountInfo) throws AccountManagementServiceException {
         try {
             Organization organization = restClient.getOrganizationByExternalId(accountInfo.getOrganizationId());
             String orgId = organization.getId();
@@ -109,8 +114,10 @@ public class AccountManagementServiceImpl implements AccountManagementService {
 
             // Default to only allow eval.
             return ResourceType.REGISTRY_INSTANCE_EVAL;
+
         } catch (AccountManagementSystemClientException ex) {
-            throw ex.convert();
+            ExceptionConvert.convert(ex);
+            return null; // Never returns
         }
     }
 
@@ -133,8 +140,9 @@ public class AccountManagementServiceImpl implements AccountManagementService {
     @Timeout(FaultToleranceConstants.TIMEOUT_MS)
     @RetryUnwrap
     @Retry(retryOn = {RetryWrapperException.class}) // 3 retries, 200ms jitter
+    @RetryWrap
     @Override
-    public String createResource(AccountInfo accountInfo, ResourceType resourceType) throws TermsRequiredException, ResourceLimitReachedException {
+    public String createResource(AccountInfo accountInfo, ResourceType resourceType) throws TermsRequiredException, ResourceLimitReachedException, AccountManagementServiceException {
         try {
             boolean termsAccepted = false;
             String siteCode = amsProperties.termsSiteCode;
@@ -206,7 +214,8 @@ public class AccountManagementServiceImpl implements AccountManagementService {
                 throw new ResourceLimitReachedException();
             }
         } catch (AccountManagementSystemClientException ex) {
-            throw ex.convert();
+            ExceptionConvert.convert(ex);
+            return null; // Never returns
         }
     }
 
@@ -215,8 +224,9 @@ public class AccountManagementServiceImpl implements AccountManagementService {
     @Timeout(FaultToleranceConstants.TIMEOUT_MS)
     @RetryUnwrap
     @Retry(retryOn = {RetryWrapperException.class}) // 3 retries, 200ms jitter
+    @RetryWrap
     @Override
-    public void deleteSubscription(String subscriptionId) {
+    public void deleteSubscription(String subscriptionId) throws SubscriptionNotFoundServiceException, AccountManagementServiceException {
         try {
             // If the subscriptionId is null, it means we didn't reserve quota in AMS for this
             // instances (likely because it's an Eval instance).
@@ -225,7 +235,7 @@ public class AccountManagementServiceImpl implements AccountManagementService {
                 restClient.deleteSubscription(subscriptionId);
             }
         } catch (AccountManagementSystemClientException ex) {
-            throw ex.convert();
+            ExceptionConvert.convertWithSubscriptionNotFound(ex);
         }
     }
 }

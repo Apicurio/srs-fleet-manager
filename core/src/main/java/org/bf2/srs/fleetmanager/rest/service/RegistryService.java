@@ -5,10 +5,11 @@ import org.bf2.srs.fleetmanager.rest.service.model.RegistryDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryListDto;
 import org.bf2.srs.fleetmanager.rest.service.model.ServiceStatusDto;
 import org.bf2.srs.fleetmanager.rest.service.model.UsageStatisticsDto;
-import org.bf2.srs.fleetmanager.spi.common.TooManyEvalInstancesForUserException;
-import org.bf2.srs.fleetmanager.spi.common.EvalInstancesNotAllowedException;
+import org.bf2.srs.fleetmanager.spi.ams.AccountManagementServiceException;
 import org.bf2.srs.fleetmanager.spi.ams.ResourceLimitReachedException;
 import org.bf2.srs.fleetmanager.spi.ams.TermsRequiredException;
+import org.bf2.srs.fleetmanager.spi.common.EvalInstancesNotAllowedException;
+import org.bf2.srs.fleetmanager.spi.common.TooManyEvalInstancesForUserException;
 import org.bf2.srs.fleetmanager.spi.common.TooManyInstancesException;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
@@ -16,7 +17,7 @@ import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
 public interface RegistryService {
 
     RegistryDto createRegistry(RegistryCreateDto registry) throws RegistryStorageConflictException,
-            TermsRequiredException, ResourceLimitReachedException, EvalInstancesNotAllowedException, TooManyEvalInstancesForUserException, TooManyInstancesException;
+            TermsRequiredException, ResourceLimitReachedException, EvalInstancesNotAllowedException, TooManyEvalInstancesForUserException, TooManyInstancesException, AccountManagementServiceException;
 
     RegistryListDto getRegistries(Integer page, Integer size, String orderBy, String search);
 

@@ -8,6 +8,7 @@ import io.apicurio.multitenant.api.datamodel.TenantStatusValue;
 import io.apicurio.multitenant.api.datamodel.UpdateRegistryTenantRequest;
 import io.apicurio.multitenant.client.TenantManagerClient;
 import io.apicurio.multitenant.client.TenantManagerClientImpl;
+import io.apicurio.multitenant.client.exception.RegistryTenantNotFoundException;
 import io.apicurio.multitenant.client.exception.TenantManagerClientException;
 import io.apicurio.rest.client.JdkHttpClientProvider;
 import io.apicurio.rest.client.auth.Auth;
@@ -21,6 +22,8 @@ import org.bf2.srs.fleetmanager.common.metrics.Constants;
 import org.bf2.srs.fleetmanager.common.operation.auditing.Audited;
 import org.bf2.srs.fleetmanager.common.operation.faulttolerance.FaultToleranceConstants;
 import org.bf2.srs.fleetmanager.spi.tenants.TenantManagerService;
+import org.bf2.srs.fleetmanager.spi.tenants.TenantManagerServiceException;
+import org.bf2.srs.fleetmanager.spi.tenants.TenantNotFoundServiceException;
 import org.bf2.srs.fleetmanager.spi.tenants.model.CreateTenantRequest;
 import org.bf2.srs.fleetmanager.spi.tenants.model.Tenant;
 import org.bf2.srs.fleetmanager.spi.tenants.model.TenantLimit;
@@ -115,73 +118,95 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
     @Timed(value = Constants.TENANT_MANAGER_CREATE_TENANT_TIMER, description = Constants.TENANT_MANAGER_DESCRIPTION)
     @Audited
     @Timeout(FaultToleranceConstants.TIMEOUT_MS)
-    @Retry(retryOn = {TenantManagerClientException.class}) // 3 retries, 200ms jitter
+    @Retry(retryOn = {TenantManagerServiceException.class}) // 3 retries, 200ms jitter
     @Override
-    public Tenant createTenant(TenantManagerConfig tm, CreateTenantRequest tenantRequest) {
-        var client = getClient(tm);
-
-        NewRegistryTenantRequest req = new NewRegistryTenantRequest();
-        req.setOrganizationId(tenantRequest.getOrganizationId());
-        req.setTenantId(tenantRequest.getTenantId());
-        req.setCreatedBy(tenantRequest.getCreatedBy());
-
-        req.setResources(Optional.ofNullable(tenantRequest.getResources()).stream()
-                .flatMap(Collection::stream)
-                .map(r -> {
-                    TenantResource tr = new TenantResource();
-                    tr.setType(ResourceType.fromValue(r.getType()));
-                    tr.setLimit(r.getLimit());
-                    return tr;
-                })
-                .collect(Collectors.toList()));
-
-        RegistryTenant tenant = client.createTenant(req);
-
-        return convert(tenant);
-    }
-
-    @Timeout(FaultToleranceConstants.TIMEOUT_MS)
-    @Retry(retryOn = {TenantManagerClientException.class}) // 3 retries, 200ms jitter
-    @Override
-    public Optional<Tenant> getTenantById(TenantManagerConfig tm, String tenantId) {
-        var client = getClient(tm);
+    public Tenant createTenant(TenantManagerConfig tm, CreateTenantRequest tenantRequest) throws TenantManagerServiceException {
         try {
-            RegistryTenant tenant = client.getTenant(tenantId);
-            return Optional.of(convert(tenant));
-        } catch (Exception ex) {
-            return Optional.empty();
+            var client = getClient(tm);
+
+            NewRegistryTenantRequest req = new NewRegistryTenantRequest();
+            req.setOrganizationId(tenantRequest.getOrganizationId());
+            req.setTenantId(tenantRequest.getTenantId());
+            req.setCreatedBy(tenantRequest.getCreatedBy());
+
+            req.setResources(Optional.ofNullable(tenantRequest.getResources()).stream()
+                    .flatMap(Collection::stream)
+                    .map(r -> {
+                        TenantResource tr = new TenantResource();
+                        tr.setType(ResourceType.fromValue(r.getType()));
+                        tr.setLimit(r.getLimit());
+                        return tr;
+                    })
+                    .collect(Collectors.toList()));
+
+            RegistryTenant tenant = client.createTenant(req);
+
+            return convert(tenant);
+        } catch (TenantManagerClientException ex) {
+            throw ExceptionConvert.convert(ex);
         }
     }
 
     @Timeout(FaultToleranceConstants.TIMEOUT_MS)
-    @Retry(retryOn = {TenantManagerClientException.class}) // 3 retries, 200ms jitter
+    @Retry(retryOn = {TenantManagerServiceException.class}) // 3 retries, 200ms jitter
+    @Override
+    public Optional<Tenant> getTenantById(TenantManagerConfig tm, String tenantId) throws TenantManagerServiceException {
+        try {
+            var client = getClient(tm);
+            RegistryTenant tenant = client.getTenant(tenantId);
+            return Optional.of(convert(tenant));
+        } catch (RegistryTenantNotFoundException ex) {
+            return Optional.empty();
+        } catch (TenantManagerClientException ex) {
+            throw ExceptionConvert.convert(ex);
+        }
+    }
+
+    @Timeout(FaultToleranceConstants.TIMEOUT_MS)
+    @Retry(retryOn = {TenantManagerServiceException.class}) // 3 retries, 200ms jitter
     @SuppressWarnings("deprecation")
     @Override
-    public List<Tenant> getAllTenants(TenantManagerConfig tm) {
-        var client = getClient(tm);
-        return client.listTenants().stream()
-                .map(this::convert)
-                .collect(Collectors.toList());
+    public List<Tenant> getAllTenants(TenantManagerConfig tm) throws TenantManagerServiceException {
+        try {
+            var client = getClient(tm);
+            return client.listTenants().stream()
+                    .map(this::convert)
+                    .collect(Collectors.toList());
+        } catch (TenantManagerClientException ex) {
+            throw ExceptionConvert.convert(ex);
+        }
     }
 
     @Audited
     @Timeout(FaultToleranceConstants.TIMEOUT_MS)
-    @Retry(retryOn = {TenantManagerClientException.class}) // 3 retries, 200ms jitter
+    @Retry(retryOn = {TenantManagerServiceException.class}) // 3 retries, 200ms jitter
     @Override
-    public void updateTenant(TenantManagerConfig tm, UpdateTenantRequest req) {
-        var client = getClient(tm);
-        var internalReq = convert(req);
-        client.updateTenant(req.getId(), internalReq);
+    public void updateTenant(TenantManagerConfig tm, UpdateTenantRequest req) throws TenantNotFoundServiceException, TenantManagerServiceException {
+        try {
+            var client = getClient(tm);
+            var internalReq = convert(req);
+            client.updateTenant(req.getId(), internalReq);
+        } catch (RegistryTenantNotFoundException ex) {
+            throw ExceptionConvert.convert(ex);
+        } catch (TenantManagerClientException ex) {
+            throw ExceptionConvert.convert(ex);
+        }
     }
 
     @Timed(value = Constants.TENANT_MANAGER_DELETE_TENANT_TIMER, description = Constants.TENANT_MANAGER_DESCRIPTION)
     @Audited(extractParameters = {"1", KEY_TENANT_ID})
     @Timeout(FaultToleranceConstants.TIMEOUT_MS)
-    @Retry(retryOn = {TenantManagerClientException.class}) // 3 retries, 200ms jitter
+    @Retry(retryOn = {TenantManagerServiceException.class}) // 3 retries, 200ms jitter
     @Override
-    public void deleteTenant(TenantManagerConfig tm, String tenantId) {
-        var client = getClient(tm);
-        client.deleteTenant(tenantId);
+    public void deleteTenant(TenantManagerConfig tm, String tenantId) throws TenantNotFoundServiceException, TenantManagerServiceException {
+        try {
+            var client = getClient(tm);
+            client.deleteTenant(tenantId);
+        } catch (RegistryTenantNotFoundException ex) {
+            throw ExceptionConvert.convert(ex);
+        } catch (TenantManagerClientException ex) {
+            throw ExceptionConvert.convert(ex);
+        }
     }
 
     @Override
