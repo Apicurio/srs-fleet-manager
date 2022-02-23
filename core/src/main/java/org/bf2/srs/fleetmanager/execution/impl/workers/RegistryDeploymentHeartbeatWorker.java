@@ -4,7 +4,7 @@ import org.bf2.srs.fleetmanager.execution.impl.tasks.RegistryDeploymentHeartbeat
 import org.bf2.srs.fleetmanager.execution.manager.Task;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentStatusValue;
-import org.bf2.srs.fleetmanager.spi.TenantManagerService;
+import org.bf2.srs.fleetmanager.spi.tenants.TenantManagerService;
 import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
 import org.bf2.srs.fleetmanager.storage.RegistryDeploymentStorageConflictException;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;

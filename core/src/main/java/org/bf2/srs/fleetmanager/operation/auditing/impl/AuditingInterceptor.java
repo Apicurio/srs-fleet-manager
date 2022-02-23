@@ -22,10 +22,10 @@ import org.bf2.srs.fleetmanager.operation.auditing.AuditingEvent;
 import org.bf2.srs.fleetmanager.operation.auditing.AuditingService;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryCreateDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDto;
-import org.bf2.srs.fleetmanager.spi.model.CreateTenantRequest;
-import org.bf2.srs.fleetmanager.spi.model.ResourceType;
-import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
-import org.bf2.srs.fleetmanager.spi.model.UpdateTenantRequest;
+import org.bf2.srs.fleetmanager.spi.tenants.model.CreateTenantRequest;
+import org.bf2.srs.fleetmanager.spi.common.model.ResourceType;
+import org.bf2.srs.fleetmanager.spi.tenants.model.TenantManagerConfig;
+import org.bf2.srs.fleetmanager.spi.tenants.model.UpdateTenantRequest;
 
 import java.util.Map;
 import java.util.function.BiConsumer;

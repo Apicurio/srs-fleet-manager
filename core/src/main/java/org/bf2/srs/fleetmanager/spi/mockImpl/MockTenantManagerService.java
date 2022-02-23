@@ -5,13 +5,13 @@ import io.quarkus.arc.DefaultBean;
 
 import org.bf2.srs.fleetmanager.common.metrics.Constants;
 import org.bf2.srs.fleetmanager.common.operation.auditing.Audited;
-import org.bf2.srs.fleetmanager.spi.TenantManagerService;
-import org.bf2.srs.fleetmanager.spi.model.CreateTenantRequest;
-import org.bf2.srs.fleetmanager.spi.model.Tenant;
-import org.bf2.srs.fleetmanager.spi.model.TenantLimit;
-import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
-import org.bf2.srs.fleetmanager.spi.model.TenantStatus;
-import org.bf2.srs.fleetmanager.spi.model.UpdateTenantRequest;
+import org.bf2.srs.fleetmanager.spi.tenants.TenantManagerService;
+import org.bf2.srs.fleetmanager.spi.tenants.model.CreateTenantRequest;
+import org.bf2.srs.fleetmanager.spi.tenants.model.Tenant;
+import org.bf2.srs.fleetmanager.spi.tenants.model.TenantLimit;
+import org.bf2.srs.fleetmanager.spi.tenants.model.TenantManagerConfig;
+import org.bf2.srs.fleetmanager.spi.tenants.model.TenantStatus;
+import org.bf2.srs.fleetmanager.spi.tenants.model.UpdateTenantRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

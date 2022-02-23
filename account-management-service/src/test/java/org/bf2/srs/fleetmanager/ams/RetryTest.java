@@ -1,7 +1,7 @@
 package org.bf2.srs.fleetmanager.ams;
 
 import io.quarkus.test.junit.QuarkusTest;
-import org.bf2.srs.fleetmanager.spi.AccountManagementServiceClientException;
+import org.bf2.srs.fleetmanager.spi.ams.AccountManagementServiceClientException;
 import org.eclipse.microprofile.faulttolerance.exceptions.TimeoutException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
