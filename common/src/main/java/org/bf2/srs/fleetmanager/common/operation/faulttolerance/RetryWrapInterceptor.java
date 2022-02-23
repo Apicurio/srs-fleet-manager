@@ -8,17 +8,22 @@ import javax.interceptor.InvocationContext;
 /**
  * @author Jakub Senko <m@jsenko.net>
  */
-@RetryUnwrap
+@RetryWrap
 @Interceptor
-@Priority(Interceptor.Priority.APPLICATION)
-public class RetryUnwrapInterceptor {
+@Priority(4020) // Must be higher than io.smallrye.faulttolerance.FaultToleranceInterceptor
+public class RetryWrapInterceptor {
 
     @AroundInvoke
     public Object intercept(InvocationContext context) throws Exception {
         try {
             return context.proceed();
-        } catch (RetryWrapperException ex) {
-            throw ex.getWrapped();
+        } catch (Exception ex) {
+            if (ex instanceof CanRetry) {
+                CanRetry sr = (CanRetry) ex;
+                if (sr.retry())
+                    throw new RetryWrapperException(ex);
+            }
+            throw ex;
         }
     }
 }

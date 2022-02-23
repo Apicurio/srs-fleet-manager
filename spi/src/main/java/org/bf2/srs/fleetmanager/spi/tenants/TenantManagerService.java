@@ -11,21 +11,21 @@ import java.util.Optional;
 
 public interface TenantManagerService {
 
-    Tenant createTenant(TenantManagerConfig tm, CreateTenantRequest tenantRequest);
+    Tenant createTenant(TenantManagerConfig tm, CreateTenantRequest tenantRequest) throws TenantManagerServiceException;
 
-    Optional<Tenant> getTenantById(TenantManagerConfig tm, String tenantId);
+    Optional<Tenant> getTenantById(TenantManagerConfig tm, String tenantId) throws TenantManagerServiceException;
 
     /**
      * This operation is costly. Do not use unless required.
      */
-    List<Tenant> getAllTenants(TenantManagerConfig tm);
+    List<Tenant> getAllTenants(TenantManagerConfig tm) throws TenantManagerServiceException;
 
-    void updateTenant(TenantManagerConfig tm, UpdateTenantRequest req);
+    void updateTenant(TenantManagerConfig tm, UpdateTenantRequest req) throws TenantNotFoundServiceException, TenantManagerServiceException;
 
     /**
      * This operation sets tenant status to TO_BE_DELETED.
      */
-    void deleteTenant(TenantManagerConfig tm, String tenantId);
+    void deleteTenant(TenantManagerConfig tm, String tenantId) throws TenantNotFoundServiceException, TenantManagerServiceException;
 
     /////
 

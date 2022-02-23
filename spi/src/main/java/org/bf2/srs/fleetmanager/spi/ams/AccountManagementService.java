@@ -8,7 +8,7 @@ public interface AccountManagementService {
     /**
      * Figure out which type of resource is allowed for the given account info.
      */
-    ResourceType determineAllowedResourceType(AccountInfo accountInfo);
+    ResourceType determineAllowedResourceType(AccountInfo accountInfo) throws AccountManagementServiceException;
 
     /**
      * Creates a resource for the given user and return a subscriptionId that can later
@@ -18,12 +18,12 @@ public interface AccountManagementService {
      * @param resourceType the requested resource type
      * @return the id of the subscription
      */
-    String createResource(AccountInfo accountInfo, ResourceType resourceType) throws TermsRequiredException, ResourceLimitReachedException;
+    String createResource(AccountInfo accountInfo, ResourceType resourceType) throws TermsRequiredException, ResourceLimitReachedException, AccountManagementServiceException;
 
     /**
      * Delete a subscription by id
      *
      * @param subscriptionId the identifier of the subscription to be deleted
      */
-    void deleteSubscription(String subscriptionId);
+    void deleteSubscription(String subscriptionId) throws AccountManagementServiceException, SubscriptionNotFoundServiceException;
 }

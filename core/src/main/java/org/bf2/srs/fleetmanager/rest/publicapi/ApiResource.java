@@ -18,6 +18,7 @@ import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreate;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryList;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.ServiceStatus;
 import org.bf2.srs.fleetmanager.rest.service.ErrorNotFoundException;
+import org.bf2.srs.fleetmanager.spi.ams.AccountManagementServiceException;
 import org.bf2.srs.fleetmanager.spi.common.TooManyEvalInstancesForUserException;
 import org.bf2.srs.fleetmanager.spi.common.EvalInstancesNotAllowedException;
 import org.bf2.srs.fleetmanager.spi.ams.ResourceLimitReachedException;
@@ -49,7 +50,7 @@ public interface ApiResource {
     @Consumes("application/json")
     Registry createRegistry(RegistryCreate data)
             throws RegistryStorageConflictException, TermsRequiredException, ResourceLimitReachedException,
-            EvalInstancesNotAllowedException, TooManyEvalInstancesForUserException, TooManyInstancesException;
+            EvalInstancesNotAllowedException, TooManyEvalInstancesForUserException, TooManyInstancesException, AccountManagementServiceException;
 
     /**
      * Gets the details of a single instance of a `Registry`.
