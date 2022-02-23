@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreate;
-import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
+import org.bf2.srs.fleetmanager.spi.common.model.AccountInfo;
 import org.junit.jupiter.api.Test;
 
 /**

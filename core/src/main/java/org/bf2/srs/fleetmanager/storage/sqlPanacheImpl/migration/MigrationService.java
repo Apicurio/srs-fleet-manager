@@ -1,7 +1,7 @@
 package org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.migration;
 
-import org.bf2.srs.fleetmanager.spi.TenantManagerService;
-import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
+import org.bf2.srs.fleetmanager.spi.tenants.TenantManagerService;
+import org.bf2.srs.fleetmanager.spi.tenants.model.TenantManagerConfig;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.output.CleanResult;

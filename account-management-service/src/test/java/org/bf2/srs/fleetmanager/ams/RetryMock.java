@@ -4,7 +4,7 @@ import lombok.Getter;
 import org.bf2.srs.fleetmanager.common.operation.faulttolerance.FaultToleranceConstants;
 import org.bf2.srs.fleetmanager.common.operation.faulttolerance.RetryUnwrap;
 import org.bf2.srs.fleetmanager.common.operation.faulttolerance.RetryWrapperException;
-import org.bf2.srs.fleetmanager.spi.impl.exception.AccountManagementSystemClientException;
+import org.bf2.srs.fleetmanager.spi.ams.impl.exception.AccountManagementSystemClientException;
 import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.faulttolerance.Timeout;
 

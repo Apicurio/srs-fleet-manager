@@ -4,7 +4,7 @@ import io.quarkus.security.identity.SecurityIdentity;
 
 import javax.enterprise.inject.Instance;
 
-import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
+import org.bf2.srs.fleetmanager.spi.common.model.AccountInfo;
 
 public class SecurityUtil {
 

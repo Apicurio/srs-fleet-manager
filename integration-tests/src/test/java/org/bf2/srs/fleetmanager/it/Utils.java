@@ -15,7 +15,7 @@ import lombok.ToString;
 import org.awaitility.Awaitility;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.Registry;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValue;
-import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
+import org.bf2.srs.fleetmanager.spi.common.model.AccountInfo;
 
 import java.util.Collections;
 import java.util.List;

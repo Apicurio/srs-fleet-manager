@@ -33,7 +33,7 @@ import org.bf2.srs.fleetmanager.rest.publicapi.beans.Registry;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreate;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryList;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValue;
-import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
+import org.bf2.srs.fleetmanager.spi.common.model.AccountInfo;
 
 import io.restassured.http.ContentType;
 import io.smallrye.jwt.build.Jwt;

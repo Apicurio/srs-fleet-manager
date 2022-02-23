@@ -3,10 +3,10 @@ package org.bf2.srs.fleetmanager.util;
 import org.awaitility.Awaitility;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.Registry;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValue;
-import org.bf2.srs.fleetmanager.spi.TenantManagerService;
-import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
-import org.bf2.srs.fleetmanager.spi.model.TenantStatus;
-import org.bf2.srs.fleetmanager.spi.model.UpdateTenantRequest;
+import org.bf2.srs.fleetmanager.spi.tenants.TenantManagerService;
+import org.bf2.srs.fleetmanager.spi.tenants.model.TenantManagerConfig;
+import org.bf2.srs.fleetmanager.spi.tenants.model.TenantStatus;
+import org.bf2.srs.fleetmanager.spi.tenants.model.UpdateTenantRequest;
 
 import java.util.List;
 import java.util.stream.Collectors;

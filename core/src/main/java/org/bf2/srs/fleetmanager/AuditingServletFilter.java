@@ -19,7 +19,7 @@ import org.bf2.srs.fleetmanager.auth.AuthService;
 import org.bf2.srs.fleetmanager.operation.OperationContext;
 import org.bf2.srs.fleetmanager.operation.auditing.AuditingEvent;
 import org.bf2.srs.fleetmanager.operation.auditing.AuditingService;
-import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
+import org.bf2.srs.fleetmanager.spi.common.model.AccountInfo;
 
 import java.io.IOException;
 import javax.enterprise.context.ApplicationScoped;

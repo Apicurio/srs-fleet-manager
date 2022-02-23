@@ -18,11 +18,11 @@ import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreate;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryList;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.ServiceStatus;
 import org.bf2.srs.fleetmanager.rest.service.ErrorNotFoundException;
-import org.bf2.srs.fleetmanager.spi.TooManyEvalInstancesForUserException;
-import org.bf2.srs.fleetmanager.spi.EvalInstancesNotAllowedException;
-import org.bf2.srs.fleetmanager.spi.ResourceLimitReachedException;
-import org.bf2.srs.fleetmanager.spi.TermsRequiredException;
-import org.bf2.srs.fleetmanager.spi.TooManyInstancesException;
+import org.bf2.srs.fleetmanager.spi.common.TooManyEvalInstancesForUserException;
+import org.bf2.srs.fleetmanager.spi.common.EvalInstancesNotAllowedException;
+import org.bf2.srs.fleetmanager.spi.ams.ResourceLimitReachedException;
+import org.bf2.srs.fleetmanager.spi.ams.TermsRequiredException;
+import org.bf2.srs.fleetmanager.spi.common.TooManyInstancesException;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
 

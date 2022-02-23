@@ -2,7 +2,7 @@ package org.bf2.srs.fleetmanager.auth.interceptor;
 
 import io.quarkus.security.identity.SecurityIdentity;
 import org.bf2.srs.fleetmanager.auth.AuthService;
-import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
+import org.bf2.srs.fleetmanager.spi.common.model.AccountInfo;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
