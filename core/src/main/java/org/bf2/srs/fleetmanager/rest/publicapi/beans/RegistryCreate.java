@@ -9,9 +9,9 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * Root Type for RegistryCreate
+ * Root type for RegistryCreate
  * <p>
- * Information used to create a new Service Registry instance within a multi-tenant deployment.
+ * Information used to create a new Service Registry instance in a multi-tenant deployment.
  * 
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -23,22 +23,22 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 public class RegistryCreate {
 
     /**
-     * User-defined Registry name. Required. Does not have to be unique.
+     * User-defined `Registry` instance name. Required. Does not have to be unique.
      * 
      */
     @JsonProperty("name")
-    @JsonPropertyDescription("User-defined Registry name. Required. Does not have to be unique.")
+    @JsonPropertyDescription("User-defined `Registry` instance name. Required. Does not have to be unique.")
     private String name;
     /**
-     * User-provided description of the new Registry instance. Not required.
+     * User-provided description of the new `Registry` instance. Not required.
      * 
      */
     @JsonProperty("description")
-    @JsonPropertyDescription("User-provided description of the new Registry instance. Not required.")
+    @JsonPropertyDescription("User-provided description of the new `Registry` instance. Not required.")
     private String description;
 
     /**
-     * User-defined Registry name. Required. Does not have to be unique.
+     * User-defined `Registry` instance name. Required. Does not have to be unique.
      * 
      */
     @JsonProperty("name")
@@ -47,7 +47,7 @@ public class RegistryCreate {
     }
 
     /**
-     * User-defined Registry name. Required. Does not have to be unique.
+     * User-defined `Registry` instance name. Required. Does not have to be unique.
      * 
      */
     @JsonProperty("name")
@@ -56,7 +56,7 @@ public class RegistryCreate {
     }
 
     /**
-     * User-provided description of the new Registry instance. Not required.
+     * User-provided description of the new `Registry` instance. Not required.
      * 
      */
     @JsonProperty("description")
@@ -65,7 +65,7 @@ public class RegistryCreate {
     }
 
     /**
-     * User-provided description of the new Registry instance. Not required.
+     * User-provided description of the new `Registry` instance. Not required.
      * 
      */
     @JsonProperty("description")
