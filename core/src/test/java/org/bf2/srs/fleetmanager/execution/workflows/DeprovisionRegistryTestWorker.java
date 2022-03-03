@@ -47,6 +47,7 @@ public class DeprovisionRegistryTestWorker extends AbstractWorker {
     @Transactional
     @Override
     public void execute(Task aTask, WorkerContext ctl) throws RegistryStorageConflictException, RegistryNotFoundException {
+        log.debug("Executing org.bf2.srs.fleetmanager.execution.workflows.DeprovisionRegistryTestWorker.");
         var task = (DeprovisionRegistryTask) aTask;
         var registryOptional = storage.getRegistryById(task.getRegistryId());
 
@@ -60,7 +61,8 @@ public class DeprovisionRegistryTestWorker extends AbstractWorker {
 
     @Transactional
     @Override
-    public void finallyExecute(Task aTask, WorkerContext ctl, Optional<Exception> error) throws RegistryNotFoundException, RegistryStorageConflictException {
+    public void finallyExecute(Task aTask, WorkerContext ctl, Optional<Exception> error) {
+        log.debug("Setting org.bf2.srs.fleetmanager.execution.workflows.DeprovisionRegistryTestWorker.hasBeenExecuted to true.");
         hasBeenExecuted.set(true);
     }
 }
