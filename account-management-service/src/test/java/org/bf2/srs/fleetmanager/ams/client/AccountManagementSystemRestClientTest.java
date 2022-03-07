@@ -2,14 +2,14 @@ package org.bf2.srs.fleetmanager.ams.client;
 
 import java.util.Collections;
 
-import org.bf2.srs.fleetmanager.spi.impl.AccountManagementSystemRestClient;
-import org.bf2.srs.fleetmanager.spi.impl.model.request.ClusterAuthorization;
-import org.bf2.srs.fleetmanager.spi.impl.model.request.ReservedResource;
-import org.bf2.srs.fleetmanager.spi.impl.model.request.TermsReview;
-import org.bf2.srs.fleetmanager.spi.impl.model.response.ClusterAuthorizationResponse;
-import org.bf2.srs.fleetmanager.spi.impl.model.response.Organization;
-import org.bf2.srs.fleetmanager.spi.impl.model.response.QuotaCostList;
-import org.bf2.srs.fleetmanager.spi.impl.model.response.ResponseTermsReview;
+import org.bf2.srs.fleetmanager.spi.ams.impl.AccountManagementSystemRestClient;
+import org.bf2.srs.fleetmanager.spi.ams.impl.model.request.ClusterAuthorization;
+import org.bf2.srs.fleetmanager.spi.ams.impl.model.request.ReservedResource;
+import org.bf2.srs.fleetmanager.spi.ams.impl.model.request.TermsReview;
+import org.bf2.srs.fleetmanager.spi.ams.impl.model.response.ClusterAuthorizationResponse;
+import org.bf2.srs.fleetmanager.spi.ams.impl.model.response.Organization;
+import org.bf2.srs.fleetmanager.spi.ams.impl.model.response.QuotaCostList;
+import org.bf2.srs.fleetmanager.spi.ams.impl.model.response.ResponseTermsReview;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;

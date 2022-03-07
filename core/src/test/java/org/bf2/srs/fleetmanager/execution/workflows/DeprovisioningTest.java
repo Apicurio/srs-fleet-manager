@@ -17,6 +17,8 @@ import org.bf2.srs.fleetmanager.util.TestUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.UUID;
@@ -31,6 +33,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 @QuarkusTest
 public class DeprovisioningTest {
+
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     @Inject
     TaskManager tasks;
@@ -59,6 +63,7 @@ public class DeprovisioningTest {
     @Tag(TestTags.SLOW)
     void testForcedDeprovisioning() throws RegistryStorageConflictException {
         jobWrapper.getWorkerExclusions().add(DeprovisionRegistryWorker.class);
+        log.debug("Test start: org.bf2.srs.fleetmanager.execution.workflows.DeprovisionRegistryTestWorker.hasBeenExecuted = " + testWorker.getHasBeenExecuted());
 
         // Create Registry
         var registry = RegistryData.builder()
@@ -83,6 +88,7 @@ public class DeprovisioningTest {
         // Wait until the task finishes, should fail fast
         await().atMost(Duration.ofSeconds(10))
                 .until(() -> tasks.getAllTasks().isEmpty());
+        log.debug("After first execution: org.bf2.srs.fleetmanager.execution.workflows.DeprovisionRegistryTestWorker.hasBeenExecuted = " + testWorker.getHasBeenExecuted());
 
         // The registry did not get deleted
         assertTrue(storage.getRegistryById(registry.getId()).isPresent());

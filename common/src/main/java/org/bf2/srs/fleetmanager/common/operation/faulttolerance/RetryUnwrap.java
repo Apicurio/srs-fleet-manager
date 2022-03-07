@@ -26,7 +26,7 @@ import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * @author Jakub Senko <jsenko@redhat.com>
+ * @author Jakub Senko <m@jsenko.net>
  */
 @Inherited
 @InterceptorBinding

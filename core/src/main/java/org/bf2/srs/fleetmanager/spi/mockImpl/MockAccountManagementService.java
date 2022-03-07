@@ -5,11 +5,11 @@ import io.quarkus.arc.DefaultBean;
 
 import org.bf2.srs.fleetmanager.common.operation.auditing.Audited;
 import org.bf2.srs.fleetmanager.common.metrics.Constants;
-import org.bf2.srs.fleetmanager.spi.AccountManagementService;
-import org.bf2.srs.fleetmanager.spi.ResourceLimitReachedException;
-import org.bf2.srs.fleetmanager.spi.TermsRequiredException;
-import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
-import org.bf2.srs.fleetmanager.spi.model.ResourceType;
+import org.bf2.srs.fleetmanager.spi.ams.AccountManagementService;
+import org.bf2.srs.fleetmanager.spi.ams.ResourceLimitReachedException;
+import org.bf2.srs.fleetmanager.spi.ams.TermsRequiredException;
+import org.bf2.srs.fleetmanager.spi.common.model.AccountInfo;
+import org.bf2.srs.fleetmanager.spi.common.model.ResourceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

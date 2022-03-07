@@ -23,7 +23,7 @@ import java.util.List;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
-import org.bf2.srs.fleetmanager.spi.model.TenantLimit;
+import org.bf2.srs.fleetmanager.spi.tenants.model.TenantLimit;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

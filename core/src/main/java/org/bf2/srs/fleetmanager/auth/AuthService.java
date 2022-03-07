@@ -1,7 +1,7 @@
 package org.bf2.srs.fleetmanager.auth;
 
 import io.quarkus.security.identity.SecurityIdentity;
-import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
+import org.bf2.srs.fleetmanager.spi.common.model.AccountInfo;
 import org.bf2.srs.fleetmanager.util.SecurityUtil;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.jwt.JsonWebToken;
