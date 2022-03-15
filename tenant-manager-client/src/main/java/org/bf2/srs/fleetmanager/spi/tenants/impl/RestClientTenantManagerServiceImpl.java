@@ -117,7 +117,7 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
 
     @Timed(value = Constants.TENANT_MANAGER_CREATE_TENANT_TIMER, description = Constants.TENANT_MANAGER_DESCRIPTION)
     @Audited
-    @Timeout(FaultToleranceConstants.TIMEOUT_MS)
+    // @Timeout(FaultToleranceConstants.TIMEOUT_MS)
     @Retry(retryOn = {TenantManagerServiceException.class}) // 3 retries, 200ms jitter
     @Override
     public Tenant createTenant(TenantManagerConfig tm, CreateTenantRequest tenantRequest) throws TenantManagerServiceException {
@@ -178,7 +178,7 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
     }
 
     @Audited
-    @Timeout(FaultToleranceConstants.TIMEOUT_MS)
+    //@Timeout(FaultToleranceConstants.TIMEOUT_MS)
     @Retry(retryOn = {TenantManagerServiceException.class}) // 3 retries, 200ms jitter
     @Override
     public void updateTenant(TenantManagerConfig tm, UpdateTenantRequest req) throws TenantNotFoundServiceException, TenantManagerServiceException {
