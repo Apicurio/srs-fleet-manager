@@ -137,10 +137,9 @@ public class AccountManagementServiceImpl implements AccountManagementService {
 
     @Timed(value = Constants.AMS_CREATE_TIMER, description = Constants.AMS_TIMER_DESCRIPTION)
     @Audited(extractResult = KEY_AMS_SUBSCRIPTION_ID)
-    @Timeout(FaultToleranceConstants.TIMEOUT_MS)
-    @RetryUnwrap
-    @Retry(retryOn = {RetryWrapperException.class}) // 3 retries, 200ms jitter
-    @RetryWrap
+    // Do not use fault tolerance annotations here.
+    // They may cause orphan subscriptions being created in cases when the AMS REST call times out in the client,
+    // but AMS still performs the reservation.
     @Override
     public String createResource(AccountInfo accountInfo, ResourceType resourceType) throws TermsRequiredException, ResourceLimitReachedException, AccountManagementServiceException {
         try {
