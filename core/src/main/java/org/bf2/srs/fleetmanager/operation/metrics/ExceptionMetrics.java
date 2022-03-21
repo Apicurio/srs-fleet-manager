@@ -2,7 +2,9 @@ package org.bf2.srs.fleetmanager.operation.metrics;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tag;
-import org.bf2.srs.fleetmanager.spi.AccountManagementServiceClientException;
+
+import org.bf2.srs.fleetmanager.common.metrics.Constants;
+import org.bf2.srs.fleetmanager.spi.ams.AccountManagementServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,8 +26,8 @@ public class ExceptionMetrics {
 
     public void record(Throwable t) {
         // Expose AMS errors as a metric
-        if (t instanceof AccountManagementServiceClientException) {
-            AccountManagementServiceClientException ex = (AccountManagementServiceClientException) t;
+        if (t instanceof AccountManagementServiceException) {
+            AccountManagementServiceException ex = (AccountManagementServiceException) t;
             log.debug("Recording metric for an AMS error.", ex);
             List<Tag> tags = new ArrayList<>(2);
             if (ex.getCauseEntity().isPresent()) {

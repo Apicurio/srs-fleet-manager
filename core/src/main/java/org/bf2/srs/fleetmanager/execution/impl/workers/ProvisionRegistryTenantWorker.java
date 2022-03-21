@@ -1,16 +1,5 @@
 package org.bf2.srs.fleetmanager.execution.impl.workers;
 
-import static org.bf2.srs.fleetmanager.execution.impl.tasks.TaskType.PROVISION_REGISTRY_TENANT_T;
-import static org.bf2.srs.fleetmanager.execution.impl.workers.WorkerType.PROVISION_REGISTRY_TENANT_W;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Optional;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-
 import org.bf2.srs.fleetmanager.execution.impl.tasks.ProvisionRegistryTenantTask;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.deprovision.EvalInstanceExpirationRegistryTask;
 import org.bf2.srs.fleetmanager.execution.manager.Task;
@@ -20,9 +9,14 @@ import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryInstanceTypeValueDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
 import org.bf2.srs.fleetmanager.service.QuotaPlansService;
-import org.bf2.srs.fleetmanager.spi.TenantManagerService;
-import org.bf2.srs.fleetmanager.spi.model.CreateTenantRequest;
-import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
+import org.bf2.srs.fleetmanager.spi.ams.AccountManagementService;
+import org.bf2.srs.fleetmanager.spi.ams.AccountManagementServiceException;
+import org.bf2.srs.fleetmanager.spi.ams.SubscriptionNotFoundServiceException;
+import org.bf2.srs.fleetmanager.spi.tenants.TenantManagerService;
+import org.bf2.srs.fleetmanager.spi.tenants.TenantManagerServiceException;
+import org.bf2.srs.fleetmanager.spi.tenants.TenantNotFoundServiceException;
+import org.bf2.srs.fleetmanager.spi.tenants.model.CreateTenantRequest;
+import org.bf2.srs.fleetmanager.spi.tenants.model.TenantManagerConfig;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
@@ -31,6 +25,16 @@ import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentD
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Optional;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+
+import static org.bf2.srs.fleetmanager.execution.impl.tasks.TaskType.PROVISION_REGISTRY_TENANT_T;
+import static org.bf2.srs.fleetmanager.execution.impl.workers.WorkerType.PROVISION_REGISTRY_TENANT_W;
 
 /**
  * This class MUST be thread safe. It should not contain state and inject thread safe beans only.
@@ -57,6 +61,9 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
     @Inject
     TaskManager tasks;
 
+    @Inject
+    AccountManagementService accountManagementService;
+
     public ProvisionRegistryTenantWorker() {
         super(PROVISION_REGISTRY_TENANT_W);
     }
@@ -68,7 +75,7 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
 
     @Transactional
     @Override
-    public void execute(Task aTask, WorkerContext ctl) throws RegistryStorageConflictException {
+    public void execute(Task aTask, WorkerContext ctl) throws RegistryStorageConflictException, TenantManagerServiceException {
         // TODO Split along failure points?
         ProvisionRegistryTenantTask task = (ProvisionRegistryTenantTask) aTask;
 
@@ -140,7 +147,7 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
 
     @Transactional
     @Override
-    public void finallyExecute(Task aTask, WorkerContext ctl, Optional<Exception> error) throws RegistryNotFoundException, RegistryStorageConflictException {
+    public void finallyExecute(Task aTask, WorkerContext ctl, Optional<Exception> error) throws RegistryNotFoundException, RegistryStorageConflictException, SubscriptionNotFoundServiceException, AccountManagementServiceException, TenantManagerServiceException {
 
         ProvisionRegistryTenantTask task = (ProvisionRegistryTenantTask) aTask;
 
@@ -154,12 +161,19 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
         if (registry != null && registry.getRegistryUrl() != null)
             return;
 
+        //Cleanup orphan susbcription, if it's null, it's not needed since it will likely be an eval instance
+        if (registry != null && registryDeployment != null && registry.getSubscriptionId() != null) {
+            accountManagementService.deleteSubscription(registry.getSubscriptionId());
+        }
         // Handle failures in "reverse" order
-        // TODO In case of failure, return resource to AMS!
 
         // Cleanup orphan tenant
         if (registry != null && registryDeployment != null && task.getRegistryTenantId() != null) {
-            tmClient.deleteTenant(Utils.createTenantManagerConfig(registryDeployment), registry.getId());
+            try {
+                tmClient.deleteTenant(Utils.createTenantManagerConfig(registryDeployment), registry.getId());
+            } catch (TenantNotFoundServiceException e) {
+                log.warn("Could not delete tenant '{}'. Tenant does not exist and may have been already deleted.", registry.getId());
+            }
         }
 
         // Remove registry entity

@@ -4,7 +4,7 @@ import org.bf2.srs.fleetmanager.execution.impl.tasks.RegistryHeartbeatTask;
 import org.bf2.srs.fleetmanager.execution.manager.Task;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
-import org.bf2.srs.fleetmanager.spi.TenantManagerService;
+import org.bf2.srs.fleetmanager.spi.tenants.TenantManagerService;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
 import org.slf4j.Logger;

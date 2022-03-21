@@ -9,7 +9,7 @@ import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentCreateRe
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.Registry;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreate;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValue;
-import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
+import org.bf2.srs.fleetmanager.spi.common.model.AccountInfo;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

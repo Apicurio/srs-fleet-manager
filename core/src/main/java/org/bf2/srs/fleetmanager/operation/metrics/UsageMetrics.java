@@ -1,8 +1,13 @@
 package org.bf2.srs.fleetmanager.operation.metrics;
 
+import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
+import io.quarkus.arc.Arc;
+
 import org.bf2.srs.fleetmanager.rest.service.RegistryService;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryInstanceTypeValueDto;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
 import org.bf2.srs.fleetmanager.rest.service.model.UsageStatisticsDto;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
@@ -14,14 +19,12 @@ import java.util.Random;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import static org.bf2.srs.fleetmanager.operation.metrics.Constants.*;
+import static org.bf2.srs.fleetmanager.common.metrics.Constants.*;
 
 @ApplicationScoped
 public class UsageMetrics {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
-
-    private static final Object DUMMY = new Object(); // Prevents NaN values on gauges, caused by garbage collection
 
     @Inject
     MeterRegistry metrics;
@@ -50,20 +53,60 @@ public class UsageMetrics {
         }
         nextExpiration = Instant.now().plus(Duration.ofSeconds(stagger));
 
-        for (var entry : getUsageStatisticsCached().getRegistryCountPerStatus().entrySet()) {
-            metrics.gauge(USAGE_STATISTICS_REGISTRIES_STATUS, Tags.of(TAG_USAGE_STATISTICS_STATUS, entry.getKey().value()), DUMMY,
-                    x -> getUsageStatisticsCached().getRegistryCountPerStatus().get(entry.getKey()));
+        for (RegistryStatusValueDto status : RegistryStatusValueDto.values()) {
+            Gauge.builder(USAGE_STATISTICS_REGISTRIES_STATUS, () -> {
+                Arc.initialize();
+                var ctx = Arc.container().requestContext();
+                ctx.activate();
+                try {
+                    return getUsageStatisticsCached().getRegistryCountPerStatus().get(status);
+                } finally {
+                    ctx.deactivate();
+                }
+            })
+            .tags(Tags.of(TAG_USAGE_STATISTICS_STATUS, status.value()))
+            .register(metrics);
         }
 
-        for (var entry : getUsageStatisticsCached().getRegistryCountPerType().entrySet()) {
-            metrics.gauge(USAGE_STATISTICS_REGISTRIES_TYPE, Tags.of(TAG_USAGE_STATISTICS_TYPE, entry.getKey().value()), DUMMY,
-                    x -> getUsageStatisticsCached().getRegistryCountPerType().get(entry.getKey()));
+        for (RegistryInstanceTypeValueDto type : RegistryInstanceTypeValueDto.values()) {
+            Gauge.builder(USAGE_STATISTICS_REGISTRIES_TYPE, () -> {
+                Arc.initialize();
+                var ctx = Arc.container().requestContext();
+                ctx.activate();
+                try {
+                    return getUsageStatisticsCached().getRegistryCountPerType().get(type);
+                } finally {
+                    ctx.deactivate();
+                }
+            })
+            .tags(Tags.of(TAG_USAGE_STATISTICS_TYPE, type.value()))
+            .register(metrics);
         }
 
-        metrics.gauge(USAGE_STATISTICS_ACTIVE_USERS, DUMMY,
-                x -> getUsageStatisticsCached().getActiveUserCount());
-        metrics.gauge(USAGE_STATISTICS_ACTIVE_ORGANISATIONS, DUMMY,
-                x -> getUsageStatisticsCached().getActiveOrganisationCount());
+
+        Gauge.builder(USAGE_STATISTICS_ACTIVE_USERS, () -> {
+            Arc.initialize();
+            var ctx = Arc.container().requestContext();
+            ctx.activate();
+            try {
+                return getUsageStatisticsCached().getActiveUserCount();
+            } finally {
+                ctx.deactivate();
+            }
+        })
+        .register(metrics);
+
+        Gauge.builder(USAGE_STATISTICS_ACTIVE_ORGANISATIONS, () -> {
+            Arc.initialize();
+            var ctx = Arc.container().requestContext();
+            ctx.activate();
+            try {
+                return getUsageStatisticsCached().getActiveOrganisationCount();
+            } finally {
+                ctx.deactivate();
+            }
+        })
+        .register(metrics);
     }
 
     public synchronized UsageStatisticsDto getUsageStatisticsCached() {

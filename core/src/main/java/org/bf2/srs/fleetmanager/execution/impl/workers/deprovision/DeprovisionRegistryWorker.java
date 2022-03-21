@@ -9,9 +9,13 @@ import org.bf2.srs.fleetmanager.execution.manager.Task;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryInstanceTypeValueDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
-import org.bf2.srs.fleetmanager.spi.AccountManagementService;
-import org.bf2.srs.fleetmanager.spi.TenantManagerService;
-import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
+import org.bf2.srs.fleetmanager.spi.ams.AccountManagementService;
+import org.bf2.srs.fleetmanager.spi.ams.AccountManagementServiceException;
+import org.bf2.srs.fleetmanager.spi.ams.SubscriptionNotFoundServiceException;
+import org.bf2.srs.fleetmanager.spi.tenants.TenantManagerService;
+import org.bf2.srs.fleetmanager.spi.tenants.TenantManagerServiceException;
+import org.bf2.srs.fleetmanager.spi.tenants.TenantNotFoundServiceException;
+import org.bf2.srs.fleetmanager.spi.tenants.model.TenantManagerConfig;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
@@ -53,7 +57,7 @@ public class DeprovisionRegistryWorker extends AbstractWorker {
 
     @Transactional
     @Override
-    public void execute(Task aTask, WorkerContext ctl) throws RegistryStorageConflictException, RegistryNotFoundException {
+    public void execute(Task aTask, WorkerContext ctl) throws RegistryStorageConflictException, RegistryNotFoundException, AccountManagementServiceException, TenantManagerServiceException {
         var task = (DeprovisionRegistryTask) aTask;
         var registryOptional = storage.getRegistryById(task.getRegistryId());
 
@@ -66,9 +70,13 @@ public class DeprovisionRegistryWorker extends AbstractWorker {
             if (task.getRegistryTenantId() == null) {
                 final var tenantId = registry.getId();
                 TenantManagerConfig tenantManagerConfig = Utils.createTenantManagerConfig(registryDeployment);
-                tms.deleteTenant(tenantManagerConfig, tenantId);
+                try {
+                    tms.deleteTenant(tenantManagerConfig, tenantId);
+                    log.debug("Tenant id='{}' delete request send.", tenantId);
+                } catch (TenantNotFoundServiceException ex) {
+                    log.info("Tenant id='{}' does not exist (already deleted?).", tenantId);
+                }
                 task.setRegistryTenantId(tenantId);
-                log.debug("Tenant id='{}' delete request send.", tenantId);
             }
 
             /* Considerations for eval instances:
@@ -86,8 +94,12 @@ public class DeprovisionRegistryWorker extends AbstractWorker {
             if (!task.isAmsSuccess()) {
                 final String subscriptionId = registry.getSubscriptionId();
                 // TODO Workaround: Remove this once we have RHOSRTrial working.
-                if(subscriptionId != null && RegistryInstanceTypeValueDto.of(registry.getInstanceType()) != RegistryInstanceTypeValueDto.EVAL) {
-                    ams.deleteSubscription(subscriptionId);
+                if (subscriptionId != null && RegistryInstanceTypeValueDto.of(registry.getInstanceType()) != RegistryInstanceTypeValueDto.EVAL) {
+                    try {
+                        ams.deleteSubscription(subscriptionId);
+                    } catch (SubscriptionNotFoundServiceException ex) {
+                        log.info("Subscription ID '{}' for tenant ID '{}' does not exist (already deleted?).", subscriptionId, task.getRegistryTenantId());
+                    }
                 } else {
                     log.warn("Deleting an eval instance {} without calling AMS. This is a temporary workaround.", registry.getId());
                 }

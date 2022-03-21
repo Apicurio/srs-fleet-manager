@@ -7,6 +7,7 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
@@ -44,6 +45,10 @@ public class CommonExceptionMapper implements ExceptionMapper<Throwable> {
             }
             return r;
         } else {
+            if (exception instanceof WebApplicationException) {
+                WebApplicationException wae = (WebApplicationException) exception;
+                return wae.getResponse();
+            }
             log.error("No custom exception mapper available for path " + uriInfo.getPath(), exception);
             return Response.serverError().build();
         }

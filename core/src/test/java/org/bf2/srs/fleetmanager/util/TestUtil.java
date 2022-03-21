@@ -3,12 +3,16 @@ package org.bf2.srs.fleetmanager.util;
 import org.awaitility.Awaitility;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.Registry;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValue;
-import org.bf2.srs.fleetmanager.spi.TenantManagerService;
-import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
-import org.bf2.srs.fleetmanager.spi.model.TenantStatus;
-import org.bf2.srs.fleetmanager.spi.model.UpdateTenantRequest;
+import org.bf2.srs.fleetmanager.spi.tenants.TenantManagerService;
+import org.bf2.srs.fleetmanager.spi.tenants.TenantManagerServiceException;
+import org.bf2.srs.fleetmanager.spi.tenants.model.Tenant;
+import org.bf2.srs.fleetmanager.spi.tenants.model.TenantManagerConfig;
+import org.bf2.srs.fleetmanager.spi.tenants.model.TenantStatus;
+import org.bf2.srs.fleetmanager.spi.tenants.model.UpdateTenantRequest;
+import org.junit.jupiter.api.Assertions;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.restassured.RestAssured.given;
@@ -44,7 +48,12 @@ public class TestUtil {
                 .pollInterval(1, SECONDS)
                 .pollInSameThread() // To preserve the Operation Context for TenantManagerService execution.
                 .until(() -> registries.stream().allMatch(r -> {
-                    var tenant = tms.getTenantById(tmc, r.getId());
+                    Optional<Tenant> tenant = null;
+                    try {
+                        tenant = tms.getTenantById(tmc, r.getId());
+                    } catch (TenantManagerServiceException ex) {
+                        Assertions.fail(ex);
+                    }
                     return TenantStatus.TO_BE_DELETED.equals(tenant.get().getStatus());
                 }));
 
@@ -53,7 +62,11 @@ public class TestUtil {
                     .id(r.getId())
                     .status(TenantStatus.DELETED)
                     .build();
-            tms.updateTenant(tmc, req);
+            try {
+                tms.updateTenant(tmc, req);
+            } catch (Exception ex) {
+                Assertions.fail(ex);
+            }
         });
 
         Awaitility.await("Registry deleted").atMost(5, SECONDS).pollInterval(1, SECONDS)

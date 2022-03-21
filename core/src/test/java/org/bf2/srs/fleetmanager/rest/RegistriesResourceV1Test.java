@@ -3,6 +3,8 @@ package org.bf2.srs.fleetmanager.rest;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
+import org.bf2.srs.fleetmanager.execution.manager.impl.JobWrapper;
+import org.bf2.srs.fleetmanager.execution.workflows.DeprovisionRegistryTestWorker;
 import org.bf2.srs.fleetmanager.operation.OperationContext;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentCreateRest;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentRest;
@@ -10,13 +12,19 @@ import org.bf2.srs.fleetmanager.rest.publicapi.beans.Registry;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreate;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryList;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValue;
-import org.bf2.srs.fleetmanager.spi.TenantManagerService;
-import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
+import org.bf2.srs.fleetmanager.spi.tenants.TenantManagerService;
+import org.bf2.srs.fleetmanager.spi.tenants.model.TenantManagerConfig;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.PanacheRegistryDeploymentRepository;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.PanacheRegistryRepository;
 import org.bf2.srs.fleetmanager.util.TestUtil;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import javax.inject.Inject;
@@ -31,13 +39,11 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * @author Jakub Senko <jsenko@redhat.com>
  */
 @QuarkusTest
+@TestInstance(Lifecycle.PER_CLASS)
 public class RegistriesResourceV1Test {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
@@ -55,6 +61,15 @@ public class RegistriesResourceV1Test {
 
     @Inject
     OperationContext opCtx;
+
+    @Inject
+    JobWrapper jobWrapper;
+
+    @BeforeAll
+    void beforeAll() {
+        // Exclude test worker
+        jobWrapper.getWorkerExclusions().add(DeprovisionRegistryTestWorker.class);
+    }
 
     @BeforeEach
     @Transactional
@@ -338,5 +353,10 @@ public class RegistriesResourceV1Test {
                 .log().all()
                 .when().delete(BASE + "/1000")
                 .then().statusCode(HTTP_NOT_FOUND);
+    }
+
+    @AfterAll
+    void afterAll() {
+        jobWrapper.getWorkerExclusions().clear();
     }
 }

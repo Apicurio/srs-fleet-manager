@@ -1,14 +1,17 @@
 package org.bf2.srs.fleetmanager.spi.mockImpl;
 
+import io.micrometer.core.annotation.Timed;
 import io.quarkus.arc.DefaultBean;
+
+import org.bf2.srs.fleetmanager.common.metrics.Constants;
 import org.bf2.srs.fleetmanager.common.operation.auditing.Audited;
-import org.bf2.srs.fleetmanager.spi.TenantManagerService;
-import org.bf2.srs.fleetmanager.spi.model.CreateTenantRequest;
-import org.bf2.srs.fleetmanager.spi.model.Tenant;
-import org.bf2.srs.fleetmanager.spi.model.TenantLimit;
-import org.bf2.srs.fleetmanager.spi.model.TenantManagerConfig;
-import org.bf2.srs.fleetmanager.spi.model.TenantStatus;
-import org.bf2.srs.fleetmanager.spi.model.UpdateTenantRequest;
+import org.bf2.srs.fleetmanager.spi.tenants.TenantManagerService;
+import org.bf2.srs.fleetmanager.spi.tenants.model.CreateTenantRequest;
+import org.bf2.srs.fleetmanager.spi.tenants.model.Tenant;
+import org.bf2.srs.fleetmanager.spi.tenants.model.TenantLimit;
+import org.bf2.srs.fleetmanager.spi.tenants.model.TenantManagerConfig;
+import org.bf2.srs.fleetmanager.spi.tenants.model.TenantStatus;
+import org.bf2.srs.fleetmanager.spi.tenants.model.UpdateTenantRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +43,7 @@ public class MockTenantManagerService implements TenantManagerService {
         testData.computeIfAbsent(tm, s -> new ConcurrentHashMap<>());
     }
 
+    @Timed(value = Constants.TENANT_MANAGER_CREATE_TENANT_TIMER, description = Constants.TENANT_MANAGER_DESCRIPTION)
     @Audited
     @Override
     public Tenant createTenant(TenantManagerConfig tm, CreateTenantRequest req) {
@@ -54,14 +58,12 @@ public class MockTenantManagerService implements TenantManagerService {
         return tenant;
     }
 
-    @Audited(extractParameters = {"1", KEY_TENANT_ID})
     @Override
     public Optional<Tenant> getTenantById(TenantManagerConfig tm, String tenantId) {
         init(tm);
         return Optional.ofNullable(testData.get(tm).get(tenantId));
     }
 
-    @Audited
     @Override
     public List<Tenant> getAllTenants(TenantManagerConfig tm) {
         init(tm);
@@ -80,6 +82,7 @@ public class MockTenantManagerService implements TenantManagerService {
         testData.get(tm).put(req.getId(), tenant);
     }
 
+    @Timed(value = Constants.TENANT_MANAGER_DELETE_TENANT_TIMER, description = Constants.TENANT_MANAGER_DESCRIPTION)
     @Audited(extractParameters = {"1", KEY_TENANT_ID})
     @Override
     public void deleteTenant(TenantManagerConfig tm, String tenantId) {

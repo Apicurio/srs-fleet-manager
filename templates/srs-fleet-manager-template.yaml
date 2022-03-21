@@ -237,6 +237,8 @@ objects:
               secretKeyRef:
                 name: ${TENANT_MANAGER_AUTH_SECRET_NAME}
                 key: client-secret
+          - name: TENANT_MANAGER_CA_BUNDLE
+            value: ${TENANT_MANAGER_CA_BUNDLE}
           - name: FLEET_MANAGER_AUTH_CLIENT_ID
             valueFrom:
               secretKeyRef:
@@ -470,6 +472,8 @@ parameters:
 - name: TENANT_MANAGER_AUTH_SECRET_NAME
   description: k8s secret name with client-id and client-secret to access tenant-manager
   value: srs-tenant-manager-credentials
+- name: TENANT_MANAGER_CA_BUNDLE
+  description: path to tenant-manager service CA bundle
 - name: FLEET_MANAGER_AUTH_SECRET_NAME
   description: k8s secret name with client-id and client-secret that the fleet manager will use to connect to SSO
   value: srs-fleet-manager-credentials

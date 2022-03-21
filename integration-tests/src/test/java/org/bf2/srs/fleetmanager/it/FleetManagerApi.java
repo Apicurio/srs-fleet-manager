@@ -22,14 +22,18 @@ import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import org.awaitility.Awaitility;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentCreateRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.Registry;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreate;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryList;
-import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValue;
+import org.bf2.srs.fleetmanager.spi.common.model.AccountInfo;
 
 import io.restassured.http.ContentType;
 import io.smallrye.jwt.build.Jwt;
@@ -117,5 +121,24 @@ public class FleetManagerApi {
                 .jws()
                 .keyId("1")
                 .sign();
+    }
+
+    public static Registry waitRegistryReady(Registry registry, AccountInfo user) {
+        assertNotEquals(RegistryStatusValue.failed, registry.getStatus());
+
+        Awaitility.await("registry available").atMost(30, TimeUnit.SECONDS).pollInterval(5, TimeUnit.SECONDS)
+                .until(() -> {
+                    var reg = FleetManagerApi.getRegistry(registry.getId(), user);
+                    return reg.getStatus().equals(RegistryStatusValue.ready);
+                });
+
+        return FleetManagerApi.getRegistry(registry.getId(), user);
+    }
+
+    public static void waitRegistryDeleted(Registry registry, AccountInfo user) {
+        assertNotEquals(RegistryStatusValue.failed, registry.getStatus());
+
+        Awaitility.await("registry deleted").atMost(30, TimeUnit.SECONDS).pollInterval(5, TimeUnit.SECONDS)
+            .untilAsserted(() -> FleetManagerApi.verifyRegistryNotExists(registry.getId(), user));
     }
 }

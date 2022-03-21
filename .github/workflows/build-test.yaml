@@ -28,6 +28,11 @@ jobs:
         run: |
           cd "${{ github.workspace }}"
 
+      - name: Run linter
+        run: |
+          .github/scripts/install-tools.sh
+          .github/scripts/validate-files.sh
+
       - name: Build SRS Fleet Manager in dev mode
         env:
           EXTRA_ARGS: -DskipGroups=none

@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import javax.validation.ConstraintViolationException;
+import javax.validation.ValidationException;
 import javax.ws.rs.NotSupportedException;
 
 
@@ -34,6 +35,7 @@ public class UserErrorMapper {
 
         map.put(DateTimeParseException.class, ex -> UserErrorInfo.create(UserErrorCode.ERROR_FORMAT_DATETIME));
         map.put(ConstraintViolationException.class, ex -> UserErrorInfo.create(UserErrorCode.ERROR_REQUEST_CONTENT_INVALID));
+        map.put(ValidationException.class, ex -> UserErrorInfo.create(UserErrorCode.ERROR_REQUEST_CONTENT_INVALID));
         map.put(JsonParseException.class, ex -> UserErrorInfo.create(UserErrorCode.ERROR_FORMAT_JSON));
         map.put(NotSupportedException.class, ex -> UserErrorInfo.create(UserErrorCode.ERROR_REQUEST_UNSUPPORTED_MEDIA_TYPE));
 

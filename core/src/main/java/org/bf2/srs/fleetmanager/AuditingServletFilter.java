@@ -19,7 +19,7 @@ import org.bf2.srs.fleetmanager.auth.AuthService;
 import org.bf2.srs.fleetmanager.operation.OperationContext;
 import org.bf2.srs.fleetmanager.operation.auditing.AuditingEvent;
 import org.bf2.srs.fleetmanager.operation.auditing.AuditingService;
-import org.bf2.srs.fleetmanager.spi.model.AccountInfo;
+import org.bf2.srs.fleetmanager.spi.common.model.AccountInfo;
 
 import java.io.IOException;
 import javax.enterprise.context.ApplicationScoped;
@@ -57,8 +57,10 @@ public class AuditingServletFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
         // Activate Operation Context
-        if (opCtx.isContextDataLoaded())
+        if (opCtx.isContextDataLoaded()) {
             throw new IllegalStateException("Unexpected state: Operation Context is already loaded");
+        }
+
         opCtx.loadNewContextData();
 
         var req = (HttpServletRequest) request;

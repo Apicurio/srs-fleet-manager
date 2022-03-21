@@ -35,7 +35,7 @@ import javax.validation.Validator;
 import org.bf2.srs.fleetmanager.service.QuotaPlansService;
 import org.bf2.srs.fleetmanager.service.model.QuotaPlan;
 import org.bf2.srs.fleetmanager.service.model.QuotaPlansConfigList;
-import org.bf2.srs.fleetmanager.spi.TenantManagerService;
+import org.bf2.srs.fleetmanager.spi.tenants.TenantManagerService;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;

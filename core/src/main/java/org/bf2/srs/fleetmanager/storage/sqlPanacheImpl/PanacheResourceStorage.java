@@ -182,7 +182,6 @@ public class PanacheResourceStorage implements ResourceStorage {
     }
 
     @Override
-    @Transactional
     public Map<String, Long> getRegistryCountPerStatus() {
         var res = new HashMap<String, Long>();
         List<Object[]> queryRes = (List<Object[]>) this.registryRepository.getEntityManager()
@@ -197,7 +196,6 @@ public class PanacheResourceStorage implements ResourceStorage {
     }
 
     @Override
-    @Transactional
     public Map<String, Long> getRegistryCountPerType() {
         var res = new HashMap<String, Long>();
         List<Object[]> queryRes = (List<Object[]>) this.registryRepository.getEntityManager()
@@ -212,7 +210,6 @@ public class PanacheResourceStorage implements ResourceStorage {
     }
 
     @Override
-    @Transactional
     public long getRegistryOwnerCount() {
         try {
             return this.registryRepository.getEntityManager()
@@ -224,7 +221,6 @@ public class PanacheResourceStorage implements ResourceStorage {
     }
 
     @Override
-    @Transactional
     public long getRegistryOrganisationCount() {
         try {
             return this.registryRepository.getEntityManager()
