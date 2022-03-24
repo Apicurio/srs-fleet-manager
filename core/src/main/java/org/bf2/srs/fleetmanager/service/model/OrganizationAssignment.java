@@ -16,20 +16,10 @@
 
 package org.bf2.srs.fleetmanager.service.model;
 
-import static lombok.AccessLevel.PACKAGE;
-
-import java.util.List;
-
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-
-import org.bf2.srs.fleetmanager.spi.tenants.model.TenantLimit;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -38,12 +28,17 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
+import static lombok.AccessLevel.PACKAGE;
+
 /**
- * @author Fabian Martinez
+ * @author Jakub Senko <m@jsenko.net>
  */
 @JsonPropertyOrder({
-        "name",
-        "resources"
+        "orgId",
+        "plan",
 })
 @NoArgsConstructor
 @AllArgsConstructor(access = PACKAGE)
@@ -52,16 +47,15 @@ import lombok.ToString;
 @Setter
 @EqualsAndHashCode
 @ToString
-public class QuotaPlan {
+public class OrganizationAssignment {
 
-    @JsonProperty("name")
+    @JsonProperty("orgId")
     @JsonPropertyDescription("")
     @NotEmpty
-    String name;
+    String orgId;
 
-    @JsonProperty("resources")
+    @JsonProperty("plan")
     @JsonPropertyDescription("")
     @NotNull
-    List<TenantLimit> resources;
-
+    String plan;
 }

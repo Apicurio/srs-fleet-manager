@@ -113,7 +113,7 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
                     .tenantId(registry.getId())
                     .createdBy(registry.getOwner())
                     .organizationId(registry.getOrgId())
-                    .resources(plansService.getDefaultQuotaPlan().getResources())
+                    .resources(plansService.determineQuotaPlan(registry.getOrgId()).getResources())
                     .build();
 
             TenantManagerConfig tenantManager = Utils.createTenantManagerConfig(registryDeployment);
@@ -125,7 +125,7 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
         }
 
         // Add expiration task if this is an eval instance
-        if(isEvalInstance(registry.getInstanceType())) {
+        if (isEvalInstance(registry.getInstanceType())) {
             var expiration = Instant.now().plus(Duration.ofSeconds(evalLifetimeSeconds));
             log.debug("Scheduling an expiration task for the eval instance {} to be executed at {}", registry, expiration);
             ctl.delay(() -> tasks.submit(EvalInstanceExpirationRegistryTask.builder()
