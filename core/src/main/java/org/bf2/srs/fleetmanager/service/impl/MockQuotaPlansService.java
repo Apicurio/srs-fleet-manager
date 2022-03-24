@@ -16,19 +16,17 @@
 
 package org.bf2.srs.fleetmanager.service.impl;
 
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.enterprise.context.ApplicationScoped;
-
+import io.quarkus.arc.DefaultBean;
 import org.bf2.srs.fleetmanager.service.QuotaPlansService;
 import org.bf2.srs.fleetmanager.service.model.QuotaPlan;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.quarkus.arc.DefaultBean;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import javax.enterprise.context.ApplicationScoped;
 
 /**
  * @author Fabian Martinez
@@ -54,7 +52,7 @@ public class MockQuotaPlansService implements QuotaPlansService {
     }
 
     @Override
-    public QuotaPlan getDefaultQuotaPlan() {
+    public QuotaPlan determineQuotaPlan(String orgId) {
         return plans.get(defaultQuotaPlan);
     }
 }

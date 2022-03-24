@@ -3,6 +3,7 @@ package org.bf2.srs.fleetmanager;
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
+import org.bf2.srs.fleetmanager.operation.OperationContext;
 import org.bf2.srs.fleetmanager.operation.logging.sentry.SentryConfiguration;
 import org.bf2.srs.fleetmanager.operation.metrics.UsageMetrics;
 import org.bf2.srs.fleetmanager.rest.service.RegistryDeploymentService;
@@ -38,14 +39,19 @@ public class App {
     @Inject
     UsageMetrics usageMetrics;
 
+    @Inject
+    OperationContext ctx;
+
     void onStart(@Observes StartupEvent ev) throws Exception {
         try {
+            ctx.loadNewContextData();
+            // NOTE: Ordering is important here
             sentry.init();
             migrationService.runMigration();
             usageMetrics.init();
-            taskManager.start();
             deploymentService.init();
             plansService.init();
+            taskManager.start();
         } catch (Exception e) {
             log.error("Error starting fleet manager app", e);
             throw e;
