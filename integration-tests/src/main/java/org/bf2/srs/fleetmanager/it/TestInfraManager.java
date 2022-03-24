@@ -16,6 +16,16 @@
 
 package org.bf2.srs.fleetmanager.it;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import io.restassured.RestAssured;
+import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
+import org.awaitility.Awaitility;
+import org.bf2.srs.fleetmanager.it.ams.AmsWireMockServer;
+import org.bf2.srs.fleetmanager.it.executor.Exec;
+import org.bf2.srs.fleetmanager.it.jwks.JWKSMockServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -28,23 +38,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import org.awaitility.Awaitility;
-import org.bf2.srs.fleetmanager.it.ams.AmsWireMockServer;
-import org.bf2.srs.fleetmanager.it.executor.Exec;
-import org.bf2.srs.fleetmanager.it.jwks.JWKSMockServer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import io.restassured.RestAssured;
-import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
 
 /**
  * @author Fabian Martinez
@@ -84,6 +84,8 @@ public class TestInfraManager {
         return instance;
     }
 
+    private Map<String, String> appEnv = new HashMap<>();
+
     private TestInfraManager() {
         //private constructor
     }
@@ -120,7 +122,6 @@ public class TestInfraManager {
             throw new IllegalStateException("Registry is already running");
         }
 
-        Map<String, String> appEnv = new HashMap<>();
         appEnv.put("LOG_LEVEL", "DEBUG");
         appEnv.put("SRS_LOG_LEVEL", "DEBUG");
 
@@ -199,7 +200,7 @@ public class TestInfraManager {
         String baseUrl = mock.start();
         authConfig.keycloakUrl = baseUrl + "/auth";
         authConfig.realm = "test";
-        authConfig.tokenEndpoint =  authConfig.keycloakUrl + "/realms/" + authConfig.realm + "/protocol/openid-connect/token";
+        authConfig.tokenEndpoint = authConfig.keycloakUrl + "/realms/" + authConfig.realm + "/protocol/openid-connect/token";
         authConfig.clientId = "fleet-manager-client-id";
 
         LOGGER.info("keycloak mock running at {}", authConfig.tokenEndpoint);
@@ -340,11 +341,11 @@ public class TestInfraManager {
 
         });
 
-        Awaitility.await("is reachable").atMost(45, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS)
-            .until(() -> HttpUtils.isReachable("localhost", 8585, "Tenant Manager"));
+        Awaitility.await("Tenant Manager is reachable").atMost(45, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS)
+                .until(() -> HttpUtils.isReachable("localhost", 8585, "Tenant Manager"));
 
-        Awaitility.await("is ready").atMost(45, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS)
-            .until(() -> HttpUtils.isReady(this.tenantManagerUrl, "/q/health/ready", false, "Tenant Manager"));
+        Awaitility.await("Tenant Manager is ready").atMost(45, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS)
+                .until(() -> HttpUtils.isReady(this.tenantManagerUrl, "/q/health/ready", false, "Tenant Manager"));
     }
 
     private void runFleetManager(Map<String, String> appEnv, String nameSuffix, int port) throws IOException {
@@ -395,11 +396,11 @@ public class TestInfraManager {
 
         });
 
-        Awaitility.await("is reachable").atMost(45, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS)
-            .until(() -> HttpUtils.isReachable("localhost", port, "fleet manager"));
+        Awaitility.await("fleet manager is reachable").atMost(45, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS)
+                .until(() -> HttpUtils.isReachable("localhost", port, "fleet manager"));
 
-        Awaitility.await("is ready").atMost(45, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS)
-            .until(() -> HttpUtils.isReady("http://localhost:" + port, "/q/health/ready", false, "fleet manager"));
+        Awaitility.await("fleet manager is ready").atMost(45, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS)
+                .until(() -> HttpUtils.isReady("http://localhost:" + port, "/q/health/ready", false, "fleet manager"));
     }
 
     private String getFleetManagerJarPath() throws IOException {
@@ -408,7 +409,7 @@ public class TestInfraManager {
         if (!runnerExists(path)) {
             LOGGER.info("No runner JAR found.");
             throw new IllegalStateException("Could not find the executable jar for the server at '" + path + "'. " +
-                "This may happen if you are using an IDE to debug. Try to build the jars manually before running the tests.");
+                    "This may happen if you are using an IDE to debug. Try to build the jars manually before running the tests.");
         }
         return path;
     }
@@ -467,6 +468,33 @@ public class TestInfraManager {
         processes.clear();
     }
 
+    public void stop(String processName) {
+        // TODO Refactor everything...
+        Iterator<TestInfraProcess> iterator = processes.iterator();
+        while (iterator.hasNext()) {
+            TestInfraProcess p = iterator.next();
+            if (!processName.equals(p.getName()))
+                continue;
+
+            if (!p.isContainer()) {
+                try {
+                    p.close();
+                    Thread.sleep(3000);
+                } catch (Exception e) {
+                    LOGGER.error("Error stopping process " + p.getName(), e);
+                }
+            }
+            if (p.isContainer()) {
+                try {
+                    p.close();
+                } catch (Exception e) {
+                    LOGGER.error("Error stopping process " + p.getName(), e);
+                }
+            }
+            iterator.remove();
+        }
+    }
+
     private String getTenantManagerJarPath() {
         LOGGER.info("Attempting to find tenant manager runner. Starting at cwd: " + new File("").getAbsolutePath());
         String config = System.getenv("TENANT_MANAGER_MODULE_PATH");
@@ -507,5 +535,22 @@ public class TestInfraManager {
             throw new IllegalStateException("missing " + envVar + " env var");
         }
         return var;
+    }
+
+    public void restartFleetManager() throws IOException {
+        // TODO Do this better...
+        stop("fleet-manager-node-1");
+        stop("fleet-manager-node-2");
+
+        Map<String, String> node1Env = new HashMap<>(appEnv);
+        runFleetManager(node1Env, "node-1", fleetManagerPort);
+
+        int c2port = fleetManagerPort + 1;
+
+        Map<String, String> node2Env = new HashMap<>(appEnv);
+        runFleetManager(node2Env, "node-2", c2port);
+
+
+        RestAssured.baseURI = getFleetManagerUri();
     }
 }
