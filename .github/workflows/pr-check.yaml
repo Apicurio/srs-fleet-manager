@@ -1,4 +1,4 @@
-name: Build and Test Workflow
+name: PR Check Workflow
 on:
   push:
     branches:
@@ -8,9 +8,8 @@ on:
       - main
 
 jobs:
-
   build-test:
-    name: Build and Test
+    name: PR check
     runs-on: ubuntu-18.04
     if: github.repository_owner == 'bf2fc6cc711aee1a0c2a'
     steps:
@@ -33,13 +32,8 @@ jobs:
           .github/scripts/install-tools.sh
           .github/scripts/validate-files.sh
 
-      - name: Build SRS Fleet Manager in dev mode
+      - name: Build SRS Fleet Manager
         env:
           EXTRA_ARGS: -DskipGroups=none
         run: |
-          make dev-build
-
-      - name: Build SRS Fleet Manager - Docker
-        # TODO move this to Makefile and update build scripts to share logic?
-        run: |
-          mvn -B install -DskipTests -Dquarkus.container-image.build=true -pl core
+          make pr-check

@@ -158,5 +158,16 @@ public class TestTask implements Task {
         public boolean done() {
             return times > 0;
         }
+
+        @Override
+        public String toString() {
+            return "BasicCommand{" +
+                    "times=" + times +
+                    ", delayIncrement=" + delayIncrement +
+                    ", delayThrowNPE=" + delayThrowNPE +
+                    ", increment=" + increment +
+                    ", throwNPE=" + throwNPE +
+                    '}';
+        }
     }
 }
