@@ -39,6 +39,12 @@ jobs:
         run: |
           make dev-build
 
+      - name: Build SRS Fleet Manager
+        env:
+          EXTRA_ARGS: -DskipGroups=none
+        run: |
+          make pr-check
+
       - name: Build SRS Fleet Manager - Docker
         # TODO move this to Makefile and update build scripts to share logic?
         run: |

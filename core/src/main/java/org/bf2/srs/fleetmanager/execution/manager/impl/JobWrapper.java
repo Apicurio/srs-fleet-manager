@@ -7,6 +7,7 @@ import org.bf2.srs.fleetmanager.execution.manager.Task;
 import org.bf2.srs.fleetmanager.execution.manager.Worker;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
 import org.bf2.srs.fleetmanager.operation.OperationContext;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -43,8 +44,6 @@ import static org.bf2.srs.fleetmanager.execution.manager.impl.QuartzIDs.jobDetai
 @DisallowConcurrentExecution
 public class JobWrapper implements Job {
 
-    private static final long MAX_RETRY_DELAY_SEC = 10L * 60L; // 10 minutes
-
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     ObjectMapper mapper = SerDesObjectMapperProducer.getMapper();
@@ -57,6 +56,9 @@ public class JobWrapper implements Job {
 
     @Inject
     OperationContext opCtx;
+
+    @ConfigProperty(name = "srs-fleet-manager.max-retries-delay-seconds", defaultValue = "600")
+    Integer maxRetryDelaySec;
 
     private Set<Class<? extends Worker>> workerExclusions = ConcurrentHashMap.newKeySet();
 
@@ -212,17 +214,17 @@ public class JobWrapper implements Job {
         context.getJobDetail().getJobDataMap().put(jobDetailKeyForTask(), serialized);
     }
 
-    private static Duration backoff(int retries) {
+    private Duration backoff(int retries) {
         if (retries < 0)
             throw new IllegalArgumentException("Argument must be non-negative.");
         if (retries > 20) {
             // Prevent overflow
-            return ofSeconds(MAX_RETRY_DELAY_SEC);
+            return ofSeconds(maxRetryDelaySec);
         }
         // delay = 2^(retries + 2)
         long delay = 1L << (retries + 2);
-        return (delay > MAX_RETRY_DELAY_SEC) ?
-                ofSeconds(MAX_RETRY_DELAY_SEC) : ofSeconds(delay);
+        return (delay > maxRetryDelaySec) ?
+                ofSeconds(maxRetryDelaySec) : ofSeconds(delay);
     }
 
     private static Instant nextExecution(Task task) {
