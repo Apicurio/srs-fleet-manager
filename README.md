@@ -10,9 +10,6 @@ mvn clean install quarkus:dev -Ddev
 
 Notes:
 
-- JDK 11 is required because of the following issue: https://github.com/quarkusio/quarkus/issues/13871 . The problem
-  appears when you run the application using an older JDK version that the one used to compile it. Specifically, the
-  Docker image uses JDK 11. You can skip the enforcer rule using `-Denforcer.skip`.
 - As a result of issues with multi-module projects, you need to use the `install` Maven target when
   running `quarkus:dev`.
 - The `-Ddev` property enables `dev` Quarkus profile (even for docker images), and uses

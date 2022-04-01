@@ -22,7 +22,6 @@
         <compiler-plugin.version>3.8.1</compiler-plugin.version>
         <maven.compiler.parameters>true</maven.compiler.parameters>
 
-        <enforcer-plugin.version>3.0.0-M3</enforcer-plugin.version>
         <properties-maven-plugin.version>1.0.0</properties-maven-plugin.version>
 
         <!-- Quarkus -->
@@ -173,11 +172,6 @@
                 <plugin>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${compiler-plugin.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-enforcer-plugin</artifactId>
-                    <version>${enforcer-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
