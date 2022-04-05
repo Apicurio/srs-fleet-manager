@@ -36,6 +36,7 @@ import org.eclipse.microprofile.faulttolerance.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -103,15 +104,33 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
         return Tenant.builder()
                 .id(data.getTenantId())
                 .status(TenantStatus.fromValue(data.getStatus().value()))
+                .resources(convertToTenantLimit(data.getResources()))
                 .build();
+    }
+
+    private List<TenantLimit> convertToTenantLimit(List<TenantResource> data) {
+        var res = new ArrayList<TenantLimit>();
+        for (TenantResource d : data) {
+            res.add(TenantLimit.builder().type(d.getType().value()).limit(d.getLimit()).build());
+        }
+        return res;
+    }
+
+    private List<TenantResource> convertToTenantResource(List<TenantLimit> data) {
+        var res = new ArrayList<TenantResource>();
+        for (TenantLimit d : data) {
+            var tr = new TenantResource();
+            tr.setType(ResourceType.fromValue(d.getType()));
+            tr.setLimit(d.getLimit());
+            res.add(tr);
+        }
+        return res;
     }
 
     private UpdateRegistryTenantRequest convert(UpdateTenantRequest req) {
         var res = new UpdateRegistryTenantRequest();
-        // res.setName();
-        // res.setDescription();
         res.setStatus(TenantStatusValue.fromValue(req.getStatus().value()));
-        // res.setResources();
+        res.setResources(convertToTenantResource(req.getResources()));
         return res;
     }
 

@@ -178,34 +178,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-enforcer-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>enforce-jdk-version</id>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>enforce</goal>
-                        </goals>
-                        <configuration>
-                            <rules>
-                                <requireJavaVersion>
-                                    <version>[11,12)</version>
-                                    <message>
-                                        See https://github.com/quarkusio/quarkus/issues/13871 .
-                                        Because of this issue, even though the compile settings target Java 11,
-                                        if you compile with JDK version > 11, you'll get
-                                        java.lang.UnsupportedClassVersionError
-                                        when you execute with older JVM versions. Therefore this rule forces the JDK
-                                        version until the issue is resolved.
-                                    </message>
-                                </requireJavaVersion>
-                            </rules>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <excludedGroups>${skipGroups}</excludedGroups>

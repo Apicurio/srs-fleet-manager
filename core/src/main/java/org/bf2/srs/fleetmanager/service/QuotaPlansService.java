@@ -6,5 +6,8 @@ public interface QuotaPlansService {
 
     void init() throws Exception;
 
-    QuotaPlan getDefaultQuotaPlan();
+    /**
+     * Determine correct quota plan based on provided information
+     */
+    QuotaPlan determineQuotaPlan(String orgId);
 }

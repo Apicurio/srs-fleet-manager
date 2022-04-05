@@ -159,9 +159,14 @@ public class TaskManagerTest {
         TestTask task = null;
 
         // Test automatic retries with default limit (+ backoff timing)
-        task = TestTask.builder().schedule(TaskSchedule.builder().build()).build();
-        for (int i = 0; i < TaskSchedule.MIN_RETRIES_DEFAULT; i++)
+        task = TestTask.builder()
+                .schedule(TaskSchedule.builder().priority(TaskSchedule.PRIORITY_HIGH).build())
+                .build();
+
+        for (int i = 0; i < TaskSchedule.MIN_RETRIES_DEFAULT; i++) {
             task.andThen(BasicCommand.builder().throwNPE(true).build());
+        }
+
         task.andThen(BasicCommand.builder().increment(true).build())
                 .andThen(BasicCommand.builder().increment(true).build());
 

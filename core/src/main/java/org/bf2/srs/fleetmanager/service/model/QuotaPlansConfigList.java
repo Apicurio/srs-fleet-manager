@@ -38,9 +38,10 @@ import lombok.ToString;
 /**
  * @author Fabian Martinez
  */
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-        "plans"
+        "reconcile",
+        "plans",
+        "organizations"
 })
 @NoArgsConstructor
 @AllArgsConstructor(access = PACKAGE)
@@ -51,9 +52,22 @@ import lombok.ToString;
 @ToString
 public class QuotaPlansConfigList {
 
+    /**
+     * Nullable - default false
+     */
+    @JsonProperty("reconcile")
+    @JsonPropertyDescription("")
+    private Boolean reconcile;
+
     @JsonProperty("plans")
     @JsonPropertyDescription("")
     @NotNull
     private List<QuotaPlan> plans;
 
+    /**
+     * Nullable - default empty
+     */
+    @JsonProperty("organizations")
+    @JsonPropertyDescription("")
+    private List<OrganizationAssignment> organizations;
 }

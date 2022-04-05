@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.List;
+
 import static lombok.AccessLevel.PACKAGE;
 
 /**
@@ -30,4 +32,6 @@ public class Tenant {
 
     @Setter
     TenantStatus status;
+
+    List<TenantLimit> resources;
 }

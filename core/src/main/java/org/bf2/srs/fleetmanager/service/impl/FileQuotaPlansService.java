@@ -16,37 +16,48 @@
 
 package org.bf2.srs.fleetmanager.service.impl;
 
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import io.quarkus.arc.profile.IfBuildProfile;
+import org.bf2.srs.fleetmanager.common.SerDesObjectMapperProducer;
+import org.bf2.srs.fleetmanager.execution.impl.workers.Utils;
+import org.bf2.srs.fleetmanager.service.QuotaPlansService;
+import org.bf2.srs.fleetmanager.service.model.OrganizationAssignment;
+import org.bf2.srs.fleetmanager.service.model.QuotaPlan;
+import org.bf2.srs.fleetmanager.service.model.QuotaPlansConfigList;
+import org.bf2.srs.fleetmanager.spi.tenants.TenantManagerService;
+import org.bf2.srs.fleetmanager.spi.tenants.TenantManagerServiceException;
+import org.bf2.srs.fleetmanager.spi.tenants.TenantNotFoundServiceException;
+import org.bf2.srs.fleetmanager.spi.tenants.model.TenantLimit;
+import org.bf2.srs.fleetmanager.spi.tenants.model.UpdateTenantRequest;
+import org.bf2.srs.fleetmanager.storage.ResourceStorage;
+import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validator;
 
-import org.bf2.srs.fleetmanager.service.QuotaPlansService;
-import org.bf2.srs.fleetmanager.service.model.QuotaPlan;
-import org.bf2.srs.fleetmanager.service.model.QuotaPlansConfigList;
-import org.bf2.srs.fleetmanager.spi.tenants.TenantManagerService;
-import org.bf2.srs.fleetmanager.storage.ResourceStorage;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-
-import io.quarkus.arc.profile.IfBuildProfile;
+import static java.util.Objects.requireNonNull;
 
 /**
  * @author Fabian Martinez
+ * @author Jakub Senko <m@jsenko.net>
  */
 @ApplicationScoped
 @IfBuildProfile("prod")
@@ -55,6 +66,8 @@ public class FileQuotaPlansService implements QuotaPlansService {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     private Map<String, QuotaPlan> plans = new ConcurrentHashMap<>();
+
+    private Map<String, OrganizationAssignment> organizationAssignments = new ConcurrentHashMap<>();
 
     @Inject
     Validator validator;
@@ -81,7 +94,7 @@ public class FileQuotaPlansService implements QuotaPlansService {
 
         log.info("Loading registry quota plans config file from {}", plansConfigFile.get().getAbsolutePath());
 
-        YAMLMapper mapper = new YAMLMapper();
+        YAMLMapper mapper = SerDesObjectMapperProducer.getYAMLMapper();
 
         QuotaPlansConfigList quotaPlansConfigList = mapper.readValue(plansConfigFile.get(), QuotaPlansConfigList.class);
 
@@ -89,7 +102,7 @@ public class FileQuotaPlansService implements QuotaPlansService {
 
         Set<String> names = new HashSet<>();
         List<String> duplicatedNames = staticQuotaPlans.stream()
-                .map(d-> {
+                .map(d -> {
                     Set<ConstraintViolation<QuotaPlan>> errors = validator.validate(d);
                     if (!errors.isEmpty()) {
                         throw new ConstraintViolationException(errors);
@@ -111,10 +124,75 @@ public class FileQuotaPlansService implements QuotaPlansService {
             tmClient.validateConfig(p.getResources());
             plans.put(p.getName(), p);
         }
+
+        List<OrganizationAssignment> staticOrganizationAssignments = quotaPlansConfigList.getOrganizations();
+        if (staticOrganizationAssignments == null)
+            staticOrganizationAssignments = Collections.emptyList();
+
+        for (OrganizationAssignment assignment : staticOrganizationAssignments) {
+            if (!plans.containsKey(assignment.getPlan())) {
+                throw new IllegalStateException("Could not find quota plan named '" + assignment.getPlan() +
+                        "' intended for organization ID '" + assignment.getOrgId() + "'");
+            }
+            organizationAssignments.put(assignment.getOrgId(), assignment);
+        }
+
+        if (quotaPlansConfigList.getReconcile() != null && quotaPlansConfigList.getReconcile()) {
+            reconcile();
+        }
+    }
+
+    private void reconcile() {
+        log.info("Performing quota plan reconciliation");
+        var allRegistries = storage.getAllRegistries();
+        var updatedCount = 0;
+        for (RegistryData registry : allRegistries) {
+            var tid = registry.getId();
+            var tmc = Utils.createTenantManagerConfig(registry.getRegistryDeployment());
+            try {
+                var tenant = tmClient.getTenantById(tmc, tid).orElseThrow();
+                Map<String, Long> tenantLimits = new HashMap<>();
+                for (TenantLimit resource : tenant.getResources()) {
+                    tenantLimits.put(resource.getType(), resource.getLimit());
+                }
+
+                var targetPlan = determineQuotaPlan(registry.getOrgId());
+
+                var requiresUpdate = false;
+                // Compare limits
+                for (TenantLimit targetLimit : targetPlan.getResources()) {
+                    var v = tenantLimits.get(targetLimit.getType());
+                    if (v == null || !v.equals(targetLimit.getLimit())) {
+                        requiresUpdate = true;
+                        break;
+                    }
+                }
+                if (requiresUpdate) {
+                    UpdateTenantRequest utr = UpdateTenantRequest.builder()
+                            .id(tid)
+                            .status(tenant.getStatus())
+                            .resources(targetPlan.getResources())
+                            .build();
+                    tmClient.updateTenant(tmc, utr);
+                    updatedCount++;
+                }
+
+            } catch (TenantManagerServiceException | NoSuchElementException | TenantNotFoundServiceException e) {
+                log.warn("Could not get or update tenant " + tid + " during quota plan reconciliation", e);
+            }
+        }
+        log.info("Quota plan reconciliation successful. Updated {} out of {} tenants",
+                allRegistries.size(), updatedCount);
     }
 
     @Override
-    public QuotaPlan getDefaultQuotaPlan() {
-        return plans.get(defaultQuotaPlan);
+    public QuotaPlan determineQuotaPlan(String orgId) {
+        requireNonNull(orgId);
+        var planName = defaultQuotaPlan;
+        var assignment = organizationAssignments.get(orgId);
+        if (assignment != null) {
+            planName = assignment.getPlan();
+        }
+        return plans.get(planName);
     }
 }
