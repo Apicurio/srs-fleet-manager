@@ -75,7 +75,7 @@ objects:
             - type: MAX_ARTIFACT_DESCRIPTION_LENGTH_CHARS
               limit: -1
             - type: MAX_REQUESTS_PER_SECOND_COUNT
-              limit: 100
+              limit: 1
       organizations:
         - orgId: 14221005 # jsenko_srs et al. (testing)
           plan: alpha
