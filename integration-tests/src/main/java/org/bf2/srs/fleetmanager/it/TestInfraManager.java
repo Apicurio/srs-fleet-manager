@@ -396,10 +396,10 @@ public class TestInfraManager {
 
         });
 
-        Awaitility.await("fleet manager is reachable").atMost(45, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS)
+        Awaitility.await("fleet manager is reachable on port " + port).atMost(90, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS)
                 .until(() -> HttpUtils.isReachable("localhost", port, "fleet manager"));
 
-        Awaitility.await("fleet manager is ready").atMost(45, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS)
+        Awaitility.await("fleet manager is ready on port " + port).atMost(90, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS)
                 .until(() -> HttpUtils.isReady("http://localhost:" + port, "/q/health/ready", false, "fleet manager"));
     }
 
@@ -475,11 +475,12 @@ public class TestInfraManager {
             TestInfraProcess p = iterator.next();
             if (!processName.equals(p.getName()))
                 continue;
-
+            LOGGER.info("Stopping infra process: {}", p.getName());
             if (!p.isContainer()) {
                 try {
                     p.close();
                     Thread.sleep(3000);
+                    LOGGER.info("Infra process stopped: {}", p.getName());
                 } catch (Exception e) {
                     LOGGER.error("Error stopping process " + p.getName(), e);
                 }
