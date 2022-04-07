@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.restassured.RestAssured;
 import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
 import org.awaitility.Awaitility;
+import org.awaitility.core.ConditionTimeoutException;
 import org.bf2.srs.fleetmanager.it.ams.AmsWireMockServer;
 import org.bf2.srs.fleetmanager.it.executor.Exec;
 import org.bf2.srs.fleetmanager.it.jwks.JWKSMockServer;
@@ -396,11 +397,21 @@ public class TestInfraManager {
 
         });
 
-        Awaitility.await("fleet manager is reachable on port " + port).atMost(90, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS)
-                .until(() -> HttpUtils.isReachable("localhost", port, "fleet manager"));
+        try {
+            Awaitility.await("fleet manager is reachable on port " + port).atMost(90, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS)
+                    .until(() -> HttpUtils.isReachable("localhost", port, "fleet manager"));
 
-        Awaitility.await("fleet manager is ready on port " + port).atMost(90, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS)
-                .until(() -> HttpUtils.isReady("http://localhost:" + port, "/q/health/ready", false, "fleet manager"));
+            Awaitility.await("fleet manager is ready on port " + port).atMost(90, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS)
+                    .until(() -> HttpUtils.isReady("http://localhost:" + port, "/q/health/ready", false, "fleet manager"));
+        } catch (ConditionTimeoutException ex) {
+            for (String s : executor.stdOut().split("\n")) {
+                LOGGER.info("[STDOUT] {}", s);
+            }
+            for (String s : executor.stdErr().split("\n")) {
+                LOGGER.info("[STDERR] {}", s);
+            }
+            throw ex;
+        }
     }
 
     private String getFleetManagerJarPath() throws IOException {
