@@ -182,7 +182,7 @@ public class FileQuotaPlansService implements QuotaPlansService {
             }
         }
         log.info("Quota plan reconciliation successful. Updated {} out of {} tenants",
-                allRegistries.size(), updatedCount);
+                updatedCount, allRegistries.size());
     }
 
     @Override
