@@ -1,4 +1,3 @@
-package org.bf2.srs.fleetmanager.auth;
 /*
  * Copyright 2022 Red Hat
  *
@@ -14,7 +13,7 @@ package org.bf2.srs.fleetmanager.auth;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+package org.bf2.srs.fleetmanager.auth;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -37,7 +36,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import java.util.Collections;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 @ApplicationScoped
