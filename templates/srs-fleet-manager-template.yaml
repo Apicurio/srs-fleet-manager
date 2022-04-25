@@ -22,7 +22,7 @@ objects:
       qontract.recycle: "true"
   data:
     quota-plans.yaml: |-
-      reconcile: true
+      reconcile: false # Enable this if you make changes to the plans configuration
       plans:
         - name: basic
           resources:
