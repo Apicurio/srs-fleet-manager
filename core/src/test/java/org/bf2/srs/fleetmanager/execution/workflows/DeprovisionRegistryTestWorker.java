@@ -33,7 +33,10 @@ public class DeprovisionRegistryTestWorker extends AbstractWorker {
     ResourceStorage storage;
 
     @Getter
-    private final AtomicBoolean hasBeenExecuted = new AtomicBoolean(false);
+    private static final AtomicBoolean hasBeenExecuted = new AtomicBoolean(false);
+
+    @Getter
+    private static final AtomicBoolean enabled = new AtomicBoolean(false);
 
     public DeprovisionRegistryTestWorker() {
         super(WorkerType.DEPROVISION_REGISTRY_W);
@@ -48,6 +51,11 @@ public class DeprovisionRegistryTestWorker extends AbstractWorker {
     @Override
     public void execute(Task aTask, WorkerContext ctl) throws RegistryStorageConflictException, RegistryNotFoundException {
         log.debug("Executing org.bf2.srs.fleetmanager.execution.workflows.DeprovisionRegistryTestWorker.");
+        if(!enabled.get()) {
+            log.debug("DeprovisionRegistryTestWorker is DISABLED, skipping the 'execute' method.");
+            return;
+        }
+
         var task = (DeprovisionRegistryTask) aTask;
         var registryOptional = storage.getRegistryById(task.getRegistryId());
 
@@ -62,6 +70,10 @@ public class DeprovisionRegistryTestWorker extends AbstractWorker {
     @Transactional
     @Override
     public void finallyExecute(Task aTask, WorkerContext ctl, Optional<Exception> error) {
+        if(!enabled.get()) {
+            log.debug("DeprovisionRegistryTestWorker is DISABLED, skipping the 'finallyExecute' method.");
+            return;
+        }
         log.debug("Setting org.bf2.srs.fleetmanager.execution.workflows.DeprovisionRegistryTestWorker.hasBeenExecuted to true.");
         hasBeenExecuted.set(true);
     }

@@ -63,6 +63,8 @@ public class DeprovisioningTest {
     @Tag(TestTags.SLOW)
     void testForcedDeprovisioning() throws RegistryStorageConflictException {
         jobWrapper.getWorkerExclusions().add(DeprovisionRegistryWorker.class);
+        DeprovisionRegistryTestWorker.getEnabled().set(true);
+
         log.debug("Test start: org.bf2.srs.fleetmanager.execution.workflows.DeprovisionRegistryTestWorker.hasBeenExecuted = " + testWorker.getHasBeenExecuted());
 
         // Create Registry
@@ -92,7 +94,7 @@ public class DeprovisioningTest {
 
         // The registry did not get deleted
         assertTrue(storage.getRegistryById(registry.getId()).isPresent());
-        assertFalse(testWorker.getHasBeenExecuted().get());
+        assertFalse(DeprovisionRegistryTestWorker.getHasBeenExecuted().get());
 
         // Try again, after > 5 seconds
         TestUtil.delay(5500);
@@ -103,9 +105,11 @@ public class DeprovisioningTest {
                 .until(() -> tasks.getAllTasks().isEmpty());
 
         assertFalse(storage.getRegistryById(registry.getId()).isPresent());
-        assertTrue(testWorker.getHasBeenExecuted().get());
-        testWorker.getHasBeenExecuted().set(false);
+        assertTrue(DeprovisionRegistryTestWorker.getHasBeenExecuted().get());
 
+        // Cleanup
+        DeprovisionRegistryTestWorker.getHasBeenExecuted().set(false);
+        DeprovisionRegistryTestWorker.getEnabled().set(false);
         jobWrapper.getWorkerExclusions().clear();
     }
 }
