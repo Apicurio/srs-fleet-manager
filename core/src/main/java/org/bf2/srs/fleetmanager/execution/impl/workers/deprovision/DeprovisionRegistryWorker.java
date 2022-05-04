@@ -1,5 +1,11 @@
 package org.bf2.srs.fleetmanager.execution.impl.workers.deprovision;
 
+import java.util.Optional;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+
 import org.bf2.srs.fleetmanager.execution.impl.tasks.TaskType;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.deprovision.DeprovisionRegistryTask;
 import org.bf2.srs.fleetmanager.execution.impl.workers.AbstractWorker;
@@ -23,11 +29,6 @@ import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Optional;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
 
 /**
  * @author Jakub Senko <jsenko@redhat.com>
@@ -101,7 +102,7 @@ public class DeprovisionRegistryWorker extends AbstractWorker {
                         log.info("Subscription ID '{}' for tenant ID '{}' does not exist (already deleted?).", subscriptionId, task.getRegistryTenantId());
                     }
                 } else {
-                    log.warn("Deleting an eval instance {} without calling AMS. This is a temporary workaround.", registry.getId());
+                    log.debug("Deleting an eval instance {} without calling AMS.", registry.getId());
                 }
                 task.setAmsSuccess(true);
                 log.debug("Subscription (id='{}') for Registry (id='{}') deleted.", subscriptionId, registry.getId());
