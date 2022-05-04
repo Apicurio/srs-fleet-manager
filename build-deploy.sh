@@ -14,7 +14,7 @@ IMAGE_NAME="${PROJECT_NAME}"
 IMAGE_TAG="${VERSION}"
 
 
-DOCKER_BUILD_COMMAND="docker build -f ./core/src/main/docker/Dockerfile.jvm -t ${IMAGE_REGISTRY}/${IMAGE_ORG}/${IMAGE_NAME}:${IMAGE_TAG} ./core/"
+DOCKER_BUILD_COMMAND="docker build -f ./core/src/main/docker/Dockerfile.legacy-jar -t ${IMAGE_REGISTRY}/${IMAGE_ORG}/${IMAGE_NAME}:${IMAGE_TAG} ./core/"
 
 
 
@@ -67,7 +67,10 @@ build_project() {
     # docker run --rm -t -u $(id -u):$(id -g) -v $(pwd):/home/user --workdir /home/user quay.io/riprasad/srs-project-builder:latest bash -c "${MVN_BUILD_COMMAND}"
 
     docker pull quay.io/app-sre/mk-ci-tools:latest
-    docker run -v $(pwd):/opt/srs -w /opt/srs -e HOME=/tmp -u $(id -u) quay.io/app-sre/mk-ci-tools:latest "./build-project.sh"
+    docker run -v $(pwd):/opt/srs -w /opt/srs -e HOME=/tmp -u $(id -u) \
+        -e APICURIO_REGISTRY_REPO=https://gitlab.cee.redhat.com/service-registry/srs-service-registry.git \
+        -e APICURIO_REGISTRY_BRANCH=master \
+        quay.io/app-sre/mk-ci-tools:latest make build-project
 }
 
 

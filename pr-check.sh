@@ -5,6 +5,9 @@ set -eo pipefail
 
 PROJECT_NAME="srs-fleet-manager"
 
+MAS_SSO_URL="https://identity.api.stage.openshift.com/auth"
+MAS_SSO_REALM="rhoas"
+
 display_usage() {
     cat <<EOT
 
@@ -29,6 +32,15 @@ display_usage() {
 EOT
 }
 
+if [ -z "${MAS_SSO_CLIENT_ID}" ]; then
+  echo "MAS_SSO_CLIENT_ID environment is mandatory."
+  exit 1
+fi
+if [ -z "${MAS_SSO_CLIENT_SECRET}" ]; then
+  echo "MAS_SSO_CLIENT_SECRET environment is mandatory."
+  exit 1
+fi
+
 
 build_project() {
     echo "#######################################################################################################"
@@ -40,7 +52,15 @@ build_project() {
     # docker run --rm -t -u $(id -u):$(id -g) -v $(pwd):/home/user --workdir /home/user quay.io/riprasad/srs-project-builder:latest bash -c "./build-project.sh"
 
     docker pull quay.io/app-sre/mk-ci-tools:latest
-    docker run -v $(pwd):/opt/srs -w /opt/srs -e HOME=/tmp -u $(id -u) quay.io/app-sre/mk-ci-tools:latest "./build-project.sh"
+    docker run -v $(pwd):/opt/srs -w /opt/srs -e HOME=/tmp -u $(id -u) \
+        -e APICURIO_REGISTRY_REPO=https://gitlab.cee.redhat.com/service-registry/srs-service-registry.git \
+        -e APICURIO_REGISTRY_BRANCH=master \
+        -e TENANT_MANAGER_AUTH_ENABLED=true \
+        -e MAS_SSO_URL=${MAS_SSO_URL} \
+        -e MAS_SSO_REALM=${MAS_SSO_REALM} \
+        -e MAS_SSO_CLIENT_ID=${MAS_SSO_CLIENT_ID} \
+        -e MAS_SSO_CLIENT_SECRET=${MAS_SSO_CLIENT_SECRET} \
+        quay.io/app-sre/mk-ci-tools:latest make pr-check
 }
 
 

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.bf2.srs.fleetmanager.execution.manager.Task;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
+import org.bf2.srs.fleetmanager.operation.OperationContext;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
@@ -32,7 +33,10 @@ public class QuartzTaskManager implements TaskManager {
     Scheduler quartzScheduler;
 
     @Inject
-    ObjectMapper mapper;
+    ObjectMapper mapper; // TODO Use org.bf2.srs.fleetmanager.common.SerDesObjectMapperProducer ?
+
+    @Inject
+    OperationContext opCtx;
 
     @SneakyThrows
     @Override
@@ -43,6 +47,8 @@ public class QuartzTaskManager implements TaskManager {
     @SneakyThrows
     @Override
     public void submit(Task task) {
+        // Include Operation Context to newly created tasks
+        task.setOperationContextData(opCtx.getContextData());
 
         String taskSerialized = mapper.writeValueAsString(task);
 

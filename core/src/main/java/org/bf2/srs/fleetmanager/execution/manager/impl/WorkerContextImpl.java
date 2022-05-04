@@ -1,17 +1,20 @@
 package org.bf2.srs.fleetmanager.execution.manager.impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * WARNING: This class and its contents MUST be serializable (and deserializable) to JSON using ObjectMapper.
+ * When performing modifications, make sure previous values remain deserializable or are otherwise handled.
+ *
  * @author Jakub Senko <jsenko@redhat.com>
  */
 @NoArgsConstructor

@@ -4,16 +4,11 @@ public class RegistryDeploymentNotFoundException extends StorageException {
 
     private static final long serialVersionUID = 7762437279168099113L;
 
-    public RegistryDeploymentNotFoundException() {
-        super();
-    }
+    @SuppressWarnings("unused")
+    private final String registryDeploymentId;
 
-    public RegistryDeploymentNotFoundException(String message) {
-        super(message);
+    public RegistryDeploymentNotFoundException(String registryDeploymentId) {
+        super(String.format("Registry Deployment with id='%s' not found", registryDeploymentId));
+        this.registryDeploymentId = registryDeploymentId;
     }
-
-    public static RegistryDeploymentNotFoundException create(Long id) {
-        return new RegistryDeploymentNotFoundException("No RegistryDeployment found for id " + id);
-    }
-
 }

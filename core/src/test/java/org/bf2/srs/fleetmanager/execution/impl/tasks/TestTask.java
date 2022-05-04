@@ -1,6 +1,7 @@
 package org.bf2.srs.fleetmanager.execution.impl.tasks;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import lombok.Setter;
 import org.bf2.srs.fleetmanager.execution.manager.Task;
 import org.bf2.srs.fleetmanager.execution.manager.TaskSchedule;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
@@ -8,6 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.bf2.srs.fleetmanager.operation.OperationContextData;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -17,25 +19,23 @@ import java.util.UUID;
  * @author Jakub Senko <jsenko@redhat.com>
  */
 @NoArgsConstructor
+@Getter
 @ToString
 public class TestTask implements Task {
 
-    @Getter
     private String id;
 
-    @Getter
     private String type;
 
-    @Getter
     private TaskSchedule schedule;
 
-    @Getter
+    @Setter
+    private OperationContextData operationContextData;
+
     private Deque<Command> commands = new ArrayDeque<>();
 
-    @Getter
     private Command finalCommand = null;
 
-    @Getter
     private int counter = 0;
 
     @Builder
@@ -157,6 +157,17 @@ public class TestTask implements Task {
         @Override
         public boolean done() {
             return times > 0;
+        }
+
+        @Override
+        public String toString() {
+            return "BasicCommand{" +
+                    "times=" + times +
+                    ", delayIncrement=" + delayIncrement +
+                    ", delayThrowNPE=" + delayThrowNPE +
+                    ", increment=" + increment +
+                    ", throwNPE=" + throwNPE +
+                    '}';
         }
     }
 }

@@ -24,7 +24,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Task"
+                    "$ref": "#/components/schemas/TaskRest"
                   }
                 }
               }
@@ -51,7 +51,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Task"
+                  "$ref": "#/components/schemas/TaskRest"
                 }
               }
             },
@@ -78,24 +78,6 @@
         }
       ]
     },
-    "/api/serviceregistry_mgmt/v1/admin": {
-      "summary": "Get the OpenAPI schema for version 1 of this REST API.",
-      "get": {
-        "tags": [
-          "Info"
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {}
-            },
-            "description": "A successful response."
-          }
-        },
-        "operationId": "getSchema",
-        "summary": "Get the OpenAPI schema for version 1 of this REST API."
-      }
-    },
     "/api/serviceregistry_mgmt/v1/admin/registryDeployments": {
       "summary": "Manage the list of all registry deployments.",
       "get": {
@@ -109,7 +91,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/RegistryDeployment"
+                    "$ref": "#/components/schemas/RegistryDeploymentRest"
                   }
                 }
               }
@@ -125,7 +107,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/RegistryDeploymentCreate"
+                "$ref": "#/components/schemas/RegistryDeploymentCreateRest"
               }
             }
           },
@@ -135,11 +117,11 @@
           "RegistryDeployments"
         ],
         "responses": {
-          "201": {
+          "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RegistryDeployment"
+                  "$ref": "#/components/schemas/RegistryDeploymentRest"
                 }
               }
             },
@@ -149,7 +131,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorInfo"
+                  "$ref": "#/components/schemas/ErrorInfoRest"
                 }
               }
             },
@@ -185,7 +167,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RegistryDeployment"
+                  "$ref": "#/components/schemas/RegistryDeploymentRest"
                 }
               }
             },
@@ -226,7 +208,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorInfo"
+                  "$ref": "#/components/schemas/ErrorInfoRest"
                 }
               }
             },
@@ -239,11 +221,66 @@
         "operationId": "deleteRegistryDeployment",
         "summary": "Delete a specific Registry Deployment."
       }
+    },
+    "/api/serviceregistry_mgmt/v1/admin/openapi": {
+      "summary": "Get an OpenAPI schema for this API.",
+      "description": "Get an OpenAPI schema for this API.",
+      "get": {
+        "tags": [
+          "Info"
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                },
+                "examples": {
+                  "OpenAPI Schema": {
+                    "value": {
+                      "openapi": "3.0.2",
+                      "info": {
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "A successful response."
+          }
+        },
+        "operationId": "getSchema",
+        "summary": "Get an OpenAPI schema for this API."
+      }
     }
   },
   "components": {
     "schemas": {
-      "RegistryDeployment": {
+      "ErrorInfoRest": {
+        "$ref": "#/components/schemas/ErrorInfo1Rest"
+      },
+      "ErrorInfo1Rest": {
+        "title": "Root Type for ErrorInfo",
+        "description": "Details about a specific error returned by the server.",
+        "required": [
+          "error_code"
+        ],
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "type": "integer"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "error_code": 500,
+          "message": "An error occurred on the server."
+        }
+      },
+      "RegistryDeploymentRest": {
         "description": "Multi-tenant Service Registry deployment, that can host Service Registry instances.",
         "required": [
           "status",
@@ -266,11 +303,11 @@
             "type": "string"
           },
           "status": {
-            "$ref": "#/components/schemas/RegistryDeploymentStatus",
+            "$ref": "#/components/schemas/RegistryDeploymentStatusRest",
             "description": ""
           },
           "name": {
-            "description": "User-defined Registry Deployment name. Does not have to be unique.",
+            "description": "User-defined Registry Deployment name. Have to be unique.",
             "type": "string"
           }
         },
@@ -285,42 +322,7 @@
           "name": "my-deployment"
         }
       },
-      "RegistryDeploymentStatusValue": {
-        "description": "",
-        "enum": [
-          "PROCESSING",
-          "AVAILABLE",
-          "UNAVAILABLE"
-        ],
-        "type": "string"
-      },
-      "RegistryDeploymentStatus": {
-        "description": "",
-        "required": [
-          "value",
-          "lastUpdated"
-        ],
-        "type": "object",
-        "properties": {
-          "lastUpdated": {
-            "format": "date-time",
-            "description": "ISO 8601 UTC timestamp.",
-            "type": "string"
-          },
-          "value": {
-            "$ref": "#/components/schemas/RegistryDeploymentStatusValue",
-            "description": ""
-          }
-        },
-        "example": {
-          "value": "AVAILABLE",
-          "lastUpdated": "2021-05-04T12:34:56Z"
-        }
-      },
-      "ErrorInfo": {
-        "$ref": "#/components/schemas/ErrorInfo1"
-      },
-      "RegistryDeploymentCreate": {
+      "RegistryDeploymentCreateRest": {
         "description": "Information used to create (register) a new multi-tenant Service Registry deployment, that can host Service Registry instances.",
         "required": [
           "registryDeploymentUrl",
@@ -337,7 +339,7 @@
             "type": "string"
           },
           "name": {
-            "description": "User-defined Registry Deployment name. Does not have to be unique.",
+            "description": "User-defined Registry Deployment name. Have to be unique.",
             "type": "string"
           }
         },
@@ -347,7 +349,39 @@
           "name": "my-deployment"
         }
       },
-      "Task": {
+      "RegistryDeploymentStatusRest": {
+        "description": "",
+        "required": [
+          "value",
+          "lastUpdated"
+        ],
+        "type": "object",
+        "properties": {
+          "lastUpdated": {
+            "format": "date-time",
+            "description": "ISO 8601 UTC timestamp.",
+            "type": "string"
+          },
+          "value": {
+            "$ref": "#/components/schemas/RegistryDeploymentStatusValueRest",
+            "description": ""
+          }
+        },
+        "example": {
+          "value": "AVAILABLE",
+          "lastUpdated": "2021-05-04T12:34:56Z"
+        }
+      },
+      "RegistryDeploymentStatusValueRest": {
+        "description": "",
+        "enum": [
+          "PROCESSING",
+          "AVAILABLE",
+          "UNAVAILABLE"
+        ],
+        "type": "string"
+      },
+      "TaskRest": {
         "description": "",
         "required": [
           "id",
@@ -370,12 +404,12 @@
             "type": "string"
           },
           "schedule": {
-            "$ref": "#/components/schemas/TaskSchedule",
+            "$ref": "#/components/schemas/TaskScheduleRest",
             "description": ""
           }
         }
       },
-      "TaskSchedule": {
+      "TaskScheduleRest": {
         "title": "Root Type for TaskSchedule",
         "description": "",
         "required": [
@@ -400,26 +434,6 @@
           "intervalSec": 300,
           "priority": 5
         }
-      },
-      "ErrorInfo1": {
-        "title": "Root Type for ErrorInfo",
-        "description": "Details about a specific error returned by the server.",
-        "required": [
-          "error_code"
-        ],
-        "type": "object",
-        "properties": {
-          "error_code": {
-            "type": "integer"
-          },
-          "message": {
-            "type": "string"
-          }
-        },
-        "example": {
-          "error_code": 500,
-          "message": "An error occurred on the server."
-        }
       }
     },
     "responses": {
@@ -433,7 +447,7 @@
         "content": {
           "application/json": {
             "schema": {
-              "$ref": "#/components/schemas/ErrorInfo1"
+              "$ref": "#/components/schemas/ErrorInfo1Rest"
             }
           }
         },
@@ -443,7 +457,7 @@
         "content": {
           "application/json": {
             "schema": {
-              "$ref": "#/components/schemas/ErrorInfo1"
+              "$ref": "#/components/schemas/ErrorInfo1Rest"
             }
           }
         },

@@ -1,16 +1,5 @@
 package org.bf2.srs.fleetmanager.execution.manager;
 
-import io.quarkus.test.junit.QuarkusTest;
-import org.bf2.srs.fleetmanager.execution.impl.tasks.TestTask;
-import org.bf2.srs.fleetmanager.execution.impl.tasks.TestTask.BasicCommand;
-import org.bf2.srs.fleetmanager.execution.impl.tasks.TestTask.RetryCommand;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
-
-import java.time.Duration;
-import java.time.Instant;
-import javax.inject.Inject;
-
 import static java.lang.Long.valueOf;
 import static java.time.Duration.ofMillis;
 import static java.time.Duration.ofSeconds;
@@ -19,6 +8,22 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.jupiter.api.Assertions.fail;
+
+import java.time.Duration;
+import java.time.Instant;
+
+import javax.inject.Inject;
+
+import org.bf2.srs.fleetmanager.execution.impl.tasks.TestTask;
+import org.bf2.srs.fleetmanager.execution.impl.tasks.TestTask.BasicCommand;
+import org.bf2.srs.fleetmanager.execution.impl.tasks.TestTask.RetryCommand;
+import org.bf2.srs.fleetmanager.operation.OperationContext;
+import org.bf2.srs.fleetmanager.util.TestTags;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
+import io.quarkus.test.junit.QuarkusTest;
 
 /**
  * @author Jakub Senko <jsenko@redhat.com>
@@ -31,6 +36,17 @@ public class TaskManagerTest {
 
     @Inject
     DataCollector data;
+
+    @Inject
+    OperationContext opCtx;
+
+    @BeforeEach
+    void beforeEach() {
+        // Activate Operation Context
+        if (opCtx.isContextDataLoaded())
+            throw new IllegalStateException("Unexpected state: Operation Context is already loaded");
+        opCtx.loadNewContextData();
+    }
 
     @Test
     void testInputs() {
@@ -138,14 +154,19 @@ public class TaskManagerTest {
     }
 
     @Test
-    @Tag("slow")
+    @Tag(TestTags.SLOW)
     void testAutomaticRetrySlow() {
         TestTask task = null;
 
         // Test automatic retries with default limit (+ backoff timing)
-        task = TestTask.builder().schedule(TaskSchedule.builder().build()).build();
-        for (int i = 0; i < TaskSchedule.MIN_RETRIES_DEFAULT; i++)
+        task = TestTask.builder()
+                .schedule(TaskSchedule.builder().priority(TaskSchedule.PRIORITY_HIGH).build())
+                .build();
+
+        for (int i = 0; i < TaskSchedule.MIN_RETRIES_DEFAULT; i++) {
             task.andThen(BasicCommand.builder().throwNPE(true).build());
+        }
+
         task.andThen(BasicCommand.builder().increment(true).build())
                 .andThen(BasicCommand.builder().increment(true).build());
 

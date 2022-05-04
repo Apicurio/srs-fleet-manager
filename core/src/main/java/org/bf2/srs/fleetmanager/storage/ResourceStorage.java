@@ -1,12 +1,18 @@
 package org.bf2.srs.fleetmanager.storage;
 
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.Registry;
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeployment;
-
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+
+import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
+import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentData;
+import org.bf2.srs.fleetmanager.util.SearchQuery;
+
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
+import io.quarkus.panache.common.Sort;
 
 /**
  * @author Jakub Senko <jsenko@redhat.com>
@@ -16,21 +22,44 @@ public interface ResourceStorage {
 
     //*** Registry
 
-    boolean createOrUpdateRegistry(@Valid Registry registry) throws StorageConflictException;
+    boolean createOrUpdateRegistry(@Valid RegistryData registry) throws RegistryStorageConflictException;
 
-    Optional<Registry> getRegistryById(@NotNull Long id);
+    Optional<RegistryData> getRegistryById(@NotNull String id);
 
-    List<Registry> getAllRegistries();
+    List<RegistryData> getAllRegistries();
 
-    void deleteRegistry(@NotNull Long id) throws RegistryNotFoundException, StorageConflictException;
+    List<RegistryData> getRegistriesByOwner(String owner);
+
+    void deleteRegistry(@NotNull String id) throws RegistryNotFoundException, RegistryStorageConflictException;
 
     //*** RegistryDeployment
 
-    boolean createOrUpdateRegistryDeployment(@Valid RegistryDeployment rd) throws StorageConflictException;
+    boolean createOrUpdateRegistryDeployment(@Valid RegistryDeploymentData rd) throws RegistryDeploymentStorageConflictException, RegistryDeploymentNotFoundException;
 
-    List<RegistryDeployment> getAllRegistryDeployments();
+    List<RegistryDeploymentData> getAllRegistryDeployments();
 
-    Optional<RegistryDeployment> getRegistryDeploymentById(@NotNull Long id);
+    Optional<RegistryDeploymentData> getRegistryDeploymentById(@NotNull Long id);
 
-    void deleteRegistryDeployment(@NotNull Long id) throws RegistryDeploymentNotFoundException, StorageConflictException;
+    void deleteRegistryDeployment(@NotNull Long id) throws RegistryDeploymentNotFoundException, RegistryDeploymentStorageConflictException;
+
+    PanacheQuery<RegistryData> executeRegistrySearchQuery(SearchQuery query, Sort sort);
+
+    /**
+     * Queries the DB to get the total # of Registry instances.
+     */
+    long getRegistryCountTotal();
+
+    /**
+     * Queries the DB to get the total # of Registry instances per each status value.
+     */
+    Map<String, Long> getRegistryCountPerStatus();
+
+    /**
+     * Queries the DB to get the total # of Registry instances per each instance type value.
+     */
+    Map<String, Long> getRegistryCountPerType();
+
+    long getRegistryOwnerCount();
+
+    long getRegistryOrganisationCount();
 }

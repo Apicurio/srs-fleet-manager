@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import static java.util.Objects.requireNonNull;
 import static org.bf2.srs.fleetmanager.execution.impl.tasks.TaskType.SCHEDULE_REGISTRY_T;
 
 @NoArgsConstructor
@@ -12,11 +13,12 @@ import static org.bf2.srs.fleetmanager.execution.impl.tasks.TaskType.SCHEDULE_RE
 @ToString(callSuper = true)
 public class ScheduleRegistryTask extends AbstractTask {
 
-    private long registryId;
+    private String registryId;
 
     @Builder
-    public ScheduleRegistryTask(long registryId) {
+    public ScheduleRegistryTask(String registryId) {
         super(SCHEDULE_REGISTRY_T);
+        requireNonNull(registryId);
         this.registryId = registryId;
     }
 }

@@ -1,0 +1,17 @@
+reconcile: true
+plans:
+  - name: basic
+    resources:
+      - type: MAX_TOTAL_SCHEMAS_COUNT
+        limit: 10
+      - type: MAX_REQUESTS_PER_SECOND_COUNT
+        limit: 10
+  - name: premium
+    resources:
+      - type: MAX_TOTAL_SCHEMAS_COUNT
+        limit: 100
+      - type: MAX_REQUESTS_PER_SECOND_COUNT
+        limit: 100
+organizations:
+  - orgId: bob
+    plan: premium

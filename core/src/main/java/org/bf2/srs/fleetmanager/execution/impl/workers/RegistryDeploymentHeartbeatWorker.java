@@ -1,19 +1,16 @@
 package org.bf2.srs.fleetmanager.execution.impl.workers;
 
-import org.bf2.srs.fleetmanager.rest.model.RegistryDeploymentStatusValueRest;
-import org.bf2.srs.fleetmanager.storage.StorageConflictException;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.RegistryDeploymentHeartbeatTask;
 import org.bf2.srs.fleetmanager.execution.manager.Task;
-import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
-import org.bf2.srs.fleetmanager.spi.TenantManagerClient;
-import org.bf2.srs.fleetmanager.spi.model.TenantManager;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentStatusValue;
+import org.bf2.srs.fleetmanager.spi.tenants.TenantManagerService;
+import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
+import org.bf2.srs.fleetmanager.storage.RegistryDeploymentStorageConflictException;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeployment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
 import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -23,8 +20,11 @@ import static org.bf2.srs.fleetmanager.execution.impl.tasks.TaskType.REGISTRY_DE
 import static org.bf2.srs.fleetmanager.execution.impl.workers.WorkerType.REGISTRY_DEPLOYMENT_HEARTBEAT_W;
 
 /**
+ * This class MUST be thread safe. It should not contain state and inject thread safe beans only.
+ *
  * @author Jakub Senko <jsenko@redhat.com>
  */
+// TODO This task is (temporarily) not used. Enable when needed.
 @ApplicationScoped
 public class RegistryDeploymentHeartbeatWorker extends AbstractWorker {
 
@@ -34,10 +34,7 @@ public class RegistryDeploymentHeartbeatWorker extends AbstractWorker {
     ResourceStorage storage;
 
     @Inject
-    TenantManagerClient tmClient;
-
-    @Inject
-    TaskManager tasks;
+    TenantManagerService tms;
 
     public RegistryDeploymentHeartbeatWorker() {
         super(REGISTRY_DEPLOYMENT_HEARTBEAT_W);
@@ -50,41 +47,43 @@ public class RegistryDeploymentHeartbeatWorker extends AbstractWorker {
 
     @Transactional
     @Override
-    public void execute(Task aTask, WorkerContext ctl) throws StorageConflictException {
-        RegistryDeploymentHeartbeatTask task = (RegistryDeploymentHeartbeatTask) aTask;
+    public void execute(Task aTask, WorkerContext ctl) throws RegistryDeploymentStorageConflictException, RegistryDeploymentNotFoundException {
+        var task = (RegistryDeploymentHeartbeatTask) aTask;
+        var deploymentOptional = storage.getRegistryDeploymentById(task.getDeploymentId());
+        if (deploymentOptional.isPresent()) {
+            var deployment = deploymentOptional.get();
+            var status = RegistryDeploymentStatusValue.of(deployment.getStatus().getValue());
+            switch (status) {
+                case PROCESSING:
+                case AVAILABLE:
+                case UNAVAILABLE: {
+                    var tmc = Utils.createTenantManagerConfig(deployment);
+                    boolean isAvailable = tms.pingTenantManager(tmc);
 
-        Optional<RegistryDeployment> deploymentOptional = storage.getRegistryDeploymentById(task.getDeploymentId());
-        if (deploymentOptional.isEmpty()) {
-            // NOTE: Failure point 1
-            // The Registry Deployment disappeared. Just retry.
+                    if (isAvailable) {
+                        deployment.getStatus().setValue(RegistryDeploymentStatusValue.AVAILABLE.value());
+                        log.debug("RegistryDeployment id='{}' is available.", deployment.getId());
+                    } else {
+                        deployment.getStatus().setValue(RegistryDeploymentStatusValue.UNAVAILABLE.value());
+                        log.warn("RegistryDeployment id='{}' is not available.", deployment.getId());
+                    }
+
+                    if (status != RegistryDeploymentStatusValue.of(deployment.getStatus().getValue())) {
+                        storage.createOrUpdateRegistryDeployment(deployment);
+                    }
+                    return;
+                }
+                default:
+                    throw new IllegalStateException("Unexpected value: " + status);
+            }
+        } else {
+            log.warn("RegistryDeployment id='{}' not found. Stopping.", task.getDeploymentId());
             ctl.retry();
         }
-        RegistryDeployment deployment = deploymentOptional.get();
-
-        TenantManager tenantManager = TenantManager.builder()
-                .tenantManagerUrl(deployment.getTenantManagerUrl())
-                .registryDeploymentUrl(deployment.getRegistryDeploymentUrl())
-                .build();
-
-        boolean ok = tmClient.pingTenantManager(tenantManager);
-
-        deployment.getStatus().setLastUpdated(Instant.now());
-
-        if (!ok) {
-            deployment.getStatus().setValue(RegistryDeploymentStatusValueRest.UNAVAILABLE.value());
-            // TODO alerting?
-            log.warn("Registry Deployment with ID {} has become unreachable.", deployment.getId());
-        } else {
-            deployment.getStatus().setValue(RegistryDeploymentStatusValueRest.AVAILABLE.value());
-        }
-
-        // NOTE: Failure point 2
-        storage.createOrUpdateRegistryDeployment(deployment);
     }
 
     @Override
     public void finallyExecute(Task aTask, WorkerContext ctl, Optional<Exception> error) {
-        // The Registry Deployment was deleted or storage failed.
-        // We should make sure the customers won't lose data so we'll just ignore this error.
+        // NOOP
     }
 }

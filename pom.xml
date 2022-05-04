@@ -22,21 +22,24 @@
         <compiler-plugin.version>3.8.1</compiler-plugin.version>
         <maven.compiler.parameters>true</maven.compiler.parameters>
 
-        <enforcer-plugin.version>3.0.0-M3</enforcer-plugin.version>
         <properties-maven-plugin.version>1.0.0</properties-maven-plugin.version>
 
         <!-- Quarkus -->
         <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
-        <quarkus.platform.artifact-id>quarkus-universe-bom</quarkus.platform.artifact-id>
-        <quarkus.platform.version>1.10.5.Final</quarkus.platform.version>
+        <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
+        <quarkus.platform.version>2.2.3.Final</quarkus.platform.version>
 
         <quarkus-plugin.version>${quarkus.platform.version}</quarkus-plugin.version>
 
         <!-- Other -->
         <lombok.version>1.18.16</lombok.version>
-        <apicurio-registry-tenant-manager-client.version>2.1.0-SNAPSHOT</apicurio-registry-tenant-manager-client.version>
+        <apicurio-registry-tenant-manager-client.version>2.2.4-32</apicurio-registry-tenant-manager-client.version>
+        <apicurio-common-rest-client.version>0.1.6.Final</apicurio-common-rest-client.version>
         <keycloak.version>11.0.3</keycloak.version>
         <keycloak.testcontainers.version>1.5.0</keycloak.testcontainers.version>
+        <embedded-postgres.version>1.2.10</embedded-postgres.version>
+        <wiremock.version>2.27.2</wiremock.version>
+        <sentry.version>1.7.30</sentry.version>
 
     </properties>
 
@@ -93,12 +96,22 @@
 
             <dependency>
                 <groupId>org.bf2</groupId>
+                <artifactId>srs-fleet-manager-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bf2</groupId>
                 <artifactId>srs-fleet-manager-spi</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.bf2</groupId>
                 <artifactId>srs-fleet-manager-tenant-manager-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bf2</groupId>
+                <artifactId>srs-fleet-manager-account-management-service</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -114,6 +127,24 @@
                 <groupId>io.apicurio</groupId>
                 <artifactId>apicurio-registry-tenant-manager-client</artifactId>
                 <version>${apicurio-registry-tenant-manager-client.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.apicurio</groupId>
+                <artifactId>apicurio-common-rest-client-jdk</artifactId>
+                <version>${apicurio-common-rest-client.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.tomakehurst</groupId>
+                <artifactId>wiremock-jre8</artifactId>
+                <version>${wiremock.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.sentry</groupId>
+                <artifactId>sentry</artifactId>
+                <version>${sentry.version}</version><!--$NO-MVN-MAN-VER$-->
             </dependency>
 
         </dependencies>
@@ -141,11 +172,6 @@
                 <plugin>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${compiler-plugin.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-enforcer-plugin</artifactId>
-                    <version>${enforcer-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -176,9 +202,18 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
+                <module>common</module>
                 <module>spi</module>
                 <module>core</module>
                 <module>tenant-manager-client</module>
+                <module>account-management-service</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>it</id>
+            <modules>
+                <module>integration-tests</module>
             </modules>
         </profile>
 
@@ -190,6 +225,7 @@
                 </property>
             </activation>
             <modules>
+                <module>common</module>
                 <module>spi</module>
                 <module>core</module>
             </modules>
@@ -213,12 +249,6 @@
                                 </configuration>
                             </execution>
                         </executions>
-                    </plugin>
-                    <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
-                            <excludedGroups>slow</excludedGroups>
-                        </configuration>
                     </plugin>
                 </plugins>
             </build>

@@ -1,20 +1,29 @@
 package org.bf2.srs.fleetmanager.storage.sqlPanacheImpl;
 
-import org.bf2.srs.fleetmanager.logging.Logged;
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
+import io.quarkus.panache.common.Sort;
+import org.bf2.srs.fleetmanager.operation.logging.Logged;
 import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
+import org.bf2.srs.fleetmanager.storage.RegistryDeploymentStorageConflictException;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
+import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
-import org.bf2.srs.fleetmanager.storage.StorageConflictException;
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.Registry;
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeployment;
+import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
+import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentData;
+import org.bf2.srs.fleetmanager.util.SearchQuery;
 import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceException;
 import javax.transaction.Transactional;
 
@@ -31,6 +40,7 @@ import static java.util.Optional.ofNullable;
 @Logged
 public class PanacheResourceStorage implements ResourceStorage {
 
+    @SuppressWarnings("unused")
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     @Inject
@@ -39,43 +49,63 @@ public class PanacheResourceStorage implements ResourceStorage {
     @Inject
     PanacheRegistryDeploymentRepository deploymentRepository;
 
+    @Inject
+    EntityManager em;
+
     @Override
-    public boolean createOrUpdateRegistry(Registry registry) throws StorageConflictException {
+    public boolean createOrUpdateRegistry(RegistryData registry) throws RegistryStorageConflictException {
         requireNonNull(registry);
-        Optional<Registry> existing = empty();
+        Optional<RegistryData> existing = empty();
         if (registry.getId() != null) {
+            //TODO investigate using locks, such as optimistic locks
             existing = registryRepository.findByIdOptional(registry.getId());
         }
         try {
+            final Instant now = Instant.now();
+            if (existing.isEmpty()) {
+                registry.setCreatedAt(now);
+            }
+            registry.setUpdatedAt(now);
+
             registryRepository.persistAndFlush(registry);
         } catch (PersistenceException ex) {
             if (ex.getCause() instanceof ConstraintViolationException) {
-                throw StorageConflictException.create("Registry");
+                throw new RegistryStorageConflictException();
+            } else {
+                throw ex;
             }
         }
         return existing.isEmpty();
     }
 
     @Override
-    public Optional<Registry> getRegistryById(Long id) {
+    public Optional<RegistryData> getRegistryById(String id) {
         requireNonNull(id);
         return ofNullable(registryRepository.findById(id));
     }
 
     @Override
-    public List<Registry> getAllRegistries() {
+    public List<RegistryData> getAllRegistries() {
         return registryRepository.listAll();
     }
 
     @Override
-    public void deleteRegistry(Long id) throws RegistryNotFoundException, StorageConflictException {
-        Registry registry = getRegistryById(id)
-                .orElseThrow(() -> RegistryNotFoundException.create(id));
+    public List<RegistryData> getRegistriesByOwner(String owner) {
+        return registryRepository.list("owner", owner);
+    }
+
+    @Override
+    public void deleteRegistry(String id) throws RegistryNotFoundException, RegistryStorageConflictException {
+        RegistryData registry = getRegistryById(id)
+                .orElseThrow(() -> new RegistryNotFoundException(id));
         try {
             registryRepository.delete(registry);
+
         } catch (PersistenceException ex) {
             if (ex.getCause() instanceof ConstraintViolationException) {
-                throw StorageConflictException.create("Registry");
+                throw new RegistryStorageConflictException();
+            } else {
+                throw ex;
             }
         }
     }
@@ -83,43 +113,121 @@ public class PanacheResourceStorage implements ResourceStorage {
     //*** RegistryDeployment
 
     @Override
-    public boolean createOrUpdateRegistryDeployment(RegistryDeployment deployment) throws StorageConflictException {
+    public boolean createOrUpdateRegistryDeployment(RegistryDeploymentData deployment) throws RegistryDeploymentStorageConflictException, RegistryDeploymentNotFoundException {
         requireNonNull(deployment); // TODO Is this necessary if using @Valid?
-        Optional<RegistryDeployment> existing = empty();
+        Optional<RegistryDeploymentData> existing = empty();
         if (deployment.getId() != null) {
+            //TODO investigate using locks, such as optimistic locks
             existing = deploymentRepository.findByIdOptional(deployment.getId());
+            if (existing.isEmpty()) {
+                throw new RegistryDeploymentNotFoundException(deployment.getId().toString());
+            }
         }
         try {
-            deploymentRepository.persistAndFlush(deployment);
+            final Instant now = Instant.now();
+            deployment.getStatus().setLastUpdated(now);
+
+            if (existing.isEmpty()) {
+                deploymentRepository.persistAndFlush(deployment);
+            } else {
+                em.merge(deployment);
+                em.flush();
+            }
+
         } catch (PersistenceException ex) {
             if (ex.getCause() instanceof ConstraintViolationException) {
-                throw StorageConflictException.create("Registry Deployment");
+                throw new RegistryDeploymentStorageConflictException();
+            } else {
+                throw ex;
             }
         }
         return existing.isEmpty();
     }
 
     @Override
-    public List<RegistryDeployment> getAllRegistryDeployments() {
+    public List<RegistryDeploymentData> getAllRegistryDeployments() {
         return deploymentRepository.listAll();
     }
 
     @Override
-    public Optional<RegistryDeployment> getRegistryDeploymentById(Long id) {
+    public Optional<RegistryDeploymentData> getRegistryDeploymentById(Long id) {
         requireNonNull(id);
         return ofNullable(deploymentRepository.findById(id));
     }
 
     @Override
-    public void deleteRegistryDeployment(Long id) throws RegistryDeploymentNotFoundException, StorageConflictException {
-        RegistryDeployment rd = getRegistryDeploymentById(id)
-                .orElseThrow(() -> RegistryDeploymentNotFoundException.create(id));
+    public void deleteRegistryDeployment(Long id) throws RegistryDeploymentNotFoundException, RegistryDeploymentStorageConflictException {
+        RegistryDeploymentData rd = getRegistryDeploymentById(id)
+                .orElseThrow(() -> new RegistryDeploymentNotFoundException(id.toString()));
         try {
             deploymentRepository.delete(rd);
         } catch (PersistenceException ex) {
             if (ex.getCause() instanceof ConstraintViolationException) {
-                throw StorageConflictException.create("Registry Deployment");
+                throw new RegistryDeploymentStorageConflictException();
+            } else {
+                throw ex;
             }
+        }
+    }
+
+    @Override
+    public PanacheQuery<RegistryData> executeRegistrySearchQuery(SearchQuery query, Sort sort) {
+        // Leaking Panache internals to the caller. TODO Maybe refactor?
+        return this.registryRepository.find(query.getQuery(), sort, query.getArguments());
+    }
+
+    @Override
+    public long getRegistryCountTotal() {
+        return this.registryRepository.count();
+    }
+
+    @Override
+    public Map<String, Long> getRegistryCountPerStatus() {
+        var res = new HashMap<String, Long>();
+        List<Object[]> queryRes = (List<Object[]>) this.registryRepository.getEntityManager()
+                .createQuery("select r.status, count(r) from RegistryData r group by r.status")
+                .getResultList();
+        for (Object[] qr : queryRes) {
+            if (qr.length != 2)
+                throw new IllegalStateException("Unexpected number of columns in the result row: " + qr.length);
+            res.put((String) qr[0], ((Number) qr[1]).longValue());
+        }
+        return res;
+    }
+
+    @Override
+    public Map<String, Long> getRegistryCountPerType() {
+        var res = new HashMap<String, Long>();
+        List<Object[]> queryRes = (List<Object[]>) this.registryRepository.getEntityManager()
+                .createQuery("select r.instanceType, count(r) from RegistryData r group by r.instanceType")
+                .getResultList();
+        for (Object[] qr : queryRes) {
+            if (qr.length != 2)
+                throw new IllegalStateException("Unexpected number of columns in the result row: " + qr.length);
+            res.put((String) qr[0], ((Number) qr[1]).longValue());
+        }
+        return res;
+    }
+
+    @Override
+    public long getRegistryOwnerCount() {
+        try {
+            return this.registryRepository.getEntityManager()
+                    .createQuery("select count(distinct r.ownerId) from RegistryData r", Long.class)
+                    .getSingleResult();
+        } catch (NoResultException ex) {
+            return 0;
+        }
+    }
+
+    @Override
+    public long getRegistryOrganisationCount() {
+        try {
+            return this.registryRepository.getEntityManager()
+                    .createQuery("select count(distinct r.orgId) from RegistryData r", Long.class)
+                    .getSingleResult();
+        } catch (NoResultException ex) {
+            return 0;
         }
     }
 }

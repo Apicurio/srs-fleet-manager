@@ -18,9 +18,9 @@ import java.time.Instant;
 @ToString
 public class TaskSchedule {
 
-    public static int PRIORITY_LOW = 0;
-    public static int PRIORITY_DEFAULT = 5;
-    public static int PRIORITY_HIGH = 10;
+    public static final int PRIORITY_LOW = 0;
+    public static final int PRIORITY_DEFAULT = 5;
+    public static final int PRIORITY_HIGH = 10;
 
     public static final int MIN_RETRIES_DEFAULT = 10; // 0,1,2,4,8,16,32,64,128,256 seconds
 
