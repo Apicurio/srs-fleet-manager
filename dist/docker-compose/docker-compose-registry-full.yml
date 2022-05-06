@@ -1,36 +1,42 @@
 version: '3'
 
-volumes:
-  postgre_apicurio:
-
 services:
 
-  apicurio-db:
-
   tenant-manager:
-    image: 'apicurio/apicurio-registry-tenant-manager-api:${TENANT_MANAGER_VERSION}'
+    image: 'quarkus/tenant-manager-fast-jar:${TENANT_MANAGER_VERSION}'
     ports:
-      - 8081:8585
+      - "8081:8585"
     environment:
-      REGISTRY_ROUTE_URL: http://${HOST}:8080
       AUTH_ENABLED: ${AUTH_ENABLED}
       AUTHZ_ENABLED: ${AUTHZ_ENABLED}
       TENANT_MANAGER_AUTHZ_ENABLED: ${AUTH_ENABLED}
       KEYCLOAK_URL: ${KEYCLOAK_URL}
       KEYCLOAK_REALM: ${KEYCLOAK_REALM}
       KEYCLOAK_API_CLIENT_ID: ${KEYCLOAK_API_CLIENT_ID}
-      DATASOURCE_URL: ${APICURIO_DB_CONNECTION_URL}
-      DATASOURCE_USERNAME: ${APICURIO_DB_USER_NAME}
-      DATASOURCE_PASSWORD: ${APICURIO_DB_PASSWORD}
-    depends_on:
-      - apicurio-db
-      - registry-app
-  registry-app:
-    depends_on:
-      - apicurio-db
-    image: 'apicurio/apicurio-registry-sql:${REGISTRY_VERSION}'
+      QUARKUS_PROFILE: ${QUARKUS_PROFILE}
+
+  apicurio-sr-fleet-manager:
+    image: 'quarkus/srs-fleet-manager-parent-jvm:${FLEET_MANAGER_VERSION}'
     ports:
-      - 8080:8080
+      - '8082:8080'
+    environment:
+      JAVA_TOOL_OPTIONS: '-Djava.net.preferIPv4Stack=true'
+
+      TENANT_MANAGER_AUTH_SERVER_URL: ${KEYCLOAK_URL}
+      TENANT_MANAGER_AUTH_REALM: ${KEYCLOAK_REALM}
+      TENANT_MANAGER_AUTH_CLIENT_ID: ${KEYCLOAK_API_CLIENT_ID}
+      TENANT_MANAGER_AUTH_SECRET: ${TENANT_MANAGER_AUTH_SECRET}
+      QUARKUS_PROFILE: ${QUARKUS_PROFILE}
+
+      AUTH_ENABLED: ${AUTH_ENABLED}
+      KEYCLOAK_URL: ${KEYCLOAK_URL}
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM}
+      KEYCLOAK_API_CLIENT_ID: ${KEYCLOAK_API_CLIENT_ID}
+
+  registry-app:
+    image: 'apicurio/apicurio-registry-mem:${REGISTRY_VERSION}'
+    ports:
+      - "8080:8080"
     environment:
       REGISTRY_ENABLE_MULTITENANCY: 'true'
       AUTHZ_ENABLED: ${AUTHZ_ENABLED}
@@ -39,31 +45,4 @@ services:
       KEYCLOAK_REALM: ${KEYCLOAK_REALM}
       KEYCLOAK_API_CLIENT_ID: ${KEYCLOAK_API_CLIENT_ID}
       KEYCLOAK_UI_CLIENT_ID: ${KEYCLOAK_UI_CLIENT_ID}
-      REGISTRY_DATASOURCE_URL: ${APICURIO_DB_CONNECTION_URL}
-      REGISTRY_DATASOURCE_USERNAME: ${APICURIO_DB_USER_NAME}
-      REGISTRY_DATASOURCE_PASSWORD: ${APICURIO_DB_PASSWORD}
-
-  apicurio-sr-fleet-manager:
-    image: 'apicurio/srs-fleet-manager:${FLEET_MANAGER_VERSION}'
-    depends_on:
-      - apicurio-db
-    ports:
-      - '8082:8080'
-    environment:
-      JAVA_TOOL_OPTIONS: '-Djava.net.preferIPv4Stack=true'
-
-      SERVICE_API_DATASOURCE_URL: ${APICURIO_DB_CONNECTION_URL}
-      SERVICE_API_DATASOURCE_USERNAME: ${APICURIO_DB_USER_NAME}
-      SERVICE_API_DATASOURCE_PASSWORD: ${APICURIO_DB_PASSWORD}
-
-      TENANT_MANAGER_AUTH_SERVER_URL: ${KEYCLOAK_URL}
-      TENANT_MANAGER_AUTH_REALM: ${KEYCLOAK_REALM}
-      TENANT_MANAGER_AUTH_CLIENT_ID: ${KEYCLOAK_API_CLIENT_ID}
-      TENANT_MANAGER_AUTH_SECRET: ${TENANT_MANAGER_AUTH_SECRET}
-
-      AUTH_ENABLED: ${AUTH_ENABLED}
-      KEYCLOAK_URL: ${KEYCLOAK_URL}
-      KEYCLOAK_REALM: ${KEYCLOAK_REALM}
-      KEYCLOAK_API_CLIENT_ID: ${KEYCLOAK_API_CLIENT_ID}
-      ORGANIZATION_ID_CLAIM: ${ORGANIZATION_ID_CLAIM}
-      DEFAULT_ORG: ${DEFAULT_ORG}
+      QUARKUS_PROFILE: ${QUARKUS_PROFILE}
