@@ -9,6 +9,7 @@ on:
       
 env:
   PLATFORMS: linux/amd64,linux/arm64,linux/s390x,linux/ppc64le
+  IMAGE_TAG: latest
 
 jobs:
 
@@ -58,6 +59,10 @@ jobs:
           EXTRA_ARGS: -DskipGroups=none
         run: |
           make pr-check
+          
+      - name: Set Image Tag
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: echo "IMAGE_TAG=latest-snapshot" >> $GITHUB_ENV
 
       - name: Login to DockerHub Registry
         if: github.event_name == 'push'
@@ -76,5 +81,5 @@ jobs:
          platforms: ${{env.PLATFORMS}}
          push: true
          tags: |
-           docker.io/apicurio/apicurio-registry-fleet-manager-api:latest-snapshot
-           quay.io/apicurio/apicurio-registry-fleet-manager-api:latest-snapshot
+           docker.io/apicurio/apicurio-registry-fleet-manager-api:${{env.IMAGE_TAG}}
+           quay.io/apicurio/apicurio-registry-fleet-manager-api:${{env.IMAGE_TAG}}
