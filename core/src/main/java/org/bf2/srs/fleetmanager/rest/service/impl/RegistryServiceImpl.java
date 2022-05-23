@@ -12,6 +12,7 @@ import org.bf2.srs.fleetmanager.common.operation.auditing.Audited;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.ScheduleRegistryTask;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.deprovision.StartDeprovisionRegistryTask;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
+import org.bf2.srs.fleetmanager.operation.readonly.ReadOnlySafeModeCheck;
 import org.bf2.srs.fleetmanager.rest.service.RegistryService;
 import org.bf2.srs.fleetmanager.rest.service.convert.ConvertRegistry;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryCreateDto;
@@ -87,6 +88,7 @@ public class RegistryServiceImpl implements RegistryService {
     int maxInstances;
 
     @Audited
+    @ReadOnlySafeModeCheck
     @Override
     public RegistryDto createRegistry(RegistryCreateDto registryCreate)
             throws RegistryStorageConflictException, TermsRequiredException, ResourceLimitReachedException,
@@ -208,6 +210,7 @@ public class RegistryServiceImpl implements RegistryService {
     @Override
     @Audited(extractParameters = {"0", KEY_REGISTRY_ID})
     @CheckDeletePermissions
+    @ReadOnlySafeModeCheck
     public void deleteRegistry(String registryId) throws RegistryNotFoundException, RegistryStorageConflictException {
         try {
             // Verify preconditions - Registry exists

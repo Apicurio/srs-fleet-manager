@@ -2,6 +2,7 @@ package org.bf2.srs.fleetmanager.rest.service.impl;
 
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import org.bf2.srs.fleetmanager.common.operation.auditing.Audited;
+import org.bf2.srs.fleetmanager.operation.readonly.ReadOnlySafeModeCheck;
 import org.bf2.srs.fleetmanager.rest.service.RegistryDeploymentService;
 import org.bf2.srs.fleetmanager.rest.service.convert.ConvertRegistryDeployment;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeployment;
@@ -111,8 +112,9 @@ public class RegistryDeploymentServiceImpl implements RegistryDeploymentService 
         }
     }
 
-    @Override
     @Audited
+    @ReadOnlySafeModeCheck
+    @Override
     public RegistryDeployment createRegistryDeployment(@Valid RegistryDeploymentCreate deploymentCreate) throws RegistryDeploymentStorageConflictException {
         if (deploymentsConfigFile.isPresent()) {
             throw new ForbiddenException();
@@ -150,8 +152,9 @@ public class RegistryDeploymentServiceImpl implements RegistryDeploymentService 
                 .orElseThrow(() -> new RegistryDeploymentNotFoundException(id.toString()));
     }
 
-    @Override
     @Audited(extractParameters = {"0", KEY_DEPLOYMENT_ID})
+    @ReadOnlySafeModeCheck
+    @Override
     public void deleteRegistryDeployment(Long id) throws RegistryDeploymentNotFoundException, RegistryDeploymentStorageConflictException {
         if (deploymentsConfigFile.isPresent()) {
             throw new ForbiddenException();

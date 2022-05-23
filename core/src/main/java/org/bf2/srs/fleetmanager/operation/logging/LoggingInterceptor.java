@@ -17,12 +17,14 @@
 package org.bf2.srs.fleetmanager.operation.logging;
 
 import org.bf2.srs.fleetmanager.App;
+import org.bf2.srs.fleetmanager.common.operation.InterceptorPriority;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Parameter;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.Priority;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
@@ -31,8 +33,9 @@ import javax.interceptor.InvocationContext;
  * @author eric.wittmann@gmail.com
  * @author Jakub Senko <jsenko@redhat.com>
  */
-@Interceptor
 @Logged
+@Interceptor
+@Priority(InterceptorPriority.LOGGING)
 public class LoggingInterceptor {
 
     private static final Map<Class<?>, Logger> loggers = new HashMap<>();
@@ -81,7 +84,7 @@ public class LoggingInterceptor {
     }
 
     private void logLeave(Logger logger, StringBuilder info, Object rval) {
-        if(logger != null)
+        if (logger != null)
             logger.debug("LEAVING method {}", info.append(" returning ").append(rval));
     }
 

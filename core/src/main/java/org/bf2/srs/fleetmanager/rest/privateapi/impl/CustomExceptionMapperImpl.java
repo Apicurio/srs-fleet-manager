@@ -2,6 +2,7 @@ package org.bf2.srs.fleetmanager.rest.privateapi.impl;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import io.quarkus.runtime.configuration.ProfileManager;
+import org.bf2.srs.fleetmanager.operation.readonly.ReadOnlySafeModeException;
 import org.bf2.srs.fleetmanager.rest.config.CustomExceptionMapper;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.ErrorInfo1Rest;
 import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
@@ -44,6 +45,8 @@ public class CustomExceptionMapperImpl implements CustomExceptionMapper {
         map.put(JsonParseException.class, HTTP_BAD_REQUEST);
 
         map.put(RegistryDeploymentStorageConflictException.class, HTTP_CONFLICT);
+
+        map.put(ReadOnlySafeModeException.class, HTTP_UNAVAILABLE);
 
         CODE_MAP = Collections.unmodifiableMap(map);
     }
