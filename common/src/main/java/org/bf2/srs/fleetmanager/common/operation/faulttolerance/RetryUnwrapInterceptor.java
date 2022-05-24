@@ -1,5 +1,7 @@
 package org.bf2.srs.fleetmanager.common.operation.faulttolerance;
 
+import org.bf2.srs.fleetmanager.common.operation.InterceptorPriority;
+
 import javax.annotation.Priority;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
@@ -10,7 +12,7 @@ import javax.interceptor.InvocationContext;
  */
 @RetryUnwrap
 @Interceptor
-@Priority(Interceptor.Priority.APPLICATION)
+@Priority(InterceptorPriority.RETRY_UNWRAP)
 public class RetryUnwrapInterceptor {
 
     @AroundInvoke

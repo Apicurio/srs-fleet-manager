@@ -5,6 +5,7 @@ import lombok.SneakyThrows;
 import org.bf2.srs.fleetmanager.execution.manager.Task;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.operation.OperationContext;
+import org.bf2.srs.fleetmanager.operation.readonly.ReadOnlySafeModeCheck;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
@@ -38,12 +39,14 @@ public class QuartzTaskManager implements TaskManager {
     @Inject
     OperationContext opCtx;
 
+    @ReadOnlySafeModeCheck
     @SneakyThrows
     @Override
     public void start() {
         quartzScheduler.start();
     }
 
+    @ReadOnlySafeModeCheck
     @SneakyThrows
     @Override
     public void submit(Task task) {
@@ -68,9 +71,9 @@ public class QuartzTaskManager implements TaskManager {
         quartzScheduler.scheduleJob(job, trigger);
     }
 
+    @ReadOnlySafeModeCheck
     @SneakyThrows
     void rerigger(Task task, Instant at) {
-
         var trigger = TriggerBuilder.newTrigger()
                 .forJob(jobKeyForTask(task))
                 .withIdentity(idForTask(task), groupForTask(task))
@@ -81,6 +84,7 @@ public class QuartzTaskManager implements TaskManager {
         quartzScheduler.rescheduleJob(triggerKeyForTask(task), trigger);
     }
 
+    @ReadOnlySafeModeCheck
     @SneakyThrows
     @Override
     public Set<Task> getAllTasks() {
@@ -91,6 +95,7 @@ public class QuartzTaskManager implements TaskManager {
                 .collect(toSet());
     }
 
+    @ReadOnlySafeModeCheck
     @SneakyThrows
     private JobDetail getJobDetail(JobKey k) {
         return quartzScheduler.getJobDetail(k);
@@ -101,6 +106,7 @@ public class QuartzTaskManager implements TaskManager {
         return mapper.readValue(s, Task.class);
     }
 
+    @ReadOnlySafeModeCheck
     @SneakyThrows
     @Override
     public Set<Task> getTasksByType(String taskType) {
@@ -111,6 +117,7 @@ public class QuartzTaskManager implements TaskManager {
                 .collect(toSet());
     }
 
+    @ReadOnlySafeModeCheck
     @Override
     public Optional<Task> getTaskById(String taskId) {
         requireNonNull(taskId);
@@ -119,12 +126,14 @@ public class QuartzTaskManager implements TaskManager {
                 .findFirst();
     }
 
+    @ReadOnlySafeModeCheck
     @SneakyThrows
     @Override
     public void remove(Task task) {
         quartzScheduler.deleteJob(jobKeyForTask(task));
     }
 
+    @ReadOnlySafeModeCheck
     @SneakyThrows
     @Override
     public void stop() {

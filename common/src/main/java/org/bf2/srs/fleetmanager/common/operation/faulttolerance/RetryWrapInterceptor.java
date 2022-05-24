@@ -1,5 +1,7 @@
 package org.bf2.srs.fleetmanager.common.operation.faulttolerance;
 
+import org.bf2.srs.fleetmanager.common.operation.InterceptorPriority;
+
 import javax.annotation.Priority;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
@@ -10,7 +12,7 @@ import javax.interceptor.InvocationContext;
  */
 @RetryWrap
 @Interceptor
-@Priority(4020) // Must be higher than io.smallrye.faulttolerance.FaultToleranceInterceptor
+@Priority(InterceptorPriority.RETRY_WRAP)
 public class RetryWrapInterceptor {
 
     @AroundInvoke

@@ -8,6 +8,7 @@ import org.bf2.srs.fleetmanager.common.errors.UserErrorInfo;
 import org.bf2.srs.fleetmanager.errors.UserErrorMapper;
 import org.bf2.srs.fleetmanager.operation.metrics.ExceptionMetrics;
 import org.bf2.srs.fleetmanager.operation.OperationContext;
+import org.bf2.srs.fleetmanager.operation.readonly.ReadOnlySafeModeException;
 import org.bf2.srs.fleetmanager.rest.config.CustomExceptionMapper;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.Error;
 import org.bf2.srs.fleetmanager.rest.service.ErrorNotFoundException;
@@ -87,6 +88,7 @@ public class CustomExceptionMapperImpl implements CustomExceptionMapper {
 
         map.put(TimeoutException.class, HTTP_UNAVAILABLE);
         map.put(InterruptedException.class, HTTP_UNAVAILABLE);
+        map.put(ReadOnlySafeModeException.class, HTTP_UNAVAILABLE);
 
         CODE_MAP = Collections.unmodifiableMap(map);
     }

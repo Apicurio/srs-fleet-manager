@@ -17,13 +17,14 @@
 package org.bf2.srs.fleetmanager.operation.auditing.impl;
 
 import io.quarkus.security.identity.SecurityIdentity;
+import org.bf2.srs.fleetmanager.common.operation.InterceptorPriority;
 import org.bf2.srs.fleetmanager.common.operation.auditing.Audited;
 import org.bf2.srs.fleetmanager.operation.auditing.AuditingEvent;
 import org.bf2.srs.fleetmanager.operation.auditing.AuditingService;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryCreateDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDto;
-import org.bf2.srs.fleetmanager.spi.tenants.model.CreateTenantRequest;
 import org.bf2.srs.fleetmanager.spi.common.model.ResourceType;
+import org.bf2.srs.fleetmanager.spi.tenants.model.CreateTenantRequest;
 import org.bf2.srs.fleetmanager.spi.tenants.model.TenantManagerConfig;
 import org.bf2.srs.fleetmanager.spi.tenants.model.UpdateTenantRequest;
 
@@ -46,8 +47,7 @@ import static org.bf2.srs.fleetmanager.common.util.StringUtil.shorten;
  */
 @Audited
 @Interceptor
-@Priority(Interceptor.Priority.APPLICATION - 100)
-// Runs before other application interceptors, e.g. *PermissionInterceptor
+@Priority(InterceptorPriority.AUDITING)
 public class AuditingInterceptor {
 
     @Inject

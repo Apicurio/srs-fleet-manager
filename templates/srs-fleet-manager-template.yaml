@@ -349,7 +349,8 @@ objects:
 
           - name: METRICS_CACHE_EXPIRATION_PERIOD_SECONDS
             value: ${METRICS_CACHE_EXPIRATION_PERIOD_SECONDS}
-
+          - name: READ_ONLY_SAFE_MODE_ENABLED
+            value: ${READ_ONLY_SAFE_MODE_ENABLED}
           livenessProbe:
             failureThreshold: 3
             httpGet:
@@ -593,3 +594,9 @@ parameters:
     but *some* metrics will report stale values (with the given delay).
     Keep in mind that multiple pods may compute the same metrics.
   value: "300"
+
+- name: READ_ONLY_SAFE_MODE_ENABLED
+  description: >-
+    Disable write operations and related, potentially unsafe, features.
+    Intended to be a safety measure when performing maintenance.
+  value: "false"

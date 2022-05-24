@@ -3,6 +3,7 @@ package org.bf2.srs.fleetmanager.storage.sqlPanacheImpl;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Sort;
 import org.bf2.srs.fleetmanager.operation.logging.Logged;
+import org.bf2.srs.fleetmanager.operation.readonly.ReadOnlySafeModeCheck;
 import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
 import org.bf2.srs.fleetmanager.storage.RegistryDeploymentStorageConflictException;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
@@ -52,6 +53,7 @@ public class PanacheResourceStorage implements ResourceStorage {
     @Inject
     EntityManager em;
 
+    @ReadOnlySafeModeCheck
     @Override
     public boolean createOrUpdateRegistry(RegistryData registry) throws RegistryStorageConflictException {
         requireNonNull(registry);
@@ -94,6 +96,7 @@ public class PanacheResourceStorage implements ResourceStorage {
         return registryRepository.list("owner", owner);
     }
 
+    @ReadOnlySafeModeCheck
     @Override
     public void deleteRegistry(String id) throws RegistryNotFoundException, RegistryStorageConflictException {
         RegistryData registry = getRegistryById(id)
@@ -112,6 +115,7 @@ public class PanacheResourceStorage implements ResourceStorage {
 
     //*** RegistryDeployment
 
+    @ReadOnlySafeModeCheck
     @Override
     public boolean createOrUpdateRegistryDeployment(RegistryDeploymentData deployment) throws RegistryDeploymentStorageConflictException, RegistryDeploymentNotFoundException {
         requireNonNull(deployment); // TODO Is this necessary if using @Valid?

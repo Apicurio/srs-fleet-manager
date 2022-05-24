@@ -1,11 +1,11 @@
 package org.bf2.srs.fleetmanager.common.errors;
 
+import lombok.Getter;
+import lombok.ToString;
+
 import java.util.Collections;
 import java.util.SortedMap;
 import java.util.TreeMap;
-
-import lombok.Getter;
-import lombok.ToString;
 
 /**
  * A list of error codes together with a template for user-friendly description (error reason).
@@ -40,9 +40,11 @@ public enum UserErrorCode {
     ERROR_EVAL_INSTANCES_NOT_ALLOWED(12, "Evaluation instances not allowed.", 0),
     ERROR_EVAL_INSTANCES_EXCEEDED(13, "User already has the maximum number of allowed Evaluation instances.", 0),
     ERROR_TOO_MANY_INSTANCES(14, "Total (global) number of instances exhausted.", 0),
+
+    ERROR_MAINTENANCE(15, "Some application features are temporarily unavailable. Maintenance is in progress.", 0),
     ;
 
-    // Next ID: 15
+    // Next ID: 16
 
     public static final String ERROR_CODE_PREFIX = "SRS-MGMT-";
 

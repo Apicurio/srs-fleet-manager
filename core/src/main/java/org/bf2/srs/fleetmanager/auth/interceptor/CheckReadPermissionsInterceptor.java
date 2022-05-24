@@ -2,6 +2,7 @@ package org.bf2.srs.fleetmanager.auth.interceptor;
 
 import io.quarkus.security.identity.SecurityIdentity;
 import org.bf2.srs.fleetmanager.auth.AuthService;
+import org.bf2.srs.fleetmanager.common.operation.InterceptorPriority;
 import org.bf2.srs.fleetmanager.spi.common.model.AccountInfo;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
@@ -10,6 +11,7 @@ import org.bf2.srs.fleetmanager.util.SecurityUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Optional;
 import javax.annotation.Priority;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
@@ -18,13 +20,11 @@ import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 import javax.ws.rs.ForbiddenException;
 
-import java.util.Optional;
-
 import static org.bf2.srs.fleetmanager.util.SecurityUtil.isResolvable;
 
 @CheckReadPermissions
 @Interceptor
-@Priority(Interceptor.Priority.APPLICATION)
+@Priority(InterceptorPriority.CHECK_READ_PERMISSIONS)
 public class CheckReadPermissionsInterceptor {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
