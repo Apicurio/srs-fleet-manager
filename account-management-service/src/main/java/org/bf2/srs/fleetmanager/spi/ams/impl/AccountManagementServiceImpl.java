@@ -1,10 +1,15 @@
 package org.bf2.srs.fleetmanager.spi.ams.impl;
 
-import io.apicurio.rest.client.JdkHttpClientProvider;
-import io.apicurio.rest.client.auth.OidcAuth;
-import io.apicurio.rest.client.spi.ApicurioHttpClient;
-import io.micrometer.core.annotation.Timed;
-import io.quarkus.arc.profile.UnlessBuildProfile;
+import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.KEY_AMS_SUBSCRIPTION_ID;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import org.bf2.srs.fleetmanager.common.metrics.Constants;
 import org.bf2.srs.fleetmanager.common.operation.auditing.Audited;
 import org.bf2.srs.fleetmanager.common.operation.faulttolerance.FaultToleranceConstants;
@@ -36,14 +41,11 @@ import org.eclipse.microprofile.faulttolerance.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.KEY_AMS_SUBSCRIPTION_ID;
+import io.apicurio.rest.client.JdkHttpClientProvider;
+import io.apicurio.rest.client.auth.OidcAuth;
+import io.apicurio.rest.client.spi.ApicurioHttpClient;
+import io.micrometer.core.annotation.Timed;
+import io.quarkus.arc.profile.UnlessBuildProfile;
 
 /**
  * This service is in charge of check if a given user has the appropriate situation in order to ask for the requested resource
@@ -167,8 +169,7 @@ public class AccountManagementServiceImpl implements AccountManagementService {
             // If we're creating an eval instance, don't bother invoking AMS - return a null subscriptionId
             // TODO Workaround: Remove this once we have RHOSRTrial working.
             if (resourceType == ResourceType.REGISTRY_INSTANCE_EVAL) {
-                log.warn("Creating an eval instance for '{}' in org '{}' without calling AMS. " +
-                        "This is a temporary workaround.", accountInfo.getAccountUsername(), accountInfo.getOrganizationId());
+                log.debug("Creating an eval instance for '{}' in org '{}' without calling AMS.", accountInfo.getAccountUsername(), accountInfo.getOrganizationId());
                 return null;
             }
 

@@ -127,6 +127,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock-jre8</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
             <scope>test</scope>
@@ -158,6 +164,11 @@
         <dependency>
             <groupId>org.bf2</groupId>
             <artifactId>srs-fleet-manager-spi</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.apicurio</groupId>
+            <artifactId>apicurio-common-rest-client-jdk</artifactId>
         </dependency>
 
     </dependencies>

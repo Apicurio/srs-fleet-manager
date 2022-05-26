@@ -22,7 +22,7 @@ objects:
       qontract.recycle: "true"
   data:
     quota-plans.yaml: |-
-      reconcile: true
+      reconcile: false # Enable this if you make changes to the plans configuration
       plans:
         - name: basic
           resources:
@@ -331,6 +331,20 @@ objects:
           - name: REGISTRY_INSTANCES_EVAL_LIFETIME_SECONDS
             value: ${REGISTRY_INSTANCES_EVAL_LIFETIME_SECONDS}
 
+            # Identity server migration
+          - name: IDENTITY_SERVER_RESOLVER_PATH
+            value: ${IDENTITY_SERVER_RESOLVER_PATH}
+          - name: IDENTITY_SERVER_RESOLVER_REQUEST_PATH
+            value: ${IDENTITY_SERVER_RESOLVER_REQUEST_PATH}
+          - name: IDENTITY_SERVER_RESOLVER_ENABLED
+            value: ${IDENTITY_SERVER_RESOLVER_ENABLED}
+          - name: IDENTITY_SERVER_RESOLVER_AUTH_SERVER_URL
+            value: ${IDENTITY_SERVER_RESOLVER_AUTH_SERVER_URL}
+          - name: IDENTITY_SERVER_RESOLVER_CLIENT_ID
+            value: ${IDENTITY_SERVER_RESOLVER_CLIENT_ID}
+          - name: IDENTITY_SERVER_RESOLVER_CLIENT_SECRET
+            value: ${IDENTITY_SERVER_RESOLVER_CLIENT_SECRET}
+
           - name: ENABLE_SENTRY
             value: ${ENABLE_SENTRY}
           - name: SENTRY_DSN
@@ -593,3 +607,22 @@ parameters:
     but *some* metrics will report stale values (with the given delay).
     Keep in mind that multiple pods may compute the same metrics.
   value: "300"
+
+- name: IDENTITY_SERVER_RESOLVER_ENABLED
+  description: "When true, the identity server will be dynamically resolved."
+  value: "false"
+- name: IDENTITY_SERVER_RESOLVER_PATH
+  description: "Path to the server that will resolve the identity server."
+  value: "http://localhost:8080"
+- name: IDENTITY_SERVER_RESOLVER_REQUEST_PATH
+  description: "Request path for resolving the identity server."
+  value: "api/kafkas_mgmt/v1/sso_providers"
+- name: IDENTITY_SERVER_RESOLVER_AUTH_SERVER_URL
+  description: "Identity server to be used with the identity resolver request."
+  value: "http://localhost:8090/auth"
+- name: IDENTITY_SERVER_RESOLVER_CLIENT_ID
+  description: "Client id to be used with the identity resolver request."
+  value: "registry-api"
+- name: IDENTITY_SERVER_RESOLVER_CLIENT_SECRET
+  description: "Client secret to be used with the identity resolver request."
+  value: "secret"
