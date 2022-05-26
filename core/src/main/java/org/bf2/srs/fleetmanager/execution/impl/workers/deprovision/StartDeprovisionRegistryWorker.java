@@ -61,45 +61,50 @@ public class StartDeprovisionRegistryWorker extends AbstractWorker {
 
             var registry = registryOptional.get();
 
-            var force = Instant.now().isAfter(
+            var canBeForced = Instant.now().isAfter(
                     registry.getCreatedAt()
                             .plus(props.getDeprovisionStuckInstanceTimeout()));
 
-            if (force) {
-                log.warn("Registry instance '{}' is forced to be deprovisioned.", registry);
-            }
-
-            var deprovision = force;
-
+            // If the execution proceeds, deprovisioning is initiated
             var status = RegistryStatusValueDto.of(registry.getStatus());
             switch (status) {
                 case ACCEPTED:
                 case PROVISIONING:
-                    if (!force) {
-                        log.debug("Provisioning in progress. Retrying.");
+                    if (!canBeForced) {
+                        log.debug("Cannot deprovision a Registry instance, " +
+                                "because provisioning is still in progress. Retrying. Registry = {}", registry);
                         ctl.retry();
+                    } else {
+                        log.warn("Registry instance is assumed stuck and is forced to be deprovisioned. Registry = {}", registry);
+                        // OK to deprovision
                     }
                     break;
                 case READY:
+                    // OK to deprovision
+                    break;
                 case FAILED:
-                    deprovision = true;
+                    log.warn("Deprovisioning a failed instance. Registry = {}", registry);
+                    // OK to deprovision
                     break;
                 case REQUESTED_DEPROVISIONING:
                 case DEPROVISIONING_DELETING:
-                    if (!force) {
-                        log.debug("Deprovisioning is already in progress. Stopping. Registry = {}", registry);
+                    if (!canBeForced) {
+                        log.debug("Cannot deprovision a Registry instance, " +
+                                "because it is already being deprovisioned. Stopping. Registry = {}", registry);
                         ctl.stop();
+                    } else {
+                        log.warn("Registry instance is assumed stuck and is forced to be deprovisioned. Registry = {}", registry);
+                        // OK to deprovision
                     }
                     break;
                 default:
-                    throw new IllegalStateException("Unexpected status value: " + status);
+                    throw new IllegalStateException("Cannot initiate deprovisioning. " +
+                            "Unexpected status value " + status + " of registry " + registry);
             }
 
-            if (deprovision) {
-                registry.setStatus(RegistryStatusValueDto.DEPROVISIONING_DELETING.value());
-                storage.createOrUpdateRegistry(registry); // FAILURE POINT 2
-                ctl.delay(() -> tasks.submit(DeprovisionRegistryTask.builder().registryId(registry.getId()).build()));
-            }
+            registry.setStatus(RegistryStatusValueDto.DEPROVISIONING_DELETING.value());
+            storage.createOrUpdateRegistry(registry); // FAILURE POINT 2
+            ctl.delay(() -> tasks.submit(DeprovisionRegistryTask.builder().registryId(registry.getId()).build()));
 
         } else {
             log.warn("Registry id='{}' not found. Stopping.", task.getRegistryId());
