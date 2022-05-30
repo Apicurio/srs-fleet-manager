@@ -1,11 +1,11 @@
 package org.bf2.srs.fleetmanager.common.errors;
 
+import lombok.Getter;
+import lombok.ToString;
+
 import java.util.Collections;
 import java.util.SortedMap;
 import java.util.TreeMap;
-
-import lombok.Getter;
-import lombok.ToString;
 
 /**
  * A list of error codes together with a template for user-friendly description (error reason).
@@ -28,7 +28,7 @@ public enum UserErrorCode {
     ERROR_FORMAT_DATETIME(3, "Bad date or time format", 0),
     ERROR_FORMAT_JSON(5, "Bad request format - invalid JSON", 0),
 
-    ERROR_REQUEST_CONTENT_INVALID(4, "Invalid request content. Make sure the request conforms to the given JSON schema", 0),
+    ERROR_REQUEST_CONTENT_INVALID(4, "Invalid request content or parameters. Make sure the request conforms to the given JSON schema", 0),
     ERROR_REQUEST_UNSUPPORTED_MEDIA_TYPE(10, "Bad request format - unsupported media type", 0),
 
     ERROR_AMS_TERMS_NOT_ACCEPTED(6, "Required terms have not been accepted for account id='%s'", 1),
