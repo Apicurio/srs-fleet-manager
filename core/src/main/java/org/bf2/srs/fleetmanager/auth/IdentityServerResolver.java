@@ -51,15 +51,6 @@ public class IdentityServerResolver implements TenantConfigResolver {
     @ConfigProperty(name = "srs-fleet-manager.identity.server.resolver.request-path")
     String resolverRequestPath;
 
-    @ConfigProperty(name = "srs-fleet-manager.identity.server.resolver.auth-server-url")
-    String resolverAuthServerUrl;
-
-    @ConfigProperty(name = "srs-fleet-manager.identity.server.resolver.client-id")
-    String resolverClientId;
-
-    @ConfigProperty(name = "srs-fleet-manager.identity.server.resolver.client-secret")
-    String resolverClientSecret;
-
     @ConfigProperty(name = "quarkus.oidc.client-id")
     String apiClientId;
 
@@ -73,9 +64,7 @@ public class IdentityServerResolver implements TenantConfigResolver {
     @PostConstruct
     public void init() {
         if (resolveIdentityServer) {
-            ApicurioHttpClient authHttpClient = ApicurioHttpClientFactory.create(resolverAuthServerUrl, new AuthErrorHandler());
-            OidcAuth oidcAuth = new OidcAuth(authHttpClient, resolverClientId, resolverClientSecret);
-            httpClient = new JdkHttpClientProvider().create(resolverRequestBasePath, Collections.emptyMap(), oidcAuth, new AuthErrorHandler());
+            httpClient = new JdkHttpClientProvider().create(resolverRequestBasePath, Collections.emptyMap(), null, new AuthErrorHandler());
         }
     }
 
