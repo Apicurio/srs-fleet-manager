@@ -115,7 +115,7 @@ public class DeprovisionRegistryWorker extends AbstractWorker {
              */
             storage.deleteRegistry(registry.getId());
         } else {
-            log.warn("Registry id='{}' not found. Stopping.", task.getRegistryId());
+            log.debug("Registry id='{}' not found. Stopping.", task.getRegistryId());
             ctl.stop();
         }
     }

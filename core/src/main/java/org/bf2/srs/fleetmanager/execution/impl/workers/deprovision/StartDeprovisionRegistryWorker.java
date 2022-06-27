@@ -130,7 +130,7 @@ public class StartDeprovisionRegistryWorker extends AbstractWorker {
             // Nothing to do, user can retry
             log.warn("Failed to start deprovisioning of Registry '{}'. Check the status to see if the instance is stuck.", registry);
         } else {
-            log.warn("Could not find Registry (ID = {}).", task.getRegistryId());
+            log.debug("Could not find Registry (ID = {}).", task.getRegistryId());
         }
     }
 }
