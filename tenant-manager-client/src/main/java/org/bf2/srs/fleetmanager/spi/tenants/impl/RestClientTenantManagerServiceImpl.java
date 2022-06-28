@@ -94,15 +94,12 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
     // TODO Data is never deleted! Prevent OOM error.
     private Map<String, TenantManagerClientImpl> pool = new ConcurrentHashMap<String, TenantManagerClientImpl>();
 
-    private WrappedValue<SsoProviders> cachedSsoProviders;
-
     @PostConstruct
     void init() {
 
         if (resolveIdentityServer) {
             resolverHttpClient = new JdkHttpClientProvider().create(resolverRequestBasePath, Collections.emptyMap(), null, new AuthErrorHandler());
             final SsoProviders ssoProviders = resolverHttpClient.sendRequest(getSSOProviders());
-            cachedSsoProviders = new WrappedValue<>(Duration.ofMinutes(10), Instant.now(), ssoProviders);
             if (!tenantManagerAuthServerUrl.equals(ssoProviders.getTokenUrl())) {
                 this.tenantManagerAuthServerUrl = ssoProviders.getTokenUrl();
             }
@@ -124,7 +121,7 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
 
     private TenantManagerClient getClient(TenantManagerConfig tm) {
 
-        if (resolveIdentityServer && cachedSsoProviders.isExpired()) {
+        if (resolveIdentityServer) {
 
             final SsoProviders ssoProviders = resolverHttpClient.sendRequest(getSSOProviders());
 
@@ -132,8 +129,6 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
                 ApicurioHttpClient httpClient = new JdkHttpClientProvider().create(tenantManagerAuthServerUrl, Collections.emptyMap(), null, new AuthErrorHandler());
                 this.auth = new OidcAuth(httpClient, tenantManagerAuthClientId, tenantManagerAuthSecret);
             }
-
-            cachedSsoProviders = new WrappedValue<>(Duration.ofMinutes(10), Instant.now(), ssoProviders);
         }
 
         return pool.computeIfAbsent(tm.getTenantManagerUrl(), k -> {
