@@ -23,11 +23,12 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 public class RegistryCreate {
 
     /**
-     * User-defined Registry instance name. Required. Does not have to be unique.
+     * User-defined Registry instance name. Required. Must be unique within a given organization.
+     * (Required)
      * 
      */
     @JsonProperty("name")
-    @JsonPropertyDescription("User-defined Registry instance name. Required. Does not have to be unique.")
+    @JsonPropertyDescription("User-defined Registry instance name. Required. Must be unique within a given organization.")
     private String name;
     /**
      * User-provided description of the new Service Registry instance. Not required.
@@ -38,7 +39,8 @@ public class RegistryCreate {
     private String description;
 
     /**
-     * User-defined Registry instance name. Required. Does not have to be unique.
+     * User-defined Registry instance name. Required. Must be unique within a given organization.
+     * (Required)
      * 
      */
     @JsonProperty("name")
@@ -47,7 +49,8 @@ public class RegistryCreate {
     }
 
     /**
-     * User-defined Registry instance name. Required. Does not have to be unique.
+     * User-defined Registry instance name. Required. Must be unique within a given organization.
+     * (Required)
      * 
      */
     @JsonProperty("name")

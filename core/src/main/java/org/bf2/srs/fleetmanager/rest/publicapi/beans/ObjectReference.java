@@ -15,38 +15,83 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @Generated("jsonschema2pojo")
 public class ObjectReference {
 
+    /**
+     * 
+     * (Required)
+     * 
+     */
     @JsonProperty("id")
     private String id;
+    /**
+     * 
+     * (Required)
+     * 
+     */
     @JsonProperty("kind")
     private String kind;
+    /**
+     * 
+     * (Required)
+     * 
+     */
     @JsonProperty("href")
     private String href;
 
+    /**
+     * 
+     * (Required)
+     * 
+     */
     @JsonProperty("id")
     public String getId() {
         return id;
     }
 
+    /**
+     * 
+     * (Required)
+     * 
+     */
     @JsonProperty("id")
     public void setId(String id) {
         this.id = id;
     }
 
+    /**
+     * 
+     * (Required)
+     * 
+     */
     @JsonProperty("kind")
     public String getKind() {
         return kind;
     }
 
+    /**
+     * 
+     * (Required)
+     * 
+     */
     @JsonProperty("kind")
     public void setKind(String kind) {
         this.kind = kind;
     }
 
+    /**
+     * 
+     * (Required)
+     * 
+     */
     @JsonProperty("href")
     public String getHref() {
         return href;
     }
 
+    /**
+     * 
+     * (Required)
+     * 
+     */
     @JsonProperty("href")
     public void setHref(String href) {
         this.href = href;
