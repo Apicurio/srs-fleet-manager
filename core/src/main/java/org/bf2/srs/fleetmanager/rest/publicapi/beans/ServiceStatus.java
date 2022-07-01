@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * Root Type for ServiceStatus
+ * Root type for ServiceStatus
  * <p>
  * Schema for the service status response body
  * 
@@ -22,15 +22,15 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 public class ServiceStatus {
 
     /**
-     * Boolean property indicating if the maximum number of total instances have been reached, therefore creation of more instances should not be allowed.
+     * Boolean property indicating if the maximum number of total Registry instances have been reached, therefore creation of more instances should not be allowed.
      * 
      */
     @JsonProperty("max_instances_reached")
-    @JsonPropertyDescription("Boolean property indicating if the maximum number of total instances have been reached, therefore creation of more instances should not be allowed.")
+    @JsonPropertyDescription("Boolean property indicating if the maximum number of total Registry instances have been reached, therefore creation of more instances should not be allowed.")
     private Boolean maxInstancesReached;
 
     /**
-     * Boolean property indicating if the maximum number of total instances have been reached, therefore creation of more instances should not be allowed.
+     * Boolean property indicating if the maximum number of total Registry instances have been reached, therefore creation of more instances should not be allowed.
      * 
      */
     @JsonProperty("max_instances_reached")
@@ -39,7 +39,7 @@ public class ServiceStatus {
     }
 
     /**
-     * Boolean property indicating if the maximum number of total instances have been reached, therefore creation of more instances should not be allowed.
+     * Boolean property indicating if the maximum number of total Registry instances have been reached, therefore creation of more instances should not be allowed.
      * 
      */
     @JsonProperty("max_instances_reached")

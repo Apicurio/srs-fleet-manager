@@ -1,6 +1,7 @@
 
 package org.bf2.srs.fleetmanager.rest.publicapi.beans;
 
+import java.util.ArrayList;
 import javax.annotation.processing.Generated;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -11,7 +12,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "kind",
     "page",
     "size",
-    "total"
+    "total",
+    "items"
 })
 @Generated("jsonschema2pojo")
 public class List {
@@ -44,6 +46,13 @@ public class List {
      */
     @JsonProperty("total")
     private Integer total;
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty("items")
+    private java.util.List<ObjectReference> items = new ArrayList<ObjectReference>();
 
     /**
      * 
@@ -123,6 +132,26 @@ public class List {
     @JsonProperty("total")
     public void setTotal(Integer total) {
         this.total = total;
+    }
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty("items")
+    public java.util.List<ObjectReference> getItems() {
+        return items;
+    }
+
+    /**
+     * 
+     * (Required)
+     * 
+     */
+    @JsonProperty("items")
+    public void setItems(java.util.List<ObjectReference> items) {
+        this.items = items;
     }
 
 }
