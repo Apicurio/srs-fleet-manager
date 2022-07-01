@@ -1,5 +1,21 @@
 package org.bf2.srs.fleetmanager.rest.publicapi;
 
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.Error;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.ErrorList;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.Registry;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreate;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryList;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.ServiceStatus;
+import org.bf2.srs.fleetmanager.rest.service.ErrorNotFoundException;
+import org.bf2.srs.fleetmanager.spi.ams.AccountManagementServiceException;
+import org.bf2.srs.fleetmanager.spi.ams.ResourceLimitReachedException;
+import org.bf2.srs.fleetmanager.spi.ams.TermsRequiredException;
+import org.bf2.srs.fleetmanager.spi.common.EvalInstancesNotAllowedException;
+import org.bf2.srs.fleetmanager.spi.common.TooManyEvalInstancesForUserException;
+import org.bf2.srs.fleetmanager.spi.common.TooManyInstancesException;
+import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
+import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -8,12 +24,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.Error;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.ErrorList;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.Registry;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreate;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryList;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.ServiceStatus;
 
 /**
  * A JAX-RS interface.  An implementation of this interface must be provided.
@@ -36,7 +46,9 @@ public interface ApiResource {
   @POST
   @Produces("application/json")
   @Consumes("application/json")
-  Registry createRegistry(RegistryCreate data);
+  Registry createRegistry(RegistryCreate data) throws RegistryStorageConflictException, TermsRequiredException, ResourceLimitReachedException,
+          EvalInstancesNotAllowedException, TooManyEvalInstancesForUserException, TooManyInstancesException,
+          AccountManagementServiceException;
 
   /**
    * Gets the details of a single instance of a `Registry`.
@@ -44,14 +56,14 @@ public interface ApiResource {
   @Path("/serviceregistry_mgmt/v1/registries/{id}")
   @GET
   @Produces("application/json")
-  Registry getRegistry(@PathParam("id") String id);
+  Registry getRegistry(@PathParam("id") String id) throws RegistryNotFoundException;
 
   /**
    * Deletes an existing `Registry` instance and all of the data that it stores. Important: Users should export the registry data before deleting the instance, e.g., using the Service Registry web console, core REST API, or `rhoas` CLI.
    */
   @Path("/serviceregistry_mgmt/v1/registries/{id}")
   @DELETE
-  void deleteRegistry(@PathParam("id") String id);
+  void deleteRegistry(@PathParam("id") String id) throws RegistryStorageConflictException, RegistryNotFoundException;
 
   /**
    * Get information about a specific error type
@@ -59,7 +71,7 @@ public interface ApiResource {
   @Path("/serviceregistry_mgmt/v1/errors/{id}")
   @GET
   @Produces("application/json")
-  Error getError(@PathParam("id") Integer id);
+  Error getError(@PathParam("id") Integer id) throws ErrorNotFoundException;
 
   /**
    * Get the list of all errors
