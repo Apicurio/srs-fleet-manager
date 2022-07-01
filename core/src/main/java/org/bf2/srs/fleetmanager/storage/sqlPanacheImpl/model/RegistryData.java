@@ -44,7 +44,7 @@ public class RegistryData {
     private String id;
 
     /**
-     * (Optional)
+     * (Required)
      */
     @Column(name = "name", nullable = false)
     private String name;

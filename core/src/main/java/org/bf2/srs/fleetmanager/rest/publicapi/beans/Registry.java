@@ -38,12 +38,23 @@ public class Registry {
     /**
      * 
      * (Required)
+     * (Required)
      * 
      */
     @JsonProperty("id")
     private String id;
+    /**
+     * 
+     * (Required)
+     * 
+     */
     @JsonProperty("kind")
     private String kind;
+    /**
+     * 
+     * (Required)
+     * 
+     */
     @JsonProperty("href")
     private String href;
     /**
@@ -73,6 +84,7 @@ public class Registry {
     private String browserUrl;
     /**
      * User-defined Registry instance name. Does not have to be unique.
+     * (Required)
      * 
      */
     @JsonProperty("name")
@@ -87,6 +99,7 @@ public class Registry {
     private Integer registryDeploymentId;
     /**
      * Registry instance owner.
+     * (Required)
      * 
      */
     @JsonProperty("owner")
@@ -149,21 +162,41 @@ public class Registry {
         this.id = id;
     }
 
+    /**
+     * 
+     * (Required)
+     * 
+     */
     @JsonProperty("kind")
     public String getKind() {
         return kind;
     }
 
+    /**
+     * 
+     * (Required)
+     * 
+     */
     @JsonProperty("kind")
     public void setKind(String kind) {
         this.kind = kind;
     }
 
+    /**
+     * 
+     * (Required)
+     * 
+     */
     @JsonProperty("href")
     public String getHref() {
         return href;
     }
 
+    /**
+     * 
+     * (Required)
+     * 
+     */
     @JsonProperty("href")
     public void setHref(String href) {
         this.href = href;
@@ -237,6 +270,7 @@ public class Registry {
 
     /**
      * User-defined Registry instance name. Does not have to be unique.
+     * (Required)
      * 
      */
     @JsonProperty("name")
@@ -246,6 +280,7 @@ public class Registry {
 
     /**
      * User-defined Registry instance name. Does not have to be unique.
+     * (Required)
      * 
      */
     @JsonProperty("name")
@@ -273,6 +308,7 @@ public class Registry {
 
     /**
      * Registry instance owner.
+     * (Required)
      * 
      */
     @JsonProperty("owner")
@@ -282,6 +318,7 @@ public class Registry {
 
     /**
      * Registry instance owner.
+     * (Required)
      * 
      */
     @JsonProperty("owner")
