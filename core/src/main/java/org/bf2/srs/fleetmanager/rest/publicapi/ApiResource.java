@@ -16,6 +16,8 @@ import org.bf2.srs.fleetmanager.spi.common.TooManyInstancesException;
 import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Max;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -36,7 +38,7 @@ public interface ApiResource {
   @Path("/serviceregistry_mgmt/v1/registries")
   @GET
   @Produces("application/json")
-  RegistryList getRegistries(@QueryParam("page") Integer page, @QueryParam("size") Integer size,
+  RegistryList getRegistries(@Min(1) @QueryParam("page") Integer page, @Min(1) @Max(500) @QueryParam("size") Integer size,
       @QueryParam("orderBy") String orderBy, @QueryParam("search") String search);
 
   /**
@@ -79,7 +81,7 @@ public interface ApiResource {
   @Path("/serviceregistry_mgmt/v1/errors")
   @GET
   @Produces("application/json")
-  ErrorList getErrors(@QueryParam("page") Integer page, @QueryParam("size") Integer size);
+  ErrorList getErrors(@Min(1) @QueryParam("page") Integer page, @Min(1) @Max(500) @QueryParam("size") Integer size);
 
   /**
    * Get the service status
