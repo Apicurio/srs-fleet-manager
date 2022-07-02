@@ -338,6 +338,8 @@ objects:
             value: ${IDENTITY_SERVER_RESOLVER_REQUEST_PATH}
           - name: IDENTITY_SERVER_RESOLVER_ENABLED
             value: ${IDENTITY_SERVER_RESOLVER_ENABLED}
+          - name: IDENTITY_SERVER_RESOLVER_CACHE_EXPIRATION
+            value: ${IDENTITY_SERVER_RESOLVER_CACHE_EXPIRATION}
 
           - name: ENABLE_SENTRY
             value: ${ENABLE_SENTRY}
@@ -611,3 +613,6 @@ parameters:
 - name: IDENTITY_SERVER_RESOLVER_REQUEST_PATH
   description: "Request path for resolving the identity server."
   value: "api/kafkas_mgmt/v1/sso_providers"
+- name: IDENTITY_SERVER_RESOLVER_CACHE_EXPIRATION
+  description: "Identity resolver cache expiration."
+  value: "10"

@@ -89,10 +89,15 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
     @ConfigProperty(name = "srs-fleet-manager.identity.server.resolver.request-path")
     String resolverRequestPath;
 
+    @ConfigProperty(name = "srs-fleet-manager.identity.server.resolver.cache-expiration")
+    Integer resolverCacheExpiration;
+
     private ApicurioHttpClient resolverHttpClient;
 
     // TODO Data is never deleted! Prevent OOM error.
     private Map<String, TenantManagerClientImpl> pool = new ConcurrentHashMap<String, TenantManagerClientImpl>();
+
+    private WrappedValue<SsoProviders> cachedSsoProviders;
 
     @PostConstruct
     void init() {
@@ -100,6 +105,7 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
         if (resolveIdentityServer) {
             resolverHttpClient = new JdkHttpClientProvider().create(resolverRequestBasePath, Collections.emptyMap(), null, new AuthErrorHandler());
             final SsoProviders ssoProviders = resolverHttpClient.sendRequest(getSSOProviders());
+            cachedSsoProviders = new WrappedValue<>(Duration.ofMinutes(resolverCacheExpiration), Instant.now(), ssoProviders);
             if (!tenantManagerAuthServerUrl.equals(ssoProviders.getTokenUrl())) {
                 this.tenantManagerAuthServerUrl = ssoProviders.getTokenUrl();
             }
@@ -121,10 +127,10 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
 
     private TenantManagerClient getClient(TenantManagerConfig tm) {
 
-        if (resolveIdentityServer) {
+        if (resolveIdentityServer && cachedSsoProviders.isExpired()) {
 
             final SsoProviders ssoProviders = resolverHttpClient.sendRequest(getSSOProviders());
-
+            cachedSsoProviders = new WrappedValue<>(Duration.ofMinutes(resolverCacheExpiration), Instant.now(), ssoProviders);
             if (!ssoProviders.getTokenUrl().equals(tenantManagerAuthServerUrl)) {
                 ApicurioHttpClient httpClient = new JdkHttpClientProvider().create(tenantManagerAuthServerUrl, Collections.emptyMap(), null, new AuthErrorHandler());
                 this.auth = new OidcAuth(httpClient, tenantManagerAuthClientId, tenantManagerAuthSecret);

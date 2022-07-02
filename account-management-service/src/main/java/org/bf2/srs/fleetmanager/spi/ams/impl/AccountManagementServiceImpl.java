@@ -50,6 +50,8 @@ import io.quarkus.arc.profile.UnlessBuildProfile;
 /**
  * This service is in charge of check if a given user has the appropriate situation in order to ask for the requested resource
  */
+@UnlessBuildProfile("test")
+@ApplicationScoped
 public class AccountManagementServiceImpl implements AccountManagementService {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
