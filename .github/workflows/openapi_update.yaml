@@ -1,37 +1,23 @@
 name: Dispatch OpenAPI File Change event
 on:
   push:
-    branches: 
+    branches:
       - main
     paths:
-      - "core/src/main/resources/srs-fleet-manager.json"
+      - core/src/main/resources/srs-fleet-manager.json
 
 jobs:
-  lint:
-    name: Run Spectral
-    runs-on: ubuntu-latest
-    steps:
-    # sets up node, used to pull RHOAS ruleset package
-    - uses: actions/checkout@v3
-    - uses: actions/setup-node@v3
-      with:
-        node-version: 14
-        
-    - run: yarn add @stoplight/spectral@5.9.0
-    # getting the ruleset from the RHOAS repo
-    - run: yarn add @rhoas/spectral-ruleset
-    - run: yarn install 
-
-    - run: yarn spectral lint ./core/src/main/resources/srs-fleet-manager.json
-
+  validate:
+    uses: ./.github/workflows/openapi_lint.yaml
   dispatch:
-    needs: lint
+    needs: validate
     env:
       APP_SERVICES_CI_TOKEN: ${{ secrets.APP_SERVICES_CI_TOKEN }}
     strategy:
       matrix:
-        repo: ["redhat-developer/app-services-sdk-go", "redhat-developer/app-services-sdk-js", "redhat-developer/app-services-sdk-java"]
+        repo: [ "redhat-developer/app-services-sdk-go", "redhat-developer/app-services-sdk-js", "redhat-developer/app-services-sdk-java" ]
     runs-on: ubuntu-latest
+    if: github.repository_owner == 'bf2fc6cc711aee1a0c2a'
     steps:
       - name: Repository Dispatch
         uses: peter-evans/repository-dispatch@v1
