@@ -10,7 +10,7 @@ jobs:
   validate:
     uses: ./.github/workflows/openapi_lint.yaml
   dispatch:
-    needs: lint
+    needs: validate
     env:
       APP_SERVICES_CI_TOKEN: ${{ secrets.APP_SERVICES_CI_TOKEN }}
     strategy:
