@@ -33,7 +33,7 @@
 
         <!-- Other -->
         <lombok.version>1.18.16</lombok.version>
-        <apicurio-registry-tenant-manager-client.version>2.2.4-36</apicurio-registry-tenant-manager-client.version>
+        <apicurio-registry-tenant-manager-client.version>2.2.5-SNAPSHOT</apicurio-registry-tenant-manager-client.version>
         <apicurio-common-rest-client.version>0.1.11.Final</apicurio-common-rest-client.version>
         <keycloak.version>11.0.3</keycloak.version>
         <keycloak.testcontainers.version>1.5.0</keycloak.testcontainers.version>
