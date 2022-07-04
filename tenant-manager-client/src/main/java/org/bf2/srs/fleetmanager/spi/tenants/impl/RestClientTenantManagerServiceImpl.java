@@ -1,7 +1,5 @@
 package org.bf2.srs.fleetmanager.spi.tenants.impl;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.type.TypeReference;
 import io.apicurio.multitenant.api.datamodel.NewRegistryTenantRequest;
 import io.apicurio.multitenant.api.datamodel.RegistryTenant;
 import io.apicurio.multitenant.api.datamodel.ResourceType;
@@ -17,8 +15,6 @@ import io.apicurio.rest.client.auth.Auth;
 import io.apicurio.rest.client.auth.OidcAuth;
 import io.apicurio.rest.client.auth.exception.AuthErrorHandler;
 import io.apicurio.rest.client.config.ApicurioClientConfig;
-import io.apicurio.rest.client.request.Operation;
-import io.apicurio.rest.client.request.Request;
 import io.apicurio.rest.client.spi.ApicurioHttpClient;
 import io.micrometer.core.annotation.Timed;
 import io.quarkus.arc.profile.UnlessBuildProfile;
@@ -40,8 +36,6 @@ import org.eclipse.microprofile.faulttolerance.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -80,36 +74,11 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
     private Auth auth;
     private Map<String, Object> clientConfigs;
 
-    @ConfigProperty(name = "srs-fleet-manager.identity.server.resolver.enabled")
-    Boolean resolveIdentityServer;
-
-    @ConfigProperty(name = "srs-fleet-manager.identity.server.resolver.request-base-path")
-    String resolverRequestBasePath;
-
-    @ConfigProperty(name = "srs-fleet-manager.identity.server.resolver.request-path")
-    String resolverRequestPath;
-
-    @ConfigProperty(name = "srs-fleet-manager.identity.server.resolver.cache-expiration")
-    Integer resolverCacheExpiration;
-
-    private ApicurioHttpClient resolverHttpClient;
-
     // TODO Data is never deleted! Prevent OOM error.
     private Map<String, TenantManagerClientImpl> pool = new ConcurrentHashMap<String, TenantManagerClientImpl>();
 
-    private WrappedValue<SsoProviders> cachedSsoProviders;
-
     @PostConstruct
     void init() {
-
-        if (resolveIdentityServer) {
-            resolverHttpClient = new JdkHttpClientProvider().create(resolverRequestBasePath, Collections.emptyMap(), null, new AuthErrorHandler());
-            final SsoProviders ssoProviders = resolverHttpClient.sendRequest(getSSOProviders());
-            cachedSsoProviders = new WrappedValue<>(Duration.ofMinutes(resolverCacheExpiration), Instant.now(), ssoProviders);
-            if (!tenantManagerAuthServerUrl.equals(ssoProviders.getTokenUrl())) {
-                this.tenantManagerAuthServerUrl = ssoProviders.getTokenUrl();
-            }
-        }
 
         if (tenantManagerAuthEnabled) {
             log.info("Using Apicurio Registry REST TenantManagerClient with authentication enabled.");
@@ -126,17 +95,6 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
     }
 
     private TenantManagerClient getClient(TenantManagerConfig tm) {
-
-        if (resolveIdentityServer && cachedSsoProviders.isExpired()) {
-
-            final SsoProviders ssoProviders = resolverHttpClient.sendRequest(getSSOProviders());
-            cachedSsoProviders = new WrappedValue<>(Duration.ofMinutes(resolverCacheExpiration), Instant.now(), ssoProviders);
-            if (!ssoProviders.getTokenUrl().equals(tenantManagerAuthServerUrl)) {
-                ApicurioHttpClient httpClient = new JdkHttpClientProvider().create(tenantManagerAuthServerUrl, Collections.emptyMap(), null, new AuthErrorHandler());
-                this.auth = new OidcAuth(httpClient, tenantManagerAuthClientId, tenantManagerAuthSecret);
-            }
-        }
-
         return pool.computeIfAbsent(tm.getTenantManagerUrl(), k -> {
             return new TenantManagerClientImpl(tm.getTenantManagerUrl(), clientConfigs, auth);
         });
@@ -174,15 +132,6 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
         res.setStatus(TenantStatusValue.fromValue(req.getStatus().value()));
         res.setResources(convertToTenantResource(req.getResources()));
         return res;
-    }
-
-    private Request<SsoProviders> getSSOProviders() {
-        return new Request.RequestBuilder<SsoProviders>()
-                .operation(Operation.GET)
-                .path(resolverRequestPath)
-                .responseType(new TypeReference<SsoProviders>() {
-                })
-                .build();
     }
 
     @Timed(value = Constants.TENANT_MANAGER_CREATE_TENANT_TIMER, description = Constants.TENANT_MANAGER_DESCRIPTION)
@@ -305,57 +254,4 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
         }
     }
 
-    private static class SsoProviders {
-
-        @JsonProperty("base_url")
-        private String baseUrl;
-        @JsonProperty("token_url")
-        private String tokenUrl;
-        @JsonProperty("jwks")
-        private String jwks;
-        @JsonProperty("valid_issuer")
-        private String validIssuer;
-
-        public SsoProviders() {
-        }
-
-        public SsoProviders(String baseUrl, String tokenUrl, String jwks, String validIssuer) {
-            this.baseUrl = baseUrl;
-            this.tokenUrl = tokenUrl;
-            this.jwks = jwks;
-            this.validIssuer = validIssuer;
-        }
-
-        public void setBaseUrl(String baseUrl) {
-            this.baseUrl = baseUrl;
-        }
-
-        public void setTokenUrl(String tokenUrl) {
-            this.tokenUrl = tokenUrl;
-        }
-
-        public void setJwks(String jwks) {
-            this.jwks = jwks;
-        }
-
-        public void setValidIssuer(String validIssuer) {
-            this.validIssuer = validIssuer;
-        }
-
-        public String getBaseUrl() {
-            return baseUrl;
-        }
-
-        public String getTokenUrl() {
-            return tokenUrl;
-        }
-
-        public String getJwks() {
-            return jwks;
-        }
-
-        public String getValidIssuer() {
-            return validIssuer;
-        }
-    }
 }
