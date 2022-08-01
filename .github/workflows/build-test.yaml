@@ -11,7 +11,7 @@ on:
 
 env:
   PLATFORMS: linux/amd64,linux/arm64,linux/s390x,linux/ppc64le
-  IMAGE_TAG: latest
+  IMAGE_TAG: latest-snapshot
 
 jobs:
 
