@@ -3,17 +3,15 @@ package org.bf2.srs.fleetmanager.spi.ams.impl;
 import io.apicurio.rest.client.JdkHttpClientProvider;
 import io.apicurio.rest.client.auth.OidcAuth;
 import io.apicurio.rest.client.spi.ApicurioHttpClient;
-import io.quarkus.arc.profile.UnlessBuildProfile;
 import org.bf2.srs.fleetmanager.spi.ams.AccountManagementService;
 import org.bf2.srs.fleetmanager.spi.ams.impl.exception.AccountManagementSystemAuthErrorHandler;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
 import java.util.Collections;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 @ApplicationScoped
 public class AccountManagementServiceProducer {
@@ -41,8 +39,8 @@ public class AccountManagementServiceProducer {
     @Inject
     AccountManagementServiceProperties amsProperties;
 
-    @Produces
-    @UnlessBuildProfile("test")
+    // Do not annotate with @Produces!
+    // This method is called by org.bf2.srs.fleetmanager.spi.ams.impl.AccountManagementServiceWrapper
     public AccountManagementService produces() {
         if (useLocalAms) {
             log.info("Using Local Account Management Service.");
