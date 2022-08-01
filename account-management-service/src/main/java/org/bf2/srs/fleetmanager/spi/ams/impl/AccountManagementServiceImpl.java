@@ -1,15 +1,6 @@
 package org.bf2.srs.fleetmanager.spi.ams.impl;
 
-import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.KEY_AMS_SUBSCRIPTION_ID;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
+import io.micrometer.core.annotation.Timed;
 import org.bf2.srs.fleetmanager.common.metrics.Constants;
 import org.bf2.srs.fleetmanager.common.operation.auditing.Audited;
 import org.bf2.srs.fleetmanager.common.operation.faulttolerance.FaultToleranceConstants;
@@ -21,7 +12,6 @@ import org.bf2.srs.fleetmanager.spi.ams.AccountManagementServiceException;
 import org.bf2.srs.fleetmanager.spi.ams.ResourceLimitReachedException;
 import org.bf2.srs.fleetmanager.spi.ams.SubscriptionNotFoundServiceException;
 import org.bf2.srs.fleetmanager.spi.ams.TermsRequiredException;
-import org.bf2.srs.fleetmanager.spi.ams.impl.exception.AccountManagementSystemAuthErrorHandler;
 import org.bf2.srs.fleetmanager.spi.ams.impl.exception.AccountManagementSystemClientException;
 import org.bf2.srs.fleetmanager.spi.ams.impl.exception.ExceptionConvert;
 import org.bf2.srs.fleetmanager.spi.ams.impl.model.request.ClusterAuthorization;
@@ -35,57 +25,30 @@ import org.bf2.srs.fleetmanager.spi.ams.impl.model.response.RelatedResource;
 import org.bf2.srs.fleetmanager.spi.ams.impl.model.response.ResponseTermsReview;
 import org.bf2.srs.fleetmanager.spi.common.model.AccountInfo;
 import org.bf2.srs.fleetmanager.spi.common.model.ResourceType;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.faulttolerance.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.apicurio.rest.client.JdkHttpClientProvider;
-import io.apicurio.rest.client.auth.OidcAuth;
-import io.apicurio.rest.client.spi.ApicurioHttpClient;
-import io.micrometer.core.annotation.Timed;
-import io.quarkus.arc.profile.UnlessBuildProfile;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+
+import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.KEY_AMS_SUBSCRIPTION_ID;
 
 /**
  * This service is in charge of check if a given user has the appropriate situation in order to ask for the requested resource
  */
-@UnlessBuildProfile("test")
-@ApplicationScoped
 public class AccountManagementServiceImpl implements AccountManagementService {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    @ConfigProperty(name = "account-management-system.url")
-    String endpoint;
+    private final AccountManagementServiceProperties amsProperties;
+    private final AccountManagementSystemRestClient restClient;
 
-    @ConfigProperty(name = "sso.token.endpoint")
-    String ssoTokenEndpoint;
-
-    @ConfigProperty(name = "sso.client-id")
-    String ssoClientId;
-
-    @ConfigProperty(name = "sso.client-secret")
-    String ssoClientSecret;
-
-    @ConfigProperty(name = "sso.enabled")
-    boolean ssoEnabled;
-
-    @Inject
-    AccountManagementServiceProperties amsProperties;
-
-    private AccountManagementSystemRestClient restClient;
-
-    @PostConstruct
-    void init() {
-        log.info("Using Account Management Service with Account Management URL: {}", endpoint);
-        if (ssoEnabled) {
-            ApicurioHttpClient httpClient = new JdkHttpClientProvider().create(ssoTokenEndpoint, Collections.emptyMap(), null, new AccountManagementSystemAuthErrorHandler());
-            final OidcAuth auth = new OidcAuth(httpClient, ssoClientId, ssoClientSecret);
-            restClient = new AccountManagementSystemRestClient(endpoint, Collections.emptyMap(), auth);
-        } else {
-            restClient = new AccountManagementSystemRestClient(endpoint, Collections.emptyMap(), null);
-        }
+    public AccountManagementServiceImpl(AccountManagementServiceProperties amsProperties, AccountManagementSystemRestClient restClient) {
+        this.amsProperties = amsProperties;
+        this.restClient = restClient;
     }
 
     @Timed(value = Constants.AMS_DETERMINE_ALLOWED_INSTANCE_TIMER, description = Constants.AMS_TIMER_DESCRIPTION)
