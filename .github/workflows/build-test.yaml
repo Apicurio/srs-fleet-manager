@@ -60,7 +60,7 @@ jobs:
         env:
           EXTRA_ARGS: -DskipGroups=none
         run: |
-          make pr-check
+          APICURIO_REGISTRY_BRANCH="master" make pr-check
 
       - name: Set Image Tag
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
