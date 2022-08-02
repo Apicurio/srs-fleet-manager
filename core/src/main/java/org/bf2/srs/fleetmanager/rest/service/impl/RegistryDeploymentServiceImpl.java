@@ -1,13 +1,11 @@
 package org.bf2.srs.fleetmanager.rest.service.impl;
 
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import org.bf2.srs.fleetmanager.common.operation.auditing.Audited;
 import org.bf2.srs.fleetmanager.rest.service.RegistryDeploymentService;
 import org.bf2.srs.fleetmanager.rest.service.convert.ConvertRegistryDeployment;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeployment;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentCreate;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentStatusValue;
-import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentsConfigList;
 import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
 import org.bf2.srs.fleetmanager.storage.RegistryDeploymentStorageConflictException;
 import org.bf2.srs.fleetmanager.storage.ResourceStorage;
@@ -25,6 +23,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -43,8 +42,8 @@ public class RegistryDeploymentServiceImpl implements RegistryDeploymentService 
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    @Inject
-    Validator validator;
+    @ConfigProperty(name = "registry.deployments.config.file")
+    Optional<File> deploymentsConfigFile;
 
     @Inject
     ResourceStorage storage;
@@ -52,44 +51,22 @@ public class RegistryDeploymentServiceImpl implements RegistryDeploymentService 
     @Inject
     ConvertRegistryDeployment convertRegistryDeployment;
 
-    @ConfigProperty(name = "registry.deployments.config.file")
-    Optional<File> deploymentsConfigFile;
+    @Inject
+    Validator validator;
+
+    @Inject
+    Instance<DeploymentLoader> deploymentLoaders;
 
     @Override
     public void init() throws IOException, RegistryDeploymentStorageConflictException, RegistryDeploymentNotFoundException {
 
-        if (deploymentsConfigFile.isEmpty()) {
-            return;
-        }
-
-        log.info("Loading registry deployments config file from {}", deploymentsConfigFile.get().getAbsolutePath());
-
-        YAMLMapper mapper = new YAMLMapper();
-
-        RegistryDeploymentsConfigList deploymentsConfigList = mapper.readValue(deploymentsConfigFile.get(), RegistryDeploymentsConfigList.class);
-
-        List<RegistryDeploymentCreate> staticDeployments = deploymentsConfigList.getDeployments();
-
-        Set<String> names = new HashSet<>();
-        List<String> duplicatedNames = staticDeployments.stream()
-                .map(d -> {
-                    Set<ConstraintViolation<RegistryDeploymentCreate>> errors = validator.validate(d);
-                    if (!errors.isEmpty()) {
-                        throw new ConstraintViolationException(errors);
-                    }
-                    return d;
-                })
-                .filter(d -> !names.add(d.getName()))
-                .map(d -> d.getName())
-                .collect(Collectors.toList());
-        if (!duplicatedNames.isEmpty()) {
-            throw new IllegalArgumentException("Error in static deployments config, duplicated deployments name: " + duplicatedNames.toString());
-        }
+        List<RegistryDeploymentCreate> newDeployments = deploymentLoaders.stream().flatMap(dl -> dl.getDeploymentsToLoad().stream()).collect(toList());
+        validate(newDeployments);
 
         Map<String, RegistryDeploymentData> currentDeployments = storage.getAllRegistryDeployments().stream()
                 .collect(Collectors.toMap(d -> d.getName(), d -> d));
 
-        for (RegistryDeploymentCreate dep : staticDeployments) {
+        for (RegistryDeploymentCreate dep : newDeployments) {
 
             RegistryDeploymentData deploymentData = currentDeployments.get(dep.getName());
 
@@ -111,10 +88,28 @@ public class RegistryDeploymentServiceImpl implements RegistryDeploymentService 
         }
     }
 
+    private void validate(List<RegistryDeploymentCreate> newDeployments) {
+        Set<String> names = new HashSet<>();
+        List<String> duplicatedNames = newDeployments.stream()
+                .map(d -> {
+                    Set<ConstraintViolation<RegistryDeploymentCreate>> errors = validator.validate(d);
+                    if (!errors.isEmpty()) {
+                        throw new ConstraintViolationException(errors);
+                    }
+                    return d;
+                })
+                .filter(d -> !names.add(d.getName()))
+                .map(d -> d.getName())
+                .collect(Collectors.toList());
+        if (!duplicatedNames.isEmpty()) {
+            throw new IllegalArgumentException("Error in deployment loading, duplicated deployment names: " + duplicatedNames.toString());
+        }
+    }
+
     @Override
     @Audited
     public RegistryDeployment createRegistryDeployment(@Valid RegistryDeploymentCreate deploymentCreate) throws RegistryDeploymentStorageConflictException {
-        if (deploymentsConfigFile.isPresent()) {
+        if (deploymentsConfigFile.isPresent()) { // TODO: Refactor this check
             throw new ForbiddenException();
         }
         RegistryDeploymentData deployment = convertRegistryDeployment.convert(deploymentCreate);
