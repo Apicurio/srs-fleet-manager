@@ -27,11 +27,12 @@ services:
       DATASOURCE_URL: 'jdbc:postgresql://multitenant-sr-db:5432/multitenantsrdb'
       DATASOURCE_USERNAME: 'postgres'
       DATASOURCE_PASSWORD: 'postgres'
+      REGISTRY_ROUTE_URL: 'http://registry-app:8080'
 
   fleet-manager:
     depends_on:
       - multitenant-sr-db
-    image: 'quay.io/apicurio/apicurio-registry-fleet-manager-api:${FLEET_MANAGER_VERSION}'
+    image: 'quay.io/apicurio/apicurio-registry-fleet-manager:${FLEET_MANAGER_VERSION}'
     ports:
       - '8081:8080'
     environment:
@@ -57,4 +58,6 @@ services:
       REGISTRY_DATASOURCE_URL: 'jdbc:postgresql://multitenant-sr-db:5432/multitenantsrdb'
       REGISTRY_DATASOURCE_USERNAME: 'postgres'
       REGISTRY_DATASOURCE_PASSWORD: 'postgres'
+      TENANT_MANAGER_AUTH_ENABLED: 'false'
+      TENANT_MANAGER_URL: 'http://tenant-manager:8585'
 
