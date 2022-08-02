@@ -20,7 +20,7 @@ services:
   tenant-manager:
     depends_on:
       - multitenant-sr-db
-    image: 'quay.io/apicurio/apicurio-registry-tenant-manager-api:${TENANT_MANAGER_VERSION}'
+    image: 'quay.io/apicurio/apicurio-registry-tenant-manager-api:latest-snapshot'
     ports:
       - "8585:8585"
     environment:
@@ -28,11 +28,15 @@ services:
       DATASOURCE_USERNAME: 'postgres'
       DATASOURCE_PASSWORD: 'postgres'
       REGISTRY_ROUTE_URL: 'http://registry-app:8080'
+      AUTH_ENABLED: 'true'
+      KEYCLOAK_URL: 'https://studio-auth.apicur.io/auth'
+      KEYCLOAK_REALM: 'operate-first-apicurio'
+      KEYCLOAK_API_CLIENT_ID: 'sr-tenant-manager'
 
   fleet-manager:
     depends_on:
       - multitenant-sr-db
-    image: 'quay.io/apicurio/apicurio-registry-fleet-manager:${FLEET_MANAGER_VERSION}'
+    image: 'quay.io/apicurio/apicurio-registry-fleet-manager:latest-snapshot'
     ports:
       - '8081:8080'
     environment:
@@ -43,6 +47,16 @@ services:
       QUARKUS_FLYWAY_MIGRATE_AT_START: 'true'
       REGISTRY_QUOTA_PLANS_CONFIG_FILE: '/config/quota-plans.yaml'
       REGISTRY_DEPLOYMENTS_CONFIG_FILE: '/config/registry-deployments.yaml'
+      AUTH_ENABLED: 'true'
+      KEYCLOAK_URL: 'https://studio-auth.apicur.io/auth'
+      KEYCLOAK_REALM: 'operate-first-apicurio'
+      KEYCLOAK_API_CLIENT_ID: 'sr-fleet-manager'
+      TENANT_MANAGER_AUTH_ENABLED: 'true'
+      TENANT_MANAGER_AUTH_SERVER_URL: 'https://studio-auth.apicur.io/auth'
+      TENANT_MANAGER_AUTH_SERVER_REALM: 'operate-first-apicurio'
+      TENANT_MANAGER_AUTH_CLIENT_ID: 'sr-tenant-manager'
+      TENANT_MANAGER_AUTH_SECRET: '${TENANT_MANAGER_CLIENT_SECRET}'
+      ORGANIZATION_ID_CLAIM: 'organization_id'
     volumes:
       - ./config/:/config
 
@@ -50,7 +64,7 @@ services:
   registry-app:
     depends_on:
       - multitenant-sr-db
-    image: 'quay.io/apicurio/apicurio-registry-sql:${REGISTRY_VERSION}'
+    image: 'quay.io/apicurio/apicurio-registry-sql:latest-snapshot'
     ports:
       - "8080:8080"
     environment:
@@ -58,6 +72,14 @@ services:
       REGISTRY_DATASOURCE_URL: 'jdbc:postgresql://multitenant-sr-db:5432/multitenantsrdb'
       REGISTRY_DATASOURCE_USERNAME: 'postgres'
       REGISTRY_DATASOURCE_PASSWORD: 'postgres'
-      TENANT_MANAGER_AUTH_ENABLED: 'false'
       TENANT_MANAGER_URL: 'http://tenant-manager:8585'
+      AUTH_ENABLED: 'true'
+      KEYCLOAK_URL: 'https://studio-auth.apicur.io/auth'
+      KEYCLOAK_REALM: 'operate-first-apicurio'
+      KEYCLOAK_API_CLIENT_ID: 'sr-api'
+      TENANT_MANAGER_AUTH_URL: 'https://studio-auth.apicur.io/auth'
+      TENANT_MANAGER_REALM: 'operate-first-apicurio'
+      TENANT_MANAGER_CLIENT_ID: 'sr-tenant-manager'
+      TENANT_MANAGER_CLIENT_SECRET: '${TENANT_MANAGER_CLIENT_SECRET}'
+      ORGANIZATION_ID_CLAIM: 'organization_id'
 
