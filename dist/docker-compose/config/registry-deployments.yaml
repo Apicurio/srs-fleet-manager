@@ -1,0 +1,4 @@
+deployments:
+  - name: deployment-1
+    registryDeploymentUrl: http://registry-app:8080
+    tenantManagerUrl: http://tenant-manager:8585
