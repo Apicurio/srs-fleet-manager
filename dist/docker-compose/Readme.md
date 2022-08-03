@@ -22,5 +22,5 @@ You can start the whole stack with these commands:
 In order to be able to start the deployment, you need to set the environment variable: TENANT_MANAGER_CLIENT_SECRET
 
 ```
-docker-compose -f docker-compose-registry-full.yml up
+docker-compose -f multitenant-sr.yml up
 ```
