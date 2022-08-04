@@ -19,8 +19,5 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 14
-      - run: yarn add @stoplight/spectral@5.9.0
-      # getting the ruleset from the RHOAS repo
-      - run: yarn add @rhoas/spectral-ruleset
-      - run: yarn install
-      - run: yarn spectral lint ./core/src/main/resources/srs-fleet-manager.json
+      - run: npm i @rhoas/spectral-ruleset@0.3.0-dev6
+      - run: npx rhoasapi lint ./core/src/main/resources/srs-fleet-manager.json
