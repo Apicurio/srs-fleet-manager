@@ -4,8 +4,8 @@ on:
   pull_request:
     branches:
       - main
-    paths:
-      - core/src/main/resources/srs-fleet-manager.json
+    # paths:
+    #   - core/src/main/resources/srs-fleet-manager.json
 
 jobs:
   validate:
