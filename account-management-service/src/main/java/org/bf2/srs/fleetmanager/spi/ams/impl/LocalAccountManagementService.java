@@ -12,6 +12,7 @@ import java.util.UUID;
 
 public class LocalAccountManagementService implements AccountManagementService {
 
+
     public ResourceType determineAllowedResourceType(AccountInfo accountInfo) throws AccountManagementServiceException {
         return ResourceType.REGISTRY_INSTANCE_STANDARD;
     }

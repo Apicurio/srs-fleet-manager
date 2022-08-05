@@ -1,11 +1,10 @@
-package org.bf2.srs.fleetmanager.util;
-
-import javax.validation.ValidationException;
+package org.bf2.srs.fleetmanager.common.storage.util;
 
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.validation.ValidationException;
 
 /**
  * Container that transforms query string into hibernate query, for now it only uses AND conditions

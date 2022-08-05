@@ -1,4 +1,4 @@
-package org.bf2.srs.fleetmanager.storage;
+package org.bf2.srs.fleetmanager.common.storage;
 
 /**
  * Since we have unified create & update methods, this is not a `NotFound` or `AlreadyExists` type error,
