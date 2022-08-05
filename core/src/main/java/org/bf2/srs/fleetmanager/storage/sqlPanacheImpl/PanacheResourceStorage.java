@@ -27,6 +27,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceException;
 import javax.transaction.Transactional;
+import javax.validation.constraints.NotEmpty;
 
 import static io.quarkus.panache.common.Sort.*;
 import static java.util.Objects.requireNonNull;
@@ -203,6 +204,11 @@ public class PanacheResourceStorage implements ResourceStorage {
             res.put((String) qr[0], ((Number) qr[1]).longValue());
         }
         return res;
+    }
+
+    @Override
+    public long getRegistryCountPerOrgId(@NotEmpty String orgId) {
+        return registryRepository.count("orgId", orgId);
     }
 
     @Override
