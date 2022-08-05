@@ -4,17 +4,26 @@ import io.apicurio.multitenant.api.datamodel.TenantStatusValue;
 import io.apicurio.multitenant.api.datamodel.UpdateRegistryTenantRequest;
 import io.apicurio.multitenant.client.TenantManagerClient;
 import org.awaitility.Awaitility;
+import org.bf2.srs.fleetmanager.it.infra.DefaultInfraManager;
+import org.bf2.srs.fleetmanager.it.util.FleetManagerApi;
+import org.bf2.srs.fleetmanager.it.util.Utils;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.Registry;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreate;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValue;
 import org.bf2.srs.fleetmanager.spi.common.model.AccountInfo;
+import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-class RegistryDeprovisioningIT extends SRSFleetManagerBaseIT {
+@DisplayNameGeneration(SimpleDisplayName.class)
+@ExtendWith(DefaultInfraManager.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class RegistryDeprovisioningIT {
 
     @Test
     void testDeprovisionRegistryBasic() {

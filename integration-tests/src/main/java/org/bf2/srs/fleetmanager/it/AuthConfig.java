@@ -16,15 +16,29 @@
 
 package org.bf2.srs.fleetmanager.it;
 
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
+
 /**
  * @author Fabian Martinez
  */
+@Builder
+@Getter
+@EqualsAndHashCode
+@ToString
 public class AuthConfig {
 
-    String keycloakUrl;
-    String realm;
-    String clientId;
-    String clientSecret;
-    String tokenEndpoint;
+    private String keycloakUrl;
 
+    private String realm;
+
+    private String clientId;
+
+    private String clientSecret;
+
+    public String getTokenEndpoint() {
+        return keycloakUrl + "/realms/" + realm + "/protocol/openid-connect/token";
+    }
 }

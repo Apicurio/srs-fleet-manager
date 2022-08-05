@@ -14,23 +14,30 @@
  * limitations under the License.
  */
 
-package org.bf2.srs.fleetmanager.it;
+package org.bf2.srs.fleetmanager.it.infra;
+
+import lombok.Getter;
+import lombok.Setter;
+import org.bf2.srs.fleetmanager.it.component.CompoundComponent;
 
 /**
- * @author Fabian Martinez
+ * @author Jakub Senko <m@jsenko.net>
  */
-public interface TestInfraProcess extends AutoCloseable {
+public class InfraHolder {
 
-    public boolean isContainer();
+    private static InfraHolder instance;
 
-    public String getName();
-
-    public String getStdOut();
-
-    public String getStdErr();
-
-    default boolean hasLogs() {
-        return true;
+    public static InfraHolder getInstance() {
+        if (instance == null) {
+            instance = new InfraHolder();
+        }
+        return instance;
     }
 
+    @Getter
+    @Setter
+    private CompoundComponent component;
+
+    private InfraHolder() {
+    }
 }
