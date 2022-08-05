@@ -4,21 +4,33 @@ import io.apicurio.multitenant.api.datamodel.ResourceType;
 import io.apicurio.multitenant.api.datamodel.TenantResource;
 import io.apicurio.multitenant.client.TenantManagerClient;
 import org.awaitility.Awaitility;
-import org.bf2.srs.fleetmanager.it.Utils.TenantInfo;
+import org.bf2.srs.fleetmanager.it.component.TenantManagerComponent;
+import org.bf2.srs.fleetmanager.it.infra.DefaultInfraManager;
+import org.bf2.srs.fleetmanager.it.infra.InfraHolder;
+import org.bf2.srs.fleetmanager.it.util.FleetManagerApi;
+import org.bf2.srs.fleetmanager.it.util.Utils;
+import org.bf2.srs.fleetmanager.it.util.Utils.TenantInfo;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentCreateRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.Registry;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreate;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValue;
 import org.bf2.srs.fleetmanager.spi.common.model.AccountInfo;
+import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static org.bf2.srs.fleetmanager.it.component.CompoundComponent.C_TM;
 import static org.junit.jupiter.api.Assertions.*;
 
-class RegistryProvisioningIT extends SRSFleetManagerBaseIT {
+@DisplayNameGeneration(SimpleDisplayName.class)
+@ExtendWith(DefaultInfraManager.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class RegistryProvisioningIT {
 
     @Test
     void testProvisionRegistry() {
@@ -30,7 +42,7 @@ class RegistryProvisioningIT extends SRSFleetManagerBaseIT {
         //verify static deployments config file feature
         var deployment = new RegistryDeploymentCreateRest();
         deployment.setName("test-deployment");
-        deployment.setTenantManagerUrl(infra.getTenantManagerUri());
+        deployment.setTenantManagerUrl(InfraHolder.getInstance().getComponent().get(C_TM, TenantManagerComponent.class).get().getTenantManagerUrl());
         deployment.setRegistryDeploymentUrl("http://registry-test");
         FleetManagerApi.verifyCreateDeploymentNotAllowed(deployment, alice);
 

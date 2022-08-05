@@ -1,4 +1,4 @@
-package org.bf2.srs.fleetmanager.it;
+package org.bf2.srs.fleetmanager.it.util;
 
 import io.apicurio.multitenant.api.datamodel.TenantStatusValue;
 import io.apicurio.multitenant.api.datamodel.UpdateRegistryTenantRequest;
@@ -13,13 +13,17 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import org.awaitility.Awaitility;
+import org.bf2.srs.fleetmanager.it.component.TenantManagerComponent;
+import org.bf2.srs.fleetmanager.it.infra.InfraHolder;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.Registry;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValue;
 import org.bf2.srs.fleetmanager.spi.common.model.AccountInfo;
 
 import java.util.Collections;
 import java.util.List;
+
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.bf2.srs.fleetmanager.it.component.CompoundComponent.C_TM;
 
 public class Utils {
 
@@ -61,11 +65,13 @@ public class Utils {
     }
 
     public static TenantManagerClient createTenantManagerClient() {
-        var infra = TestInfraManager.getInstance();
-        if (infra.isTenantManagerAuthEnabled()) {
-            var tmAuth = infra.getTenantManagerAuthConfig();
-            ApicurioHttpClient httpClient = new JdkHttpClientProvider().create(tmAuth.tokenEndpoint, Collections.emptyMap(), null, new AuthErrorHandler());
-            OidcAuth auth = new OidcAuth(httpClient, tmAuth.clientId, tmAuth.clientSecret);
+        var infra = InfraHolder.getInstance().getComponent();
+        var tm = infra.get(C_TM, TenantManagerComponent.class).get();
+
+        if (tm.isAuthEnabled()) {
+            var tmAuth = tm.getAuthConfig();
+            ApicurioHttpClient httpClient = new JdkHttpClientProvider().create(tmAuth.getTokenEndpoint(), Collections.emptyMap(), null, new AuthErrorHandler());
+            OidcAuth auth = new OidcAuth(httpClient, tmAuth.getClientId(), tmAuth.getClientSecret());
             // TODO uncomment
             // {
             //     //verify tenant manager auth
@@ -80,9 +86,9 @@ public class Utils {
             //         }
             //     }
             // }
-            return new TenantManagerClientImpl(infra.getTenantManagerUri(), Collections.emptyMap(), auth);
+            return new TenantManagerClientImpl(tm.getTenantManagerUrl(), Collections.emptyMap(), auth);
         } else {
-            return new TenantManagerClientImpl(infra.getTenantManagerUri());
+            return new TenantManagerClientImpl(tm.getTenantManagerUrl());
         }
     }
 
