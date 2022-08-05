@@ -53,6 +53,8 @@ public interface ResourceStorage {
      */
     Map<String, Long> getRegistryCountPerStatus();
 
+    long getRegistryCountPerOrgId(@NotEmpty String orgId);
+
     /**
      * Queries the DB to get the total # of Registry instances per each instance type value.
      */

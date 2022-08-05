@@ -3,6 +3,7 @@ package org.bf2.srs.fleetmanager.spi.ams.impl;
 import io.apicurio.rest.client.JdkHttpClientProvider;
 import io.apicurio.rest.client.auth.OidcAuth;
 import io.apicurio.rest.client.spi.ApicurioHttpClient;
+import org.bf2.srs.fleetmanager.common.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.spi.ams.AccountManagementService;
 import org.bf2.srs.fleetmanager.spi.ams.impl.exception.AccountManagementSystemAuthErrorHandler;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -24,6 +25,9 @@ public class AccountManagementServiceProducer {
     @ConfigProperty(name = "account-management-system.local.enabled")
     boolean useLocalAms;
 
+    @ConfigProperty(name = "account-management-system.local.max-instances-per-org-id")
+    Integer maxInstancesPerOrgId;
+
     @ConfigProperty(name = "sso.token.endpoint")
     String ssoTokenEndpoint;
 
@@ -39,12 +43,15 @@ public class AccountManagementServiceProducer {
     @Inject
     AccountManagementServiceProperties amsProperties;
 
+    @Inject
+    ResourceStorage storage;
+
     // Do not annotate with @Produces!
     // This method is called by org.bf2.srs.fleetmanager.spi.ams.impl.AccountManagementServiceWrapper
     public AccountManagementService produces() {
         if (useLocalAms) {
             log.info("Using Local Account Management Service.");
-            return new LocalAccountManagementService();
+            return new LocalAccountManagementService(storage, maxInstancesPerOrgId);
         } else {
             log.info("Using Remote Account Management Service with Account Management URL: {}", endpoint);
             return new AccountManagementServiceImpl(amsProperties, createAccountManagementRestClient());
