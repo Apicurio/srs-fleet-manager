@@ -2,8 +2,8 @@ package org.bf2.srs.fleetmanager.rest.service;
 
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeployment;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentCreate;
-import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
-import org.bf2.srs.fleetmanager.storage.RegistryDeploymentStorageConflictException;
+import org.bf2.srs.fleetmanager.common.storage.RegistryDeploymentNotFoundException;
+import org.bf2.srs.fleetmanager.common.storage.RegistryDeploymentStorageConflictException;
 
 import java.io.IOException;
 import java.util.List;

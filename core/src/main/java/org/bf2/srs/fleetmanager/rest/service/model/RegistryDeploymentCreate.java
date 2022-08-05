@@ -24,7 +24,7 @@ import static lombok.AccessLevel.PACKAGE;
  * that can host Service Registry instances.
  *
  * @author Jakub Senko <jsenko@redhat.com>
- * @see org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentData
+ * @see org.bf2.srs.fleetmanager.common.storage.model.RegistryDeploymentData
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({

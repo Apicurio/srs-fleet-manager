@@ -2,7 +2,7 @@ package org.bf2.srs.fleetmanager.rest.service.convert;
 
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeployment;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentCreate;
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentData;
+import org.bf2.srs.fleetmanager.common.storage.model.RegistryDeploymentData;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;

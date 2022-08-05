@@ -2,7 +2,7 @@ package org.bf2.srs.fleetmanager.rest.service.convert;
 
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentStatus;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentStatusValue;
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentStatusData;
+import org.bf2.srs.fleetmanager.common.storage.model.RegistryDeploymentStatusData;
 
 import java.time.Instant;
 import javax.enterprise.context.ApplicationScoped;

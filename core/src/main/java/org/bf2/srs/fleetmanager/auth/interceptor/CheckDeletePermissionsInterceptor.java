@@ -3,8 +3,8 @@ package org.bf2.srs.fleetmanager.auth.interceptor;
 import io.quarkus.security.identity.SecurityIdentity;
 import org.bf2.srs.fleetmanager.auth.AuthService;
 import org.bf2.srs.fleetmanager.spi.common.model.AccountInfo;
-import org.bf2.srs.fleetmanager.storage.ResourceStorage;
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
+import org.bf2.srs.fleetmanager.common.storage.ResourceStorage;
+import org.bf2.srs.fleetmanager.common.storage.model.RegistryData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

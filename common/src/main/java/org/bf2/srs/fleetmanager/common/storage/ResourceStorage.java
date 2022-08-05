@@ -1,18 +1,17 @@
-package org.bf2.srs.fleetmanager.storage;
+package org.bf2.srs.fleetmanager.common.storage;
+
+import org.bf2.srs.fleetmanager.common.storage.model.RegistryData;
+import org.bf2.srs.fleetmanager.common.storage.model.RegistryDeploymentData;
+import org.bf2.srs.fleetmanager.common.storage.util.QueryConfig;
+import org.bf2.srs.fleetmanager.common.storage.util.QueryResult;
+import org.bf2.srs.fleetmanager.common.storage.util.SearchQuery;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentData;
-import org.bf2.srs.fleetmanager.util.SearchQuery;
-
-import io.quarkus.hibernate.orm.panache.PanacheQuery;
-import io.quarkus.panache.common.Sort;
 
 /**
  * @author Jakub Senko <jsenko@redhat.com>
@@ -24,13 +23,13 @@ public interface ResourceStorage {
 
     boolean createOrUpdateRegistry(@Valid RegistryData registry) throws RegistryStorageConflictException;
 
-    Optional<RegistryData> getRegistryById(@NotNull String id);
+    Optional<RegistryData> getRegistryById(@NotEmpty String id);
 
     List<RegistryData> getAllRegistries();
 
-    List<RegistryData> getRegistriesByOwner(String owner);
+    List<RegistryData> getRegistriesByOwner(@NotEmpty String owner);
 
-    void deleteRegistry(@NotNull String id) throws RegistryNotFoundException, RegistryStorageConflictException;
+    void deleteRegistry(@NotEmpty String id) throws RegistryNotFoundException, RegistryStorageConflictException;
 
     //*** RegistryDeployment
 
@@ -42,7 +41,7 @@ public interface ResourceStorage {
 
     void deleteRegistryDeployment(@NotNull Long id) throws RegistryDeploymentNotFoundException, RegistryDeploymentStorageConflictException;
 
-    PanacheQuery<RegistryData> executeRegistrySearchQuery(SearchQuery query, Sort sort);
+    QueryResult<RegistryData> executeRegistrySearchQuery(@NotNull SearchQuery query, @Valid QueryConfig config);
 
     /**
      * Queries the DB to get the total # of Registry instances.

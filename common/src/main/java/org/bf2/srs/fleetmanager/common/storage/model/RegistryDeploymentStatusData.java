@@ -1,4 +1,4 @@
-package org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model;
+package org.bf2.srs.fleetmanager.common.storage.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

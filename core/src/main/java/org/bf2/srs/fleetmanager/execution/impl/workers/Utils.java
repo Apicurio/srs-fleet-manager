@@ -1,7 +1,7 @@
 package org.bf2.srs.fleetmanager.execution.impl.workers;
 
 import org.bf2.srs.fleetmanager.spi.tenants.model.TenantManagerConfig;
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentData;
+import org.bf2.srs.fleetmanager.common.storage.model.RegistryDeploymentData;
 
 /**
  * @author Jakub Senko <jsenko@redhat.com>

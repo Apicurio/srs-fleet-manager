@@ -8,9 +8,9 @@ import org.bf2.srs.fleetmanager.execution.impl.workers.AbstractWorker;
 import org.bf2.srs.fleetmanager.execution.impl.workers.WorkerType;
 import org.bf2.srs.fleetmanager.execution.manager.Task;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
-import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
-import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
-import org.bf2.srs.fleetmanager.storage.ResourceStorage;
+import org.bf2.srs.fleetmanager.common.storage.RegistryNotFoundException;
+import org.bf2.srs.fleetmanager.common.storage.RegistryStorageConflictException;
+import org.bf2.srs.fleetmanager.common.storage.ResourceStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

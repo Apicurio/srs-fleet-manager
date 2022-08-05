@@ -25,9 +25,14 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.transaction.UserTransaction;
 
+import org.bf2.srs.fleetmanager.common.storage.RegistryDeploymentNotFoundException;
+import org.bf2.srs.fleetmanager.common.storage.RegistryDeploymentStorageConflictException;
+import org.bf2.srs.fleetmanager.common.storage.RegistryNotFoundException;
+import org.bf2.srs.fleetmanager.common.storage.RegistryStorageConflictException;
+import org.bf2.srs.fleetmanager.common.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentStatusValue;
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentData;
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentStatusData;
+import org.bf2.srs.fleetmanager.common.storage.model.RegistryDeploymentData;
+import org.bf2.srs.fleetmanager.common.storage.model.RegistryDeploymentStatusData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
