@@ -22,11 +22,11 @@ import org.bf2.srs.fleetmanager.spi.tenants.TenantManagerService;
 import org.bf2.srs.fleetmanager.spi.tenants.TenantManagerServiceException;
 import org.bf2.srs.fleetmanager.spi.tenants.TenantNotFoundServiceException;
 import org.bf2.srs.fleetmanager.spi.tenants.model.TenantManagerConfig;
-import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
-import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
-import org.bf2.srs.fleetmanager.storage.ResourceStorage;
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentData;
+import org.bf2.srs.fleetmanager.common.storage.RegistryNotFoundException;
+import org.bf2.srs.fleetmanager.common.storage.RegistryStorageConflictException;
+import org.bf2.srs.fleetmanager.common.storage.ResourceStorage;
+import org.bf2.srs.fleetmanager.common.storage.model.RegistryData;
+import org.bf2.srs.fleetmanager.common.storage.model.RegistryDeploymentData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

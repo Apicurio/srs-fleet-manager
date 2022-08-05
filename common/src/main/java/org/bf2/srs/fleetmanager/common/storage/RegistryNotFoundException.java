@@ -1,4 +1,4 @@
-package org.bf2.srs.fleetmanager.storage;
+package org.bf2.srs.fleetmanager.common.storage;
 
 import lombok.Getter;
 import org.bf2.srs.fleetmanager.common.errors.UserError;

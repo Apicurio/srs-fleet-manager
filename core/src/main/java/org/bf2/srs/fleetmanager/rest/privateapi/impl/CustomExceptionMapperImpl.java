@@ -4,9 +4,9 @@ import com.fasterxml.jackson.core.JsonParseException;
 import io.quarkus.runtime.configuration.ProfileManager;
 import org.bf2.srs.fleetmanager.rest.config.CustomExceptionMapper;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.ErrorInfo1Rest;
-import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
-import org.bf2.srs.fleetmanager.storage.RegistryDeploymentStorageConflictException;
-import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
+import org.bf2.srs.fleetmanager.common.storage.RegistryDeploymentNotFoundException;
+import org.bf2.srs.fleetmanager.common.storage.RegistryDeploymentStorageConflictException;
+import org.bf2.srs.fleetmanager.common.storage.RegistryNotFoundException;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;

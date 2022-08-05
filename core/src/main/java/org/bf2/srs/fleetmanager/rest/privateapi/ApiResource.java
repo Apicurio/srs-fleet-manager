@@ -4,8 +4,8 @@ import org.bf2.srs.fleetmanager.execution.manager.TaskNotFoundException;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentCreateRest;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentRest;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.TaskRest;
-import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
-import org.bf2.srs.fleetmanager.storage.RegistryDeploymentStorageConflictException;
+import org.bf2.srs.fleetmanager.common.storage.RegistryDeploymentNotFoundException;
+import org.bf2.srs.fleetmanager.common.storage.RegistryDeploymentStorageConflictException;
 
 import java.util.List;
 import javax.ws.rs.Consumes;

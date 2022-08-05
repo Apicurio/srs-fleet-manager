@@ -1,4 +1,4 @@
-package org.bf2.srs.fleetmanager.storage;
+package org.bf2.srs.fleetmanager.common.storage;
 
 public class RegistryDeploymentNotFoundException extends StorageException {
 
