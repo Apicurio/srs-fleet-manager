@@ -18,12 +18,21 @@ package org.bf2.srs.fleetmanager.it;
 
 import static io.restassured.RestAssured.given;
 import static java.net.HttpURLConnection.HTTP_OK;
+
+import org.bf2.srs.fleetmanager.it.infra.DefaultInfraManager;
+import org.bf2.srs.fleetmanager.it.util.FleetManagerApi;
+import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * @author Fabian Martinez
  */
-public class ApiSecurityIT extends SRSFleetManagerBaseIT {
+@DisplayNameGeneration(SimpleDisplayName.class)
+@ExtendWith(DefaultInfraManager.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class ApiSecurityIT {
 
     @Test
     void testOpenEndpoints() {

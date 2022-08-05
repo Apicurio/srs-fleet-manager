@@ -14,38 +14,42 @@
  * limitations under the License.
  */
 
-package org.bf2.srs.fleetmanager.it;
+package org.bf2.srs.fleetmanager.it.infra;
 
-import java.util.UUID;
-
+import org.bf2.srs.fleetmanager.it.component.CompoundComponent;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
+import org.junit.jupiter.api.extension.ExtensionContext.Store.CloseableResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.UUID;
+
 /**
  * @author Fabian Martinez
+ * @author Jakub Senko <m@jsenko.net>
  */
-public class DeploymentManager implements BeforeEachCallback, AfterEachCallback, BeforeAllCallback, AfterAllCallback, ExtensionContext.Store.CloseableResource {
+public abstract class AbstractInfraManager implements BeforeEachCallback, AfterEachCallback, BeforeAllCallback, AfterAllCallback, CloseableResource {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DeploymentManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractInfraManager.class);
 
-    private static boolean suiteStarted = false;
+    private static final InfraHolder infra = InfraHolder.getInstance();
 
-    private static TestInfraManager infra = TestInfraManager.getInstance();
+    protected abstract CompoundComponent buildInfra() throws Exception;
 
-    void startTestInfraIfNeeded(ExtensionContext context) throws Exception {
-        if (!infra.isRunning()) {
+    private void startTestInfraIfNeeded(ExtensionContext context) throws Exception {
+        if (infra.getComponent() == null || !infra.getComponent().isRunning()) {
             LOGGER.info("Starting testing infrastructure");
             try {
-                infra.start();
+                infra.setComponent(buildInfra());
+                context.getRoot().getStore(Namespace.GLOBAL).put(UUID.randomUUID().toString(), this);
                 LOGGER.info("Testing infrastructure started");
             } catch (Exception e) {
-                infra.stopAndCollectLogs(context.getRequiredTestClass(), context.getDisplayName());
+                infra.getComponent().stopAndCollectLogs(context.getRequiredTestClass().getCanonicalName(), context.getDisplayName());
                 throw new IllegalStateException(e);
             }
         } else {
@@ -55,12 +59,6 @@ public class DeploymentManager implements BeforeEachCallback, AfterEachCallback,
 
     @Override
     public void beforeAll(ExtensionContext context) throws Exception {
-        if (!suiteStarted) {
-            suiteStarted = true;
-            // The following line registers a callback hook when the root test context is shut down
-            context.getRoot().getStore(Namespace.GLOBAL).put(UUID.randomUUID().toString(), this);
-        }
-
         startTestInfraIfNeeded(context);
     }
 
@@ -73,9 +71,7 @@ public class DeploymentManager implements BeforeEachCallback, AfterEachCallback,
     public void afterEach(ExtensionContext context) throws Exception {
         if (context.getExecutionException().isPresent()) {
             LOGGER.error("Test failed with error:", context.getExecutionException().get());
-        }
-        if (context.getExecutionException().isPresent()) {
-            infra.stopAndCollectLogs(context.getRequiredTestClass(), context.getDisplayName());
+            infra.getComponent().stopAndCollectLogs(context.getRequiredTestClass().getCanonicalName(), context.getDisplayName());
         }
     }
 
@@ -86,12 +82,9 @@ public class DeploymentManager implements BeforeEachCallback, AfterEachCallback,
 
     @Override
     public void close() throws Throwable {
-        if (infra.isRunning()) {
+        if (infra.getComponent() != null && infra.getComponent().isRunning()) {
             LOGGER.info("Tear down testing infrastructure");
-            infra.stopAndCollectLogs(this.getClass(), "shutDownSuite");
+            infra.getComponent().stopAndCollectLogs(this.getClass().getCanonicalName(), "shutDownSuite");
         }
     }
-
-
-
 }

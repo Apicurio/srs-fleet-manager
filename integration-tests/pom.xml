@@ -16,8 +16,7 @@
         <groups></groups>
         <skipTests>false</skipTests>
         
-        <junit.version>5.8.2</junit.version>
-        <junit.platform-launcher.version>1.7.1</junit.platform-launcher.version>
+        <junit.version>5.9.0</junit.version>
         <log4j2.version>2.13.3</log4j2.version>
         <commons.logging.version>1.2</commons.logging.version>
         <version.deploy.plugin>2.8.2</version.deploy.plugin>
@@ -27,24 +26,38 @@
 
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>${junit.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>${junit.version}</version>
         </dependency>
         <dependency>
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-launcher</artifactId>
-            <version>${junit.platform-launcher.version}</version>
-            <scope>compile</scope>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-suite-engine</artifactId>
+            <scope>test</scope>
         </dependency>
 
 
@@ -155,6 +168,10 @@
                         <groups>${groups}</groups>
                         <smallrye.jwt.sign.key.location>privateKey.jwk</smallrye.jwt.sign.key.location>
                     </systemPropertyVariables>
+                    <includes>
+                        <include>org.bf2.srs.fleetmanager.it.suites.DefaultSuite</include>
+                        <include>org.bf2.srs.fleetmanager.it.suites.LocalAMSSuite</include>
+                    </includes>
                 </configuration>
                 <executions>
                     <execution>

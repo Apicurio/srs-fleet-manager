@@ -16,33 +16,42 @@
 
 package org.bf2.srs.fleetmanager.it;
 
+import org.bf2.srs.fleetmanager.it.infra.DefaultInfraManager;
+import org.bf2.srs.fleetmanager.it.util.FleetManagerApi;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreate;
+import org.bf2.srs.fleetmanager.spi.common.model.AccountInfo;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import java.util.List;
+
 import static io.restassured.RestAssured.given;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.List;
-import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreate;
-import org.bf2.srs.fleetmanager.spi.common.model.AccountInfo;
-import org.junit.jupiter.api.Test;
-
 /**
  * @author Fabian Martinez
  */
-public class MetricsIT extends SRSFleetManagerBaseIT {
+@DisplayNameGeneration(SimpleDisplayName.class)
+@ExtendWith(DefaultInfraManager.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class MetricsIT {
 
     private final List<String> expectedMetrics = List.of(
-             "srs_fleet_manager_auth_seconds_max",
-             "srs_fleet_manager_auth_seconds_count",
-             "srs_fleet_manager_auth_seconds_sum",
+            "srs_fleet_manager_auth_seconds_max",
+            "srs_fleet_manager_auth_seconds_count",
+            "srs_fleet_manager_auth_seconds_sum",
 
             // "srs_fleet_manager_ams_client_errors",
 
             "srs_fleet_manager_ams_determine_allowed",
             "srs_fleet_manager_ams_create",
-             "srs_fleet_manager_ams_delete",
+            "srs_fleet_manager_ams_delete",
 
             "srs_fleet_manager_tm_create",
-             "srs_fleet_manager_tm_delete",
+            "srs_fleet_manager_tm_delete",
 
             "srs_fleet_manager_usage_users",
             "srs_fleet_manager_usage_registries_type",
@@ -52,7 +61,7 @@ public class MetricsIT extends SRSFleetManagerBaseIT {
             "rest_requests_count_total",
             "rest_requests_seconds_max",
             "rest_requests_seconds"
-        );
+    );
 
 
     @Test
@@ -73,16 +82,16 @@ public class MetricsIT extends SRSFleetManagerBaseIT {
         FleetManagerApi.waitRegistryDeleted(registry1Result, alice);
 
         var metrics = given()
-            .when()
+                .when()
                 .get("/q/metrics")
-            .then().statusCode(HTTP_OK)
+                .then().statusCode(HTTP_OK)
                 .log().all()
                 .extract().asString();
 
         assertTrue(metrics.contains("srs_fleet_manager"), "Metrics don't contain any custom metric");
 
         for (String m : expectedMetrics) {
-            assertTrue(metrics.contains(m), () ->  "Missing metric " + m);
+            assertTrue(metrics.contains(m), () -> "Missing metric " + m);
         }
 
     }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.bf2.srs.fleetmanager.it;
+package org.bf2.srs.fleetmanager.it.util;
 
 import static io.restassured.RestAssured.given;
 import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
@@ -27,6 +27,10 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import io.restassured.RestAssured;
+import io.restassured.filter.log.ErrorLoggingFilter;
+import io.restassured.filter.log.RequestLoggingFilter;
+import io.restassured.filter.log.ResponseLoggingFilter;
 import org.awaitility.Awaitility;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentCreateRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.Registry;
@@ -45,6 +49,10 @@ public class FleetManagerApi {
 
     private static final String BASE = "/api/serviceregistry_mgmt/v1/registries";
 
+    static {
+        RestAssured.filters(new RequestLoggingFilter(), new ResponseLoggingFilter(), new ErrorLoggingFilter());
+    }
+
     public static void verifyApiIsSecured() {
         given()
             .log().all()
@@ -52,14 +60,18 @@ public class FleetManagerApi {
             .then().statusCode(HTTP_UNAUTHORIZED);
     }
 
-    public static Registry createRegistry(RegistryCreate registry, AccountInfo user) {
+    public static <T> T createRegistry(RegistryCreate registry, AccountInfo user, int expectedStatusCode, Class<T> resultType) {
         return given()
-                .log().all()
+                //.log().all()
                 .auth().oauth2(getAccessToken(user))
                 .when().contentType(ContentType.JSON).body(registry)
                 .post(BASE)
-                .then().statusCode(HTTP_OK)
-                .extract().as(Registry.class);
+                .then().statusCode(expectedStatusCode)
+                .extract().as(resultType);
+    }
+
+    public static Registry createRegistry(RegistryCreate registry, AccountInfo user) {
+        return createRegistry(registry, user, HTTP_OK, Registry.class);
     }
 
     public static List<Registry> listRegistries(AccountInfo user) {
