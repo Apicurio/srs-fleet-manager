@@ -32,7 +32,7 @@ public class LocalAccountManagementService implements AccountManagementService {
 
     public String createResource(AccountInfo accountInfo, ResourceType resourceType) throws TermsRequiredException, ResourceLimitReachedException, AccountManagementServiceException {
         if (maxInstancesPerOrgId != null && maxInstancesPerOrgId > 0) {
-            var count = storage.getRegistryCountPerOrgId(accountInfo.getAccountUsername());
+            var count = storage.getRegistryCountPerOrgId(accountInfo.getOrganizationId());
             if (count == maxInstancesPerOrgId)
                 throw new ResourceLimitReachedException();
         }
