@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: apicurio-registry-mt-ui
+  name: apicurio-registry-mt-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apicurio-registry-mt-ui
+  template:
+    metadata:
+      labels:
+        app: apicurio-registry-mt-ui
+    spec:
+      containers:
+        - name: apicurio-registry-mt-ui
+          image: quay.io/apicurio/apicurio-registry-mt-ui:hackathon
+          env:
+            - name: REGISTRY_UI_URL
+              value: ./modules/registry/apicurio_registry.js
+            - name: SRS_API_URL
+              value: http://localhost:8081
+            - name: AUTH_ENABLED
+              value: 'true'
+            - name: KEYCLOAK_URL
+              value: http://localhost:8083
+            - name: KEYCLOAK_REALM
+              value: demo-apicurio
+            - name: KEYCLOAK_SSL_REQUIRED
+              value: external
+            - name: KEYCLOAK_RESOURCE
+              value: sr-ui
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: apicurio-registry-mt-ui
+spec:
+  selector:
+    app: apicurio-registry-mt-ui
+  type: LoadBalancer
+  ports:
+  - port: 8080
+    targetPort: 8080

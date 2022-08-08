@@ -1,0 +1,22 @@
+apiVersion: v1  
+kind: ConfigMap  
+metadata:  
+  name: local-nginx-proxy
+data:  
+  nginx.conf: |
+    events {
+      worker_connections 1024;
+    }
+    http {
+      server {
+        listen       8083;
+        server_name  localhost;
+        location / {
+            proxy_pass  http://keycloak:8080/;
+        }
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   /usr/share/nginx/html;
+        }
+      }
+    }
