@@ -1,0 +1,120 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: registry-app
+  labels:
+    app: registry-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: registry-app
+  template:
+    metadata:
+      labels:
+        app: registry-app
+    spec:
+      containers:
+      - name: registry-app
+        image: 'quay.io/apicurio/apicurio-registry-sql:latest-snapshot'
+        env:
+          - name: REGISTRY_ENABLE_MULTITENANCY
+            value: 'true'
+          - name: REGISTRY_DATASOURCE_URL
+            value: 'jdbc:postgresql://multitenant-sr-db-registry:5432/multitenantsrdb'
+          - name: REGISTRY_DATASOURCE_USERNAME
+            value: 'postgres'
+          - name: REGISTRY_DATASOURCE_PASSWORD
+            value: 'postgres'
+          - name: TENANT_MANAGER_URL
+            value: 'http://tenant-manager:8585'
+          - name: AUTH_ENABLED
+            value: 'true'
+          - name: KEYCLOAK_URL
+            value: 'http://localhost:8083'
+          - name: KEYCLOAK_REALM
+            value: 'demo-apicurio'
+          - name: KEYCLOAK_API_CLIENT_ID
+            value: 'sr-api'
+          - name: ORGANIZATION_ID_CLAIM
+            value: 'organization_id'
+          - name: TENANT_MANAGER_AUTH_URL
+            value: 'http://localhost:8083'
+          - name: TENANT_MANAGER_REALM
+            value: 'demo-apicurio'
+          - name: TENANT_MANAGER_CLIENT_ID
+            value: 'sr-tenant-manager'
+          - name: TENANT_MANAGER_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: tenant-manager-client-secret
+                key: secret
+                optional: false
+        ports:
+        - name: http
+          containerPort: 8080
+      - name: kc-reverse-proxy
+        image: nginx
+        ports:
+        - containerPort: 8083
+        volumeMounts:
+        - name: local-nginx-proxy-vol
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+          readOnly: true
+      volumes:
+      - name: local-nginx-proxy-vol
+        configMap:
+          name: local-nginx-proxy
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: registry-app
+spec:
+  selector:
+    app: registry-app
+  type: LoadBalancer
+  ports:
+  - port: 8080
+    targetPort: 8080
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: multitenant-sr-db-registry
+spec:
+  serviceName: multitenant-sr-db-service-registry
+  selector:
+    matchLabels:
+      app: multitenant-sr-db-registry
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: multitenant-sr-db-registry
+    spec:
+      containers:
+        - name: postgresql-db
+          image: postgres:latest
+          env:
+            - name: POSTGRES_DB
+              value: multitenantsrdb
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: postgres
+            - name: PGDATA
+              value: /data/pgdata
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: multitenant-sr-db-registry
+spec:
+  selector:
+    app: multitenant-sr-db-registry
+  type: LoadBalancer
+  ports:
+  - port: 5432
+    targetPort: 5432

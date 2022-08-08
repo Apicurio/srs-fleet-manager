@@ -1,0 +1,201 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fleet-manager
+  labels:
+    app: fleet-manager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fleet-manager
+  template:
+    metadata:
+      labels:
+        app: fleet-manager
+    spec:
+      volumes:
+      - name: fleet-manager-config-vol
+        configMap:
+          name: fleet-manager-config
+      - name: local-nginx-proxy-vol
+        configMap:
+          name: local-nginx-proxy
+      containers:
+      - name: fleet-manager
+        image: 'quay.io/apicurio/apicurio-registry-fleet-manager:latest-snapshot'
+        env:
+          - name: USE_LOCAL_AMS
+            value: 'true'
+          - name: SERVICE_API_DATASOURCE_URL
+            value: 'jdbc:postgresql://multitenant-sr-db-fleet:5432/multitenantsrdb'
+          - name: SERVICE_API_DATASOURCE_USERNAME
+            value: 'postgres'
+          - name: SERVICE_API_DATASOURCE_PASSWORD
+            value: 'postgres'
+          - name: QUARKUS_FLYWAY_MIGRATE_AT_START
+            value: 'true'
+          - name: REGISTRY_QUOTA_PLANS_CONFIG_FILE
+            value: '/mnt/config/quota-plans.yaml'
+          - name: REGISTRY_DEPLOYMENTS_CONFIG_FILE
+            value: '/mnt/config/registry-deployments.yaml'
+          - name: AUTH_ENABLED
+            value: 'true'
+          - name: REGISTRY_BROWSER_URL
+            value: http://localhost:8081
+          - name: KEYCLOAK_URL
+            value: 'http://localhost:8083'
+          - name: KEYCLOAK_REALM
+            value: 'demo-apicurio'
+          - name: KEYCLOAK_API_CLIENT_ID
+            value: 'sr-fleet-manager'
+          - name: TENANT_MANAGER_AUTH_ENABLED
+            value: 'true'
+          - name: TENANT_MANAGER_AUTH_SERVER_URL
+            value: 'http://localhost:8083'
+          - name: TENANT_MANAGER_AUTH_SERVER_REALM
+            value: 'demo-apicurio'
+          - name: TENANT_MANAGER_AUTH_CLIENT_ID
+            value: 'sr-tenant-manager'
+          - name: ORGANIZATION_ID_CLAIM
+            value: 'organization_id'
+          - name: TENANT_MANAGER_AUTH_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: tenant-manager-client-secret
+                key: secret
+                optional: false
+        ports:
+        - name: http
+          containerPort: 8080
+        volumeMounts:
+        - name: fleet-manager-config-vol
+          readOnly: true
+          mountPath: "/mnt/config"
+      - name: kc-reverse-proxy
+        image: nginx
+        ports:
+        - containerPort: 8083
+        volumeMounts:
+        - name: local-nginx-proxy-vol
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+          readOnly: true
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fleet-manager
+spec:
+  selector:
+    app: fleet-manager
+  type: LoadBalancer
+  ports:
+  - port: 8081
+    targetPort: 8080
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: multitenant-sr-db-fleet
+spec:
+  serviceName: multitenant-sr-db-service-fleet
+  selector:
+    matchLabels:
+      app: multitenant-sr-db-fleet
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: multitenant-sr-db-fleet
+    spec:
+      containers:
+        - name: postgresql-db
+          image: postgres:latest
+          env:
+            - name: POSTGRES_DB
+              value: multitenantsrdb
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: postgres
+            - name: PGDATA
+              value: /data/pgdata
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: multitenant-sr-db-fleet
+spec:
+  selector:
+    app: multitenant-sr-db-fleet
+  type: LoadBalancer
+  ports:
+  - port: 5432
+    targetPort: 5432
+---
+apiVersion: v1  
+kind: ConfigMap  
+metadata:  
+  name: fleet-manager-config
+data:  
+  quota-plans.yaml: |
+    reconcile: false
+    plans:
+      - name: default
+        resources:
+          - type: MAX_TOTAL_SCHEMAS_COUNT
+            limit: 10000
+          - type: MAX_SCHEMA_SIZE_BYTES
+            limit: 1048576 # 1 Mb
+          - type: MAX_ARTIFACTS_COUNT
+            limit: -1
+          - type: MAX_VERSIONS_PER_ARTIFACT_COUNT
+            limit: -1
+          - type: MAX_ARTIFACT_PROPERTIES_COUNT
+            limit: 50
+          - type: MAX_PROPERTY_KEY_SIZE_BYTES
+            limit: 256
+          - type: MAX_PROPERTY_VALUE_SIZE_BYTES
+            limit: 1024
+          - type: MAX_ARTIFACT_LABELS_COUNT
+            limit: 50
+          - type: MAX_LABEL_SIZE_BYTES
+            limit: 256
+          - type: MAX_ARTIFACT_NAME_LENGTH_CHARS
+            limit: -1
+          - type: MAX_ARTIFACT_DESCRIPTION_LENGTH_CHARS
+            limit: -1
+          - type: MAX_REQUESTS_PER_SECOND_COUNT
+            limit: 10
+      - name: alpha
+        resources:
+          - type: MAX_TOTAL_SCHEMAS_COUNT
+            limit: 100000
+          - type: MAX_SCHEMA_SIZE_BYTES
+            limit: 1048576 # 1 Mb
+          - type: MAX_ARTIFACTS_COUNT
+            limit: -1
+          - type: MAX_VERSIONS_PER_ARTIFACT_COUNT
+            limit: -1
+          - type: MAX_ARTIFACT_PROPERTIES_COUNT
+            limit: 50
+          - type: MAX_PROPERTY_KEY_SIZE_BYTES
+            limit: 256
+          - type: MAX_PROPERTY_VALUE_SIZE_BYTES
+            limit: 1024
+          - type: MAX_ARTIFACT_LABELS_COUNT
+            limit: 50
+          - type: MAX_LABEL_SIZE_BYTES
+            limit: 256
+          - type: MAX_ARTIFACT_NAME_LENGTH_CHARS
+            limit: -1
+          - type: MAX_ARTIFACT_DESCRIPTION_LENGTH_CHARS
+            limit: -1
+          - type: MAX_REQUESTS_PER_SECOND_COUNT
+            limit: 100
+  registry-deployments.yaml: |
+      deployments:
+        - name: deployment-1
+          registryDeploymentUrl: http://localhost:8082
+          tenantManagerUrl: http://tenant-manager:8585
