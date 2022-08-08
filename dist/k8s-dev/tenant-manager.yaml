@@ -1,0 +1,105 @@
+# Tenant manager
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tenant-manager
+  labels:
+    app: tenant-manager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tenant-manager
+  template:
+    metadata:
+      labels:
+        app: tenant-manager
+    spec:
+      containers:
+      - name: tenant-manager
+        image: quay.io/apicurio/apicurio-registry-tenant-manager-api:latest-snapshot
+        env:
+          - name: DATASOURCE_URL
+            value: 'jdbc:postgresql://multitenant-sr-db-tenant:5432/multitenantsrdb'
+          - name: DATASOURCE_USERNAME
+            value: 'postgres'
+          - name: DATASOURCE_PASSWORD
+            value: 'postgres'
+          - name: REGISTRY_ROUTE_URL
+            value: 'http://localhost:9090'
+          - name: AUTH_ENABLED
+            value: 'true'
+          - name: KEYCLOAK_URL
+            value: 'http://localhost:8083'
+          - name: KEYCLOAK_REALM
+            value: 'demo-apicurio'
+          - name: KEYCLOAK_API_CLIENT_ID
+            value: 'sr-tenant-manager'
+        ports:
+        - name: http
+          containerPort: 8585
+      - name: kc-reverse-proxy
+        image: nginx
+        ports:
+        - containerPort: 8083
+        volumeMounts:
+        - name: local-nginx-proxy-vol
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+          readOnly: true
+      volumes:
+      - name: local-nginx-proxy-vol
+        configMap:
+          name: local-nginx-proxy
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tenant-manager
+spec:
+  selector:
+    app: tenant-manager
+  type: LoadBalancer
+  ports:
+  - port: 8585
+    targetPort: 8585
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: multitenant-sr-db-tenant
+spec:
+  serviceName: multitenant-sr-db-service-tenant
+  selector:
+    matchLabels:
+      app: multitenant-sr-db-tenant
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: multitenant-sr-db-tenant
+    spec:
+      containers:
+        - name: postgresql-db
+          image: postgres:latest
+          env:
+            - name: POSTGRES_DB
+              value: multitenantsrdb
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: postgres
+            - name: PGDATA
+              value: /data/pgdata
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: multitenant-sr-db-tenant
+spec:
+  selector:
+    app: multitenant-sr-db-tenant
+  type: LoadBalancer
+  ports:
+  - port: 5432
+    targetPort: 5432
