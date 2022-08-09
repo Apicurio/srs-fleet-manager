@@ -1,5 +1,7 @@
 #Organize Import Order
-0=java
-1=javax
-2=org
-3=com
+0=com
+1=io
+1=lombok
+1=org
+2=javax
+3=java
