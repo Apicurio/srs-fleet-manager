@@ -25,7 +25,7 @@ spec:
             - name: AUTH_ENABLED
               value: 'true'
             - name: KEYCLOAK_URL
-              value: http://localhost:8083
+              value: http://localhost:8083/auth
             - name: KEYCLOAK_REALM
               value: demo-apicurio
             - name: KEYCLOAK_SSL_REQUIRED

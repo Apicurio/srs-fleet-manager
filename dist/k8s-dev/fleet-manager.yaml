@@ -44,7 +44,7 @@ spec:
           - name: REGISTRY_BROWSER_URL
             value: http://localhost:8081
           - name: KEYCLOAK_URL
-            value: 'http://localhost:8083'
+            value: 'http://localhost:8083/auth'
           - name: KEYCLOAK_REALM
             value: 'demo-apicurio'
           - name: KEYCLOAK_API_CLIENT_ID
@@ -52,7 +52,7 @@ spec:
           - name: TENANT_MANAGER_AUTH_ENABLED
             value: 'true'
           - name: TENANT_MANAGER_AUTH_SERVER_URL
-            value: 'http://localhost:8083'
+            value: 'http://localhost:8083/auth'
           - name: TENANT_MANAGER_AUTH_SERVER_REALM
             value: 'demo-apicurio'
           - name: TENANT_MANAGER_AUTH_CLIENT_ID
