@@ -329,12 +329,11 @@
 
         <profile>
             <id>format</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
+            <!-- <activation>
                 <property>
-                    <name>!no-format</name>
+                    <name>!skipFormat</name>
                 </property>
-            </activation>
+            </activation> -->
             <build>
                 <plugins>
                     <plugin>
@@ -367,12 +366,11 @@
                 </plugins>
             </build>
         </profile>
-        <profile>
+        <!-- <profile>
             <id>validate</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
                 <property>
-                    <name>no-format</name>
+                    <name>skipFormat</name>
                 </property>
             </activation>
             <build>
@@ -406,6 +404,6 @@
                     </plugin>
                 </plugins>
             </build>
-        </profile>
+        </profile>-->
     </profiles>
 </project>
