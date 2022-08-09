@@ -45,3 +45,6 @@ nb-configuration.xml
 *~
 .notes
 /apicurio-registry/
+
+# Formatter and Impsort cache directory
+.cache
