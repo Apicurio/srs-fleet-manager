@@ -329,11 +329,19 @@
 
         <profile>
             <id>format</id>
-            <!-- <activation>
+            <activation>
                 <property>
-                    <name>!skipFormat</name>
+                    <name>!no-format</name>
                 </property>
-            </activation> -->
+            </activation>
+            <modules>
+                <module>common</module>
+                <module>spi</module>
+                <module>core</module>
+                <module>tenant-manager-client</module>
+                <module>account-management-service</module>
+                <module>ide-config</module>
+            </modules>
             <build>
                 <plugins>
                     <plugin>
@@ -366,13 +374,21 @@
                 </plugins>
             </build>
         </profile>
-        <!-- <profile>
+        <profile>
             <id>validate</id>
             <activation>
                 <property>
-                    <name>skipFormat</name>
+                    <name>no-format</name>
                 </property>
             </activation>
+            <modules>
+                <module>common</module>
+                <module>spi</module>
+                <module>core</module>
+                <module>tenant-manager-client</module>
+                <module>account-management-service</module>
+                <module>ide-config</module>
+            </modules>
             <build>
                 <plugins>
                     <plugin>
@@ -404,6 +420,6 @@
                     </plugin>
                 </plugins>
             </build>
-        </profile>-->
+        </profile>
     </profiles>
 </project>
