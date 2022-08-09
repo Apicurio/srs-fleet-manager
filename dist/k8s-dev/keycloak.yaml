@@ -44,6 +44,8 @@ spec:
           value: "localhost"
         - name: KC_HOSTNAME_PORT
           value: "8083"
+        - name: KC_HTTP_RELATIVE_PATH
+          value: /auth
         ports:
         - name: http
           containerPort: 8080

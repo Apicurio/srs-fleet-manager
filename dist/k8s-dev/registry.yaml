@@ -31,7 +31,7 @@ spec:
           - name: AUTH_ENABLED
             value: 'true'
           - name: KEYCLOAK_URL
-            value: 'http://localhost:8083'
+            value: 'http://localhost:8083/auth'
           - name: KEYCLOAK_REALM
             value: 'demo-apicurio'
           - name: KEYCLOAK_API_CLIENT_ID
@@ -39,7 +39,7 @@ spec:
           - name: ORGANIZATION_ID_CLAIM
             value: 'organization_id'
           - name: TENANT_MANAGER_AUTH_URL
-            value: 'http://localhost:8083'
+            value: 'http://localhost:8083/auth'
           - name: TENANT_MANAGER_REALM
             value: 'demo-apicurio'
           - name: TENANT_MANAGER_CLIENT_ID
