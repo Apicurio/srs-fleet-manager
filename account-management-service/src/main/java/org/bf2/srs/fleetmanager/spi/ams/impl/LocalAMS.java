@@ -28,7 +28,7 @@ public class LocalAMS implements AccountManagementService {
     public String createResource(AccountInfo accountInfo, ResourceType resourceType) throws TermsRequiredException, ResourceLimitReachedException, AccountManagementServiceException {
         if (properties.maxInstancesPerOrgId != null && properties.maxInstancesPerOrgId > 0) {
             var count = storage.getRegistryCountPerOrgId(accountInfo.getOrganizationId());
-            if (count == properties.maxInstancesPerOrgId)
+            if (count >= properties.maxInstancesPerOrgId)
                 throw new ResourceLimitReachedException();
         }
         return UUID.randomUUID().toString();
