@@ -1,4 +1,4 @@
-package org.bf2.srs.fleetmanager.spi.ams.impl.model.request;
+package org.bf2.srs.fleetmanager.spi.ams.impl.remote.model.request;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -11,28 +11,27 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.bf2.srs.fleetmanager.spi.ams.impl.remote.model.ObjectReference;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 import static lombok.AccessLevel.PACKAGE;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-        "account_username",
-        "availability_zone",
+        "href",
+        "id",
+        "kind",
+        "availability_zone_type",
+        "billing_model",
         "byoc",
-        "cloud_account_id",
-        "cloud_provider_id",
-        "cluster_id",
-        "disconnected",
-        "display_name",
-        "external_cluster_id",
-        "managed",
-        "product_category",
-        "product_id",
-        "reserve",
-        "resources"
+        "cluster",
+        "count",
+        "created_at",
+        "resource_name",
+        "resource_type",
+        "subscription",
+        "updated_at"
 })
 @NoArgsConstructor
 @AllArgsConstructor(access = PACKAGE)
@@ -41,15 +40,26 @@ import static lombok.AccessLevel.PACKAGE;
 @Setter
 @EqualsAndHashCode
 @ToString
-public class ClusterAuthorization {
+public class ReservedResource {
 
     /**
-     * (Required)
+     * (Optional)
      */
-    @JsonProperty("account_username")
+    @JsonProperty("href")
     @JsonPropertyDescription("")
-    @NotNull
-    private String accountUsername;
+    private String href;
+    /**
+     * (Optional)
+     */
+    @JsonProperty("id")
+    @JsonPropertyDescription("")
+    private String id;
+    /**
+     * (Optional)
+     */
+    @JsonProperty("kind")
+    @JsonPropertyDescription("")
+    private String kind;
     /**
      * (Optional)
      */
@@ -57,76 +67,58 @@ public class ClusterAuthorization {
     @JsonPropertyDescription("")
     private String availabilityZone;
     /**
+     * (Optional)
+     */
+    @JsonProperty("billing_model")
+    @JsonPropertyDescription("")
+    private String billingModel;
+    /**
      * (Required)
      */
     @JsonProperty("byoc")
     @JsonPropertyDescription("")
+    @NotNull
     private Boolean byoc;
     /**
      * (Optional)
      */
-    @JsonProperty("cloud_account_id")
+    @JsonProperty("cluster")
     @JsonPropertyDescription("")
-    private String cloudAccountId;
+    private Boolean cluster;
     /**
      * (Optional)
      */
-    @JsonProperty("cloud_provider_id")
+    @JsonProperty("count")
     @JsonPropertyDescription("")
-    private String cloudProviderId;
-    /**
-     * (Required)
-     */
-    @JsonProperty("cluster_id")
-    @JsonPropertyDescription("")
-    @NotNull
-    private String clusterId;
+    private Integer count;
     /**
      * (Optional)
      */
-    @JsonProperty("disconnected")
+    @JsonProperty("create_at")
     @JsonPropertyDescription("")
-    private Boolean disconnected;
+    private String createdAt;
     /**
      * (Optional)
      */
-    @JsonProperty("display_name")
+    @JsonProperty("resource_name")
     @JsonPropertyDescription("")
-    private String displayName;
+    private String resourceName;
     /**
      * (Optional)
      */
-    @JsonProperty("external_cluster_id")
+    @JsonProperty("resource_type")
     @JsonPropertyDescription("")
-    private String externalClusterId;
+    private String resourceType;
     /**
      * (Optional)
      */
-    @JsonProperty("managed")
+    @JsonProperty("subscription")
     @JsonPropertyDescription("")
-    private Boolean managed;
+    private ObjectReference subscription;
     /**
      * (Optional)
      */
-    @JsonProperty("product_category")
+    @JsonProperty("updated_at")
     @JsonPropertyDescription("")
-    private String productCategory;
-    /**
-     * (Optional)
-     */
-    @JsonProperty("product_id")
-    @JsonPropertyDescription("")
-    private String productId;
-    /**
-     * (Optional)
-     */
-    @JsonProperty("reserve")
-    @JsonPropertyDescription("")
-    private Boolean reserve;
-    /**
-     * (Optional)
-     */
-    @JsonProperty("resources")
-    @JsonPropertyDescription("")
-    private List<ReservedResource> resources;
+    private String updatedAt;
 }

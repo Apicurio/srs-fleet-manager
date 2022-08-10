@@ -1,5 +1,4 @@
-package org.bf2.srs.fleetmanager.spi.ams.impl.model.request;
-
+package org.bf2.srs.fleetmanager.spi.ams.impl.remote.model.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -19,8 +18,11 @@ import static lombok.AccessLevel.PACKAGE;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-        "event_code",
-        "site_code"
+        "account_id",
+        "organization_id",
+        "redirect_url",
+        "terms_available",
+        "terms_required",
 })
 @NoArgsConstructor
 @AllArgsConstructor(access = PACKAGE)
@@ -29,21 +31,40 @@ import static lombok.AccessLevel.PACKAGE;
 @Setter
 @EqualsAndHashCode
 @ToString
-public class SelfTermsReview {
+public class ResponseTermsReview {
 
     /**
      * (Required)
      */
-    @JsonProperty("event_code")
+    @JsonProperty("account_id")
     @JsonPropertyDescription("")
     @NotNull
-    String eventCode;
-
+    String accountId;
     /**
      * (Required)
      */
-    @JsonProperty("site_code")
+    @JsonProperty("organization_id")
     @JsonPropertyDescription("")
     @NotNull
-    String siteCode;
+    String organizationId;
+    /**
+     * (Optional)
+     */
+    @JsonProperty("redirect_url")
+    @JsonPropertyDescription("")
+    String redirectUrl;
+    /**
+     * (Required)
+     */
+    @JsonProperty("terms_available")
+    @JsonPropertyDescription("")
+    @NotNull
+    Boolean termsAvailable;
+    /**
+     * (Required)
+     */
+    @JsonProperty("terms_required")
+    @JsonPropertyDescription("")
+    @NotNull
+    Boolean termsRequired;
 }

@@ -14,22 +14,39 @@
  * limitations under the License.
  */
 
-package org.bf2.srs.fleetmanager.spi.ams.impl;
+package org.bf2.srs.fleetmanager.spi.ams.impl.remote;
+
+import lombok.Getter;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.util.List;
-
 import javax.inject.Singleton;
-
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 /**
  * @author eric.wittmann@gmail.com
  */
 @Singleton
-public class AccountManagementServiceProperties {
+public class RemoteAMSProperties {
+
+    @ConfigProperty(name = "account-management-system.url")
+    @Getter
+    String endpoint;
+
+    @ConfigProperty(name = "sso.token.endpoint")
+    String ssoTokenEndpoint;
+
+    @ConfigProperty(name = "sso.client-id")
+    String ssoClientId;
+
+    @ConfigProperty(name = "sso.client-secret")
+    String ssoClientSecret;
+
+    @ConfigProperty(name = "sso.enabled")
+    boolean ssoEnabled;
 
     @ConfigProperty(name = "srs-fleet-manager.ams.terms.mas-site-code", defaultValue = "ocm")
     String termsSiteCode;
+
     @ConfigProperty(name = "srs-fleet-manager.ams.terms.mas-event-code", defaultValue = "onlineService")
     List<String> termsEventCode;
 
@@ -38,12 +55,13 @@ public class AccountManagementServiceProperties {
 
     @ConfigProperty(name = "srs-fleet-manager.ams.resources.standard.name")
     String standardResourceName;
+
     @ConfigProperty(name = "srs-fleet-manager.ams.resources.standard.product-id")
     String standardProductId;
 
     @ConfigProperty(name = "srs-fleet-manager.ams.resources.eval.name")
     String evalResourceName;
+
     @ConfigProperty(name = "srs-fleet-manager.ams.resources.eval.product-id")
     String evalProductId;
-
 }

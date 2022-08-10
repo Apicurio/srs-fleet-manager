@@ -1,21 +1,25 @@
-package org.bf2.srs.fleetmanager.spi.ams.impl;
+package org.bf2.srs.fleetmanager.spi.ams.impl.remote;
 
+import io.apicurio.rest.client.JdkHttpClientProvider;
+import io.apicurio.rest.client.auth.OidcAuth;
+import io.apicurio.rest.client.spi.ApicurioHttpClient;
 import org.bf2.srs.fleetmanager.spi.ams.AccountManagementService;
 import org.bf2.srs.fleetmanager.spi.ams.AccountManagementServiceException;
 import org.bf2.srs.fleetmanager.spi.ams.ResourceLimitReachedException;
 import org.bf2.srs.fleetmanager.spi.ams.SubscriptionNotFoundServiceException;
 import org.bf2.srs.fleetmanager.spi.ams.TermsRequiredException;
-import org.bf2.srs.fleetmanager.spi.ams.impl.exception.AccountManagementSystemClientException;
-import org.bf2.srs.fleetmanager.spi.ams.impl.exception.ExceptionConvert;
-import org.bf2.srs.fleetmanager.spi.ams.impl.model.request.ClusterAuthorization;
-import org.bf2.srs.fleetmanager.spi.ams.impl.model.request.ReservedResource;
-import org.bf2.srs.fleetmanager.spi.ams.impl.model.request.TermsReview;
-import org.bf2.srs.fleetmanager.spi.ams.impl.model.response.ClusterAuthorizationResponse;
-import org.bf2.srs.fleetmanager.spi.ams.impl.model.response.Organization;
-import org.bf2.srs.fleetmanager.spi.ams.impl.model.response.QuotaCost;
-import org.bf2.srs.fleetmanager.spi.ams.impl.model.response.QuotaCostList;
-import org.bf2.srs.fleetmanager.spi.ams.impl.model.response.RelatedResource;
-import org.bf2.srs.fleetmanager.spi.ams.impl.model.response.ResponseTermsReview;
+import org.bf2.srs.fleetmanager.spi.ams.impl.remote.exception.AccountManagementSystemAuthErrorHandler;
+import org.bf2.srs.fleetmanager.spi.ams.impl.remote.exception.AccountManagementSystemClientException;
+import org.bf2.srs.fleetmanager.spi.ams.impl.remote.exception.ExceptionConvert;
+import org.bf2.srs.fleetmanager.spi.ams.impl.remote.model.request.ClusterAuthorization;
+import org.bf2.srs.fleetmanager.spi.ams.impl.remote.model.request.ReservedResource;
+import org.bf2.srs.fleetmanager.spi.ams.impl.remote.model.request.TermsReview;
+import org.bf2.srs.fleetmanager.spi.ams.impl.remote.model.response.ClusterAuthorizationResponse;
+import org.bf2.srs.fleetmanager.spi.ams.impl.remote.model.response.Organization;
+import org.bf2.srs.fleetmanager.spi.ams.impl.remote.model.response.QuotaCost;
+import org.bf2.srs.fleetmanager.spi.ams.impl.remote.model.response.QuotaCostList;
+import org.bf2.srs.fleetmanager.spi.ams.impl.remote.model.response.RelatedResource;
+import org.bf2.srs.fleetmanager.spi.ams.impl.remote.model.response.ResponseTermsReview;
 import org.bf2.srs.fleetmanager.spi.common.model.AccountInfo;
 import org.bf2.srs.fleetmanager.spi.common.model.ResourceType;
 import org.slf4j.Logger;
@@ -28,16 +32,28 @@ import java.util.UUID;
 /**
  * This service is in charge of check if a given user has the appropriate situation in order to ask for the requested resource
  */
-public class AccountManagementServiceImpl implements AccountManagementService {
+public class RemoteAMS implements AccountManagementService {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    private final AccountManagementServiceProperties amsProperties;
+    private final RemoteAMSProperties amsProperties;
     private final AccountManagementSystemRestClient restClient;
 
-    public AccountManagementServiceImpl(AccountManagementServiceProperties amsProperties, AccountManagementSystemRestClient restClient) {
+    public RemoteAMS(RemoteAMSProperties amsProperties) {
         this.amsProperties = amsProperties;
-        this.restClient = restClient;
+        this.restClient = createAccountManagementRestClient();
+    }
+
+    private AccountManagementSystemRestClient createAccountManagementRestClient() {
+        AccountManagementSystemRestClient restClient;
+        if (amsProperties.ssoEnabled) {
+            ApicurioHttpClient httpClient = new JdkHttpClientProvider().create(amsProperties.ssoTokenEndpoint, Collections.emptyMap(), null, new AccountManagementSystemAuthErrorHandler());
+            final OidcAuth auth = new OidcAuth(httpClient, amsProperties.ssoClientId, amsProperties.ssoClientSecret);
+            restClient = new AccountManagementSystemRestClient(amsProperties.endpoint, Collections.emptyMap(), auth);
+        } else {
+            restClient = new AccountManagementSystemRestClient(amsProperties.endpoint, Collections.emptyMap(), null);
+        }
+        return restClient;
     }
 
     @Override

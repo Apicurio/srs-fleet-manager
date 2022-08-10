@@ -1,8 +1,8 @@
-package org.bf2.srs.fleetmanager.spi.ams.impl.exception;
+package org.bf2.srs.fleetmanager.spi.ams.impl.remote.exception;
 
 import org.bf2.srs.fleetmanager.spi.ams.AccountManagementServiceException;
 import org.bf2.srs.fleetmanager.spi.ams.SubscriptionNotFoundServiceException;
-import org.bf2.srs.fleetmanager.spi.ams.impl.model.response.Error;
+import org.bf2.srs.fleetmanager.spi.ams.impl.remote.model.response.Error;
 import org.bf2.srs.fleetmanager.spi.ams.model.AMSError;
 
 import java.util.Optional;

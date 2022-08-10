@@ -1,16 +1,13 @@
 package org.bf2.srs.fleetmanager.spi.ams.impl;
 
-import io.apicurio.rest.client.JdkHttpClientProvider;
-import io.apicurio.rest.client.auth.OidcAuth;
-import io.apicurio.rest.client.spi.ApicurioHttpClient;
 import org.bf2.srs.fleetmanager.common.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.spi.ams.AccountManagementService;
-import org.bf2.srs.fleetmanager.spi.ams.impl.exception.AccountManagementSystemAuthErrorHandler;
+import org.bf2.srs.fleetmanager.spi.ams.impl.remote.RemoteAMS;
+import org.bf2.srs.fleetmanager.spi.ams.impl.remote.RemoteAMSProperties;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -19,29 +16,14 @@ public class AccountManagementServiceProducer {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    @ConfigProperty(name = "account-management-system.url")
-    String endpoint;
-
-    @ConfigProperty(name = "account-management-system.local.enabled")
-    boolean useLocalAms;
-
-    @ConfigProperty(name = "account-management-system.local.max-instances-per-org-id")
-    Integer maxInstancesPerOrgId;
-
-    @ConfigProperty(name = "sso.token.endpoint")
-    String ssoTokenEndpoint;
-
-    @ConfigProperty(name = "sso.client-id")
-    String ssoClientId;
-
-    @ConfigProperty(name = "sso.client-secret")
-    String ssoClientSecret;
-
-    @ConfigProperty(name = "sso.enabled")
-    boolean ssoEnabled;
+    @ConfigProperty(name = "fm.ams.type")
+    String amsType;
 
     @Inject
-    AccountManagementServiceProperties amsProperties;
+    LocalAMSProperties localAMSProperties;
+
+    @Inject
+    RemoteAMSProperties remoteAMSProperties;
 
     @Inject
     ResourceStorage storage;
@@ -49,24 +31,17 @@ public class AccountManagementServiceProducer {
     // Do not annotate with @Produces!
     // This method is called by org.bf2.srs.fleetmanager.spi.ams.impl.AccountManagementServiceWrapper
     public AccountManagementService produces() {
-        if (useLocalAms) {
-            log.info("Using Local Account Management Service.");
-            return new LocalAccountManagementService(storage, maxInstancesPerOrgId);
-        } else {
-            log.info("Using Remote Account Management Service with Account Management URL: {}", endpoint);
-            return new AccountManagementServiceImpl(amsProperties, createAccountManagementRestClient());
+        switch (amsType) {
+            case "LOCAL": {
+                log.info("Using Local Account Management Service.");
+                return new LocalAMS(localAMSProperties, storage);
+            }
+            case "REMOTE": {
+                log.info("Using Remote Account Management Service with Account Management URL: {}", remoteAMSProperties.getEndpoint());
+                return new RemoteAMS(remoteAMSProperties);
+            }
+            default:
+                throw new IllegalStateException("Account Management Service type '" + amsType + "' is not available");
         }
-    }
-
-    private AccountManagementSystemRestClient createAccountManagementRestClient() {
-        AccountManagementSystemRestClient restClient;
-        if (ssoEnabled) {
-            ApicurioHttpClient httpClient = new JdkHttpClientProvider().create(ssoTokenEndpoint, Collections.emptyMap(), null, new AccountManagementSystemAuthErrorHandler());
-            final OidcAuth auth = new OidcAuth(httpClient, ssoClientId, ssoClientSecret);
-            restClient = new AccountManagementSystemRestClient(endpoint, Collections.emptyMap(), auth);
-        } else {
-            restClient = new AccountManagementSystemRestClient(endpoint, Collections.emptyMap(), null);
-        }
-        return restClient;
     }
 }
