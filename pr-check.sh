@@ -54,7 +54,7 @@ build_project() {
     docker pull quay.io/app-sre/mk-ci-tools:latest
     docker run -v $(pwd):/opt/srs -w /opt/srs -e HOME=/tmp -u $(id -u) \
         -e APICURIO_REGISTRY_REPO=https://gitlab.cee.redhat.com/service-registry/srs-service-registry.git \
-        -e APICURIO_REGISTRY_BRANCH=main \
+        -e APICURIO_REGISTRY_BRANCH=master \
         -e TENANT_MANAGER_AUTH_ENABLED=true \
         -e MAS_SSO_URL=${MAS_SSO_URL} \
         -e MAS_SSO_REALM=${MAS_SSO_REALM} \
