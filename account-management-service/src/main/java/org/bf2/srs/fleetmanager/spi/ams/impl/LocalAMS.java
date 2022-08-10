@@ -11,19 +11,14 @@ import org.bf2.srs.fleetmanager.spi.common.model.ResourceType;
 
 import java.util.UUID;
 
-public class LocalAccountManagementService implements AccountManagementService {
+public class LocalAMS implements AccountManagementService {
 
-
+    private final LocalAMSProperties properties;
     private final ResourceStorage storage;
-    private final Integer maxInstancesPerOrgId;
 
-    /**
-     * @param maxInstancesPerOrgId Limit the number of instances per each org.
-     *                             If null or not positive, the limit is disabled.
-     */
-    public LocalAccountManagementService(ResourceStorage storage, Integer maxInstancesPerOrgId) {
+    public LocalAMS(LocalAMSProperties properties, ResourceStorage storage) {
+        this.properties = properties;
         this.storage = storage;
-        this.maxInstancesPerOrgId = maxInstancesPerOrgId;
     }
 
     public ResourceType determineAllowedResourceType(AccountInfo accountInfo) throws AccountManagementServiceException {
@@ -31,9 +26,9 @@ public class LocalAccountManagementService implements AccountManagementService {
     }
 
     public String createResource(AccountInfo accountInfo, ResourceType resourceType) throws TermsRequiredException, ResourceLimitReachedException, AccountManagementServiceException {
-        if (maxInstancesPerOrgId != null && maxInstancesPerOrgId > 0) {
+        if (properties.maxInstancesPerOrgId != null && properties.maxInstancesPerOrgId > 0) {
             var count = storage.getRegistryCountPerOrgId(accountInfo.getOrganizationId());
-            if (count == maxInstancesPerOrgId)
+            if (count == properties.maxInstancesPerOrgId)
                 throw new ResourceLimitReachedException();
         }
         return UUID.randomUUID().toString();

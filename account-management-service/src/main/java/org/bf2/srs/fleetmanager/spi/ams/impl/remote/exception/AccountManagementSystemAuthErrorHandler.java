@@ -1,4 +1,4 @@
-package org.bf2.srs.fleetmanager.spi.ams.impl.exception;
+package org.bf2.srs.fleetmanager.spi.ams.impl.remote.exception;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.apicurio.rest.client.auth.exception.AuthErrorHandler;

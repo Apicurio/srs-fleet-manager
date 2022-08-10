@@ -1,29 +1,27 @@
-package org.bf2.srs.fleetmanager.spi.ams.impl;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.bf2.srs.fleetmanager.spi.ams.impl.exception.AccountManagementErrorHandler;
-import org.bf2.srs.fleetmanager.spi.ams.impl.exception.AccountManagementSystemClientException;
-import org.bf2.srs.fleetmanager.spi.ams.impl.model.response.OrganizationList;
-import org.bf2.srs.fleetmanager.spi.ams.impl.model.response.QuotaCostList;
-import org.bf2.srs.fleetmanager.spi.ams.impl.model.response.ResponseTermsReview;
-import org.bf2.srs.fleetmanager.spi.ams.impl.model.request.ClusterAuthorization;
-import org.bf2.srs.fleetmanager.spi.ams.impl.model.request.TermsReview;
-import org.bf2.srs.fleetmanager.spi.ams.impl.model.response.ClusterAuthorizationResponse;
-import org.bf2.srs.fleetmanager.spi.ams.impl.model.response.Organization;
+package org.bf2.srs.fleetmanager.spi.ams.impl.remote;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.apicurio.rest.client.JdkHttpClient;
 import io.apicurio.rest.client.auth.OidcAuth;
 import io.apicurio.rest.client.request.Operation;
 import io.apicurio.rest.client.request.Request;
 import io.apicurio.rest.client.spi.ApicurioHttpClient;
+import org.bf2.srs.fleetmanager.spi.ams.impl.remote.exception.AccountManagementErrorHandler;
+import org.bf2.srs.fleetmanager.spi.ams.impl.remote.exception.AccountManagementSystemClientException;
+import org.bf2.srs.fleetmanager.spi.ams.impl.remote.model.request.ClusterAuthorization;
+import org.bf2.srs.fleetmanager.spi.ams.impl.remote.model.request.TermsReview;
+import org.bf2.srs.fleetmanager.spi.ams.impl.remote.model.response.ClusterAuthorizationResponse;
+import org.bf2.srs.fleetmanager.spi.ams.impl.remote.model.response.Organization;
+import org.bf2.srs.fleetmanager.spi.ams.impl.remote.model.response.OrganizationList;
+import org.bf2.srs.fleetmanager.spi.ams.impl.remote.model.response.QuotaCostList;
+import org.bf2.srs.fleetmanager.spi.ams.impl.remote.model.response.ResponseTermsReview;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class AccountManagementSystemRestClient {
 

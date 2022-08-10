@@ -1,4 +1,4 @@
-package org.bf2.srs.fleetmanager.spi.ams.impl.model.response;
+package org.bf2.srs.fleetmanager.spi.ams.impl.remote.model.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

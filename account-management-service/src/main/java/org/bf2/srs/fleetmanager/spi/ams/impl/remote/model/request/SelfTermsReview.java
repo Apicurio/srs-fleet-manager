@@ -1,4 +1,5 @@
-package org.bf2.srs.fleetmanager.spi.ams.impl.model.response;
+package org.bf2.srs.fleetmanager.spi.ams.impl.remote.model.request;
+
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -13,16 +14,13 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 import static lombok.AccessLevel.PACKAGE;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-        "allowed",
-        "organization_id",
-        "subscription",
-        "excess_resources"
+        "event_code",
+        "site_code"
 })
 @NoArgsConstructor
 @AllArgsConstructor(access = PACKAGE)
@@ -31,34 +29,21 @@ import static lombok.AccessLevel.PACKAGE;
 @Setter
 @EqualsAndHashCode
 @ToString
-public class ClusterAuthorizationResponse {
+public class SelfTermsReview {
 
     /**
      * (Required)
      */
-    @JsonProperty("allowed")
+    @JsonProperty("event_code")
     @JsonPropertyDescription("")
     @NotNull
-    Boolean allowed;
+    String eventCode;
 
     /**
-     * (Optional)
+     * (Required)
      */
-    @JsonProperty("organization_id")
+    @JsonProperty("site_code")
     @JsonPropertyDescription("")
-    String organizationId;
-
-    /**
-     * (Optional)
-     */
-    @JsonProperty("subscription")
-    @JsonPropertyDescription("")
-    Subscription subscription;
-
-    /**
-     * (Optional)
-     */
-    @JsonProperty("excess_resources")
-    @JsonPropertyDescription("")
-    List<ExcessResource> excessResources;
+    @NotNull
+    String siteCode;
 }

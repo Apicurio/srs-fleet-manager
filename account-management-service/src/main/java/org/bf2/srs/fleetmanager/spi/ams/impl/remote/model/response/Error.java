@@ -1,4 +1,4 @@
-package org.bf2.srs.fleetmanager.spi.ams.impl.model.response;
+package org.bf2.srs.fleetmanager.spi.ams.impl.remote.model.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import javax.validation.constraints.NotNull;
+
 import static lombok.AccessLevel.PACKAGE;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -19,12 +21,9 @@ import static lombok.AccessLevel.PACKAGE;
         "href",
         "id",
         "kind",
-        "availability_zone_type",
-        "billing_model",
-        "byoc",
-        "count",
-        "resource_name",
-        "resource_type"
+        "code",
+        "operationId",
+        "reason"
 })
 @NoArgsConstructor
 @AllArgsConstructor(access = PACKAGE)
@@ -33,7 +32,7 @@ import static lombok.AccessLevel.PACKAGE;
 @Setter
 @EqualsAndHashCode
 @ToString
-public class ExcessResource {
+public class Error {
 
     /**
      * (Optional)
@@ -52,41 +51,24 @@ public class ExcessResource {
      */
     @JsonProperty("kind")
     @JsonPropertyDescription("")
+    @NotNull
     private String kind;
     /**
      * (Optional)
      */
-    @JsonProperty("availability_zone_type")
+    @JsonProperty("code")
     @JsonPropertyDescription("")
-    private String availabilityZoneType;
+    private String code;
     /**
      * (Optional)
      */
-    @JsonProperty("billing_model")
+    @JsonProperty("operation_id")
     @JsonPropertyDescription("")
-    private String billingModel;
+    private String operationId;
     /**
      * (Optional)
      */
-    @JsonProperty("byoc")
+    @JsonProperty("reason")
     @JsonPropertyDescription("")
-    private Boolean byoc;
-    /**
-     * (Optional)
-     */
-    @JsonProperty("count")
-    @JsonPropertyDescription("")
-    private Integer count;
-    /**
-     * (Optional)
-     */
-    @JsonProperty("resource_name")
-    @JsonPropertyDescription("")
-    private String resourceName;
-    /**
-     * (Optional)
-     */
-    @JsonProperty("resource_type")
-    @JsonPropertyDescription("")
-    private String resourceType;
+    private String reason;
 }
