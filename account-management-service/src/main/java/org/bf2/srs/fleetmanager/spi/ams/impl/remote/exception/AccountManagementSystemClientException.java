@@ -1,8 +1,8 @@
-package org.bf2.srs.fleetmanager.spi.ams.impl.exception;
+package org.bf2.srs.fleetmanager.spi.ams.impl.remote.exception;
 
 import io.apicurio.rest.client.error.ApicurioRestClientException;
 import lombok.Getter;
-import org.bf2.srs.fleetmanager.spi.ams.impl.model.response.Error;
+import org.bf2.srs.fleetmanager.spi.ams.impl.remote.model.response.Error;
 
 import java.util.Optional;
 

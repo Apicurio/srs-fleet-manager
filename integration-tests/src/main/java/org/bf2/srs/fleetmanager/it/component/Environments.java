@@ -68,6 +68,7 @@ public class Environments {
     public static Environment forFleetManagerAuthAMSMock(PostgresqlComponent psqlc, AMSMockComponent ams, AuthConfig fmAuthConfig) {
         return Environment.create()
                 .inherit(forFleetManagerAuth(psqlc, fmAuthConfig))
+                .set("FM_AMS_TYPE", "REMOTE")
                 .set("AMS_SSO_ENABLED", "false")
                 .set("AMS_URL", ams.getBaseUrl());
     }
@@ -75,8 +76,7 @@ public class Environments {
     public static Environment forFleetManagerAuthLocalAMS(PostgresqlComponent psqlc, AuthConfig fmAuthConfig) {
         return Environment.create()
                 .inherit(forFleetManagerAuth(psqlc, fmAuthConfig))
-                .set("USE_LOCAL_AMS", "true")
-                .set("AMS_LOCAL_MAX_INSTANCES_PER_ORG_ID", "2");
+                .set("FM_AMS_LOCAL_MAX_INSTANCES_PER_ORG_ID", "2");
     }
 
     public static Environment forFleetManagerAuthTMAuth(PostgresqlComponent psqlc, AMSMockComponent ams, AuthConfig tmAuthConfig, AuthConfig fmAuthConfig) {

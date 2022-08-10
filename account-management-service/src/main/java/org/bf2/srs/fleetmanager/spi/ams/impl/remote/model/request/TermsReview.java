@@ -1,4 +1,4 @@
-package org.bf2.srs.fleetmanager.spi.ams.impl.model.response;
+package org.bf2.srs.fleetmanager.spi.ams.impl.remote.model.request;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -18,12 +18,9 @@ import static lombok.AccessLevel.PACKAGE;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-        "href",
-        "id",
-        "kind",
-        "code",
-        "operationId",
-        "reason"
+        "account_username",
+        "event_code",
+        "site_code"
 })
 @NoArgsConstructor
 @AllArgsConstructor(access = PACKAGE)
@@ -32,43 +29,29 @@ import static lombok.AccessLevel.PACKAGE;
 @Setter
 @EqualsAndHashCode
 @ToString
-public class Error {
+public class TermsReview {
 
     /**
-     * (Optional)
+     * (Required)
      */
-    @JsonProperty("href")
-    @JsonPropertyDescription("")
-    private String href;
-    /**
-     * (Optional)
-     */
-    @JsonProperty("id")
-    @JsonPropertyDescription("")
-    private String id;
-    /**
-     * (Optional)
-     */
-    @JsonProperty("kind")
+    @JsonProperty("account_username")
     @JsonPropertyDescription("")
     @NotNull
-    private String kind;
+    String accountUsername;
+
     /**
-     * (Optional)
+     * (Required)
      */
-    @JsonProperty("code")
+    @JsonProperty("event_code")
     @JsonPropertyDescription("")
-    private String code;
+    @NotNull
+    String eventCode;
+
     /**
-     * (Optional)
+     * (Required)
      */
-    @JsonProperty("operation_id")
+    @JsonProperty("site_code")
     @JsonPropertyDescription("")
-    private String operationId;
-    /**
-     * (Optional)
-     */
-    @JsonProperty("reason")
-    @JsonPropertyDescription("")
-    private String reason;
+    @NotNull
+    String siteCode;
 }

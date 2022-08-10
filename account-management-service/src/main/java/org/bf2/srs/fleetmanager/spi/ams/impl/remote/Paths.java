@@ -1,4 +1,4 @@
-package org.bf2.srs.fleetmanager.spi.ams.impl;
+package org.bf2.srs.fleetmanager.spi.ams.impl.remote;
 
 public class Paths {
 

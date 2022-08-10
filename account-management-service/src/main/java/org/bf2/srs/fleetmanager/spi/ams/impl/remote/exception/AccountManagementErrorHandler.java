@@ -1,11 +1,11 @@
-package org.bf2.srs.fleetmanager.spi.ams.impl.exception;
+package org.bf2.srs.fleetmanager.spi.ams.impl.remote.exception;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.apicurio.rest.client.error.ApicurioRestClientException;
 import io.apicurio.rest.client.error.RestClientErrorHandler;
 import io.apicurio.rest.client.util.IoUtil;
-import org.bf2.srs.fleetmanager.spi.ams.impl.model.response.Error;
+import org.bf2.srs.fleetmanager.spi.ams.impl.remote.model.response.Error;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

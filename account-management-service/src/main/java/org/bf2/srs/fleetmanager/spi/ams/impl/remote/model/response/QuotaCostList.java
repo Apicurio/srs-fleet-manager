@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-package org.bf2.srs.fleetmanager.spi.ams.impl.model.response;
-
-import static lombok.AccessLevel.PACKAGE;
+package org.bf2.srs.fleetmanager.spi.ams.impl.remote.model.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -29,6 +26,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+
+import java.util.List;
+
+import static lombok.AccessLevel.PACKAGE;
 
 /**
  * @author eric.wittmann@gmail.com
@@ -42,15 +43,12 @@ import lombok.ToString;
 @ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
-public class RelatedResource {
+public class QuotaCostList {
 
-    private String cloud_provider;
-    private String resource_name;
-    private String resource_type;
-    private String byoc;
-    private String availability_zone_type;
-    private String product;
-    private String billing_model;
-    private Integer cost;
+    private String kind;
+    private Integer page;
+    private Integer size;
+    private Integer total;
+    private List<QuotaCost> items;
 
 }
