@@ -291,5 +291,64 @@
                 <quarkus.package.type>native</quarkus.package.type>
             </properties>
         </profile>
+
+        <profile>
+            <id>code-scan</id>
+            <modules>
+                <module>common</module>
+                <module>spi</module>
+                <module>core</module>
+                <module>tenant-manager-client</module>
+                <module>account-management-service</module>
+            </modules>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.github.spotbugs</groupId>
+                        <artifactId>spotbugs-maven-plugin</artifactId>
+                        <version>4.7.0.0</version>
+                        <configuration>
+                            <xmlOutput>true</xmlOutput>
+                            <failOnError>false</failOnError>
+                            <plugins>
+                                <plugin>
+                                    <groupId>com.h3xstream.findsecbugs</groupId>
+                                    <artifactId>findsecbugs-plugin</artifactId>
+                                    <version>1.12.0</version>
+                                </plugin>
+                            </plugins>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>spotbugs</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-pmd-plugin</artifactId>
+                        <version>3.17.0</version>
+                        <configuration>
+                            <failOnViolation>false</failOnViolation>
+                            <printFailingErrors>true</printFailingErrors>
+                            <includeTests>true</includeTests>
+                            <skipEmptyReport>false</skipEmptyReport>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>pmd</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
     </profiles>
 </project>
