@@ -95,7 +95,8 @@ public class DeprovisionRegistryWorker extends AbstractWorker {
             if (!task.isAmsSuccess()) {
                 final String subscriptionId = registry.getSubscriptionId();
                 // TODO Workaround: Remove this once we have RHOSRTrial working.
-                if (subscriptionId != null && RegistryInstanceTypeValueDto.of(registry.getInstanceType()) != RegistryInstanceTypeValueDto.EVAL) {
+                if (subscriptionId != null && RegistryInstanceTypeValueDto.of(registry.getInstanceType()) != RegistryInstanceTypeValueDto.EVAL
+                        /* TODO: Remove this temporary workaround */ && !"mock-subscription".equals(subscriptionId)) {
                     try {
                         ams.deleteSubscription(subscriptionId);
                     } catch (SubscriptionNotFoundServiceException ex) {
