@@ -8,9 +8,9 @@ import org.bf2.srs.fleetmanager.common.storage.RegistryStorageConflictException;
 import org.bf2.srs.fleetmanager.common.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.common.storage.model.RegistryData;
 import org.bf2.srs.fleetmanager.common.storage.model.RegistryDeploymentData;
+import org.bf2.srs.fleetmanager.common.storage.util.QueryConfig;
 import org.bf2.srs.fleetmanager.common.storage.util.QueryResult;
 import org.bf2.srs.fleetmanager.common.storage.util.SearchQuery;
-import org.bf2.srs.fleetmanager.common.storage.util.QueryConfig;
 import org.bf2.srs.fleetmanager.operation.logging.Logged;
 import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
@@ -29,7 +29,7 @@ import javax.persistence.PersistenceException;
 import javax.transaction.Transactional;
 import javax.validation.constraints.NotEmpty;
 
-import static io.quarkus.panache.common.Sort.*;
+import static io.quarkus.panache.common.Sort.Direction;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
@@ -123,7 +123,7 @@ public class PanacheResourceStorage implements ResourceStorage {
             //TODO investigate using locks, such as optimistic locks
             existing = deploymentRepository.findByIdOptional(deployment.getId());
             if (existing.isEmpty()) {
-                throw new RegistryDeploymentNotFoundException(deployment.getId().toString());
+                throw new RegistryDeploymentNotFoundException();
             }
         }
         try {
@@ -161,7 +161,7 @@ public class PanacheResourceStorage implements ResourceStorage {
     @Override
     public void deleteRegistryDeployment(Long id) throws RegistryDeploymentNotFoundException, RegistryDeploymentStorageConflictException {
         RegistryDeploymentData rd = getRegistryDeploymentById(id)
-                .orElseThrow(() -> new RegistryDeploymentNotFoundException(id.toString()));
+                .orElseThrow(RegistryDeploymentNotFoundException::new);
         try {
             deploymentRepository.delete(rd);
         } catch (PersistenceException ex) {
@@ -245,5 +245,23 @@ public class PanacheResourceStorage implements ResourceStorage {
         } catch (NoResultException ex) {
             return 0;
         }
+    }
+
+    @Override
+    public long getRegistryCountPerDeploymentId(long deploymentId) {
+        try {
+            return this.registryRepository.getEntityManager()
+                    .createQuery("select count(r) from RegistryData r, RegistryDeploymentData d where " +
+                            "r.registryDeployment = d and d.id = :deploymentId", Long.class)
+                    .setParameter("deploymentId", deploymentId)
+                    .getSingleResult();
+        } catch (NoResultException ex) {
+            return 0;
+        }
+    }
+
+    @Override
+    public Optional<RegistryDeploymentData> getRegistryDeploymentByName(String name) {
+        return deploymentRepository.find("name", name).singleResultOptional();
     }
 }

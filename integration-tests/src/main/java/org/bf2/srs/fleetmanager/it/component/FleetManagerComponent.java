@@ -51,7 +51,6 @@ public class FleetManagerComponent extends AbstractComponent {
                 List<String> cmd = new ArrayList<>();
                 cmd.add("java");
                 cmd.addAll(Arrays.asList(
-                        //"-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044",
                         "-jar", path));
                 int timeout = executor.execute(cmd, env.getEnvVariables());
                 return timeout == 0;

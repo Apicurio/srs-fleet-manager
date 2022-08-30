@@ -1,4 +1,4 @@
-package org.bf2.srs.fleetmanager.rest.service.impl;
+package org.bf2.srs.fleetmanager.service.deployment;
 
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentCreate;
@@ -20,7 +20,7 @@ import javax.enterprise.context.ApplicationScoped;
  * @author Jakub Senko <m@jsenko.net>
  */
 @ApplicationScoped
-public class ConfigurationDeploymentLoader implements DeploymentLoader {
+public class ConfigDeploymentProvider implements DeploymentProvider {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 

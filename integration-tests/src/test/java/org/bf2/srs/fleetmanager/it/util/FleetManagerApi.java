@@ -16,31 +16,28 @@
 
 package org.bf2.srs.fleetmanager.it.util;
 
-import static io.restassured.RestAssured.given;
-import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
-import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
-import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
-import static java.net.HttpURLConnection.HTTP_OK;
-import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
 import io.restassured.RestAssured;
+import io.restassured.common.mapper.TypeRef;
 import io.restassured.filter.log.ErrorLoggingFilter;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
+import io.restassured.http.ContentType;
+import io.smallrye.jwt.build.Jwt;
 import org.awaitility.Awaitility;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentCreateRest;
+import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentRest;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.Registry;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreate;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryList;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValue;
 import org.bf2.srs.fleetmanager.spi.common.model.AccountInfo;
 
-import io.restassured.http.ContentType;
-import io.smallrye.jwt.build.Jwt;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import static io.restassured.RestAssured.given;
+import static java.net.HttpURLConnection.*;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 /**
  * @author Fabian Martinez
@@ -48,6 +45,7 @@ import io.smallrye.jwt.build.Jwt;
 public class FleetManagerApi {
 
     private static final String BASE = "/api/serviceregistry_mgmt/v1/registries";
+    private static final String BASE_ADMIN = "/api/serviceregistry_mgmt/v1/admin";
 
     static {
         RestAssured.filters(new RequestLoggingFilter(), new ResponseLoggingFilter(), new ErrorLoggingFilter());
@@ -55,9 +53,9 @@ public class FleetManagerApi {
 
     public static void verifyApiIsSecured() {
         given()
-            .log().all()
-            .when().get(BASE)
-            .then().statusCode(HTTP_UNAUTHORIZED);
+                .log().all()
+                .when().get(BASE)
+                .then().statusCode(HTTP_UNAUTHORIZED);
     }
 
     public static <T> T createRegistry(RegistryCreate registry, AccountInfo user, int expectedStatusCode, Class<T> resultType) {
@@ -101,26 +99,26 @@ public class FleetManagerApi {
 
     public static void deleteRegistry(String id, AccountInfo user) {
         given()
-            .log().all()
-            .auth().oauth2(getAccessToken(user))
-            .when().delete(BASE + "/" + id)
-            .then().statusCode(HTTP_NO_CONTENT);
+                .log().all()
+                .auth().oauth2(getAccessToken(user))
+                .when().delete(BASE + "/" + id)
+                .then().statusCode(HTTP_NO_CONTENT);
     }
 
     public static void verifyDeleteNotAllowed(String id, AccountInfo user) {
         given()
-            .log().all()
-            .auth().oauth2(getAccessToken(user))
-            .when().delete(BASE + "/" + id)
-            .then().statusCode(HTTP_FORBIDDEN);
+                .log().all()
+                .auth().oauth2(getAccessToken(user))
+                .when().delete(BASE + "/" + id)
+                .then().statusCode(HTTP_FORBIDDEN);
     }
 
     public static void verifyCreateDeploymentNotAllowed(RegistryDeploymentCreateRest deployment, AccountInfo user) {
         given()
-            .log().all()
-            .auth().oauth2(getAccessToken(user))
-            .when().contentType(ContentType.JSON).body(deployment).post("/api/serviceregistry_mgmt/v1/admin/registryDeployments")
-            .then().statusCode(HTTP_FORBIDDEN);
+                .log().all()
+                .auth().oauth2(getAccessToken(user))
+                .when().contentType(ContentType.JSON).body(deployment).post("/api/serviceregistry_mgmt/v1/admin/registryDeployments")
+                .then().statusCode(HTTP_FORBIDDEN);
     }
 
     private static String getAccessToken(AccountInfo account) {
@@ -151,6 +149,40 @@ public class FleetManagerApi {
         assertNotEquals(RegistryStatusValue.failed, registry.getStatus());
 
         Awaitility.await("registry deleted").atMost(30, TimeUnit.SECONDS).pollInterval(5, TimeUnit.SECONDS)
-            .untilAsserted(() -> FleetManagerApi.verifyRegistryNotExists(registry.getId(), user));
+                .untilAsserted(() -> FleetManagerApi.verifyRegistryNotExists(registry.getId(), user));
+    }
+
+    public static List<RegistryDeploymentRest> listRegistryDeployments(AccountInfo user) {
+        return given()
+                .log().all()
+                .auth().oauth2(getAccessToken(user))
+                .when().get(BASE_ADMIN + "/registryDeployments")
+                .then().statusCode(HTTP_OK)
+                .extract().as(new TypeRef<List<RegistryDeploymentRest>>() {
+                });
+    }
+
+    public static void deleteRegistryDeployment(AccountInfo user, Integer deploymentId) {
+        deleteRegistryDeployment(user, deploymentId, HTTP_NO_CONTENT);
+    }
+
+    public static void deleteRegistryDeployment(AccountInfo user, Integer deploymentId, int expectedCode) {
+        given()
+                .log().all()
+                .auth().oauth2(getAccessToken(user))
+                .when().delete(BASE_ADMIN + "/registryDeployments/" + deploymentId)
+                .then().statusCode(expectedCode);
+    }
+
+    public static RegistryDeploymentRest createRegistryDeployment(AccountInfo user, RegistryDeploymentCreateRest deployment) {
+        return given()
+                .log().all()
+                .auth().oauth2(getAccessToken(user))
+                .when()
+                .contentType(ContentType.JSON)
+                .body(deployment)
+                .post(BASE_ADMIN + "/registryDeployments")
+                .then().statusCode(HTTP_OK)
+                .extract().as(RegistryDeploymentRest.class);
     }
 }

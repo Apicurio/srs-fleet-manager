@@ -12,7 +12,9 @@
 
     <artifactId>srs-fleet-manager-account-management-service</artifactId>
 
-    <properties><commons.logging.version>1.2</commons.logging.version></properties>
+    <properties>
+        <commons.logging.version>1.2</commons.logging.version>
+    </properties>
 
     <dependencies>
 

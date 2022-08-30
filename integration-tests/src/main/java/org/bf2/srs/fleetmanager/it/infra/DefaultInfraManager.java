@@ -93,9 +93,9 @@ public class DefaultInfraManager extends AbstractInfraManager {
 
         Environment fmEnv = null;
         if (tmAuthEnabled) {
-            fmEnv = Environments.forFleetManagerAuthTMAuth(psqlcFM, ams, tm.getAuthConfig(), keycloak.getAuthConfig());
+            fmEnv = Environments.forFleetManagerDefaultTMAuth(psqlcFM, ams, tm.getAuthConfig(), keycloak.getAuthConfig());
         } else {
-            fmEnv = Environments.forFleetManagerAuthAMSMock(psqlcFM, ams, keycloak.getAuthConfig());
+            fmEnv = Environments.forFleetManagerDefault(psqlcFM, ams, keycloak.getAuthConfig());
         }
 
         var fm1 = new FleetManagerComponent(fmEnv, fleetManagerPort, "node1");

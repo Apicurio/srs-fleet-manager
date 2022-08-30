@@ -14,19 +14,11 @@
  * limitations under the License.
  */
 
-package org.bf2.srs.fleetmanager.service.model;
+package org.bf2.srs.fleetmanager.service.quota.model;
 
-import static lombok.AccessLevel.PACKAGE;
-
-import java.util.List;
-
-import javax.validation.constraints.NotNull;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -34,14 +26,20 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.bf2.srs.fleetmanager.spi.tenants.model.TenantLimit;
+
+import java.util.List;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
+import static lombok.AccessLevel.PACKAGE;
 
 /**
  * @author Fabian Martinez
  */
 @JsonPropertyOrder({
-        "reconcile",
-        "plans",
-        "organizations"
+        "name",
+        "resources"
 })
 @NoArgsConstructor
 @AllArgsConstructor(access = PACKAGE)
@@ -50,24 +48,16 @@ import lombok.ToString;
 @Setter
 @EqualsAndHashCode
 @ToString
-public class QuotaPlansConfigList {
+public class QuotaPlan {
 
-    /**
-     * Nullable - default false
-     */
-    @JsonProperty("reconcile")
+    @JsonProperty("name")
     @JsonPropertyDescription("")
-    private Boolean reconcile;
+    @NotEmpty
+    String name;
 
-    @JsonProperty("plans")
+    @JsonProperty("resources")
     @JsonPropertyDescription("")
     @NotNull
-    private List<QuotaPlan> plans;
+    List<TenantLimit> resources;
 
-    /**
-     * Nullable - default empty
-     */
-    @JsonProperty("organizations")
-    @JsonPropertyDescription("")
-    private List<OrganizationAssignment> organizations;
 }
