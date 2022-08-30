@@ -15,7 +15,7 @@
     <properties>
         <groups></groups>
         <skipTests>false</skipTests>
-        
+
         <junit.version>5.9.0</junit.version>
         <log4j2.version>2.13.3</log4j2.version>
         <commons.logging.version>1.2</commons.logging.version>
@@ -109,12 +109,12 @@
             <artifactId>embedded-postgres</artifactId>
             <version>${embedded-postgres.version}</version><!--$NO-MVN-MAN-VER$-->
         </dependency>
-        
+
         <dependency>
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-smallrye-jwt-build</artifactId>
@@ -130,6 +130,12 @@
             <groupId>com.github.tomakehurst</groupId>
             <artifactId>wiremock-jre8</artifactId>
             <version>${wiremock-jre8.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>
@@ -180,7 +186,8 @@
                             <goal>verify</goal>
                         </goals>
                         <configuration>
-                            <statelessTestsetReporter implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5Xml30StatelessReporter">
+                            <statelessTestsetReporter
+                                    implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5Xml30StatelessReporter">
                                 <disable>false</disable>
                                 <version>3.0</version>
                                 <usePhrasedFileName>false</usePhrasedFileName>
@@ -188,7 +195,8 @@
                                 <usePhrasedTestCaseClassName>true</usePhrasedTestCaseClassName>
                                 <usePhrasedTestCaseMethodName>true</usePhrasedTestCaseMethodName>
                             </statelessTestsetReporter>
-                            <consoleOutputReporter implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5ConsoleOutputReporter">
+                            <consoleOutputReporter
+                                    implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5ConsoleOutputReporter">
                                 <disable>false</disable>
                                 <encoding>UTF-8</encoding>
                                 <usePhrasedFileName>true</usePhrasedFileName>

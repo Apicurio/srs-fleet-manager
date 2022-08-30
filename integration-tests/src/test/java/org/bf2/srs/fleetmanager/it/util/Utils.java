@@ -92,6 +92,28 @@ public class Utils {
         }
     }
 
+    public static void simulateRegistryDeletion(TenantManagerClient tmc, Registry registry, AccountInfo user) {
+        Awaitility.await("registry '" + registry + "' deleting initiated").atMost(5, SECONDS).pollInterval(1, SECONDS)
+                .until(() -> {
+                    var tenant1 = tmc.getTenant(registry.getId());
+                    return TenantStatusValue.TO_BE_DELETED.equals(tenant1.getStatus());
+                });
+
+        var req = new UpdateRegistryTenantRequest();
+        req.setStatus(TenantStatusValue.DELETED);
+        tmc.updateTenant(registry.getId(), req);
+
+        Awaitility.await("registry '" + registry + "' deleted").atMost(5, SECONDS).pollInterval(1, SECONDS)
+                .until(() -> {
+                    try {
+                        FleetManagerApi.verifyRegistryNotExists(registry.getId(), user);
+                        return true;
+                    } catch (AssertionError ex) {
+                        return false;
+                    }
+                });
+    }
+
     @Builder
     @EqualsAndHashCode
     @ToString

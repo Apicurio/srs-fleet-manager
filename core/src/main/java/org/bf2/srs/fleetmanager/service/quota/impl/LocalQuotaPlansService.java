@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package org.bf2.srs.fleetmanager.service.impl;
+package org.bf2.srs.fleetmanager.service.quota.impl;
 
-import io.quarkus.arc.DefaultBean;
-import org.bf2.srs.fleetmanager.service.QuotaPlansService;
-import org.bf2.srs.fleetmanager.service.model.QuotaPlan;
+import org.bf2.srs.fleetmanager.service.quota.QuotaPlansService;
+import org.bf2.srs.fleetmanager.service.quota.model.QuotaPlan;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,8 +31,7 @@ import javax.enterprise.context.ApplicationScoped;
  * @author Fabian Martinez
  */
 @ApplicationScoped
-@DefaultBean // For dev & test profiles
-public class MockQuotaPlansService implements QuotaPlansService {
+public class LocalQuotaPlansService implements QuotaPlansService {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -43,8 +41,7 @@ public class MockQuotaPlansService implements QuotaPlansService {
     String defaultQuotaPlan;
 
     @Override
-    public void init() {
-        log.debug("Using MockQuotaPlansService implementation of QuotaPlansService");
+    public void start() {
         plans.put(defaultQuotaPlan, QuotaPlan.builder()
                 .name(defaultQuotaPlan)
                 .resources(List.of())

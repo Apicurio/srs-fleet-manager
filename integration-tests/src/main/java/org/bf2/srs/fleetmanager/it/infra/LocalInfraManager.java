@@ -30,7 +30,7 @@ import static org.bf2.srs.fleetmanager.it.component.CompoundComponent.*;
 /**
  * @author Jakub Senko <m@jsenko.net>
  */
-public class LocalAMSInfraManager extends AbstractInfraManager {
+public class LocalInfraManager extends AbstractInfraManager {
 
     @Override
     protected CompoundComponent buildInfra() throws Exception {
@@ -53,7 +53,7 @@ public class LocalAMSInfraManager extends AbstractInfraManager {
         c.addAndStart(C_POSTGRESQL_FM, psqlcFM);
 
         var fleetManagerPort = 8080;
-        var fmEnv = Environments.forFleetManagerAuthLocalAMS(psqlcFM, keycloak.getAuthConfig());
+        var fmEnv = Environments.forFleetManagerLocal(psqlcFM, keycloak.getAuthConfig());
         var fm1 = new FleetManagerComponent(fmEnv, fleetManagerPort, "node1");
         c.addAndStart(C_FM1, fm1);
 

@@ -19,6 +19,14 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
+/**
+ * This is a dummy implementation of ResourceStorage,
+ * so when the unit tests run, an implementation is injectable.
+ * We're not testing LocalAMS at the moment, so the implementation does not do anything.
+ * When a test for it is implemented, this mock can be updated.
+ *
+ * @author Jakub Senko <m@jsenko.net>
+ */
 @ApplicationScoped
 public class ResourceStorageNoopMock implements ResourceStorage {
 
@@ -99,6 +107,16 @@ public class ResourceStorageNoopMock implements ResourceStorage {
 
     @Override
     public long getRegistryOrganisationCount() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long getRegistryCountPerDeploymentId(long deploymentId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Optional<RegistryDeploymentData> getRegistryDeploymentByName(String name) {
         throw new UnsupportedOperationException();
     }
 }

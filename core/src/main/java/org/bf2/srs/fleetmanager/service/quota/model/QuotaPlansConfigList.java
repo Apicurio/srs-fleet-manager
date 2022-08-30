@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package org.bf2.srs.fleetmanager.service.model;
+package org.bf2.srs.fleetmanager.service.quota.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -28,17 +27,18 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import javax.validation.constraints.NotEmpty;
+import java.util.List;
 import javax.validation.constraints.NotNull;
 
 import static lombok.AccessLevel.PACKAGE;
 
 /**
- * @author Jakub Senko <m@jsenko.net>
+ * @author Fabian Martinez
  */
 @JsonPropertyOrder({
-        "orgId",
-        "plan",
+        "reconcile",
+        "plans",
+        "organizations"
 })
 @NoArgsConstructor
 @AllArgsConstructor(access = PACKAGE)
@@ -47,15 +47,24 @@ import static lombok.AccessLevel.PACKAGE;
 @Setter
 @EqualsAndHashCode
 @ToString
-public class OrganizationAssignment {
+public class QuotaPlansConfigList {
 
-    @JsonProperty("orgId")
+    /**
+     * Nullable - default false
+     */
+    @JsonProperty("reconcile")
     @JsonPropertyDescription("")
-    @NotEmpty
-    String orgId;
+    private Boolean reconcile;
 
-    @JsonProperty("plan")
+    @JsonProperty("plans")
     @JsonPropertyDescription("")
     @NotNull
-    String plan;
+    private List<QuotaPlan> plans;
+
+    /**
+     * Nullable - default empty
+     */
+    @JsonProperty("organizations")
+    @JsonPropertyDescription("")
+    private List<OrganizationAssignment> organizations;
 }
