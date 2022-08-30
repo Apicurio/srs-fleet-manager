@@ -15,9 +15,8 @@
     <properties>
         <groups></groups>
         <skipTests>false</skipTests>
-        
-        <junit.version>5.8.2</junit.version>
-        <junit.platform-launcher.version>1.7.1</junit.platform-launcher.version>
+
+        <junit.version>5.9.0</junit.version>
         <log4j2.version>2.13.3</log4j2.version>
         <commons.logging.version>1.2</commons.logging.version>
         <version.deploy.plugin>2.8.2</version.deploy.plugin>
@@ -27,24 +26,38 @@
 
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>${junit.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>${junit.version}</version>
         </dependency>
         <dependency>
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-launcher</artifactId>
-            <version>${junit.platform-launcher.version}</version>
-            <scope>compile</scope>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-suite-engine</artifactId>
+            <scope>test</scope>
         </dependency>
 
 
@@ -96,12 +109,12 @@
             <artifactId>embedded-postgres</artifactId>
             <version>${embedded-postgres.version}</version><!--$NO-MVN-MAN-VER$-->
         </dependency>
-        
+
         <dependency>
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-smallrye-jwt-build</artifactId>
@@ -117,6 +130,12 @@
             <groupId>com.github.tomakehurst</groupId>
             <artifactId>wiremock-jre8</artifactId>
             <version>${wiremock-jre8.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>
@@ -155,6 +174,10 @@
                         <groups>${groups}</groups>
                         <smallrye.jwt.sign.key.location>privateKey.jwk</smallrye.jwt.sign.key.location>
                     </systemPropertyVariables>
+                    <includes>
+                        <include>org.bf2.srs.fleetmanager.it.suites.DefaultSuite</include>
+                        <include>org.bf2.srs.fleetmanager.it.suites.LocalAMSSuite</include>
+                    </includes>
                 </configuration>
                 <executions>
                     <execution>
@@ -163,7 +186,8 @@
                             <goal>verify</goal>
                         </goals>
                         <configuration>
-                            <statelessTestsetReporter implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5Xml30StatelessReporter">
+                            <statelessTestsetReporter
+                                    implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5Xml30StatelessReporter">
                                 <disable>false</disable>
                                 <version>3.0</version>
                                 <usePhrasedFileName>false</usePhrasedFileName>
@@ -171,7 +195,8 @@
                                 <usePhrasedTestCaseClassName>true</usePhrasedTestCaseClassName>
                                 <usePhrasedTestCaseMethodName>true</usePhrasedTestCaseMethodName>
                             </statelessTestsetReporter>
-                            <consoleOutputReporter implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5ConsoleOutputReporter">
+                            <consoleOutputReporter
+                                    implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5ConsoleOutputReporter">
                                 <disable>false</disable>
                                 <encoding>UTF-8</encoding>
                                 <usePhrasedFileName>true</usePhrasedFileName>

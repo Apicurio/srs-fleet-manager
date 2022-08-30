@@ -1,14 +1,18 @@
 package org.bf2.srs.fleetmanager.rest.service.impl;
 
-import io.quarkus.hibernate.orm.panache.PanacheQuery;
-import io.quarkus.panache.common.Page;
-import io.quarkus.panache.common.Sort;
 import io.quarkus.security.identity.SecurityIdentity;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bf2.srs.fleetmanager.auth.AuthService;
 import org.bf2.srs.fleetmanager.auth.interceptor.CheckDeletePermissions;
 import org.bf2.srs.fleetmanager.auth.interceptor.CheckReadPermissions;
 import org.bf2.srs.fleetmanager.common.operation.auditing.Audited;
+import org.bf2.srs.fleetmanager.common.storage.RegistryNotFoundException;
+import org.bf2.srs.fleetmanager.common.storage.RegistryStorageConflictException;
+import org.bf2.srs.fleetmanager.common.storage.ResourceStorage;
+import org.bf2.srs.fleetmanager.common.storage.model.RegistryData;
+import org.bf2.srs.fleetmanager.common.storage.util.QueryConfig;
+import org.bf2.srs.fleetmanager.common.storage.util.QueryResult;
+import org.bf2.srs.fleetmanager.common.storage.util.SearchQuery;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.ScheduleRegistryTask;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.deprovision.StartDeprovisionRegistryTask;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
@@ -30,18 +34,14 @@ import org.bf2.srs.fleetmanager.spi.common.TooManyEvalInstancesForUserException;
 import org.bf2.srs.fleetmanager.spi.common.TooManyInstancesException;
 import org.bf2.srs.fleetmanager.spi.common.model.AccountInfo;
 import org.bf2.srs.fleetmanager.spi.common.model.ResourceType;
-import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
-import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
-import org.bf2.srs.fleetmanager.storage.ResourceStorage;
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
 import org.bf2.srs.fleetmanager.util.BasicQuery;
-import org.bf2.srs.fleetmanager.util.SearchQuery;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
@@ -146,19 +146,22 @@ public class RegistryServiceImpl implements RegistryService {
     @Override
     public RegistryListDto getRegistries(Integer page, Integer size, String orderBy, String search) {
         // Defaults
-        var sort = Sort.by("id", Sort.Direction.Ascending);
-        page = (page != null) ? page : 1;
-        size = (size != null) ? size : 10;
+        var queryConfigBuilder = QueryConfig.builder()
+                .sortDirection(QueryConfig.Direction.ASCENDING)
+                .sortColumn("id")
+                .index(page != null ? page - 1 : 0)
+                .size(size != null ? size : 10); // TODO Max size?
 
         if (orderBy != null) {
             var order = orderBy.split(" ");
             if (order.length != 2) {
                 throw new ValidationException("invalid orderBy");
             }
+            queryConfigBuilder.sortColumn(order[0]);
             if ("asc".equals(order[1])) {
-                sort = Sort.by(order[0], Sort.Direction.Ascending);
+                queryConfigBuilder.sortDirection(QueryConfig.Direction.ASCENDING);
             } else {
-                sort = Sort.by(order[0], Sort.Direction.Descending);
+                queryConfigBuilder.sortDirection(QueryConfig.Direction.DESCENDING);
             }
         }
 
@@ -182,15 +185,18 @@ public class RegistryServiceImpl implements RegistryService {
         }
 
         var query = new SearchQuery(conditions);
+        var queryConfig = queryConfigBuilder.build();
 
-        PanacheQuery<RegistryData> itemsQuery = storage.executeRegistrySearchQuery(query, sort);
+        QueryResult<RegistryData> queryResult = storage.executeRegistrySearchQuery(query, queryConfig);
 
-        var items = itemsQuery.page(Page.of(page - 1, size)).stream().map(convertRegistry::convert)
+        var items = queryResult.getItems().stream().map(convertRegistry::convert)
                 .collect(Collectors.toList());
-        return RegistryListDto.builder().items(items)
-                .page(page)
-                .size(size)
-                .total(itemsQuery.count()).build();
+        return RegistryListDto.builder()
+                .items(items)
+                .page(queryConfig.getIndex() + 1)
+                .size(queryConfig.getSize())
+                .total(queryResult.getCount())
+                .build();
     }
 
     @Override

@@ -1,6 +1,6 @@
 package org.bf2.srs.fleetmanager.storage.sqlPanacheImpl;
 
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
+import org.bf2.srs.fleetmanager.common.storage.model.RegistryData;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 
 import javax.enterprise.context.ApplicationScoped;

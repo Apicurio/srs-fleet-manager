@@ -301,6 +301,8 @@ objects:
             value: /config/quota-plans.yaml
           - name: REGISTRY_QUOTA_PLANS_DEFAULT
             value: ${REGISTRY_QUOTA_PLANS_DEFAULT}
+          - name: FM_AMS_TYPE
+            value: ${FM_AMS_TYPE}
           - name: AMS_URL
             value: ${AMS_URL}
           - name: SSO_TOKEN_ENDPOINT
@@ -550,6 +552,8 @@ parameters:
   description: Default quota plan to apply registries
   value: basic
 
+- name: FM_AMS_TYPE
+  value: "REMOTE"
 - name: AMS_URL
   value: "http://localhost:8091"
 - name: SSO_TOKEN_ENDPOINT

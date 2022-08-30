@@ -1,9 +1,9 @@
-name: Validate
-on: [pull_request]
+name: Validate Conventional Commits
+on: [ pull_request ]
 
 jobs:
   validate_comments:
-    name: 'Validate Conventional Commits'
+    name: Validate
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

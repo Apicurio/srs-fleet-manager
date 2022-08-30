@@ -22,11 +22,11 @@ import org.bf2.srs.fleetmanager.spi.tenants.TenantManagerService;
 import org.bf2.srs.fleetmanager.spi.tenants.TenantManagerServiceException;
 import org.bf2.srs.fleetmanager.spi.tenants.TenantNotFoundServiceException;
 import org.bf2.srs.fleetmanager.spi.tenants.model.TenantManagerConfig;
-import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
-import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
-import org.bf2.srs.fleetmanager.storage.ResourceStorage;
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentData;
+import org.bf2.srs.fleetmanager.common.storage.RegistryNotFoundException;
+import org.bf2.srs.fleetmanager.common.storage.RegistryStorageConflictException;
+import org.bf2.srs.fleetmanager.common.storage.ResourceStorage;
+import org.bf2.srs.fleetmanager.common.storage.model.RegistryData;
+import org.bf2.srs.fleetmanager.common.storage.model.RegistryDeploymentData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,7 +95,8 @@ public class DeprovisionRegistryWorker extends AbstractWorker {
             if (!task.isAmsSuccess()) {
                 final String subscriptionId = registry.getSubscriptionId();
                 // TODO Workaround: Remove this once we have RHOSRTrial working.
-                if (subscriptionId != null && RegistryInstanceTypeValueDto.of(registry.getInstanceType()) != RegistryInstanceTypeValueDto.EVAL) {
+                if (subscriptionId != null && RegistryInstanceTypeValueDto.of(registry.getInstanceType()) != RegistryInstanceTypeValueDto.EVAL
+                        /* TODO: Remove this temporary workaround */ && !"mock-subscription".equals(subscriptionId)) {
                     try {
                         ams.deleteSubscription(subscriptionId);
                     } catch (SubscriptionNotFoundServiceException ex) {
@@ -115,7 +116,7 @@ public class DeprovisionRegistryWorker extends AbstractWorker {
              */
             storage.deleteRegistry(registry.getId());
         } else {
-            log.warn("Registry id='{}' not found. Stopping.", task.getRegistryId());
+            log.debug("Registry id='{}' not found. Stopping.", task.getRegistryId());
             ctl.stop();
         }
     }

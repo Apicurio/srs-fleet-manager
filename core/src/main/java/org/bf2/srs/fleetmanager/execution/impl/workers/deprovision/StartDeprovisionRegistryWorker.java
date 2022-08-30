@@ -10,10 +10,10 @@ import org.bf2.srs.fleetmanager.execution.manager.Task;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
-import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
-import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
-import org.bf2.srs.fleetmanager.storage.ResourceStorage;
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
+import org.bf2.srs.fleetmanager.common.storage.RegistryNotFoundException;
+import org.bf2.srs.fleetmanager.common.storage.RegistryStorageConflictException;
+import org.bf2.srs.fleetmanager.common.storage.ResourceStorage;
+import org.bf2.srs.fleetmanager.common.storage.model.RegistryData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -130,7 +130,7 @@ public class StartDeprovisionRegistryWorker extends AbstractWorker {
             // Nothing to do, user can retry
             log.warn("Failed to start deprovisioning of Registry '{}'. Check the status to see if the instance is stuck.", registry);
         } else {
-            log.warn("Could not find Registry (ID = {}).", task.getRegistryId());
+            log.debug("Could not find Registry (ID = {}).", task.getRegistryId());
         }
     }
 }

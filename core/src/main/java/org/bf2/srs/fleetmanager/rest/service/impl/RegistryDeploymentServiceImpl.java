@@ -1,36 +1,23 @@
 package org.bf2.srs.fleetmanager.rest.service.impl;
 
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import org.bf2.srs.fleetmanager.common.operation.auditing.Audited;
+import org.bf2.srs.fleetmanager.common.storage.RegistryDeploymentNotFoundException;
+import org.bf2.srs.fleetmanager.common.storage.RegistryDeploymentStorageConflictException;
+import org.bf2.srs.fleetmanager.common.storage.ResourceStorage;
+import org.bf2.srs.fleetmanager.common.storage.model.RegistryDeploymentData;
 import org.bf2.srs.fleetmanager.rest.service.RegistryDeploymentService;
 import org.bf2.srs.fleetmanager.rest.service.convert.ConvertRegistryDeployment;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeployment;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentCreate;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentStatusValue;
-import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentsConfigList;
-import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
-import org.bf2.srs.fleetmanager.storage.RegistryDeploymentStorageConflictException;
-import org.bf2.srs.fleetmanager.storage.ResourceStorage;
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentData;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.bf2.srs.fleetmanager.spi.tenants.TenantManagerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.validation.Valid;
-import javax.validation.Validator;
-import javax.ws.rs.ForbiddenException;
+import javax.transaction.Transactional;
 
 import static java.util.stream.Collectors.toList;
 import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.KEY_DEPLOYMENT_ID;
@@ -44,99 +31,71 @@ public class RegistryDeploymentServiceImpl implements RegistryDeploymentService 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     @Inject
-    Validator validator;
-
-    @Inject
     ResourceStorage storage;
 
     @Inject
     ConvertRegistryDeployment convertRegistryDeployment;
 
-    @ConfigProperty(name = "registry.deployments.config.file")
-    Optional<File> deploymentsConfigFile;
-
-    @Override
-    public void init() throws IOException, RegistryDeploymentStorageConflictException, RegistryDeploymentNotFoundException {
-
-        if (deploymentsConfigFile.isEmpty()) {
-            return;
-        }
-
-        log.info("Loading registry deployments config file from {}", deploymentsConfigFile.get().getAbsolutePath());
-
-        YAMLMapper mapper = new YAMLMapper();
-
-        RegistryDeploymentsConfigList deploymentsConfigList = mapper.readValue(deploymentsConfigFile.get(), RegistryDeploymentsConfigList.class);
-
-        List<RegistryDeploymentCreate> staticDeployments = deploymentsConfigList.getDeployments();
-
-        Set<String> names = new HashSet<>();
-        List<String> duplicatedNames = staticDeployments.stream()
-                .map(d -> {
-                    Set<ConstraintViolation<RegistryDeploymentCreate>> errors = validator.validate(d);
-                    if (!errors.isEmpty()) {
-                        throw new ConstraintViolationException(errors);
-                    }
-                    return d;
-                })
-                .filter(d -> !names.add(d.getName()))
-                .map(d -> d.getName())
-                .collect(Collectors.toList());
-        if (!duplicatedNames.isEmpty()) {
-            throw new IllegalArgumentException("Error in static deployments config, duplicated deployments name: " + duplicatedNames.toString());
-        }
-
-        Map<String, RegistryDeploymentData> currentDeployments = storage.getAllRegistryDeployments().stream()
-                .collect(Collectors.toMap(d -> d.getName(), d -> d));
-
-        for (RegistryDeploymentCreate dep : staticDeployments) {
-
-            RegistryDeploymentData deploymentData = currentDeployments.get(dep.getName());
-
-            if (deploymentData == null) {
-                //deployment is new
-                deploymentData = convertRegistryDeployment.convert(dep);
-            } else {
-                if (deploymentData.getRegistryDeploymentUrl().equals(dep.getRegistryDeploymentUrl())
-                        && deploymentData.getTenantManagerUrl().equals(dep.getTenantManagerUrl())) {
-                    //no changes in the deployment
-                    continue;
-                }
-
-                deploymentData.setRegistryDeploymentUrl(dep.getRegistryDeploymentUrl());
-                deploymentData.setTenantManagerUrl(dep.getTenantManagerUrl());
-            }
-
-            createOrUpdateRegistryDeployment(deploymentData);
-        }
-    }
+    @Inject
+    TenantManagerService tms;
 
     @Override
     @Audited
-    public RegistryDeployment createRegistryDeployment(@Valid RegistryDeploymentCreate deploymentCreate) throws RegistryDeploymentStorageConflictException {
-        if (deploymentsConfigFile.isPresent()) {
-            throw new ForbiddenException();
+    public RegistryDeployment createRegistryDeployment(RegistryDeploymentCreate deploymentCreate) throws RegistryDeploymentStorageConflictException {
+        // NOTE: Deployments cannot be updated, unless a safe way to migrate the tenants
+        // is implemented. - unless te URLs actually changed - any way to check this?
+
+        // Check if the deployment with the given name already exists,
+        // so we do not perform an inadvertent update.
+        if (storage.getRegistryDeploymentByName(deploymentCreate.getName()).isPresent()) {
+            throw new RegistryDeploymentStorageConflictException();
         }
         RegistryDeploymentData deployment = convertRegistryDeployment.convert(deploymentCreate);
         try {
-            createOrUpdateRegistryDeployment(deployment);
+            deployment.getStatus().setValue(RegistryDeploymentStatusValue.AVAILABLE.value());
+            storage.createOrUpdateRegistryDeployment(deployment);
+            // TODO The "RegistryDeploymentHeartbeatTask" task is currently not used.
         } catch (RegistryDeploymentNotFoundException e) {
+            // This error should not be possible
             log.error("Unexpected error", e);
             throw new RegistryDeploymentStorageConflictException();
         }
         return convertRegistryDeployment.convert(deployment);
     }
 
-    private void createOrUpdateRegistryDeployment(RegistryDeploymentData deployment) throws RegistryDeploymentStorageConflictException, RegistryDeploymentNotFoundException {
-        deployment.getStatus().setValue(RegistryDeploymentStatusValue.AVAILABLE.value());
-        storage.createOrUpdateRegistryDeployment(deployment);
-        // TODO This task is (temporarily) not used. Enable when needed.
-        //if (created) {
-        //    tasks.submit(RegistryDeploymentHeartbeatTask.builder().deploymentId(deployment.getId()).build());
-        //}
+    @Override
+    @Audited
+    public RegistryDeployment updateRegistryDeployment(RegistryDeploymentCreate deploymentCreate) throws RegistryDeploymentStorageConflictException {
+        // NOTES:
+        // 1. Deployment is currently only updatable by name, not ID
+        // 2. Deployments cannot be safely updated, unless:
+        //   - A safe way to migrate the tenants is implemented (not available at the moment)
+        //   - There are no tenants
+        //   - The URLs actually changed (TODO: a safety check is needed)
+
+        // Check if the deployment with the given name already exists,
+        // so we do not perform an inadvertent create.
+        var existingOpt = storage.getRegistryDeploymentByName(deploymentCreate.getName());
+        if (existingOpt.isEmpty()) {
+            throw new RegistryDeploymentStorageConflictException();
+        }
+        var existing = existingOpt.get();
+        // TODO: Convert?
+        existing.setTenantManagerUrl(deploymentCreate.getTenantManagerUrl());
+        existing.setRegistryDeploymentUrl(deploymentCreate.getRegistryDeploymentUrl());
+        try {
+            storage.createOrUpdateRegistryDeployment(existing);
+            // TODO Consider the "RegistryDeploymentHeartbeatTask" task if used again
+        } catch (RegistryDeploymentNotFoundException e) {
+            // This error should not be possible
+            log.error("Unexpected error", e);
+            throw new RegistryDeploymentStorageConflictException();
+        }
+        return convertRegistryDeployment.convert(existing);
     }
 
     @Override
+    @Audited
     public List<RegistryDeployment> getRegistryDeployments() {
         return storage.getAllRegistryDeployments().stream()
                 .map(convertRegistryDeployment::convert)
@@ -144,17 +103,20 @@ public class RegistryDeploymentServiceImpl implements RegistryDeploymentService 
     }
 
     @Override
+    @Audited(extractParameters = {"0", KEY_DEPLOYMENT_ID})
     public RegistryDeployment getRegistryDeployment(Long id) throws RegistryDeploymentNotFoundException {
         return storage.getRegistryDeploymentById(id)
                 .map(convertRegistryDeployment::convert)
-                .orElseThrow(() -> new RegistryDeploymentNotFoundException(id.toString()));
+                .orElseThrow(() -> new RegistryDeploymentNotFoundException());
     }
 
     @Override
     @Audited(extractParameters = {"0", KEY_DEPLOYMENT_ID})
+    @Transactional // To ensure the count does not change under us
     public void deleteRegistryDeployment(Long id) throws RegistryDeploymentNotFoundException, RegistryDeploymentStorageConflictException {
-        if (deploymentsConfigFile.isPresent()) {
-            throw new ForbiddenException();
+        // Prevent deployment from being deleted if there are still any instances
+        if (storage.getRegistryCountPerDeploymentId(id) > 0) {
+            throw new RegistryDeploymentStorageConflictException();
         }
         storage.deleteRegistryDeployment(id);
     }

@@ -1,5 +1,11 @@
 package org.bf2.srs.fleetmanager.execution.impl.workers;
 
+import org.bf2.srs.fleetmanager.common.Current;
+import org.bf2.srs.fleetmanager.common.storage.RegistryNotFoundException;
+import org.bf2.srs.fleetmanager.common.storage.RegistryStorageConflictException;
+import org.bf2.srs.fleetmanager.common.storage.ResourceStorage;
+import org.bf2.srs.fleetmanager.common.storage.model.RegistryData;
+import org.bf2.srs.fleetmanager.common.storage.model.RegistryDeploymentData;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.ProvisionRegistryTenantTask;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.deprovision.EvalInstanceExpirationRegistryTask;
 import org.bf2.srs.fleetmanager.execution.manager.Task;
@@ -8,7 +14,7 @@ import org.bf2.srs.fleetmanager.execution.manager.TaskSchedule;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryInstanceTypeValueDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
-import org.bf2.srs.fleetmanager.service.QuotaPlansService;
+import org.bf2.srs.fleetmanager.service.quota.QuotaPlansService;
 import org.bf2.srs.fleetmanager.spi.ams.AccountManagementService;
 import org.bf2.srs.fleetmanager.spi.ams.AccountManagementServiceException;
 import org.bf2.srs.fleetmanager.spi.ams.SubscriptionNotFoundServiceException;
@@ -17,11 +23,6 @@ import org.bf2.srs.fleetmanager.spi.tenants.TenantManagerServiceException;
 import org.bf2.srs.fleetmanager.spi.tenants.TenantNotFoundServiceException;
 import org.bf2.srs.fleetmanager.spi.tenants.model.CreateTenantRequest;
 import org.bf2.srs.fleetmanager.spi.tenants.model.TenantManagerConfig;
-import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
-import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
-import org.bf2.srs.fleetmanager.storage.ResourceStorage;
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentData;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +57,7 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
     TenantManagerService tmClient;
 
     @Inject
+    @Current
     QuotaPlansService plansService;
 
     @Inject

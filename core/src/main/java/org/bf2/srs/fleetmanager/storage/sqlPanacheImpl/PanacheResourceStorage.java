@@ -1,16 +1,17 @@
 package org.bf2.srs.fleetmanager.storage.sqlPanacheImpl;
 
-import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Sort;
+import org.bf2.srs.fleetmanager.common.storage.RegistryDeploymentNotFoundException;
+import org.bf2.srs.fleetmanager.common.storage.RegistryDeploymentStorageConflictException;
+import org.bf2.srs.fleetmanager.common.storage.RegistryNotFoundException;
+import org.bf2.srs.fleetmanager.common.storage.RegistryStorageConflictException;
+import org.bf2.srs.fleetmanager.common.storage.ResourceStorage;
+import org.bf2.srs.fleetmanager.common.storage.model.RegistryData;
+import org.bf2.srs.fleetmanager.common.storage.model.RegistryDeploymentData;
+import org.bf2.srs.fleetmanager.common.storage.util.QueryConfig;
+import org.bf2.srs.fleetmanager.common.storage.util.QueryResult;
+import org.bf2.srs.fleetmanager.common.storage.util.SearchQuery;
 import org.bf2.srs.fleetmanager.operation.logging.Logged;
-import org.bf2.srs.fleetmanager.storage.RegistryDeploymentNotFoundException;
-import org.bf2.srs.fleetmanager.storage.RegistryDeploymentStorageConflictException;
-import org.bf2.srs.fleetmanager.storage.RegistryNotFoundException;
-import org.bf2.srs.fleetmanager.storage.RegistryStorageConflictException;
-import org.bf2.srs.fleetmanager.storage.ResourceStorage;
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryData;
-import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentData;
-import org.bf2.srs.fleetmanager.util.SearchQuery;
 import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +27,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceException;
 import javax.transaction.Transactional;
+import javax.validation.constraints.NotEmpty;
 
+import static io.quarkus.panache.common.Sort.Direction;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
@@ -120,7 +123,7 @@ public class PanacheResourceStorage implements ResourceStorage {
             //TODO investigate using locks, such as optimistic locks
             existing = deploymentRepository.findByIdOptional(deployment.getId());
             if (existing.isEmpty()) {
-                throw new RegistryDeploymentNotFoundException(deployment.getId().toString());
+                throw new RegistryDeploymentNotFoundException();
             }
         }
         try {
@@ -158,7 +161,7 @@ public class PanacheResourceStorage implements ResourceStorage {
     @Override
     public void deleteRegistryDeployment(Long id) throws RegistryDeploymentNotFoundException, RegistryDeploymentStorageConflictException {
         RegistryDeploymentData rd = getRegistryDeploymentById(id)
-                .orElseThrow(() -> new RegistryDeploymentNotFoundException(id.toString()));
+                .orElseThrow(RegistryDeploymentNotFoundException::new);
         try {
             deploymentRepository.delete(rd);
         } catch (PersistenceException ex) {
@@ -171,9 +174,17 @@ public class PanacheResourceStorage implements ResourceStorage {
     }
 
     @Override
-    public PanacheQuery<RegistryData> executeRegistrySearchQuery(SearchQuery query, Sort sort) {
-        // Leaking Panache internals to the caller. TODO Maybe refactor?
-        return this.registryRepository.find(query.getQuery(), sort, query.getArguments());
+    public QueryResult<RegistryData> executeRegistrySearchQuery(SearchQuery query, QueryConfig config) {
+        var panacheSort = Sort.by(config.getSortColumn(),
+                config.getSortDirection() == QueryConfig.Direction.ASCENDING ? Direction.Ascending
+                        : Direction.Descending
+        );
+        var res = this.registryRepository.find(query.getQuery(), panacheSort, query.getArguments())
+                .page(config.getIndex(), config.getSize());
+        return QueryResult.<RegistryData>builder()
+                .items(res.list())
+                .count(res.count())
+                .build();
     }
 
     @Override
@@ -193,6 +204,11 @@ public class PanacheResourceStorage implements ResourceStorage {
             res.put((String) qr[0], ((Number) qr[1]).longValue());
         }
         return res;
+    }
+
+    @Override
+    public long getRegistryCountPerOrgId(@NotEmpty String orgId) {
+        return registryRepository.count("orgId", orgId);
     }
 
     @Override
@@ -229,5 +245,23 @@ public class PanacheResourceStorage implements ResourceStorage {
         } catch (NoResultException ex) {
             return 0;
         }
+    }
+
+    @Override
+    public long getRegistryCountPerDeploymentId(long deploymentId) {
+        try {
+            return this.registryRepository.getEntityManager()
+                    .createQuery("select count(r) from RegistryData r, RegistryDeploymentData d where " +
+                            "r.registryDeployment = d and d.id = :deploymentId", Long.class)
+                    .setParameter("deploymentId", deploymentId)
+                    .getSingleResult();
+        } catch (NoResultException ex) {
+            return 0;
+        }
+    }
+
+    @Override
+    public Optional<RegistryDeploymentData> getRegistryDeploymentByName(String name) {
+        return deploymentRepository.find("name", name).singleResultOptional();
     }
 }

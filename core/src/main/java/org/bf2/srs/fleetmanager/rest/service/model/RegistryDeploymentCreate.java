@@ -1,4 +1,3 @@
-
 package org.bf2.srs.fleetmanager.rest.service.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -12,10 +11,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.validator.constraints.URL;
 
 import javax.validation.constraints.NotEmpty;
-
-import org.hibernate.validator.constraints.URL;
 
 import static lombok.AccessLevel.PACKAGE;
 
@@ -24,7 +22,7 @@ import static lombok.AccessLevel.PACKAGE;
  * that can host Service Registry instances.
  *
  * @author Jakub Senko <jsenko@redhat.com>
- * @see org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.model.RegistryDeploymentData
+ * @see org.bf2.srs.fleetmanager.common.storage.model.RegistryDeploymentData
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
@@ -62,7 +60,7 @@ public class RegistryDeploymentCreate {
     /**
      * User-defined Registry Deployment name. Have to be unique.
      * <p>
-     * (Optional)
+     * (Optional) TODO Not optional!
      */
     @JsonProperty("name")
     @JsonPropertyDescription("User-defined Registry Deployment name. Have to be unique.")

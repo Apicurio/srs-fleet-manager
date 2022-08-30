@@ -4,16 +4,29 @@ import io.apicurio.multitenant.api.datamodel.ResourceType;
 import io.apicurio.multitenant.api.datamodel.UpdateRegistryTenantRequest;
 import io.apicurio.multitenant.client.TenantManagerClient;
 import org.awaitility.Awaitility;
+import org.bf2.srs.fleetmanager.it.component.FleetManagerComponent;
+import org.bf2.srs.fleetmanager.it.infra.DefaultInfraManager;
+import org.bf2.srs.fleetmanager.it.infra.InfraHolder;
+import org.bf2.srs.fleetmanager.it.util.FleetManagerApi;
+import org.bf2.srs.fleetmanager.it.util.Utils;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreate;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValue;
 import org.bf2.srs.fleetmanager.spi.common.model.AccountInfo;
+import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.concurrent.TimeUnit;
 
+import static org.bf2.srs.fleetmanager.it.component.CompoundComponent.C_FM1;
+import static org.bf2.srs.fleetmanager.it.component.CompoundComponent.C_FM2;
 import static org.junit.jupiter.api.Assertions.*;
 
-class QuotaPlanIT extends SRSFleetManagerBaseIT {
+@DisplayNameGeneration(SimpleDisplayName.class)
+@ExtendWith(DefaultInfraManager.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class QuotaPlanIT {
 
     @Test
     void testQuotaPlan() throws Exception {
@@ -94,7 +107,8 @@ class QuotaPlanIT extends SRSFleetManagerBaseIT {
         assertEquals(-1, l);
 
         // Restart fleet manager(s) so the quota plan is reconciled
-        TestInfraManager.getInstance().restartFleetManager();
+        InfraHolder.getInstance().getComponent().get(C_FM1, FleetManagerComponent.class).get().restart();
+        InfraHolder.getInstance().getComponent().get(C_FM2, FleetManagerComponent.class).get().restart();
 
         tenant = tenantManager.getTenant(registry2Result.getId());
         resources = tenant.getResources();
