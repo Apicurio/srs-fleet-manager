@@ -17,7 +17,7 @@
 package org.bf2.srs.fleetmanager.it;
 
 import org.awaitility.Awaitility;
-import org.bf2.srs.fleetmanager.it.infra.LocalAMSInfraManager;
+import org.bf2.srs.fleetmanager.it.infra.LocalInfraManager;
 import org.bf2.srs.fleetmanager.it.util.FleetManagerApi;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.Registry;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryCreate;
@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
  * @author Jakub Senko <m@jsenko.net>
  */
 @DisplayNameGeneration(SimpleDisplayName.class)
-@ExtendWith(LocalAMSInfraManager.class)
+@ExtendWith(LocalInfraManager.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class LocalAMSIT {
 

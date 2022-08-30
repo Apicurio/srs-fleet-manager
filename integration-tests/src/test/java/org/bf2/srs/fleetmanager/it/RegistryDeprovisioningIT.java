@@ -1,7 +1,6 @@
 package org.bf2.srs.fleetmanager.it;
 
 import io.apicurio.multitenant.api.datamodel.TenantStatusValue;
-import io.apicurio.multitenant.api.datamodel.UpdateRegistryTenantRequest;
 import io.apicurio.multitenant.client.TenantManagerClient;
 import org.awaitility.Awaitility;
 import org.bf2.srs.fleetmanager.it.infra.DefaultInfraManager;
@@ -55,25 +54,6 @@ public class RegistryDeprovisioningIT {
         FleetManagerApi.deleteRegistry(createdRegistry1.getId(), alice);
 
         // We don't have to wait for the status to be RegistryStatusValueRest.deleting, since that happens almost immediately now.
-
-        Awaitility.await("registry1 deleting initiated").atMost(5, SECONDS).pollInterval(1, SECONDS)
-                .until(() -> {
-                    var tenant1 = tenantManager.getTenant(registry.getId());
-                    return TenantStatusValue.TO_BE_DELETED.equals(tenant1.getStatus());
-                });
-
-        var req = new UpdateRegistryTenantRequest();
-        req.setStatus(TenantStatusValue.DELETED);
-        tenantManager.updateTenant(registry.getId(), req);
-
-        Awaitility.await("registry1 deleted").atMost(5, SECONDS).pollInterval(1, SECONDS)
-                .until(() -> {
-                    try {
-                        FleetManagerApi.verifyRegistryNotExists(createdRegistry1.getId(), alice);
-                        return true;
-                    } catch (AssertionError ex) {
-                        return false;
-                    }
-                });
+        Utils.simulateRegistryDeletion(tenantManager, createdRegistry1, alice);
     }
 }

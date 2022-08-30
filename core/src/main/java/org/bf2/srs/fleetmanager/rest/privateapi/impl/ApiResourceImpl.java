@@ -1,5 +1,7 @@
 package org.bf2.srs.fleetmanager.rest.privateapi.impl;
 
+import org.bf2.srs.fleetmanager.common.storage.RegistryDeploymentNotFoundException;
+import org.bf2.srs.fleetmanager.common.storage.RegistryDeploymentStorageConflictException;
 import org.bf2.srs.fleetmanager.execution.manager.TaskNotFoundException;
 import org.bf2.srs.fleetmanager.rest.privateapi.ApiResource;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentCreateRest;
@@ -7,13 +9,13 @@ import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentRest;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.TaskRest;
 import org.bf2.srs.fleetmanager.rest.service.RegistryDeploymentService;
 import org.bf2.srs.fleetmanager.rest.service.TaskService;
-import org.bf2.srs.fleetmanager.common.storage.RegistryDeploymentNotFoundException;
-import org.bf2.srs.fleetmanager.common.storage.RegistryDeploymentStorageConflictException;
+import org.bf2.srs.fleetmanager.service.deployment.DeploymentLoader;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.ForbiddenException;
 
 @ApplicationScoped
 public class ApiResourceImpl implements ApiResource {
@@ -37,6 +39,9 @@ public class ApiResourceImpl implements ApiResource {
     @Inject
     Convert convert;
 
+    @Inject
+    DeploymentLoader deploymentLoader;
+
     @Override
     public List<TaskRest> getTasks() {
         return taskService.getTasks().stream().map(convert::convert).collect(Collectors.toList());
@@ -59,6 +64,9 @@ public class ApiResourceImpl implements ApiResource {
 
     @Override
     public RegistryDeploymentRest createRegistryDeployment(RegistryDeploymentCreateRest data) throws RegistryDeploymentStorageConflictException {
+        if (!deploymentLoader.isRESTDeploymentManagementEnabled()) {
+            throw new ForbiddenException();
+        }
         return convert.convert(registryDeploymentService.createRegistryDeployment(convert.convert(data)));
     }
 
@@ -69,6 +77,9 @@ public class ApiResourceImpl implements ApiResource {
 
     @Override
     public void deleteRegistryDeployment(Integer registryDeploymentId) throws RegistryDeploymentNotFoundException, RegistryDeploymentStorageConflictException {
+        if (!deploymentLoader.isRESTDeploymentManagementEnabled()) {
+            throw new ForbiddenException();
+        }
         registryDeploymentService.deleteRegistryDeployment(registryDeploymentId.longValue()); // TODO Conversion
     }
 }

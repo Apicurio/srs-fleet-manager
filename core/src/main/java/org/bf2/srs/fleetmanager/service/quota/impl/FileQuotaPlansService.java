@@ -14,23 +14,22 @@
  * limitations under the License.
  */
 
-package org.bf2.srs.fleetmanager.service.impl;
+package org.bf2.srs.fleetmanager.service.quota.impl;
 
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-import io.quarkus.arc.profile.IfBuildProfile;
 import org.bf2.srs.fleetmanager.common.SerDesObjectMapperProducer;
+import org.bf2.srs.fleetmanager.common.storage.ResourceStorage;
+import org.bf2.srs.fleetmanager.common.storage.model.RegistryData;
 import org.bf2.srs.fleetmanager.execution.impl.workers.Utils;
-import org.bf2.srs.fleetmanager.service.QuotaPlansService;
-import org.bf2.srs.fleetmanager.service.model.OrganizationAssignment;
-import org.bf2.srs.fleetmanager.service.model.QuotaPlan;
-import org.bf2.srs.fleetmanager.service.model.QuotaPlansConfigList;
+import org.bf2.srs.fleetmanager.service.quota.QuotaPlansService;
+import org.bf2.srs.fleetmanager.service.quota.model.OrganizationAssignment;
+import org.bf2.srs.fleetmanager.service.quota.model.QuotaPlan;
+import org.bf2.srs.fleetmanager.service.quota.model.QuotaPlansConfigList;
 import org.bf2.srs.fleetmanager.spi.tenants.TenantManagerService;
 import org.bf2.srs.fleetmanager.spi.tenants.TenantManagerServiceException;
 import org.bf2.srs.fleetmanager.spi.tenants.TenantNotFoundServiceException;
 import org.bf2.srs.fleetmanager.spi.tenants.model.TenantLimit;
 import org.bf2.srs.fleetmanager.spi.tenants.model.UpdateTenantRequest;
-import org.bf2.srs.fleetmanager.common.storage.ResourceStorage;
-import org.bf2.srs.fleetmanager.common.storage.model.RegistryData;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +59,6 @@ import static java.util.Objects.requireNonNull;
  * @author Jakub Senko <m@jsenko.net>
  */
 @ApplicationScoped
-@IfBuildProfile("prod")
 public class FileQuotaPlansService implements QuotaPlansService {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
@@ -84,12 +82,15 @@ public class FileQuotaPlansService implements QuotaPlansService {
     @ConfigProperty(name = "registry.quota.plans.default", defaultValue = "default")
     String defaultQuotaPlan;
 
-    @Override
-    public void init() throws IOException {
-        log.debug("Using FileQuotaPlansService implementation of QuotaPlansService");
+    public boolean isAvailable() {
+        return !plansConfigFile.isEmpty();
+    }
 
-        if (plansConfigFile.isEmpty()) {
-            throw new IllegalArgumentException("Error in static quota plans config: Property 'registry.quota.plans.config.file' is required.");
+    @Override
+    public void start() throws IOException {
+
+        if (!isAvailable()) {
+            throw new UnsupportedOperationException("FileQuotaPlansService is not available with the current configuration");
         }
 
         log.info("Loading registry quota plans config file from {}", plansConfigFile.get().getAbsolutePath());
@@ -187,6 +188,10 @@ public class FileQuotaPlansService implements QuotaPlansService {
 
     @Override
     public QuotaPlan determineQuotaPlan(String orgId) {
+        if (!isAvailable()) {
+            throw new UnsupportedOperationException("FileQuotaPlansService is not available with the current configuration");
+        }
+
         requireNonNull(orgId);
         var planName = defaultQuotaPlan;
         var assignment = organizationAssignments.get(orgId);

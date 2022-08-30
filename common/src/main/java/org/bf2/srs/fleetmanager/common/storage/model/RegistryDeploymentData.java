@@ -67,7 +67,7 @@ public class RegistryDeploymentData {
     private RegistryDeploymentStatusData status;
 
     /**
-     * (Optional)
+     * (Optional) TODO Check if this is true?
      */
     @Column(name = "name", unique = true)
     @NotEmpty

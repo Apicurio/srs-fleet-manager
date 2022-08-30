@@ -2,12 +2,13 @@ package org.bf2.srs.fleetmanager;
 
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
+import org.bf2.srs.fleetmanager.common.Current;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.operation.OperationContext;
 import org.bf2.srs.fleetmanager.operation.logging.sentry.SentryConfiguration;
 import org.bf2.srs.fleetmanager.operation.metrics.UsageMetrics;
-import org.bf2.srs.fleetmanager.rest.service.RegistryDeploymentService;
-import org.bf2.srs.fleetmanager.service.QuotaPlansService;
+import org.bf2.srs.fleetmanager.service.deployment.DeploymentLoader;
+import org.bf2.srs.fleetmanager.service.quota.QuotaPlansService;
 import org.bf2.srs.fleetmanager.storage.sqlPanacheImpl.migration.MigrationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,10 +29,7 @@ public class App {
     TaskManager taskManager;
 
     @Inject
-    RegistryDeploymentService deploymentService;
-
-    @Inject
-    QuotaPlansService plansService;
+    DeploymentLoader deploymentLoader;
 
     @Inject
     SentryConfiguration sentry;
@@ -42,6 +40,10 @@ public class App {
     @Inject
     OperationContext ctx;
 
+    @Inject
+    @Current
+    QuotaPlansService quotaPlansService;
+
     void onStart(@Observes StartupEvent ev) throws Exception {
         try {
             ctx.loadNewContextData();
@@ -49,8 +51,8 @@ public class App {
             sentry.init();
             migrationService.runMigration();
             usageMetrics.init();
-            deploymentService.init();
-            plansService.init();
+            deploymentLoader.run();
+            quotaPlansService.start();
             taskManager.start();
         } catch (Exception e) {
             log.error("Error starting fleet manager app", e);

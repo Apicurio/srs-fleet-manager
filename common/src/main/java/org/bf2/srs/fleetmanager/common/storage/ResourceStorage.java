@@ -63,4 +63,8 @@ public interface ResourceStorage {
     long getRegistryOwnerCount();
 
     long getRegistryOrganisationCount();
+
+    long getRegistryCountPerDeploymentId(long deploymentId);
+
+    Optional<RegistryDeploymentData> getRegistryDeploymentByName(String name);
 }
