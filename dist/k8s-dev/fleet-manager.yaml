@@ -168,7 +168,7 @@ data:
             limit: -1
           - type: MAX_REQUESTS_PER_SECOND_COUNT
             limit: 10
-      - name: alpha
+      - name: premium
         resources:
           - type: MAX_TOTAL_SCHEMAS_COUNT
             limit: 100000
@@ -196,6 +196,6 @@ data:
             limit: 100
   registry-deployments.yaml: |
       deployments:
-        - name: deployment-1
+        - name: local
           registryDeploymentUrl: http://localhost:8082
           tenantManagerUrl: http://tenant-manager:8585

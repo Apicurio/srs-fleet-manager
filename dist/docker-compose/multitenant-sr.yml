@@ -40,7 +40,6 @@ services:
     ports:
       - '8081:8080'
     environment:
-      USE_LOCAL_AMS: 'true'
       SERVICE_API_DATASOURCE_URL: 'jdbc:postgresql://multitenant-sr-db:5432/multitenantsrdb'
       SERVICE_API_DATASOURCE_USERNAME: 'postgres'
       SERVICE_API_DATASOURCE_PASSWORD: 'postgres'

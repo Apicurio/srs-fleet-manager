@@ -10,7 +10,6 @@ if [[ -z "${TENANT_MANAGER_CLIENT_SECRET}" ]]; then
   exit 1
 fi
 
-export USE_LOCAL_AMS=true
 export AUTH_ENABLED=true
 export KEYCLOAK_URL='https://auth.apicur.io/auth'
 export KEYCLOAK_REALM='operate-first-apicurio'
@@ -22,7 +21,6 @@ export TENANT_MANAGER_AUTH_SECRET="${TENANT_MANAGER_CLIENT_SECRET}"
 export ORGANIZATION_ID_CLAIM="organization_id"
 
 export REGISTRY_QUOTA_PLANS_CONFIG_FILE="${TARGET}/srs-fleet-manager/dist/docker-compose/config/quota-plans.yaml"
-export REGISTRY_DEPLOYMENTS_CONFIG_FILE="${SCRIPT_DIR}/registry-deployments.yaml"
 
 export KEYCLOAK_API_CLIENT_ID='sr-fleet-manager'
 
