@@ -1,4 +1,4 @@
 deployments:
-  - name: deployment-1
+  - name: local
     registryDeploymentUrl: http://localhost:8080
     tenantManagerUrl: http://tenant-manager:8585

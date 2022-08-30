@@ -3,7 +3,7 @@ set -euxo pipefail
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-BRANCH="${1:-feat/hackathon}"
+BRANCH="${1:-main}"
 TARGET="${2:-${SCRIPT_DIR}/target}"
 
 mkdir -p ${TARGET}
