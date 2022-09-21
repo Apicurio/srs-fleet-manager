@@ -1,7 +1,7 @@
 package org.bf2.srs.fleetmanager.it;
 
-import io.apicurio.multitenant.api.datamodel.TenantStatusValue;
-import io.apicurio.multitenant.client.TenantManagerClient;
+import io.apicurio.tenantmanager.api.datamodel.TenantStatusValue;
+import io.apicurio.tenantmanager.client.TenantManagerClient;
 import org.awaitility.Awaitility;
 import org.bf2.srs.fleetmanager.it.infra.DefaultInfraManager;
 import org.bf2.srs.fleetmanager.it.util.FleetManagerApi;

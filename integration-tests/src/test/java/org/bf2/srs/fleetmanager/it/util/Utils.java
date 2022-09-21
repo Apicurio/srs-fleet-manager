@@ -1,9 +1,9 @@
 package org.bf2.srs.fleetmanager.it.util;
 
-import io.apicurio.multitenant.api.datamodel.TenantStatusValue;
-import io.apicurio.multitenant.api.datamodel.UpdateRegistryTenantRequest;
-import io.apicurio.multitenant.client.TenantManagerClient;
-import io.apicurio.multitenant.client.TenantManagerClientImpl;
+import io.apicurio.tenantmanager.api.datamodel.TenantStatusValue;
+import io.apicurio.tenantmanager.api.datamodel.UpdateApicurioTenantRequest;
+import io.apicurio.tenantmanager.client.TenantManagerClient;
+import io.apicurio.tenantmanager.client.TenantManagerClientImpl;
 import io.apicurio.rest.client.JdkHttpClientProvider;
 import io.apicurio.rest.client.auth.OidcAuth;
 import io.apicurio.rest.client.auth.exception.AuthErrorHandler;
@@ -39,7 +39,7 @@ public class Utils {
                 }));
 
         tenants.forEach(t -> {
-            var req = new UpdateRegistryTenantRequest();
+            var req = new UpdateApicurioTenantRequest();
             req.setStatus(TenantStatusValue.DELETED);
             tmc.updateTenant(t.getTenantId(), req);
         });
@@ -99,7 +99,7 @@ public class Utils {
                     return TenantStatusValue.TO_BE_DELETED.equals(tenant1.getStatus());
                 });
 
-        var req = new UpdateRegistryTenantRequest();
+        var req = new UpdateApicurioTenantRequest();
         req.setStatus(TenantStatusValue.DELETED);
         tmc.updateTenant(registry.getId(), req);
 
