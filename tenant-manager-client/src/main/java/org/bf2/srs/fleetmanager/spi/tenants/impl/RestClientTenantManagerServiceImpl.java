@@ -1,15 +1,15 @@
 package org.bf2.srs.fleetmanager.spi.tenants.impl;
 
-import io.apicurio.multitenant.api.datamodel.NewRegistryTenantRequest;
-import io.apicurio.multitenant.api.datamodel.RegistryTenant;
-import io.apicurio.multitenant.api.datamodel.ResourceType;
-import io.apicurio.multitenant.api.datamodel.TenantResource;
-import io.apicurio.multitenant.api.datamodel.TenantStatusValue;
-import io.apicurio.multitenant.api.datamodel.UpdateRegistryTenantRequest;
-import io.apicurio.multitenant.client.TenantManagerClient;
-import io.apicurio.multitenant.client.TenantManagerClientImpl;
-import io.apicurio.multitenant.client.exception.RegistryTenantNotFoundException;
-import io.apicurio.multitenant.client.exception.TenantManagerClientException;
+import io.apicurio.tenantmanager.api.datamodel.NewApicurioTenantRequest;
+import io.apicurio.tenantmanager.api.datamodel.ApicurioTenant;
+import io.apicurio.tenantmanager.api.datamodel.ResourceType;
+import io.apicurio.tenantmanager.api.datamodel.TenantResource;
+import io.apicurio.tenantmanager.api.datamodel.TenantStatusValue;
+import io.apicurio.tenantmanager.api.datamodel.UpdateApicurioTenantRequest;
+import io.apicurio.tenantmanager.client.TenantManagerClient;
+import io.apicurio.tenantmanager.client.TenantManagerClientImpl;
+import io.apicurio.tenantmanager.client.exception.ApicurioTenantNotFoundException;
+import io.apicurio.tenantmanager.client.exception.TenantManagerClientException;
 import io.apicurio.rest.client.JdkHttpClientProvider;
 import io.apicurio.rest.client.auth.Auth;
 import io.apicurio.rest.client.auth.OidcAuth;
@@ -40,9 +40,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
@@ -100,7 +102,7 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
         });
     }
 
-    private Tenant convert(RegistryTenant data) {
+    private Tenant convert(ApicurioTenant data) {
         return Tenant.builder()
                 .id(data.getTenantId())
                 .status(TenantStatus.fromValue(data.getStatus().value()))
@@ -111,7 +113,7 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
     private List<TenantLimit> convertToTenantLimit(List<TenantResource> data) {
         var res = new ArrayList<TenantLimit>();
         for (TenantResource d : data) {
-            res.add(TenantLimit.builder().type(d.getType().value()).limit(d.getLimit()).build());
+            res.add(TenantLimit.builder().type(d.getType()).limit(d.getLimit()).build());
         }
         return res;
     }
@@ -120,15 +122,15 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
         var res = new ArrayList<TenantResource>();
         for (TenantLimit d : data) {
             var tr = new TenantResource();
-            tr.setType(ResourceType.fromValue(d.getType()));
+            tr.setType(d.getType());
             tr.setLimit(d.getLimit());
             res.add(tr);
         }
         return res;
     }
 
-    private UpdateRegistryTenantRequest convert(UpdateTenantRequest req) {
-        var res = new UpdateRegistryTenantRequest();
+    private UpdateApicurioTenantRequest convert(UpdateTenantRequest req) {
+        var res = new UpdateApicurioTenantRequest();
         res.setStatus(TenantStatusValue.fromValue(req.getStatus().value()));
         res.setResources(convertToTenantResource(req.getResources()));
         return res;
@@ -143,7 +145,7 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
         try {
             var client = getClient(tm);
 
-            NewRegistryTenantRequest req = new NewRegistryTenantRequest();
+            NewApicurioTenantRequest req = new NewApicurioTenantRequest();
             req.setOrganizationId(tenantRequest.getOrganizationId());
             req.setTenantId(tenantRequest.getTenantId());
             req.setCreatedBy(tenantRequest.getCreatedBy());
@@ -152,13 +154,13 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
                     .flatMap(Collection::stream)
                     .map(r -> {
                         TenantResource tr = new TenantResource();
-                        tr.setType(ResourceType.fromValue(r.getType()));
+                        tr.setType(r.getType());
                         tr.setLimit(r.getLimit());
                         return tr;
                     })
                     .collect(Collectors.toList()));
 
-            RegistryTenant tenant = client.createTenant(req);
+            ApicurioTenant tenant = client.createTenant(req);
 
             return convert(tenant);
         } catch (TenantManagerClientException ex) {
@@ -172,9 +174,9 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
     public Optional<Tenant> getTenantById(TenantManagerConfig tm, String tenantId) throws TenantManagerServiceException {
         try {
             var client = getClient(tm);
-            RegistryTenant tenant = client.getTenant(tenantId);
+            ApicurioTenant tenant = client.getTenant(tenantId);
             return Optional.of(convert(tenant));
-        } catch (RegistryTenantNotFoundException ex) {
+        } catch (ApicurioTenantNotFoundException ex) {
             return Optional.empty();
         } catch (TenantManagerClientException ex) {
             throw ExceptionConvert.convert(ex);
@@ -188,7 +190,10 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
     public List<Tenant> getAllTenants(TenantManagerConfig tm) throws TenantManagerServiceException {
         try {
             var client = getClient(tm);
-            return client.listTenants().stream()
+            return client
+                    .listTenants(null, 0, 50, null, null)
+                    .getItems()
+                    .stream()
                     .map(this::convert)
                     .collect(Collectors.toList());
         } catch (TenantManagerClientException ex) {
@@ -205,7 +210,7 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
             var client = getClient(tm);
             var internalReq = convert(req);
             client.updateTenant(req.getId(), internalReq);
-        } catch (RegistryTenantNotFoundException ex) {
+        } catch (ApicurioTenantNotFoundException ex) {
             throw ExceptionConvert.convert(ex);
         } catch (TenantManagerClientException ex) {
             throw ExceptionConvert.convert(ex);
@@ -221,7 +226,7 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
         try {
             var client = getClient(tm);
             client.deleteTenant(tenantId);
-        } catch (RegistryTenantNotFoundException ex) {
+        } catch (ApicurioTenantNotFoundException ex) {
             throw ExceptionConvert.convert(ex);
         } catch (TenantManagerClientException ex) {
             throw ExceptionConvert.convert(ex);
@@ -248,9 +253,12 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
         if (limits == null) {
             return;
         }
+        Set<String> availableResourceTypes = new HashSet(ResourceType.values());
         for (var limit : limits) {
             //this will throw an exception if any limit type is not valid
-            ResourceType.fromValue(limit.getType());
+            if (!availableResourceTypes.contains(limit.getType())) {
+                throw new IllegalArgumentException("Limit type " + limit.getType() + " not recognized");
+            }
         }
     }
 

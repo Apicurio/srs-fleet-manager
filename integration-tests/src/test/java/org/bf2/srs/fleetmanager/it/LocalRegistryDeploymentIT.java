@@ -1,6 +1,6 @@
 package org.bf2.srs.fleetmanager.it;
 
-import io.apicurio.multitenant.client.TenantManagerClient;
+import io.apicurio.tenantmanager.client.TenantManagerClient;
 import org.bf2.srs.fleetmanager.it.infra.LocalInfraManager;
 import org.bf2.srs.fleetmanager.it.util.FleetManagerApi;
 import org.bf2.srs.fleetmanager.it.util.Utils;

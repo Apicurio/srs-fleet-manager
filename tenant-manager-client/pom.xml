@@ -29,7 +29,7 @@
 
         <dependency>
             <groupId>io.apicurio</groupId>
-            <artifactId>apicurio-registry-tenant-manager-client</artifactId>
+            <artifactId>apicurio-tenant-manager-client</artifactId>
         </dependency>
 
         <dependency>

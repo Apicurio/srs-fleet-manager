@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class TenantManagerComponent extends AbstractComponent {
 
-    private static final String TENANT_MANAGER_MODULE_PATH = "../apicurio-registry/multitenancy/tenant-manager-api/";
+    private static final String TENANT_MANAGER_MODULE_PATH = "../multitenancy/api/";
 
     @Getter
     private final String tenantManagerUrl = "http://localhost:8585";
