@@ -190,9 +190,14 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
     public List<Tenant> getAllTenants(TenantManagerConfig tm) throws TenantManagerServiceException {
         try {
             var client = getClient(tm);
-            return client
-                    .listTenants(null, null, null, null, null)
-                    .getItems()
+            var tenantsList = client.listTenants(null, null, null, null, null);
+            var tenants = tenantsList.getItems();
+            while (tenantsList.getCount() > tenants.size()) {
+                tenantsList = client.listTenants(null, tenants.size(), null, null, null);
+                tenants.addAll(tenantsList.getItems());
+            }
+
+            return tenants
                     .stream()
                     .map(this::convert)
                     .collect(Collectors.toList());
