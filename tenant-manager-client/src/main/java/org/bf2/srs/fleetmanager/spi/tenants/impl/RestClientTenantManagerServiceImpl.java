@@ -191,7 +191,7 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
         try {
             var client = getClient(tm);
             return client
-                    .listTenants(null, 0, 50, null, null)
+                    .listTenants(null, null, null, null, null)
                     .getItems()
                     .stream()
                     .map(this::convert)
