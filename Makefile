@@ -1,5 +1,5 @@
-APICURIO_REGISTRY_REPO?=https://github.com/Apicurio/apicurio-registry.git
-APICURIO_REGISTRY_BRANCH?=mas-sr
+APICURIO_TENANT_REPO?=https://github.com/Apicurio/apicurio-tenant-manager.git
+APICURIO_TENANT_BRANCH?=main
 
 COMMON_ARGS=-Dmaven.javadoc.skip=true --no-transfer-progress -DtrimStackTrace=false
 
@@ -42,19 +42,16 @@ pr-check: build-project integration-tests
 .PHONY: pr-check ## Builds SRS Fleet Manager with the required dependencies, and executes integration tests
 
 
-build-tenant-manager-deps: pull-apicurio-registry
-	cd apicurio-registry; mvn install -Pprod -Pmultitenancy -pl 'multitenancy/tenant-manager-client,multitenancy/tenant-manager-api' -am -DskipTests --no-transfer-progress
+build-tenant-manager-deps: pull-apicurio-deps
+	cd multitenancy; mvn install -Pprod -DskipTests --no-transfer-progress
 .PHONY: build-tenant-manager-deps
 
-update-tenant-manager-dep-version: pull-apicurio-registry
-	@echo "Updating apicurio deps to version "$(shell xq .project.version apicurio-registry/pom.xml -r)
-	mvn versions:set-property -Dproperty=apicurio-registry-tenant-manager-client.version -DgenerateBackupPoms=false -DnewVersion=$(shell xq .project.version apicurio-registry/pom.xml -r)
+update-tenant-manager-dep-version: pull-apicurio-deps
+	@echo "Updating apicurio deps to version "$(shell (cd multitenancy && mvn help:evaluate -Dexpression=project.version -q -DforceStdout))
+	mvn versions:set-property -Dproperty=apicurio-tenant-manager-client.version -DgenerateBackupPoms=false -DnewVersion=$(shell (cd multitenancy && mvn help:evaluate -Dexpression=project.version -q -DforceStdout))
 .PHONY: update-tenant-manager-dep-version
 
-pull-apicurio-registry:
-ifeq (,$(wildcard ./apicurio-registry))
-	git clone -b $(APICURIO_REGISTRY_BRANCH) $(APICURIO_REGISTRY_REPO) apicurio-registry
-else
-	cd apicurio-registry; git pull
-endif
-.PHONY: pull-apicurio-registry
+pull-apicurio-deps:
+	rm -rf multitenancy
+	git clone --depth 1 -b $(APICURIO_TENANT_BRANCH) $(APICURIO_TENANT_REPO) multitenancy
+.PHONY: pull-apicurio-deps

@@ -1,24 +1,20 @@
 package org.bf2.srs.fleetmanager.spi.tenants.impl;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.type.TypeReference;
-import io.apicurio.multitenant.api.datamodel.NewRegistryTenantRequest;
-import io.apicurio.multitenant.api.datamodel.RegistryTenant;
-import io.apicurio.multitenant.api.datamodel.ResourceType;
-import io.apicurio.multitenant.api.datamodel.TenantResource;
-import io.apicurio.multitenant.api.datamodel.TenantStatusValue;
-import io.apicurio.multitenant.api.datamodel.UpdateRegistryTenantRequest;
-import io.apicurio.multitenant.client.TenantManagerClient;
-import io.apicurio.multitenant.client.TenantManagerClientImpl;
-import io.apicurio.multitenant.client.exception.RegistryTenantNotFoundException;
-import io.apicurio.multitenant.client.exception.TenantManagerClientException;
+import io.apicurio.tenantmanager.api.datamodel.NewApicurioTenantRequest;
+import io.apicurio.tenantmanager.api.datamodel.ApicurioTenant;
+import io.apicurio.tenantmanager.api.datamodel.ResourceType;
+import io.apicurio.tenantmanager.api.datamodel.TenantResource;
+import io.apicurio.tenantmanager.api.datamodel.TenantStatusValue;
+import io.apicurio.tenantmanager.api.datamodel.UpdateApicurioTenantRequest;
+import io.apicurio.tenantmanager.client.TenantManagerClient;
+import io.apicurio.tenantmanager.client.TenantManagerClientImpl;
+import io.apicurio.tenantmanager.client.exception.ApicurioTenantNotFoundException;
+import io.apicurio.tenantmanager.client.exception.TenantManagerClientException;
 import io.apicurio.rest.client.JdkHttpClientProvider;
 import io.apicurio.rest.client.auth.Auth;
 import io.apicurio.rest.client.auth.OidcAuth;
 import io.apicurio.rest.client.auth.exception.AuthErrorHandler;
 import io.apicurio.rest.client.config.ApicurioClientConfig;
-import io.apicurio.rest.client.request.Operation;
-import io.apicurio.rest.client.request.Request;
 import io.apicurio.rest.client.spi.ApicurioHttpClient;
 import io.micrometer.core.annotation.Timed;
 import io.quarkus.arc.profile.UnlessBuildProfile;
@@ -40,15 +36,15 @@ import org.eclipse.microprofile.faulttolerance.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
@@ -80,36 +76,11 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
     private Auth auth;
     private Map<String, Object> clientConfigs;
 
-    @ConfigProperty(name = "srs-fleet-manager.identity.server.resolver.enabled")
-    Boolean resolveIdentityServer;
-
-    @ConfigProperty(name = "srs-fleet-manager.identity.server.resolver.request-base-path")
-    String resolverRequestBasePath;
-
-    @ConfigProperty(name = "srs-fleet-manager.identity.server.resolver.request-path")
-    String resolverRequestPath;
-
-    @ConfigProperty(name = "srs-fleet-manager.identity.server.resolver.cache-expiration")
-    Integer resolverCacheExpiration;
-
-    private ApicurioHttpClient resolverHttpClient;
-
     // TODO Data is never deleted! Prevent OOM error.
     private Map<String, TenantManagerClientImpl> pool = new ConcurrentHashMap<String, TenantManagerClientImpl>();
 
-    private WrappedValue<SsoProviders> cachedSsoProviders;
-
     @PostConstruct
     void init() {
-
-        if (resolveIdentityServer) {
-            resolverHttpClient = new JdkHttpClientProvider().create(resolverRequestBasePath, Collections.emptyMap(), null, new AuthErrorHandler());
-            final SsoProviders ssoProviders = resolverHttpClient.sendRequest(getSSOProviders());
-            cachedSsoProviders = new WrappedValue<>(Duration.ofMinutes(resolverCacheExpiration), Instant.now(), ssoProviders);
-            if (!tenantManagerAuthServerUrl.equals(ssoProviders.getTokenUrl())) {
-                this.tenantManagerAuthServerUrl = ssoProviders.getTokenUrl();
-            }
-        }
 
         if (tenantManagerAuthEnabled) {
             log.info("Using Apicurio Registry REST TenantManagerClient with authentication enabled.");
@@ -126,23 +97,12 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
     }
 
     private TenantManagerClient getClient(TenantManagerConfig tm) {
-
-        if (resolveIdentityServer && cachedSsoProviders.isExpired()) {
-
-            final SsoProviders ssoProviders = resolverHttpClient.sendRequest(getSSOProviders());
-            cachedSsoProviders = new WrappedValue<>(Duration.ofMinutes(resolverCacheExpiration), Instant.now(), ssoProviders);
-            if (!ssoProviders.getTokenUrl().equals(tenantManagerAuthServerUrl)) {
-                ApicurioHttpClient httpClient = new JdkHttpClientProvider().create(tenantManagerAuthServerUrl, Collections.emptyMap(), null, new AuthErrorHandler());
-                this.auth = new OidcAuth(httpClient, tenantManagerAuthClientId, tenantManagerAuthSecret);
-            }
-        }
-
         return pool.computeIfAbsent(tm.getTenantManagerUrl(), k -> {
             return new TenantManagerClientImpl(tm.getTenantManagerUrl(), clientConfigs, auth);
         });
     }
 
-    private Tenant convert(RegistryTenant data) {
+    private Tenant convert(ApicurioTenant data) {
         return Tenant.builder()
                 .id(data.getTenantId())
                 .status(TenantStatus.fromValue(data.getStatus().value()))
@@ -153,7 +113,7 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
     private List<TenantLimit> convertToTenantLimit(List<TenantResource> data) {
         var res = new ArrayList<TenantLimit>();
         for (TenantResource d : data) {
-            res.add(TenantLimit.builder().type(d.getType().value()).limit(d.getLimit()).build());
+            res.add(TenantLimit.builder().type(d.getType()).limit(d.getLimit()).build());
         }
         return res;
     }
@@ -162,27 +122,18 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
         var res = new ArrayList<TenantResource>();
         for (TenantLimit d : data) {
             var tr = new TenantResource();
-            tr.setType(ResourceType.fromValue(d.getType()));
+            tr.setType(d.getType());
             tr.setLimit(d.getLimit());
             res.add(tr);
         }
         return res;
     }
 
-    private UpdateRegistryTenantRequest convert(UpdateTenantRequest req) {
-        var res = new UpdateRegistryTenantRequest();
+    private UpdateApicurioTenantRequest convert(UpdateTenantRequest req) {
+        var res = new UpdateApicurioTenantRequest();
         res.setStatus(TenantStatusValue.fromValue(req.getStatus().value()));
         res.setResources(convertToTenantResource(req.getResources()));
         return res;
-    }
-
-    private Request<SsoProviders> getSSOProviders() {
-        return new Request.RequestBuilder<SsoProviders>()
-                .operation(Operation.GET)
-                .path(resolverRequestPath)
-                .responseType(new TypeReference<SsoProviders>() {
-                })
-                .build();
     }
 
     @Timed(value = Constants.TENANT_MANAGER_CREATE_TENANT_TIMER, description = Constants.TENANT_MANAGER_DESCRIPTION)
@@ -194,7 +145,7 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
         try {
             var client = getClient(tm);
 
-            NewRegistryTenantRequest req = new NewRegistryTenantRequest();
+            NewApicurioTenantRequest req = new NewApicurioTenantRequest();
             req.setOrganizationId(tenantRequest.getOrganizationId());
             req.setTenantId(tenantRequest.getTenantId());
             req.setCreatedBy(tenantRequest.getCreatedBy());
@@ -203,13 +154,13 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
                     .flatMap(Collection::stream)
                     .map(r -> {
                         TenantResource tr = new TenantResource();
-                        tr.setType(ResourceType.fromValue(r.getType()));
+                        tr.setType(r.getType());
                         tr.setLimit(r.getLimit());
                         return tr;
                     })
                     .collect(Collectors.toList()));
 
-            RegistryTenant tenant = client.createTenant(req);
+            ApicurioTenant tenant = client.createTenant(req);
 
             return convert(tenant);
         } catch (TenantManagerClientException ex) {
@@ -223,9 +174,9 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
     public Optional<Tenant> getTenantById(TenantManagerConfig tm, String tenantId) throws TenantManagerServiceException {
         try {
             var client = getClient(tm);
-            RegistryTenant tenant = client.getTenant(tenantId);
+            ApicurioTenant tenant = client.getTenant(tenantId);
             return Optional.of(convert(tenant));
-        } catch (RegistryTenantNotFoundException ex) {
+        } catch (ApicurioTenantNotFoundException ex) {
             return Optional.empty();
         } catch (TenantManagerClientException ex) {
             throw ExceptionConvert.convert(ex);
@@ -239,7 +190,15 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
     public List<Tenant> getAllTenants(TenantManagerConfig tm) throws TenantManagerServiceException {
         try {
             var client = getClient(tm);
-            return client.listTenants().stream()
+            var tenantsList = client.listTenants(null, null, null, null, null);
+            var tenants = tenantsList.getItems();
+            while (tenantsList.getCount() > tenants.size()) {
+                tenantsList = client.listTenants(null, tenants.size(), null, null, null);
+                tenants.addAll(tenantsList.getItems());
+            }
+
+            return tenants
+                    .stream()
                     .map(this::convert)
                     .collect(Collectors.toList());
         } catch (TenantManagerClientException ex) {
@@ -256,7 +215,7 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
             var client = getClient(tm);
             var internalReq = convert(req);
             client.updateTenant(req.getId(), internalReq);
-        } catch (RegistryTenantNotFoundException ex) {
+        } catch (ApicurioTenantNotFoundException ex) {
             throw ExceptionConvert.convert(ex);
         } catch (TenantManagerClientException ex) {
             throw ExceptionConvert.convert(ex);
@@ -272,7 +231,7 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
         try {
             var client = getClient(tm);
             client.deleteTenant(tenantId);
-        } catch (RegistryTenantNotFoundException ex) {
+        } catch (ApicurioTenantNotFoundException ex) {
             throw ExceptionConvert.convert(ex);
         } catch (TenantManagerClientException ex) {
             throw ExceptionConvert.convert(ex);
@@ -299,63 +258,13 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
         if (limits == null) {
             return;
         }
+        Set<String> availableResourceTypes = new HashSet(ResourceType.values());
         for (var limit : limits) {
             //this will throw an exception if any limit type is not valid
-            ResourceType.fromValue(limit.getType());
+            if (!availableResourceTypes.contains(limit.getType())) {
+                throw new IllegalArgumentException("Limit type " + limit.getType() + " not recognized");
+            }
         }
     }
 
-    private static class SsoProviders {
-
-        @JsonProperty("base_url")
-        private String baseUrl;
-        @JsonProperty("token_url")
-        private String tokenUrl;
-        @JsonProperty("jwks")
-        private String jwks;
-        @JsonProperty("valid_issuer")
-        private String validIssuer;
-
-        public SsoProviders() {
-        }
-
-        public SsoProviders(String baseUrl, String tokenUrl, String jwks, String validIssuer) {
-            this.baseUrl = baseUrl;
-            this.tokenUrl = tokenUrl;
-            this.jwks = jwks;
-            this.validIssuer = validIssuer;
-        }
-
-        public void setBaseUrl(String baseUrl) {
-            this.baseUrl = baseUrl;
-        }
-
-        public void setTokenUrl(String tokenUrl) {
-            this.tokenUrl = tokenUrl;
-        }
-
-        public void setJwks(String jwks) {
-            this.jwks = jwks;
-        }
-
-        public void setValidIssuer(String validIssuer) {
-            this.validIssuer = validIssuer;
-        }
-
-        public String getBaseUrl() {
-            return baseUrl;
-        }
-
-        public String getTokenUrl() {
-            return tokenUrl;
-        }
-
-        public String getJwks() {
-            return jwks;
-        }
-
-        public String getValidIssuer() {
-            return validIssuer;
-        }
-    }
 }

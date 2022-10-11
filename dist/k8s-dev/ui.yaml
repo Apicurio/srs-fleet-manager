@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: apicurio-registry-mt-ui
-          image: quay.io/apicurio/apicurio-registry-mt-ui:hackathon
+          image: quay.io/apicurio/apicurio-registry-mt-ui:latest
           env:
             - name: REGISTRY_UI_URL
               value: ./modules/registry/apicurio_registry.js

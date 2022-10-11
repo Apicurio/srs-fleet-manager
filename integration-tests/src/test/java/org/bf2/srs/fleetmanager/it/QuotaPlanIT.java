@@ -1,8 +1,8 @@
 package org.bf2.srs.fleetmanager.it;
 
-import io.apicurio.multitenant.api.datamodel.ResourceType;
-import io.apicurio.multitenant.api.datamodel.UpdateRegistryTenantRequest;
-import io.apicurio.multitenant.client.TenantManagerClient;
+import io.apicurio.tenantmanager.api.datamodel.ResourceType;
+import io.apicurio.tenantmanager.api.datamodel.UpdateApicurioTenantRequest;
+import io.apicurio.tenantmanager.client.TenantManagerClient;
 import org.awaitility.Awaitility;
 import org.bf2.srs.fleetmanager.it.component.FleetManagerComponent;
 import org.bf2.srs.fleetmanager.it.infra.DefaultInfraManager;
@@ -66,7 +66,7 @@ public class QuotaPlanIT {
         var resources = tenant.getResources();
         Long l = null;
         for (var r : resources) {
-            if (r.getType() == ResourceType.MAX_TOTAL_SCHEMAS_COUNT) {
+            if (r.getType().equals(ResourceType.MAX_TOTAL_SCHEMAS_COUNT)) {
                 l = r.getLimit();
             }
         }
@@ -78,7 +78,7 @@ public class QuotaPlanIT {
         resources = tenant.getResources();
         l = null;
         for (var r : resources) {
-            if (r.getType() == ResourceType.MAX_TOTAL_SCHEMAS_COUNT) {
+            if (r.getType().equals(ResourceType.MAX_TOTAL_SCHEMAS_COUNT)) {
                 l = r.getLimit();
             }
         }
@@ -87,11 +87,11 @@ public class QuotaPlanIT {
 
         // Update the limit value and recheck after forced reconciliation
         for (var r : resources) {
-            if (r.getType() == ResourceType.MAX_TOTAL_SCHEMAS_COUNT) {
+            if (r.getType().equals(ResourceType.MAX_TOTAL_SCHEMAS_COUNT)) {
                 r.setLimit(-1L);
             }
         }
-        var ur = new UpdateRegistryTenantRequest();
+        var ur = new UpdateApicurioTenantRequest();
         ur.setResources(resources);
         tenantManager.updateTenant(registry2Result.getId(), ur);
         // Check updated
@@ -99,7 +99,7 @@ public class QuotaPlanIT {
         resources = tenant.getResources();
         l = null;
         for (var r : resources) {
-            if (r.getType() == ResourceType.MAX_TOTAL_SCHEMAS_COUNT) {
+            if (r.getType().equals(ResourceType.MAX_TOTAL_SCHEMAS_COUNT)) {
                 l = r.getLimit();
             }
         }
@@ -114,7 +114,7 @@ public class QuotaPlanIT {
         resources = tenant.getResources();
         l = null;
         for (var r : resources) {
-            if (r.getType() == ResourceType.MAX_TOTAL_SCHEMAS_COUNT) {
+            if (r.getType().equals(ResourceType.MAX_TOTAL_SCHEMAS_COUNT)) {
                 l = r.getLimit();
             }
         }
