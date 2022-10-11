@@ -54,8 +54,8 @@ build_project() {
     # TODO: fixme in gitlab
     docker pull quay.io/app-sre/mk-ci-tools:latest
     docker run -v $(pwd):/opt/srs -w /opt/srs -e HOME=/tmp -u $(id -u) \
-        -e APICURIO_TENANT_REPO=https://gitlab.cee.redhat.com/service-registry/srs-service-registry.git \
-        -e APICURIO_TENANT_BRANCH=master \
+        -e APICURIO_TENANT_REPO=https://gitlab.cee.redhat.com/service-registry/srs-tenant-manager.git \
+        -e APICURIO_TENANT_BRANCH=main \
         -e TENANT_MANAGER_AUTH_ENABLED=true \
         -e MAS_SSO_URL=${MAS_SSO_URL} \
         -e MAS_SSO_REALM=${MAS_SSO_REALM} \
