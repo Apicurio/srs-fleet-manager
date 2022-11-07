@@ -26,7 +26,6 @@ import org.bf2.srs.fleetmanager.rest.service.model.RegistryListDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
 import org.bf2.srs.fleetmanager.rest.service.model.ServiceStatusDto;
 import org.bf2.srs.fleetmanager.rest.service.model.UsageStatisticsDto;
-import org.bf2.srs.fleetmanager.spi.ams.AccountManagementService;
 import org.bf2.srs.fleetmanager.spi.ams.AccountManagementServiceException;
 import org.bf2.srs.fleetmanager.spi.ams.ResourceLimitReachedException;
 import org.bf2.srs.fleetmanager.spi.ams.TermsRequiredException;
@@ -34,7 +33,6 @@ import org.bf2.srs.fleetmanager.spi.common.EvalInstancesNotAllowedException;
 import org.bf2.srs.fleetmanager.spi.common.TooManyEvalInstancesForUserException;
 import org.bf2.srs.fleetmanager.spi.common.TooManyInstancesException;
 import org.bf2.srs.fleetmanager.spi.common.model.AccountInfo;
-import org.bf2.srs.fleetmanager.spi.common.model.ResourceType;
 import org.bf2.srs.fleetmanager.util.BasicQuery;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -42,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
+
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
@@ -71,18 +70,6 @@ public class RegistryServiceImpl implements RegistryService {
     @Inject
     AuthService authService;
 
-    @Inject
-    AccountManagementService accountManagementService;
-
-    @ConfigProperty(name = "srs-fleet-manager.registry.instances.eval.enabled")
-    boolean evalInstancesEnabled;
-
-    @ConfigProperty(name = "srs-fleet-manager.registry.instances.eval.only")
-    boolean evalInstancesOnlyEnabled;
-
-    @ConfigProperty(name = "srs-fleet-manager.registry.instances.eval.max-count-per-user")
-    int maxEvalInstancesPerUser;
-
     @ConfigProperty(name = "srs-fleet-manager.registry.instances.max-count")
     int maxInstances;
 
@@ -100,47 +87,24 @@ public class RegistryServiceImpl implements RegistryService {
             throw new TooManyInstancesException();
         }
 
-        // Figure out if we are going to create a standard or eval instance.
-        ResourceType resourceType = evalInstancesOnlyEnabled ?
-                ResourceType.REGISTRY_INSTANCE_EVAL : accountManagementService.determineAllowedResourceType(accountInfo);
+        RegistryData registryData = RegistryData.builder()
+                .id(UUID.randomUUID().toString())
+                .name(registryCreate.getName())
+                .description(registryCreate.getDescription())
+                .status(RegistryStatusValueDto.PREPARING.value())
+                .orgId(accountInfo.getOrganizationId())
+                .owner(accountInfo.getAccountUsername())
+                .ownerId(accountInfo.getAccountId())
+                .build();
 
-        if (resourceType == ResourceType.REGISTRY_INSTANCE_EVAL) {
-            // Are eval instances allowed?
-            if (!evalInstancesEnabled) {
-                throw new EvalInstancesNotAllowedException();
-            }
-
-            // Limit the # of eval instances per user.  Need to check storage for list of eval registry instances.
-            List<RegistryData> registriesByOwner = storage.getRegistriesByOwner(accountInfo.getAccountUsername());
-            int evalInstanceCount = 0;
-            for (RegistryData registryData : registriesByOwner) { // TODO Perform a dedicated query
-                if (RegistryInstanceTypeValueDto.EVAL.value().equals(registryData.getInstanceType())) {
-                    evalInstanceCount++;
-                }
-            }
-            if (evalInstanceCount >= maxEvalInstancesPerUser) {
-                throw new TooManyEvalInstancesForUserException();
-            }
-        }
-
-        // Try to consume some quota from AMS for the appropriate resource type (standard or eval).  If successful
-        // we'll get back a subscriptionId - if not we'll throw an exception.
-        String subscriptionId = accountManagementService.createResource(accountInfo, resourceType);
-
-        // Convert to registry data and persist it in the DB.
-        RegistryInstanceTypeValueDto instanceType = resourceTypeToInstanceType(resourceType);
-
-        RegistryData registryData = convertRegistry.convert(registryCreate, subscriptionId, accountInfo.getAccountUsername(),
-                accountInfo.getOrganizationId(), accountInfo.getAccountId(), instanceType);
-        // Generate the ID
-        registryData.setId(UUID.randomUUID().toString());
         storage.createOrUpdateRegistry(registryData);
-        tasks.submit(ScheduleRegistryTask.builder().registryId(registryData.getId()).build());
-        return convertRegistry.convert(registryData);
-    }
 
-    private static RegistryInstanceTypeValueDto resourceTypeToInstanceType(ResourceType resourceType) {
-        return resourceType == ResourceType.REGISTRY_INSTANCE_STANDARD ? RegistryInstanceTypeValueDto.STANDARD : RegistryInstanceTypeValueDto.EVAL;
+        tasks.submit(ScheduleRegistryTask.builder()
+                .registryData(registryData)
+                .accountInfo(accountInfo)
+                .build());
+
+        return convertRegistry.convert(registryData);
     }
 
     @Override

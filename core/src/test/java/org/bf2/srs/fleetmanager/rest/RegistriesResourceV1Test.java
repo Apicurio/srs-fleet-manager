@@ -84,6 +84,28 @@ public class RegistriesResourceV1Test {
     }
 
     @Test
+    void createValidRegistry() {
+        var deployment = new RegistryDeploymentCreateRest();
+        deployment.setName("createValidRegistry");
+        deployment.setTenantManagerUrl("https://tenant-manager");
+        deployment.setRegistryDeploymentUrl("https://registry");
+
+        given()
+                .log().all()
+                .when().contentType(ContentType.JSON).body(deployment).post("/api/serviceregistry_mgmt/v1/admin/registryDeployments")
+                .then().statusCode(HTTP_OK);
+
+        var registryInstance = new RegistryCreate();
+        registryInstance.setName("a");
+
+        given()
+                .log().all()
+                .when().contentType(ContentType.JSON).body(registryInstance).post(BASE)
+                .then().statusCode(HTTP_OK)
+                .extract().as(Registry.class);
+    }
+
+    @Test
     void testCreateRegistry() {
         var deployment = new RegistryDeploymentCreateRest();
         deployment.setName("a");
@@ -288,7 +310,6 @@ public class RegistriesResourceV1Test {
             assertEquals(reg.getHref(), apiReg.getHref());
             assertEquals(reg.getId(), apiReg.getId());
             assertEquals(reg.getKind(), apiReg.getKind());
-            assertTrue(List.of("standard", "eval").contains(reg.getInstanceType().value()));
             // The status could've changed at this point
             if (apiReg.getStatus() == RegistryStatusValue.provisioning) {
                 assertEquals(reg.getRegistryUrl() /* null */, apiReg.getRegistryUrl());
@@ -315,7 +336,6 @@ public class RegistriesResourceV1Test {
             assertEquals(reg.getHref(), list.getItems().get(0).getHref());
             assertEquals(reg.getId(), list.getItems().get(0).getId());
             assertEquals(reg.getKind(), list.getItems().get(0).getKind());
-            assertEquals(reg.getInstanceType(), list.getItems().get(0).getInstanceType());
             // The status could've changed at this point
             if (list.getItems().get(0).getStatus() == RegistryStatusValue.provisioning) {
                 assertEquals(reg.getRegistryUrl() /* null */, list.getItems().get(0).getRegistryUrl());

@@ -16,6 +16,7 @@ import static java.util.Optional.ofNullable;
  */
 public enum RegistryStatusValueDto {
 
+    PREPARING("preparing"),
     ACCEPTED("accepted"),
     PROVISIONING("provisioning"),
     READY("ready"),

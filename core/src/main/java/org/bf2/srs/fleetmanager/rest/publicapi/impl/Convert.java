@@ -40,6 +40,8 @@ public class Convert {
 
     public RegistryStatusValue convert(RegistryStatusValueDto data) {
         switch (data) {
+            case PREPARING:
+                return RegistryStatusValue.preparing;
             case ACCEPTED:
                 return RegistryStatusValue.accepted;
             case PROVISIONING:
@@ -58,7 +60,7 @@ public class Convert {
     }
 
     public RegistryInstanceTypeValue convert(RegistryInstanceTypeValueDto data) {
-        return RegistryInstanceTypeValue.fromValue(data.value());
+        return data == null ? null : RegistryInstanceTypeValue.fromValue(data.value());
     }
 
     public Registry convert(RegistryDto data) {

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum RegistryStatusValue {
 
+    preparing("preparing"),
     accepted("accepted"),
     provisioning("provisioning"),
     ready("ready"),
