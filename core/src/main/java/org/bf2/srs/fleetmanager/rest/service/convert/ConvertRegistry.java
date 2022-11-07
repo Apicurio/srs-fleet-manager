@@ -32,7 +32,7 @@ public class ConvertRegistry {
                 .createdAt(registry.getCreatedAt())
                 .updatedAt(registry.getUpdatedAt())
                 .description(registry.getDescription())
-                .instanceType(RegistryInstanceTypeValueDto.of(registry.getInstanceType()))
+                .instanceType(registry.getInstanceType() != null ? RegistryInstanceTypeValueDto.of(registry.getInstanceType()) : null)
                 .build();
     }
 

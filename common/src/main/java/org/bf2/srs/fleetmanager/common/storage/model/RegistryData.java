@@ -95,6 +95,6 @@ public class RegistryData {
     @Column(name = "subscription_id")
     private String subscriptionId;
 
-    @Column(name = "instance_type", nullable = false)
+    @Column(name = "instance_type")
     private String instanceType;
 }
