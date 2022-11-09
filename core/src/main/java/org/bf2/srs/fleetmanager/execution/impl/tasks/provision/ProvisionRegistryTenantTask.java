@@ -1,10 +1,11 @@
-package org.bf2.srs.fleetmanager.execution.impl.tasks;
+package org.bf2.srs.fleetmanager.execution.impl.tasks.provision;
 
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.bf2.srs.fleetmanager.execution.impl.tasks.AbstractTask;
 
 import static java.util.Objects.requireNonNull;
 import static org.bf2.srs.fleetmanager.execution.impl.tasks.TaskType.PROVISION_REGISTRY_TENANT_T;

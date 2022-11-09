@@ -1,6 +1,8 @@
-package org.bf2.srs.fleetmanager.execution.impl.workers;
+package org.bf2.srs.fleetmanager.execution.impl.workers.health;
 
-import org.bf2.srs.fleetmanager.execution.impl.tasks.RegistryHeartbeatTask;
+import org.bf2.srs.fleetmanager.execution.impl.tasks.health.RegistryHeartbeatTask;
+import org.bf2.srs.fleetmanager.execution.impl.workers.AbstractWorker;
+import org.bf2.srs.fleetmanager.execution.impl.workers.Utils;
 import org.bf2.srs.fleetmanager.execution.manager.Task;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;

@@ -8,6 +8,7 @@ package org.bf2.srs.fleetmanager.execution.impl.tasks;
  */
 public enum TaskType {
 
+    PROVISION_SUBSCRIPTION_T,
     SCHEDULE_REGISTRY_T,
     PROVISION_REGISTRY_TENANT_T,
     REGISTRY_HEARTBEAT_T,

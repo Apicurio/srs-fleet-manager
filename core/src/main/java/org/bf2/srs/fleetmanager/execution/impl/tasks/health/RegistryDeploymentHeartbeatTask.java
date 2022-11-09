@@ -1,9 +1,10 @@
-package org.bf2.srs.fleetmanager.execution.impl.tasks;
+package org.bf2.srs.fleetmanager.execution.impl.tasks.health;
 
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.bf2.srs.fleetmanager.execution.impl.tasks.AbstractTask;
 import org.bf2.srs.fleetmanager.execution.manager.TaskSchedule;
 
 import java.time.Duration;
