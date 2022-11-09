@@ -14,7 +14,7 @@ import org.bf2.srs.fleetmanager.common.storage.model.RegistryData;
 import org.bf2.srs.fleetmanager.common.storage.util.QueryConfig;
 import org.bf2.srs.fleetmanager.common.storage.util.QueryResult;
 import org.bf2.srs.fleetmanager.common.storage.util.SearchQuery;
-import org.bf2.srs.fleetmanager.execution.impl.tasks.ScheduleRegistryTask;
+import org.bf2.srs.fleetmanager.execution.impl.tasks.provision.ProvisionSubscriptionTask;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.deprovision.StartDeprovisionRegistryTask;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.rest.service.RegistryService;
@@ -46,6 +46,7 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.validation.ValidationException;
 
 import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.KEY_REGISTRY_ID;
@@ -79,7 +80,7 @@ public class RegistryServiceImpl implements RegistryService {
             throws RegistryStorageConflictException, TermsRequiredException, ResourceLimitReachedException,
             EvalInstancesNotAllowedException, TooManyEvalInstancesForUserException, TooManyInstancesException,
             AccountManagementServiceException {
-        final AccountInfo accountInfo = authService.extractAccountInfo();
+        var accountInfo = authService.extractAccountInfo();
 
         // Make sure we have more instances available (max capacity not yet reached).
         long instanceCount = storage.getRegistryCountTotal();
@@ -87,20 +88,17 @@ public class RegistryServiceImpl implements RegistryService {
             throw new TooManyInstancesException();
         }
 
-        RegistryData registryData = RegistryData.builder()
-                .id(UUID.randomUUID().toString())
-                .name(registryCreate.getName())
-                .description(registryCreate.getDescription())
-                .status(RegistryStatusValueDto.PREPARING.value())
-                .orgId(accountInfo.getOrganizationId())
-                .owner(accountInfo.getAccountUsername())
-                .ownerId(accountInfo.getAccountId())
-                .build();
+        // Convert to registry data and persist it in the DB. The subscriptionId and the instanceType are not determined at this point therefore they are set to null.
+        RegistryData registryData = convertRegistry.convert(registryCreate, null, accountInfo.getAccountUsername(),
+                accountInfo.getOrganizationId(), accountInfo.getAccountId(), null);
+
+        // Generate the ID
+        registryData.setId(UUID.randomUUID().toString());
 
         storage.createOrUpdateRegistry(registryData);
 
-        tasks.submit(ScheduleRegistryTask.builder()
-                .registryData(registryData)
+        tasks.submit(ProvisionSubscriptionTask.builder()
+                .registryId(registryData.getId())
                 .accountInfo(accountInfo)
                 .build());
 

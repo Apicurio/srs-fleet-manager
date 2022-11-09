@@ -45,9 +45,9 @@ public class ConvertRegistry {
                 .owner(owner)
                 .ownerId(ownerId)
                 .orgId(orgId)
-                .status(RegistryStatusValueDto.ACCEPTED.value())
+                .status(RegistryStatusValueDto.PREPARING.value())
                 .subscriptionId(subscriptionId)
-                .instanceType(instanceType.value())
+                .instanceType(instanceType == null ? null : instanceType.value())
                 .build();
     }
 }

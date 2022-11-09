@@ -98,11 +98,13 @@ public class RegistriesResourceV1Test {
         var registryInstance = new RegistryCreate();
         registryInstance.setName("a");
 
-        given()
+        final Registry registry = given()
                 .log().all()
                 .when().contentType(ContentType.JSON).body(registryInstance).post(BASE)
                 .then().statusCode(HTTP_OK)
                 .extract().as(Registry.class);
+
+        TestUtil.waitForReady(List.of(registry), 5000);
     }
 
     @Test
@@ -377,6 +379,6 @@ public class RegistriesResourceV1Test {
 
     @AfterAll
     void afterAll() {
-        jobWrapper.getWorkerExclusions().clear();
+        //jobWrapper.getWorkerExclusions().clear();
     }
 }

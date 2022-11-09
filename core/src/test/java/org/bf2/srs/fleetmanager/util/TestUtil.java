@@ -82,8 +82,8 @@ public class TestUtil {
                 }));
     }
 
-    public static List<Registry> waitForReady(List<Registry> registries) {
-        Awaitility.await("Registry ready").atMost(5, SECONDS).pollInterval(1, SECONDS)
+    public static List<Registry> waitForReady(List<Registry> registries, int seconds) {
+        Awaitility.await("Registry ready").atMost(seconds, SECONDS).pollInterval(1, SECONDS)
                 .until(() -> registries.stream().allMatch(r -> {
                     var reg = given().log().all()
                             .when().get(BASE + "/" + r.getId())
@@ -95,5 +95,9 @@ public class TestUtil {
                 .when().get(BASE + "/" + r.getId())
                 .then().statusCode(HTTP_OK)
                 .extract().as(Registry.class)).collect(Collectors.toList());
+    }
+
+    public static List<Registry> waitForReady(List<Registry> registries) {
+        return waitForReady(registries, 5);
     }
 }

@@ -1,4 +1,4 @@
-package org.bf2.srs.fleetmanager.execution.impl.workers;
+package org.bf2.srs.fleetmanager.execution.impl.workers.provision;
 
 import org.bf2.srs.fleetmanager.common.Current;
 import org.bf2.srs.fleetmanager.common.storage.RegistryNotFoundException;
@@ -6,8 +6,10 @@ import org.bf2.srs.fleetmanager.common.storage.RegistryStorageConflictException;
 import org.bf2.srs.fleetmanager.common.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.common.storage.model.RegistryData;
 import org.bf2.srs.fleetmanager.common.storage.model.RegistryDeploymentData;
-import org.bf2.srs.fleetmanager.execution.impl.tasks.ProvisionRegistryTenantTask;
+import org.bf2.srs.fleetmanager.execution.impl.tasks.provision.ProvisionRegistryTenantTask;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.deprovision.EvalInstanceExpirationRegistryTask;
+import org.bf2.srs.fleetmanager.execution.impl.workers.AbstractWorker;
+import org.bf2.srs.fleetmanager.execution.impl.workers.Utils;
 import org.bf2.srs.fleetmanager.execution.manager.Task;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.execution.manager.TaskSchedule;
@@ -78,7 +80,6 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
     @Transactional
     @Override
     public void execute(Task aTask, WorkerContext ctl) throws RegistryStorageConflictException, TenantManagerServiceException {
-        // TODO Split along failure points?
         ProvisionRegistryTenantTask task = (ProvisionRegistryTenantTask) aTask;
 
         Optional<RegistryData> registryOptional = storage.getRegistryById(task.getRegistryId());
@@ -86,6 +87,7 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
         if (registryOptional.isEmpty()) {
             ctl.retry();
         }
+
         RegistryData registry = registryOptional.get();
 
         RegistryDeploymentData registryDeployment = registry.getRegistryDeployment();
@@ -147,8 +149,8 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
         //ctl.delay(() -> tasks.submit(RegistryHeartbeatTask.builder().registryId(registry.getId()).build()));
     }
 
-    @Transactional
     @Override
+    @Transactional
     public void finallyExecute(Task aTask, WorkerContext ctl, Optional<Exception> error) throws RegistryNotFoundException, RegistryStorageConflictException, SubscriptionNotFoundServiceException, AccountManagementServiceException, TenantManagerServiceException {
 
         ProvisionRegistryTenantTask task = (ProvisionRegistryTenantTask) aTask;
