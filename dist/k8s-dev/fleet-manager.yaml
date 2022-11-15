@@ -18,9 +18,6 @@ spec:
       - name: fleet-manager-config-vol
         configMap:
           name: fleet-manager-config
-      - name: local-nginx-proxy-vol
-        configMap:
-          name: local-nginx-proxy
       containers:
       - name: fleet-manager
         image: 'quay.io/apicurio/apicurio-registry-fleet-manager:latest-snapshot'
@@ -45,6 +42,10 @@ spec:
             value: http://localhost:8081
           - name: KEYCLOAK_URL
             value: 'http://localhost:8083/auth'
+          - name: QUARKUS_OIDC_AUTH_SERVER_URL
+            value: "http://keycloak:8080/auth/realms/demo-apicurio"
+          - name: QUARKUS_OIDC_TLS_VERIFICATION
+            value: none
           - name: KEYCLOAK_REALM
             value: 'demo-apicurio'
           - name: KEYCLOAK_API_CLIENT_ID
@@ -52,7 +53,7 @@ spec:
           - name: TENANT_MANAGER_AUTH_ENABLED
             value: 'true'
           - name: TENANT_MANAGER_AUTH_SERVER_URL
-            value: 'http://localhost:8083/auth'
+            value: 'http://keycloak:8080/auth'
           - name: TENANT_MANAGER_AUTH_SERVER_REALM
             value: 'demo-apicurio'
           - name: TENANT_MANAGER_AUTH_CLIENT_ID
@@ -72,15 +73,6 @@ spec:
         - name: fleet-manager-config-vol
           readOnly: true
           mountPath: "/mnt/config"
-      - name: kc-reverse-proxy
-        image: nginx
-        ports:
-        - containerPort: 8083
-        volumeMounts:
-        - name: local-nginx-proxy-vol
-          mountPath: /etc/nginx/nginx.conf
-          subPath: nginx.conf
-          readOnly: true
 ---
 apiVersion: v1
 kind: Service
