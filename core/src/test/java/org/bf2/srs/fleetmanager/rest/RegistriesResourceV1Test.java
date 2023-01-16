@@ -34,7 +34,6 @@ import javax.transaction.Transactional;
 import static io.restassured.RestAssured.given;
 import static java.net.HttpURLConnection.*;
 import static java.util.stream.Collectors.toList;
-import static org.bf2.srs.fleetmanager.util.TestUtil.delay;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
@@ -85,33 +84,9 @@ public class RegistriesResourceV1Test {
     }
 
     @Test
-    void createValidRegistry() {
-        var deployment = new RegistryDeploymentCreateRest();
-        deployment.setName("createValidRegistry");
-        deployment.setTenantManagerUrl("https://tenant-manager");
-        deployment.setRegistryDeploymentUrl("https://registry");
-
-        given()
-                .log().all()
-                .when().contentType(ContentType.JSON).body(deployment).post("/api/serviceregistry_mgmt/v1/admin/registryDeployments")
-                .then().statusCode(HTTP_OK);
-
-        var registryInstance = new RegistryCreate();
-        registryInstance.setName("a");
-
-        final Registry registry = given()
-                .log().all()
-                .when().contentType(ContentType.JSON).body(registryInstance).post(BASE)
-                .then().statusCode(HTTP_OK)
-                .extract().as(Registry.class);
-
-        TestUtil.waitForReady(List.of(registry), 5000);
-    }
-
-    @Test
     void testCreateRegistry() {
         var deployment = new RegistryDeploymentCreateRest();
-        deployment.setName("a");
+        deployment.setName("testCreateRegistry");
         deployment.setTenantManagerUrl("https://tenant-manager");
         deployment.setRegistryDeploymentUrl("https://registry");
 
@@ -195,7 +170,7 @@ public class RegistriesResourceV1Test {
         assertThat(res1.getTotal(), equalTo(0));
 
         var deployment = new RegistryDeploymentCreateRest();
-        deployment.setName("a");
+        deployment.setName("testGetRegistries");
         deployment.setTenantManagerUrl("https://tenant-manager");
         deployment.setRegistryDeploymentUrl("https://registry");
 
@@ -212,13 +187,13 @@ public class RegistriesResourceV1Test {
         valid2.setName("bbbb");
 
         // Create
-        List<Registry> registries = List.of(valid1, valid2).stream().map(d -> {
-            return given()
-                    .log().all()
-                    .when().contentType(ContentType.JSON).body(d).post(BASE)
-                    .then().statusCode(HTTP_OK)
-                    .extract().as(Registry.class);
-        }).collect(toList());
+        List<Registry> registries = Stream.of(valid1, valid2).map(d -> given()
+                .log().all()
+                .when().contentType(ContentType.JSON).body(d).post(BASE)
+                .then().statusCode(HTTP_OK)
+                .extract().as(Registry.class)).collect(toList());
+
+        registries = TestUtil.waitForReady(registries);
 
         List<Registry> actualRegistries = given()
                 .log().all()
@@ -229,8 +204,6 @@ public class RegistriesResourceV1Test {
 
         assertThat(actualRegistries.stream().map(Registry::getId).collect(toList()),
                 containsInAnyOrder(registries.stream().map(Registry::getId).toArray()));
-
-        registries = TestUtil.waitForReady(registries);
 
         // Delete
         registries.forEach(r -> {
@@ -260,7 +233,7 @@ public class RegistriesResourceV1Test {
                 .then().statusCode(HTTP_NOT_FOUND).body("code", equalTo("SRS-MGMT-2")); // TODO
 
         var deployment = new RegistryDeploymentCreateRest();
-        deployment.setName("a");
+        deployment.setName("testGetRegistry");
         deployment.setTenantManagerUrl("https://tenant-manager");
         deployment.setRegistryDeploymentUrl("https://registry");
 
@@ -371,7 +344,6 @@ public class RegistriesResourceV1Test {
 
     @Test
     void testDeleteRegistry() {
-
         given()
                 .log().all()
                 .when().delete(BASE + "/1000")

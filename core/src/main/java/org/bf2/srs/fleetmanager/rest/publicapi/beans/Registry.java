@@ -59,6 +59,8 @@ public class Registry {
     private String href;
     /**
      * "accepted": Registry status when accepted for processing.
+     *
+     * "preparing": Registry status when accepted for and the first requests (e.g. terms checks) are being made.
      * 
      * "provisioning": Registry status when provisioning a new instance.
      * 

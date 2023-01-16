@@ -29,7 +29,7 @@ public class RegistryDto extends ObjectReferenceDto {
      * (Required)
      */
     @NotNull
-    @Pattern(regexp = "accepted|provisioning|ready|failed|deprovision|deleting")
+    @Pattern(regexp = "accepted|preparing|provisioning|ready|failed|deprovision|deleting")
     private RegistryStatusValueDto status;
 
     /**

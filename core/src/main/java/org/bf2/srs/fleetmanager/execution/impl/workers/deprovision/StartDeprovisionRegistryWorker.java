@@ -69,6 +69,7 @@ public class StartDeprovisionRegistryWorker extends AbstractWorker {
             var status = RegistryStatusValueDto.of(registry.getStatus());
             switch (status) {
                 case ACCEPTED:
+                case PREPARING:
                 case PROVISIONING:
                     if (!canBeForced) {
                         log.debug("Cannot deprovision a Registry instance, " +
