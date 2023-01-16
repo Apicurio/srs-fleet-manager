@@ -18,8 +18,13 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v3
         with:
-          node-version: 14
+          node-version: 16
       - name: Install RHOAS Guidlines linter
-        run: npm i @rhoas/spectral-ruleset
+        run: |
+          npm i @rhoas/spectral-ruleset
+          echo 'extends: "@rhoas/spectral-ruleset"' > .spectral.yaml
       - name: Validate OpenAPI schema with Spectral and RHOAS Guidelines
         run: npx rhoasapi lint ./core/src/main/resources/srs-fleet-manager.json
+      - name: Cleanup
+        run: |
+          rm .spectral.yaml
