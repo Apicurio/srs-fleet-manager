@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
@@ -278,15 +279,13 @@ public class RegistriesResourceV1Test {
         valid2.setDescription("hello world");
 
         // Create
-        List<Registry> regs = List.of(valid1, valid2).stream().map(d -> {
-            return given()
-                    .log().all()
-                    .when().contentType(ContentType.JSON).body(d).post(BASE)
-                    .then().statusCode(HTTP_OK)
-                    .extract().as(Registry.class);
-        }).collect(toList());
+        List<Registry> regs = Stream.of(valid1, valid2).map(d -> given()
+                .log().all()
+                .when().contentType(ContentType.JSON).body(d).post(BASE)
+                .then().statusCode(HTTP_OK)
+                .extract().as(Registry.class)).collect(toList());
 
-        delay(3 * 1000);
+        regs = TestUtil.waitForReady(regs);
 
         regs.forEach(reg -> {
 
@@ -316,6 +315,7 @@ public class RegistriesResourceV1Test {
             if (apiReg.getStatus() == RegistryStatusValue.provisioning) {
                 assertEquals(reg.getRegistryUrl() /* null */, apiReg.getRegistryUrl());
             } else {
+                assertTrue(List.of("standard", "eval").contains(reg.getInstanceType().value()));
                 assertEquals(RegistryStatusValue.ready, apiReg.getStatus());
                 assertTrue(apiReg.getRegistryUrl().startsWith(deployment.getRegistryDeploymentUrl()));
             }
@@ -342,6 +342,7 @@ public class RegistriesResourceV1Test {
             if (list.getItems().get(0).getStatus() == RegistryStatusValue.provisioning) {
                 assertEquals(reg.getRegistryUrl() /* null */, list.getItems().get(0).getRegistryUrl());
             } else {
+                assertEquals(reg.getInstanceType(), list.getItems().get(0).getInstanceType());
                 assertEquals(RegistryStatusValue.ready, list.getItems().get(0).getStatus());
                 assertTrue(list.getItems().get(0).getRegistryUrl().startsWith(deployment.getRegistryDeploymentUrl()));
             }
@@ -379,6 +380,6 @@ public class RegistriesResourceV1Test {
 
     @AfterAll
     void afterAll() {
-        //jobWrapper.getWorkerExclusions().clear();
+        jobWrapper.getWorkerExclusions().clear();
     }
 }
