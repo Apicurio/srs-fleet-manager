@@ -34,7 +34,7 @@
         <!-- Other -->
         <lombok.version>1.18.24</lombok.version>
         <apicurio-tenant-manager-client.version>0.1.1.Final</apicurio-tenant-manager-client.version>
-        <apicurio-common-rest-client.version>0.1.11.Final</apicurio-common-rest-client.version>
+        <apicurio-common-rest-client.version>0.1.13.Final</apicurio-common-rest-client.version>
         <keycloak.version>11.0.3</keycloak.version>
         <keycloak.testcontainers.version>1.5.0</keycloak.testcontainers.version>
         <embedded-postgres.version>2.0.1</embedded-postgres.version>
@@ -131,7 +131,7 @@
 
             <dependency>
                 <groupId>io.apicurio</groupId>
-                <artifactId>apicurio-common-rest-client-jdk</artifactId>
+                <artifactId>apicurio-common-rest-client-vertx</artifactId>
                 <version>${apicurio-common-rest-client.version}</version>
             </dependency>
 
