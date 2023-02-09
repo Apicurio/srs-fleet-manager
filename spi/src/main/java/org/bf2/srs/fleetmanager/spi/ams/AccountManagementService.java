@@ -3,7 +3,9 @@ package org.bf2.srs.fleetmanager.spi.ams;
 import org.bf2.srs.fleetmanager.spi.common.model.AccountInfo;
 import org.bf2.srs.fleetmanager.spi.common.model.ResourceType;
 
-public interface AccountManagementService {
+import java.io.Closeable;
+
+public interface AccountManagementService extends Closeable {
 
     /**
      * Figure out which type of resource is allowed for the given account info.
