@@ -6,12 +6,12 @@
 
     <groupId>org.bf2</groupId>
     <artifactId>srs-fleet-manager-parent</artifactId>
-    <version>0.1.0-15</version>
+    <version>0.1.0-16</version>
     <packaging>pom</packaging>
 
     <properties>
         <surefire-plugin.version>2.22.1</surefire-plugin.version>
-        <mas.build.number>15</mas.build.number>
+        <mas.build.number>16</mas.build.number>
 
         <!-- Compile -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -35,7 +35,7 @@
         <!-- Other -->
         <lombok.version>1.18.24</lombok.version>
         <apicurio-tenant-manager-client.version>0.1.1.Final</apicurio-tenant-manager-client.version>
-        <apicurio-common-rest-client.version>0.1.11.Final</apicurio-common-rest-client.version>
+        <apicurio-common-rest-client.version>0.1.13.Final</apicurio-common-rest-client.version>
         <keycloak.version>11.0.3</keycloak.version>
         <keycloak.testcontainers.version>1.5.0</keycloak.testcontainers.version>
         <embedded-postgres.version>2.0.1</embedded-postgres.version>
@@ -132,7 +132,7 @@
 
             <dependency>
                 <groupId>io.apicurio</groupId>
-                <artifactId>apicurio-common-rest-client-jdk</artifactId>
+                <artifactId>apicurio-common-rest-client-vertx</artifactId>
                 <version>${apicurio-common-rest-client.version}</version>
             </dependency>
 

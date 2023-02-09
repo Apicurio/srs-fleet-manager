@@ -333,16 +333,6 @@ objects:
           - name: REGISTRY_INSTANCES_EVAL_LIFETIME_SECONDS
             value: ${REGISTRY_INSTANCES_EVAL_LIFETIME_SECONDS}
 
-            # Identity server migration
-          - name: IDENTITY_SERVER_RESOLVER_PATH
-            value: ${IDENTITY_SERVER_RESOLVER_PATH}
-          - name: IDENTITY_SERVER_RESOLVER_REQUEST_PATH
-            value: ${IDENTITY_SERVER_RESOLVER_REQUEST_PATH}
-          - name: IDENTITY_SERVER_RESOLVER_ENABLED
-            value: ${IDENTITY_SERVER_RESOLVER_ENABLED}
-          - name: IDENTITY_SERVER_RESOLVER_CACHE_EXPIRATION
-            value: ${IDENTITY_SERVER_RESOLVER_CACHE_EXPIRATION}
-
           - name: ENABLE_SENTRY
             value: ${ENABLE_SENTRY}
           - name: SENTRY_DSN
@@ -607,16 +597,3 @@ parameters:
     but *some* metrics will report stale values (with the given delay).
     Keep in mind that multiple pods may compute the same metrics.
   value: "300"
-
-- name: IDENTITY_SERVER_RESOLVER_ENABLED
-  description: "When true, the identity server will be dynamically resolved."
-  value: "false"
-- name: IDENTITY_SERVER_RESOLVER_PATH
-  description: "Path to the server that will resolve the identity server."
-  value: "http://localhost:8080"
-- name: IDENTITY_SERVER_RESOLVER_REQUEST_PATH
-  description: "Request path for resolving the identity server."
-  value: "api/kafkas_mgmt/v1/sso_providers"
-- name: IDENTITY_SERVER_RESOLVER_CACHE_EXPIRATION
-  description: "Identity resolver cache expiration."
-  value: "10"

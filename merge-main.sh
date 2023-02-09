@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 if [[ -z $UPSTREAM_REMOTE ]] ; then
   UPSTREAM_REMOTE="upstream"
