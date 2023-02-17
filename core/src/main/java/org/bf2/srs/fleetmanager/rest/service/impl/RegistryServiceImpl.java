@@ -3,6 +3,7 @@ package org.bf2.srs.fleetmanager.rest.service.impl;
 import io.quarkus.security.identity.SecurityIdentity;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bf2.srs.fleetmanager.auth.AuthService;
+import org.bf2.srs.fleetmanager.auth.NotAuthorizedException;
 import org.bf2.srs.fleetmanager.auth.interceptor.CheckDeletePermissions;
 import org.bf2.srs.fleetmanager.auth.interceptor.CheckReadPermissions;
 import org.bf2.srs.fleetmanager.common.operation.auditing.Audited;
@@ -41,7 +42,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
@@ -201,7 +201,7 @@ public class RegistryServiceImpl implements RegistryService {
 
     @Override
     @CheckReadPermissions
-    public RegistryDto getRegistry(String registryId) throws RegistryNotFoundException {
+    public RegistryDto getRegistry(String registryId) throws RegistryNotFoundException, NotAuthorizedException {
         try {
             return storage.getRegistryById(registryId)
                     .map(convertRegistry::convert)
@@ -214,7 +214,7 @@ public class RegistryServiceImpl implements RegistryService {
     @Override
     @Audited(extractParameters = {"0", KEY_REGISTRY_ID})
     @CheckDeletePermissions
-    public void deleteRegistry(String registryId) throws RegistryNotFoundException, RegistryStorageConflictException {
+    public void deleteRegistry(String registryId) throws RegistryNotFoundException, NotAuthorizedException {
         try {
             // Verify preconditions - Registry exists
             storage.getRegistryById(registryId).orElseThrow(() -> new RegistryNotFoundException(registryId));

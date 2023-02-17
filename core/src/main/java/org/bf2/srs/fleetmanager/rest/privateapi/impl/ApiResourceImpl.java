@@ -1,5 +1,6 @@
 package org.bf2.srs.fleetmanager.rest.privateapi.impl;
 
+import org.bf2.srs.fleetmanager.auth.NotAuthorizedException;
 import org.bf2.srs.fleetmanager.common.storage.RegistryDeploymentNotFoundException;
 import org.bf2.srs.fleetmanager.common.storage.RegistryDeploymentStorageConflictException;
 import org.bf2.srs.fleetmanager.execution.manager.TaskNotFoundException;
@@ -15,7 +16,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.ForbiddenException;
 
 @ApplicationScoped
 public class ApiResourceImpl implements ApiResource {
@@ -63,9 +63,9 @@ public class ApiResourceImpl implements ApiResource {
     }
 
     @Override
-    public RegistryDeploymentRest createRegistryDeployment(RegistryDeploymentCreateRest data) throws RegistryDeploymentStorageConflictException {
+    public RegistryDeploymentRest createRegistryDeployment(RegistryDeploymentCreateRest data) throws RegistryDeploymentStorageConflictException, NotAuthorizedException {
         if (!deploymentLoader.isRESTDeploymentManagementEnabled()) {
-            throw new ForbiddenException();
+            throw new NotAuthorizedException();
         }
         return convert.convert(registryDeploymentService.createRegistryDeployment(convert.convert(data)));
     }
@@ -76,9 +76,9 @@ public class ApiResourceImpl implements ApiResource {
     }
 
     @Override
-    public void deleteRegistryDeployment(Integer registryDeploymentId) throws RegistryDeploymentNotFoundException, RegistryDeploymentStorageConflictException {
+    public void deleteRegistryDeployment(Integer registryDeploymentId) throws RegistryDeploymentNotFoundException, RegistryDeploymentStorageConflictException, NotAuthorizedException {
         if (!deploymentLoader.isRESTDeploymentManagementEnabled()) {
-            throw new ForbiddenException();
+            throw new NotAuthorizedException();
         }
         registryDeploymentService.deleteRegistryDeployment(registryDeploymentId.longValue()); // TODO Conversion
     }

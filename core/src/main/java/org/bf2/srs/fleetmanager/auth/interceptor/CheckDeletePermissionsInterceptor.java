@@ -2,25 +2,24 @@ package org.bf2.srs.fleetmanager.auth.interceptor;
 
 import io.quarkus.security.identity.SecurityIdentity;
 import org.bf2.srs.fleetmanager.auth.AuthService;
-import org.bf2.srs.fleetmanager.spi.common.model.AccountInfo;
+import org.bf2.srs.fleetmanager.auth.NotAuthorizedException;
 import org.bf2.srs.fleetmanager.common.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.common.storage.model.RegistryData;
+import org.bf2.srs.fleetmanager.operation.auditing.AuditingEvent;
+import org.bf2.srs.fleetmanager.operation.auditing.AuditingService;
+import org.bf2.srs.fleetmanager.spi.common.model.AccountInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Optional;
 import javax.annotation.Priority;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
-import javax.ws.rs.ForbiddenException;
 
-import java.util.Optional;
-
-import static org.bf2.srs.fleetmanager.util.SecurityUtil.isInstanceOwner;
-import static org.bf2.srs.fleetmanager.util.SecurityUtil.isOrgAdmin;
-import static org.bf2.srs.fleetmanager.util.SecurityUtil.isResolvable;
+import static org.bf2.srs.fleetmanager.util.SecurityUtil.*;
 
 @CheckDeletePermissions
 @Interceptor
@@ -38,6 +37,9 @@ public class CheckDeletePermissionsInterceptor {
     @Inject
     ResourceStorage storage;
 
+    @Inject
+    AuditingService audit;
+
     @AroundInvoke
     public Object intercept(InvocationContext context) throws Exception {
         if (isResolvable(securityIdentity)) {
@@ -50,7 +52,12 @@ public class CheckDeletePermissionsInterceptor {
             return context.proceed();
         }
         log.info("Attempt to delete registry instance without the proper permissions");
-        throw new ForbiddenException();
+        var ae = new AuditingEvent();
+        ae.setEventId("authorization_failure");
+        ae.addData("target", "registry");
+        ae.addData("operation", "delete");
+        audit.recordEvent(ae);
+        throw new NotAuthorizedException(); // TODO Enable auditing for exceptions?
     }
 
     private static boolean userCanDeleteInstance(AccountInfo accountInfo, Optional<RegistryData> registry) {
