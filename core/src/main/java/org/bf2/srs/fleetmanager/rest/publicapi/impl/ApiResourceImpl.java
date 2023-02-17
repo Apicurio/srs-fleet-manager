@@ -1,5 +1,8 @@
 package org.bf2.srs.fleetmanager.rest.publicapi.impl;
 
+import org.bf2.srs.fleetmanager.auth.NotAuthorizedException;
+import org.bf2.srs.fleetmanager.common.storage.RegistryNotFoundException;
+import org.bf2.srs.fleetmanager.common.storage.RegistryStorageConflictException;
 import org.bf2.srs.fleetmanager.rest.publicapi.ApiResource;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.Error;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.ErrorList;
@@ -16,8 +19,6 @@ import org.bf2.srs.fleetmanager.spi.ams.TermsRequiredException;
 import org.bf2.srs.fleetmanager.spi.common.EvalInstancesNotAllowedException;
 import org.bf2.srs.fleetmanager.spi.common.TooManyEvalInstancesForUserException;
 import org.bf2.srs.fleetmanager.spi.common.TooManyInstancesException;
-import org.bf2.srs.fleetmanager.common.storage.RegistryNotFoundException;
-import org.bf2.srs.fleetmanager.common.storage.RegistryStorageConflictException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -53,12 +54,12 @@ public class ApiResourceImpl implements ApiResource {
     }
 
     @Override
-    public Registry getRegistry(String id) throws RegistryNotFoundException {
+    public Registry getRegistry(String id) throws RegistryNotFoundException, NotAuthorizedException {
         return convert.convert(registryService.getRegistry(id));
     }
 
     @Override
-    public void deleteRegistry(String id) throws RegistryStorageConflictException, RegistryNotFoundException {
+    public void deleteRegistry(String id) throws RegistryStorageConflictException, RegistryNotFoundException, NotAuthorizedException {
         registryService.deleteRegistry(id);
     }
 

@@ -1,5 +1,6 @@
 package org.bf2.srs.fleetmanager.rest.service;
 
+import org.bf2.srs.fleetmanager.auth.NotAuthorizedException;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryCreateDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryListDto;
@@ -21,9 +22,9 @@ public interface RegistryService {
 
     RegistryListDto getRegistries(Integer page, Integer size, String orderBy, String search);
 
-    RegistryDto getRegistry(String registryId) throws RegistryNotFoundException;
+    RegistryDto getRegistry(String registryId) throws RegistryNotFoundException, NotAuthorizedException;
 
-    void deleteRegistry(String registryId) throws RegistryNotFoundException, RegistryStorageConflictException;
+    void deleteRegistry(String registryId) throws RegistryNotFoundException, RegistryStorageConflictException, NotAuthorizedException;
 
     ServiceStatusDto getServiceStatus();
 

@@ -2,9 +2,13 @@ package org.bf2.srs.fleetmanager.rest.publicapi.impl;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import io.quarkus.runtime.configuration.ProfileManager;
+import org.bf2.srs.fleetmanager.auth.NotAuthorizedException;
 import org.bf2.srs.fleetmanager.common.errors.UserError;
 import org.bf2.srs.fleetmanager.common.errors.UserErrorCode;
 import org.bf2.srs.fleetmanager.common.errors.UserErrorInfo;
+import org.bf2.srs.fleetmanager.common.storage.RegistryDeploymentNotFoundException;
+import org.bf2.srs.fleetmanager.common.storage.RegistryNotFoundException;
+import org.bf2.srs.fleetmanager.common.storage.RegistryStorageConflictException;
 import org.bf2.srs.fleetmanager.errors.UserErrorMapper;
 import org.bf2.srs.fleetmanager.operation.OperationContext;
 import org.bf2.srs.fleetmanager.operation.metrics.ExceptionMetrics;
@@ -18,9 +22,6 @@ import org.bf2.srs.fleetmanager.spi.ams.TermsRequiredException;
 import org.bf2.srs.fleetmanager.spi.common.EvalInstancesNotAllowedException;
 import org.bf2.srs.fleetmanager.spi.common.TooManyEvalInstancesForUserException;
 import org.bf2.srs.fleetmanager.spi.common.TooManyInstancesException;
-import org.bf2.srs.fleetmanager.common.storage.RegistryDeploymentNotFoundException;
-import org.bf2.srs.fleetmanager.common.storage.RegistryNotFoundException;
-import org.bf2.srs.fleetmanager.common.storage.RegistryStorageConflictException;
 import org.eclipse.microprofile.faulttolerance.exceptions.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,25 +70,26 @@ public class CustomExceptionMapperImpl implements CustomExceptionMapper {
         // it is inserted first.
         Map<Class<? extends Exception>, Integer> map = new LinkedHashMap<>();
 
-        map.put(RegistryNotFoundException.class, HTTP_NOT_FOUND);
-        map.put(RegistryDeploymentNotFoundException.class, HTTP_NOT_FOUND);
-        map.put(ErrorNotFoundException.class, HTTP_NOT_FOUND);
-
         map.put(DateTimeParseException.class, HTTP_BAD_REQUEST);
         map.put(JsonParseException.class, HTTP_BAD_REQUEST);
         map.put(ValidationException.class, HTTP_BAD_REQUEST);
 
-        map.put(NotSupportedException.class, HTTP_UNSUPPORTED_TYPE);
+        map.put(NotAuthorizedException.class, HTTP_FORBIDDEN);
 
-        map.put(AccountManagementServiceException.class, HTTP_INTERNAL_ERROR);
-        map.put(EvalInstancesNotAllowedException.class, HTTP_INTERNAL_ERROR);
+        map.put(RegistryNotFoundException.class, HTTP_NOT_FOUND);
+        map.put(RegistryDeploymentNotFoundException.class, HTTP_NOT_FOUND);
+        map.put(ErrorNotFoundException.class, HTTP_NOT_FOUND);
 
         map.put(RegistryStorageConflictException.class, HTTP_CONFLICT);
         map.put(ResourceLimitReachedException.class, HTTP_CONFLICT);
         map.put(TermsRequiredException.class, HTTP_CONFLICT);
         map.put(TooManyEvalInstancesForUserException.class, HTTP_CONFLICT);
+        map.put(TooManyInstancesException.class, HTTP_CONFLICT);
+        
+        map.put(NotSupportedException.class, HTTP_UNSUPPORTED_TYPE);
 
-        map.put(TooManyInstancesException.class, HTTP_PAYMENT_REQUIRED);
+        map.put(AccountManagementServiceException.class, HTTP_INTERNAL_ERROR);
+        map.put(EvalInstancesNotAllowedException.class, HTTP_INTERNAL_ERROR);
 
         map.put(TimeoutException.class, HTTP_UNAVAILABLE);
         map.put(InterruptedException.class, HTTP_UNAVAILABLE);
