@@ -6,7 +6,7 @@ on:
 jobs:
   check:
     name: Check and update Apicurio dependencies from mas-sr branch
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     if: github.repository_owner == 'bf2fc6cc711aee1a0c2a'
     steps:
 
