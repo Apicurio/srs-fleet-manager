@@ -9,7 +9,6 @@ import org.bf2.srs.fleetmanager.spi.ams.TermsRequiredException;
 import org.bf2.srs.fleetmanager.spi.common.model.AccountInfo;
 import org.bf2.srs.fleetmanager.spi.common.model.ResourceType;
 
-import java.io.IOException;
 import java.util.UUID;
 
 public class LocalAMS implements AccountManagementService {
@@ -37,10 +36,5 @@ public class LocalAMS implements AccountManagementService {
 
     public void deleteSubscription(String subscriptionId) throws AccountManagementServiceException, SubscriptionNotFoundServiceException {
         // NOOP
-    }
-
-    @Override
-    public void close() throws IOException {
-
     }
 }

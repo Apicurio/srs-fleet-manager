@@ -1,9 +1,8 @@
 package org.bf2.srs.fleetmanager.spi.ams.impl.remote;
 
-import io.apicurio.rest.client.VertxHttpClientProvider;
+import io.apicurio.rest.client.JdkHttpClientProvider;
 import io.apicurio.rest.client.auth.OidcAuth;
 import io.apicurio.rest.client.spi.ApicurioHttpClient;
-import io.vertx.core.Vertx;
 import org.bf2.srs.fleetmanager.spi.ams.AccountManagementService;
 import org.bf2.srs.fleetmanager.spi.ams.AccountManagementServiceException;
 import org.bf2.srs.fleetmanager.spi.ams.ResourceLimitReachedException;
@@ -26,7 +25,6 @@ import org.bf2.srs.fleetmanager.spi.common.model.ResourceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -41,19 +39,19 @@ public class RemoteAMS implements AccountManagementService {
     private final RemoteAMSProperties amsProperties;
     private final AccountManagementSystemRestClient restClient;
 
-    public RemoteAMS(Vertx vertx, RemoteAMSProperties amsProperties) {
+    public RemoteAMS(RemoteAMSProperties amsProperties) {
         this.amsProperties = amsProperties;
-        this.restClient = createAccountManagementRestClient(vertx);
+        this.restClient = createAccountManagementRestClient();
     }
 
-    private AccountManagementSystemRestClient createAccountManagementRestClient(Vertx vertx) {
+    private AccountManagementSystemRestClient createAccountManagementRestClient() {
         AccountManagementSystemRestClient restClient;
         if (amsProperties.ssoEnabled) {
-            ApicurioHttpClient httpClient = new VertxHttpClientProvider(vertx).create(amsProperties.ssoTokenEndpoint, Collections.emptyMap(), null, new AccountManagementSystemAuthErrorHandler());
+            ApicurioHttpClient httpClient = new JdkHttpClientProvider().create(amsProperties.ssoTokenEndpoint, Collections.emptyMap(), null, new AccountManagementSystemAuthErrorHandler());
             final OidcAuth auth = new OidcAuth(httpClient, amsProperties.ssoClientId, amsProperties.ssoClientSecret);
-            restClient = new AccountManagementSystemRestClient(vertx, amsProperties.endpoint, Collections.emptyMap(), auth);
+            restClient = new AccountManagementSystemRestClient(amsProperties.endpoint, Collections.emptyMap(), auth);
         } else {
-            restClient = new AccountManagementSystemRestClient(vertx, amsProperties.endpoint, Collections.emptyMap(), null);
+            restClient = new AccountManagementSystemRestClient(amsProperties.endpoint, Collections.emptyMap(), null);
         }
         return restClient;
     }
@@ -190,10 +188,5 @@ public class RemoteAMS implements AccountManagementService {
         } catch (AccountManagementSystemClientException ex) {
             ExceptionConvert.convertWithSubscriptionNotFound(ex);
         }
-    }
-
-    @Override
-    public void close() throws IOException {
-        restClient.close();
     }
 }

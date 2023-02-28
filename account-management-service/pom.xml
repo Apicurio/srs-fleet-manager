@@ -43,7 +43,7 @@
 
         <dependency>
             <groupId>io.apicurio</groupId>
-            <artifactId>apicurio-common-rest-client-vertx</artifactId>
+            <artifactId>apicurio-common-rest-client-jdk</artifactId>
         </dependency>
 
         <!-- Other -->

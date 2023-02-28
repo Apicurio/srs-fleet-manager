@@ -1,6 +1,5 @@
 package org.bf2.srs.fleetmanager.spi.ams.impl;
 
-import io.vertx.core.Vertx;
 import org.bf2.srs.fleetmanager.common.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.spi.ams.AccountManagementService;
 import org.bf2.srs.fleetmanager.spi.ams.impl.remote.RemoteAMS;
@@ -29,9 +28,6 @@ public class AccountManagementServiceProducer {
     @Inject
     ResourceStorage storage;
 
-    @Inject
-    Vertx vertx;
-
     // Do not annotate with @Produces!
     // This method is called by org.bf2.srs.fleetmanager.spi.ams.impl.AccountManagementServiceWrapper
     public AccountManagementService produces() {
@@ -42,7 +38,7 @@ public class AccountManagementServiceProducer {
             }
             case "REMOTE": {
                 log.info("Using Remote Account Management Service with Account Management URL: {}", remoteAMSProperties.getEndpoint());
-                return new RemoteAMS(vertx, remoteAMSProperties);
+                return new RemoteAMS(remoteAMSProperties);
             }
             default:
                 throw new IllegalStateException("Account Management Service type '" + amsType + "' is not available");

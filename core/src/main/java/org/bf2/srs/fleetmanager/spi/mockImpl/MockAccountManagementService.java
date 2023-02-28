@@ -51,9 +51,4 @@ public class MockAccountManagementService implements AccountManagementService {
     public void deleteSubscription(String subscriptionId) {
         //Do nothing, this is just a mock call
     }
-
-    @Override
-    public void close() {
-
-    }
 }
