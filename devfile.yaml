@@ -19,7 +19,7 @@ parent:
 components:
   - name: image-build
     image:
-      imageName: java-quarkus-image:latest
+      imageName: srs-fleet-manager:latest
       dockerfile:
         uri: Dockerfile
         buildContext: .
