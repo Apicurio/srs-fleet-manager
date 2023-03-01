@@ -103,7 +103,7 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
 
     private TenantManagerClient getClient(TenantManagerConfig tm) {
         return pool.computeIfAbsent(tm.getTenantManagerUrl(), k -> {
-            return new TenantManagerClientImpl(tm.getTenantManagerUrl(), clientConfigs, auth);
+            return new TenantManagerClientImpl(vertx, tm.getTenantManagerUrl(), clientConfigs, auth);
         });
     }
 
