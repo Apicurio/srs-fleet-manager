@@ -1,5 +1,6 @@
 package org.bf2.srs.fleetmanager.spi.tenants.impl;
 
+import io.apicurio.rest.client.VertxHttpClientProvider;
 import io.apicurio.tenantmanager.api.datamodel.NewApicurioTenantRequest;
 import io.apicurio.tenantmanager.api.datamodel.ApicurioTenant;
 import io.apicurio.tenantmanager.api.datamodel.ResourceType;
@@ -10,7 +11,6 @@ import io.apicurio.tenantmanager.client.TenantManagerClient;
 import io.apicurio.tenantmanager.client.TenantManagerClientImpl;
 import io.apicurio.tenantmanager.client.exception.ApicurioTenantNotFoundException;
 import io.apicurio.tenantmanager.client.exception.TenantManagerClientException;
-import io.apicurio.rest.client.JdkHttpClientProvider;
 import io.apicurio.rest.client.auth.Auth;
 import io.apicurio.rest.client.auth.OidcAuth;
 import io.apicurio.rest.client.auth.exception.AuthErrorHandler;
@@ -18,6 +18,7 @@ import io.apicurio.rest.client.config.ApicurioClientConfig;
 import io.apicurio.rest.client.spi.ApicurioHttpClient;
 import io.micrometer.core.annotation.Timed;
 import io.quarkus.arc.profile.UnlessBuildProfile;
+import io.vertx.core.Vertx;
 import org.bf2.srs.fleetmanager.common.metrics.Constants;
 import org.bf2.srs.fleetmanager.common.operation.auditing.Audited;
 import org.bf2.srs.fleetmanager.common.operation.faulttolerance.FaultToleranceConstants;
@@ -49,6 +50,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.KEY_TENANT_ID;
 
@@ -73,6 +75,9 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
     @ConfigProperty(name = "srs-fleet-manager.tenant-manager.ssl.ca.path")
     Optional<String> tenantManagerCAFilePath;
 
+    @Inject
+    Vertx vertx;
+
     private Auth auth;
     private Map<String, Object> clientConfigs;
 
@@ -84,7 +89,7 @@ public class RestClientTenantManagerServiceImpl implements TenantManagerService 
 
         if (tenantManagerAuthEnabled) {
             log.info("Using Apicurio Registry REST TenantManagerClient with authentication enabled.");
-            ApicurioHttpClient httpClient = new JdkHttpClientProvider().create(tenantManagerAuthServerUrl, Collections.emptyMap(), null, new AuthErrorHandler());
+            ApicurioHttpClient httpClient = new VertxHttpClientProvider(vertx).create(tenantManagerAuthServerUrl, Collections.emptyMap(), null, new AuthErrorHandler());
             this.auth = new OidcAuth(httpClient, tenantManagerAuthClientId, tenantManagerAuthSecret);
         } else {
             log.info("Using Apicurio Registry REST TenantManagerClient.");
