@@ -1,13 +1,14 @@
 package org.bf2.srs.fleetmanager.it.util;
 
+import io.apicurio.rest.client.VertxHttpClientProvider;
 import io.apicurio.tenantmanager.api.datamodel.TenantStatusValue;
 import io.apicurio.tenantmanager.api.datamodel.UpdateApicurioTenantRequest;
 import io.apicurio.tenantmanager.client.TenantManagerClient;
 import io.apicurio.tenantmanager.client.TenantManagerClientImpl;
-import io.apicurio.rest.client.JdkHttpClientProvider;
 import io.apicurio.rest.client.auth.OidcAuth;
 import io.apicurio.rest.client.auth.exception.AuthErrorHandler;
 import io.apicurio.rest.client.spi.ApicurioHttpClient;
+import io.vertx.core.Vertx;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -70,7 +71,7 @@ public class Utils {
 
         if (tm.isAuthEnabled()) {
             var tmAuth = tm.getAuthConfig();
-            ApicurioHttpClient httpClient = new JdkHttpClientProvider().create(tmAuth.getTokenEndpoint(), Collections.emptyMap(), null, new AuthErrorHandler());
+            ApicurioHttpClient httpClient = new VertxHttpClientProvider(Vertx.vertx()).create(tmAuth.getTokenEndpoint(), Collections.emptyMap(), null, new AuthErrorHandler());
             OidcAuth auth = new OidcAuth(httpClient, tmAuth.getClientId(), tmAuth.getClientSecret());
             // TODO uncomment
             // {
@@ -86,9 +87,9 @@ public class Utils {
             //         }
             //     }
             // }
-            return new TenantManagerClientImpl(tm.getTenantManagerUrl(), Collections.emptyMap(), auth);
+            return new TenantManagerClientImpl(Vertx.vertx(), tm.getTenantManagerUrl(), Collections.emptyMap(), auth);
         } else {
-            return new TenantManagerClientImpl(tm.getTenantManagerUrl());
+            return new TenantManagerClientImpl(Vertx.vertx(), tm.getTenantManagerUrl(), Collections.emptyMap(), null);
         }
     }
 

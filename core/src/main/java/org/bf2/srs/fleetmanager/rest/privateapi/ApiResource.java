@@ -1,5 +1,6 @@
 package org.bf2.srs.fleetmanager.rest.privateapi;
 
+import org.bf2.srs.fleetmanager.auth.NotAuthorizedException;
 import org.bf2.srs.fleetmanager.execution.manager.TaskNotFoundException;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentCreateRest;
 import org.bf2.srs.fleetmanager.rest.privateapi.beans.RegistryDeploymentRest;
@@ -40,7 +41,7 @@ public interface ApiResource {
     @POST
     @Produces("application/json")
     @Consumes("application/json")
-    RegistryDeploymentRest createRegistryDeployment(RegistryDeploymentCreateRest data) throws RegistryDeploymentStorageConflictException;
+    RegistryDeploymentRest createRegistryDeployment(RegistryDeploymentCreateRest data) throws RegistryDeploymentStorageConflictException, NotAuthorizedException;
 
     @Path("/serviceregistry_mgmt/v1/admin/registryDeployments/{registryDeploymentId}")
     @GET
@@ -50,7 +51,7 @@ public interface ApiResource {
 
     @Path("/serviceregistry_mgmt/v1/admin/registryDeployments/{registryDeploymentId}")
     @DELETE
-    void deleteRegistryDeployment(@PathParam("registryDeploymentId") Integer registryDeploymentId) throws RegistryDeploymentNotFoundException, RegistryDeploymentStorageConflictException;
+    void deleteRegistryDeployment(@PathParam("registryDeploymentId") Integer registryDeploymentId) throws RegistryDeploymentNotFoundException, RegistryDeploymentStorageConflictException, NotAuthorizedException;
 
     @Path("/serviceregistry_mgmt/v1/admin/openapi")
     @GET

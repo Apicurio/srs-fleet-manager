@@ -2,11 +2,13 @@ package org.bf2.srs.fleetmanager.rest.privateapi.impl;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import io.quarkus.runtime.configuration.ProfileManager;
-import org.bf2.srs.fleetmanager.rest.config.CustomExceptionMapper;
-import org.bf2.srs.fleetmanager.rest.privateapi.beans.ErrorInfo1Rest;
+import org.bf2.srs.fleetmanager.auth.NotAuthorizedException;
 import org.bf2.srs.fleetmanager.common.storage.RegistryDeploymentNotFoundException;
 import org.bf2.srs.fleetmanager.common.storage.RegistryDeploymentStorageConflictException;
 import org.bf2.srs.fleetmanager.common.storage.RegistryNotFoundException;
+import org.bf2.srs.fleetmanager.rest.config.CustomExceptionMapper;
+import org.bf2.srs.fleetmanager.rest.privateapi.beans.ErrorInfo1Rest;
+import org.eclipse.microprofile.faulttolerance.exceptions.TimeoutException;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -17,6 +19,7 @@ import java.util.Map;
 import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.validation.ValidationException;
+import javax.ws.rs.NotSupportedException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -41,14 +44,21 @@ public class CustomExceptionMapperImpl implements CustomExceptionMapper {
         // it is inserted first.
         Map<Class<? extends Exception>, Integer> map = new LinkedHashMap<>();
 
-        map.put(RegistryNotFoundException.class, HTTP_NOT_FOUND);
-        map.put(RegistryDeploymentNotFoundException.class, HTTP_NOT_FOUND);
-
         map.put(DateTimeParseException.class, HTTP_BAD_REQUEST);
         map.put(ValidationException.class, HTTP_BAD_REQUEST);
         map.put(JsonParseException.class, HTTP_BAD_REQUEST);
 
+        map.put(NotAuthorizedException.class, HTTP_FORBIDDEN);
+
+        map.put(RegistryNotFoundException.class, HTTP_NOT_FOUND);
+        map.put(RegistryDeploymentNotFoundException.class, HTTP_NOT_FOUND);
+
         map.put(RegistryDeploymentStorageConflictException.class, HTTP_CONFLICT);
+
+        map.put(NotSupportedException.class, HTTP_UNSUPPORTED_TYPE);
+
+        map.put(TimeoutException.class, HTTP_UNAVAILABLE);
+        map.put(InterruptedException.class, HTTP_UNAVAILABLE);
 
         CODE_MAP = Collections.unmodifiableMap(map);
     }

@@ -14,6 +14,7 @@ import java.util.TreeMap;
  * Do not define internal errors, unless adding additional logic to prevent listing them.
  * Do not reuse error IDs.
  * Use only '%s' in the format string.
+ * Make sure the resulting HTTP error codes are listed in the OpenAPI spec.
  *
  * @author Jakub Senko <jsenko@redhat.com>
  */
@@ -37,12 +38,14 @@ public enum UserErrorCode {
 
     ERROR_ERROR_TYPE_NOT_FOUND(8, "Error type with id='%s' not found", 1),
 
-    ERROR_EVAL_INSTANCES_NOT_ALLOWED(12, "Evaluation instances not allowed.", 0),
-    ERROR_EVAL_INSTANCES_EXCEEDED(13, "User already has the maximum number of allowed Evaluation instances.", 0),
-    ERROR_TOO_MANY_INSTANCES(14, "Total (global) number of instances exhausted.", 0),
+    ERROR_EVAL_INSTANCES_NOT_ALLOWED(12, "Evaluation instances not allowed", 0),
+    ERROR_EVAL_INSTANCES_EXCEEDED(13, "User already has the maximum number of allowed Evaluation instances", 0),
+    ERROR_TOO_MANY_INSTANCES(14, "Total (global) number of instances exhausted", 0),
+
+    ERROR_NOT_AUTHORIZED(15, "User is not authorized to perform the operation", 0),
     ;
 
-    // Next ID: 15
+    // Next ID: 16
 
     public static final String ERROR_CODE_PREFIX = "SRS-MGMT-";
 
