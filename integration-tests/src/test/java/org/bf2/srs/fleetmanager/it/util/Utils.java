@@ -87,9 +87,9 @@ public class Utils {
             //         }
             //     }
             // }
-            return new TenantManagerClientImpl(tm.getTenantManagerUrl(), Collections.emptyMap(), auth);
+            return new TenantManagerClientImpl(Vertx.vertx(), tm.getTenantManagerUrl(), Collections.emptyMap(), auth);
         } else {
-            return new TenantManagerClientImpl(tm.getTenantManagerUrl());
+            return new TenantManagerClientImpl(Vertx.vertx(), tm.getTenantManagerUrl(), Collections.emptyMap(), null);
         }
     }
 
