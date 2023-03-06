@@ -7,20 +7,12 @@ import org.bf2.srs.fleetmanager.execution.manager.Task;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentStatusValue;
-import org.bf2.srs.fleetmanager.rest.service.model.RegistryInstanceTypeValueDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
 import org.bf2.srs.fleetmanager.common.storage.RegistryNotFoundException;
 import org.bf2.srs.fleetmanager.common.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.common.storage.RegistryStorageConflictException;
 import org.bf2.srs.fleetmanager.common.storage.model.RegistryData;
 import org.bf2.srs.fleetmanager.common.storage.model.RegistryDeploymentData;
-import org.bf2.srs.fleetmanager.spi.ams.AccountManagementServiceException;
-import org.bf2.srs.fleetmanager.spi.ams.ResourceLimitReachedException;
-import org.bf2.srs.fleetmanager.spi.ams.TermsRequiredException;
-import org.bf2.srs.fleetmanager.spi.common.EvalInstancesNotAllowedException;
-import org.bf2.srs.fleetmanager.spi.common.TooManyEvalInstancesForUserException;
-import org.bf2.srs.fleetmanager.spi.common.model.AccountInfo;
-import org.bf2.srs.fleetmanager.spi.common.model.ResourceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,17 +52,16 @@ public class ScheduleRegistryWorker extends AbstractWorker {
         return SCHEDULE_REGISTRY_T.name().equals(task.getType());
     }
 
-    @Override
     @Transactional
-    public void execute(Task aTask, WorkerContext ctl) throws RegistryStorageConflictException, EvalInstancesNotAllowedException, AccountManagementServiceException, TooManyEvalInstancesForUserException, TermsRequiredException, ResourceLimitReachedException {
+    @Override
+    public void execute(Task aTask, WorkerContext ctl) throws RegistryStorageConflictException {
         ScheduleRegistryTask task = (ScheduleRegistryTask) aTask;
-        Optional<RegistryData> registryOptional = storage.getRegistryById(task.getRegistryId());
 
+        Optional<RegistryData> registryOptional = storage.getRegistryById(task.getRegistryId());
         if (registryOptional.isEmpty()) {
             // NOTE: Failure point 1
             ctl.retry();
         }
-
         RegistryData registry = registryOptional.get();
 
         List<RegistryDeploymentData> eligibleRegistryDeployments = storage.getAllRegistryDeployments().stream()
@@ -105,12 +96,8 @@ public class ScheduleRegistryWorker extends AbstractWorker {
 
         // SUCCESS STATE
         Optional<RegistryData> registryOpt = storage.getRegistryById(task.getRegistryId());
-        if (registryOpt.isPresent() && registryOpt.get().getRegistryDeployment() != null && registryOpt.get().getStatus().equals(RegistryStatusValueDto.PROVISIONING.value()))
+        if (registryOpt.isPresent() && registryOpt.get().getRegistryDeployment() != null)
             return;
-
-        if (registryOpt.isPresent()) {
-            log.info("Registry data {} to be deleted", registryOpt);
-        }
 
         // The only thing to handle is if we were able to schedule but storage does not work
         // In that case, the only thing to do is to just try deleting the registry.

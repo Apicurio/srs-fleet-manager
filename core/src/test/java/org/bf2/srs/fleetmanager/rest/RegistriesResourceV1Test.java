@@ -26,24 +26,18 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
-import java.util.List;
 
 import static io.restassured.RestAssured.given;
-import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
-import static java.net.HttpURLConnection.HTTP_CONFLICT;
-import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
-import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
-import static java.net.HttpURLConnection.HTTP_OK;
-import static java.net.HttpURLConnection.HTTP_UNSUPPORTED_TYPE;
+import static java.net.HttpURLConnection.*;
 import static java.util.stream.Collectors.toList;
+import static org.bf2.srs.fleetmanager.util.TestUtil.delay;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Jakub Senko <jsenko@redhat.com>
@@ -55,7 +49,6 @@ public class RegistriesResourceV1Test {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     public static final String BASE = "/api/serviceregistry_mgmt/v1/registries";
-    public static final String BASE_DEPLOYMENTS = "/api/serviceregistry_mgmt/v1/admin/registryDeployments";
 
     @Inject
     TenantManagerService tms;
@@ -69,10 +62,13 @@ public class RegistriesResourceV1Test {
     @Inject
     OperationContext opCtx;
 
+    @Inject
+    JobWrapper jobWrapper;
+
     @BeforeAll
-    static void beforeAll() {
+    void beforeAll() {
         // Exclude test worker
-        JobWrapper.getWorkerExclusions().add(DeprovisionRegistryTestWorker.class);
+        jobWrapper.getWorkerExclusions().add(DeprovisionRegistryTestWorker.class);
     }
 
     @BeforeEach
@@ -87,33 +83,10 @@ public class RegistriesResourceV1Test {
         opCtx.loadNewContextData();
     }
 
-
     @Test
-    void createValidRegistry() {
+    void testCreateRegistry() {
         var deployment = new RegistryDeploymentCreateRest();
-        deployment.setName("createValidRegistry");
-        deployment.setTenantManagerUrl("https://tenant-manager");
-        deployment.setRegistryDeploymentUrl("https://registry");
-
-        given()
-                .log().all()
-                .when().contentType(ContentType.JSON).body(deployment).post("/api/serviceregistry_mgmt/v1/admin/registryDeployments")
-                .then().statusCode(HTTP_OK);
-
-        var registryInstance = new RegistryCreate();
-        registryInstance.setName("a");
-
-        given()
-                .log().all()
-                .when().contentType(ContentType.JSON).body(registryInstance).post(BASE)
-                .then().statusCode(HTTP_OK)
-                .extract().as(Registry.class);
-    }
-
-    @Test
-    void testCreateRegistry() throws InterruptedException {
-        var deployment = new RegistryDeploymentCreateRest();
-        deployment.setName("testCreateRegistry");
+        deployment.setName("a");
         deployment.setTenantManagerUrl("https://tenant-manager");
         deployment.setRegistryDeploymentUrl("https://registry");
 
@@ -184,7 +157,7 @@ public class RegistriesResourceV1Test {
     }
 
     @Test
-    void testGetRegistries() throws InterruptedException {
+    void testGetRegistries() {
         var res1 = given()
                 .log().all()
                 .when().get(BASE)
@@ -197,7 +170,7 @@ public class RegistriesResourceV1Test {
         assertThat(res1.getTotal(), equalTo(0));
 
         var deployment = new RegistryDeploymentCreateRest();
-        deployment.setName("testGetRegistries");
+        deployment.setName("a");
         deployment.setTenantManagerUrl("https://tenant-manager");
         deployment.setRegistryDeploymentUrl("https://registry");
 
@@ -254,7 +227,7 @@ public class RegistriesResourceV1Test {
     }
 
     @Test
-    void testGetRegistry() throws InterruptedException {
+    void testGetRegistry() {
         // Error 404
         given()
                 .log().all()
@@ -262,7 +235,7 @@ public class RegistriesResourceV1Test {
                 .then().statusCode(HTTP_NOT_FOUND).body("code", equalTo("SRS-MGMT-2")); // TODO
 
         var deployment = new RegistryDeploymentCreateRest();
-        deployment.setName("testGetRegistry");
+        deployment.setName("a");
         deployment.setTenantManagerUrl("https://tenant-manager");
         deployment.setRegistryDeploymentUrl("https://registry");
 
@@ -289,7 +262,7 @@ public class RegistriesResourceV1Test {
                     .extract().as(Registry.class);
         }).collect(toList());
 
-        regs = TestUtil.waitForReady(regs);
+        delay(3 * 1000);
 
         regs.forEach(reg -> {
 
@@ -319,8 +292,8 @@ public class RegistriesResourceV1Test {
             if (apiReg.getStatus() == RegistryStatusValue.provisioning) {
                 assertEquals(reg.getRegistryUrl() /* null */, apiReg.getRegistryUrl());
             } else {
-                assertTrue(List.of("standard", "eval").contains(reg.getInstanceType().value()));
                 assertEquals(RegistryStatusValue.ready, apiReg.getStatus());
+                assertTrue(List.of("standard", "eval").contains(apiReg.getInstanceType().value()));
                 assertTrue(apiReg.getRegistryUrl().startsWith(deployment.getRegistryDeploymentUrl()));
             }
 
@@ -346,8 +319,8 @@ public class RegistriesResourceV1Test {
             if (list.getItems().get(0).getStatus() == RegistryStatusValue.provisioning) {
                 assertEquals(reg.getRegistryUrl() /* null */, list.getItems().get(0).getRegistryUrl());
             } else {
-                assertEquals(reg.getInstanceType(), list.getItems().get(0).getInstanceType());
                 assertEquals(RegistryStatusValue.ready, list.getItems().get(0).getStatus());
+                assertEquals(apiReg.getInstanceType(), list.getItems().get(0).getInstanceType());
                 assertTrue(list.getItems().get(0).getRegistryUrl().startsWith(deployment.getRegistryDeploymentUrl()));
             }
         });
@@ -383,7 +356,7 @@ public class RegistriesResourceV1Test {
     }
 
     @AfterAll
-    static void afterAll() {
-        JobWrapper.getWorkerExclusions().clear();
+    void afterAll() {
+        jobWrapper.getWorkerExclusions().clear();
     }
 }

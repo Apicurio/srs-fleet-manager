@@ -14,7 +14,7 @@ import org.bf2.srs.fleetmanager.common.storage.model.RegistryData;
 import org.bf2.srs.fleetmanager.common.storage.util.QueryConfig;
 import org.bf2.srs.fleetmanager.common.storage.util.QueryResult;
 import org.bf2.srs.fleetmanager.common.storage.util.SearchQuery;
-import org.bf2.srs.fleetmanager.execution.impl.tasks.provision.ProvisionSubscriptionTask;
+import org.bf2.srs.fleetmanager.execution.impl.tasks.provision.CreateSubscriptionTask;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.deprovision.StartDeprovisionRegistryTask;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.rest.service.RegistryService;
@@ -40,7 +40,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
-
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
@@ -79,6 +78,7 @@ public class RegistryServiceImpl implements RegistryService {
             throws RegistryStorageConflictException, TermsRequiredException, ResourceLimitReachedException,
             EvalInstancesNotAllowedException, TooManyEvalInstancesForUserException, TooManyInstancesException,
             AccountManagementServiceException {
+
         var accountInfo = authService.extractAccountInfo();
 
         // Make sure we have more instances available (max capacity not yet reached).
@@ -96,7 +96,7 @@ public class RegistryServiceImpl implements RegistryService {
 
         storage.createOrUpdateRegistry(registryData);
 
-        tasks.submit(ProvisionSubscriptionTask.builder()
+        tasks.submit(CreateSubscriptionTask.builder()
                 .registryId(registryData.getId())
                 .accountInfo(accountInfo)
                 .build());

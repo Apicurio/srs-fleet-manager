@@ -51,12 +51,12 @@ class RegistryDeploymentsResourceV1Test {
     @Test
     void testCreateRegistryDeployment() {
         var valid1 = new RegistryDeploymentCreateRest();
-        valid1.setName(UUID.randomUUID().toString());
+        valid1.setName("a");
         valid1.setTenantManagerUrl("https://aaaa:443");
         valid1.setRegistryDeploymentUrl("https://fooregistry");
 
         var valid2 = new RegistryDeploymentCreateRest();
-        valid2.setName(UUID.randomUUID().toString());
+        valid2.setName("b");
         valid2.setTenantManagerUrl("https://bbbb:443");
         valid2.setRegistryDeploymentUrl("https://bazregistry");
 
