@@ -26,18 +26,24 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import java.util.List;
 
 import static io.restassured.RestAssured.given;
-import static java.net.HttpURLConnection.*;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static java.net.HttpURLConnection.HTTP_CONFLICT;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
+import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.HTTP_UNSUPPORTED_TYPE;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Jakub Senko <jsenko@redhat.com>
@@ -49,6 +55,7 @@ public class RegistriesResourceV1Test {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     public static final String BASE = "/api/serviceregistry_mgmt/v1/registries";
+    public static final String BASE_DEPLOYMENTS = "/api/serviceregistry_mgmt/v1/admin/registryDeployments";
 
     @Inject
     TenantManagerService tms;
@@ -62,13 +69,10 @@ public class RegistriesResourceV1Test {
     @Inject
     OperationContext opCtx;
 
-    @Inject
-    JobWrapper jobWrapper;
-
     @BeforeAll
-    void beforeAll() {
+    static void beforeAll() {
         // Exclude test worker
-        jobWrapper.getWorkerExclusions().add(DeprovisionRegistryTestWorker.class);
+        JobWrapper.getWorkerExclusions().add(DeprovisionRegistryTestWorker.class);
     }
 
     @BeforeEach
@@ -83,8 +87,31 @@ public class RegistriesResourceV1Test {
         opCtx.loadNewContextData();
     }
 
+
     @Test
-    void testCreateRegistry() {
+    void createValidRegistry() {
+        var deployment = new RegistryDeploymentCreateRest();
+        deployment.setName("createValidRegistry");
+        deployment.setTenantManagerUrl("https://tenant-manager");
+        deployment.setRegistryDeploymentUrl("https://registry");
+
+        given()
+                .log().all()
+                .when().contentType(ContentType.JSON).body(deployment).post("/api/serviceregistry_mgmt/v1/admin/registryDeployments")
+                .then().statusCode(HTTP_OK);
+
+        var registryInstance = new RegistryCreate();
+        registryInstance.setName("a");
+
+        given()
+                .log().all()
+                .when().contentType(ContentType.JSON).body(registryInstance).post(BASE)
+                .then().statusCode(HTTP_OK)
+                .extract().as(Registry.class);
+    }
+
+    @Test
+    void testCreateRegistry() throws InterruptedException {
         var deployment = new RegistryDeploymentCreateRest();
         deployment.setName("testCreateRegistry");
         deployment.setTenantManagerUrl("https://tenant-manager");
@@ -157,7 +184,7 @@ public class RegistriesResourceV1Test {
     }
 
     @Test
-    void testGetRegistries() {
+    void testGetRegistries() throws InterruptedException {
         var res1 = given()
                 .log().all()
                 .when().get(BASE)
@@ -187,13 +214,13 @@ public class RegistriesResourceV1Test {
         valid2.setName("bbbb");
 
         // Create
-        List<Registry> registries = Stream.of(valid1, valid2).map(d -> given()
-                .log().all()
-                .when().contentType(ContentType.JSON).body(d).post(BASE)
-                .then().statusCode(HTTP_OK)
-                .extract().as(Registry.class)).collect(toList());
-
-        registries = TestUtil.waitForReady(registries);
+        List<Registry> registries = List.of(valid1, valid2).stream().map(d -> {
+            return given()
+                    .log().all()
+                    .when().contentType(ContentType.JSON).body(d).post(BASE)
+                    .then().statusCode(HTTP_OK)
+                    .extract().as(Registry.class);
+        }).collect(toList());
 
         List<Registry> actualRegistries = given()
                 .log().all()
@@ -204,6 +231,8 @@ public class RegistriesResourceV1Test {
 
         assertThat(actualRegistries.stream().map(Registry::getId).collect(toList()),
                 containsInAnyOrder(registries.stream().map(Registry::getId).toArray()));
+
+        registries = TestUtil.waitForReady(registries);
 
         // Delete
         registries.forEach(r -> {
@@ -225,7 +254,7 @@ public class RegistriesResourceV1Test {
     }
 
     @Test
-    void testGetRegistry() {
+    void testGetRegistry() throws InterruptedException {
         // Error 404
         given()
                 .log().all()
@@ -252,11 +281,13 @@ public class RegistriesResourceV1Test {
         valid2.setDescription("hello world");
 
         // Create
-        List<Registry> regs = Stream.of(valid1, valid2).map(d -> given()
-                .log().all()
-                .when().contentType(ContentType.JSON).body(d).post(BASE)
-                .then().statusCode(HTTP_OK)
-                .extract().as(Registry.class)).collect(toList());
+        List<Registry> regs = List.of(valid1, valid2).stream().map(d -> {
+            return given()
+                    .log().all()
+                    .when().contentType(ContentType.JSON).body(d).post(BASE)
+                    .then().statusCode(HTTP_OK)
+                    .extract().as(Registry.class);
+        }).collect(toList());
 
         regs = TestUtil.waitForReady(regs);
 
@@ -344,6 +375,7 @@ public class RegistriesResourceV1Test {
 
     @Test
     void testDeleteRegistry() {
+
         given()
                 .log().all()
                 .when().delete(BASE + "/1000")
@@ -351,7 +383,7 @@ public class RegistriesResourceV1Test {
     }
 
     @AfterAll
-    void afterAll() {
-        jobWrapper.getWorkerExclusions().clear();
+    static void afterAll() {
+        JobWrapper.getWorkerExclusions().clear();
     }
 }
