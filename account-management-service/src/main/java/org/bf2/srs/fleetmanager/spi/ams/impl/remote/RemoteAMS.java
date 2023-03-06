@@ -104,7 +104,26 @@ public class RemoteAMS implements AccountManagementService {
     @Override
     public String createResource(AccountInfo accountInfo, ResourceType resourceType) throws TermsRequiredException, ResourceLimitReachedException, AccountManagementServiceException {
         try {
-            checkTerms(accountInfo);
+            boolean termsAccepted = false;
+            String siteCode = amsProperties.termsSiteCode;
+            List<String> eventCodes = amsProperties.termsEventCode;
+
+            for (String eventCode : eventCodes) {
+                final TermsReview termsReview = new TermsReview();
+                termsReview.setAccountUsername(accountInfo.getAccountUsername());
+                termsReview.setSiteCode(siteCode);
+                termsReview.setEventCode(eventCode);
+
+                // Check if the user has accepted the Terms & Conditions
+                final ResponseTermsReview responseTermsReview = restClient.termsReview(termsReview);
+                boolean accepted = !responseTermsReview.getTermsRequired();
+                // Terms are accepted if *any* of the T&C checks come back as "accepted"
+                termsAccepted = termsAccepted || accepted;
+            }
+
+            if (!termsAccepted) {
+                throw new TermsRequiredException(accountInfo.getAccountUsername());
+            }
 
             // If we're creating an eval instance, don't bother invoking AMS - return a null subscriptionId
             // TODO Workaround: Remove this once we have RHOSRTrial working.
@@ -156,29 +175,6 @@ public class RemoteAMS implements AccountManagementService {
         } catch (AccountManagementSystemClientException ex) {
             ExceptionConvert.convert(ex);
             return null; // Never returns
-        }
-    }
-
-    private void checkTerms(AccountInfo accountInfo) throws TermsRequiredException {
-        boolean termsAccepted = false;
-        String siteCode = amsProperties.termsSiteCode;
-        List<String> eventCodes = amsProperties.termsEventCode;
-
-        for (String eventCode : eventCodes) {
-            final TermsReview termsReview = new TermsReview();
-            termsReview.setAccountUsername(accountInfo.getAccountUsername());
-            termsReview.setSiteCode(siteCode);
-            termsReview.setEventCode(eventCode);
-
-            // Check if the user has accepted the Terms & Conditions
-            final ResponseTermsReview responseTermsReview = restClient.termsReview(termsReview);
-            boolean accepted = !responseTermsReview.getTermsRequired();
-            // Terms are accepted if *any* of the T&C checks come back as "accepted"
-            termsAccepted = termsAccepted || accepted;
-        }
-
-        if (!termsAccepted) {
-            throw new TermsRequiredException(accountInfo.getAccountUsername());
         }
     }
 

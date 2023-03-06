@@ -8,7 +8,7 @@ package org.bf2.srs.fleetmanager.execution.impl.workers;
  */
 public enum WorkerType {
 
-    PROVISION_SUBSCRIPTION_W,
+    CREATE_SUBSCRIPTION_W,
     SCHEDULE_REGISTRY_W,
     PROVISION_REGISTRY_TENANT_W,
     REGISTRY_HEARTBEAT_W,

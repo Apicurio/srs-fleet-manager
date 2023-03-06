@@ -60,7 +60,7 @@ public class JobWrapper implements Job {
     @ConfigProperty(name = "srs-fleet-manager.max-retries-delay-seconds", defaultValue = "600")
     Integer maxRetryDelaySec;
 
-    private static final Set<Class<? extends Worker>> workerExclusions = ConcurrentHashMap.newKeySet();
+    private Set<Class<? extends Worker>> workerExclusions = ConcurrentHashMap.newKeySet();
 
     @Override
     @SneakyThrows
@@ -239,7 +239,7 @@ public class JobWrapper implements Job {
     /**
      * Testing support, so we can e.g. replace a specific worker with another.
      */
-    public static Set<Class<? extends Worker>> getWorkerExclusions() {
+    public Set<Class<? extends Worker>> getWorkerExclusions() {
         return workerExclusions;
     }
 }

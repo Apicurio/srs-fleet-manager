@@ -61,7 +61,7 @@ public class Registry {
      * "accepted": Registry status when accepted for processing.
      *
      * "preparing": Registry status when accepted for and the first requests (e.g. terms checks) are being made.
-     * 
+     *
      * "provisioning": Registry status when provisioning a new instance.
      * 
      * "ready": Registry status when ready for use.

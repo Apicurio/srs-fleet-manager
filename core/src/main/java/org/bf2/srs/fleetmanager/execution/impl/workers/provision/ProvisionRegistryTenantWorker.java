@@ -87,7 +87,6 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
         if (registryOptional.isEmpty()) {
             ctl.retry();
         }
-
         RegistryData registry = registryOptional.get();
 
         RegistryDeploymentData registryDeployment = registry.getRegistryDeployment();
@@ -149,8 +148,8 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
         //ctl.delay(() -> tasks.submit(RegistryHeartbeatTask.builder().registryId(registry.getId()).build()));
     }
 
-    @Override
     @Transactional
+    @Override
     public void finallyExecute(Task aTask, WorkerContext ctl, Optional<Exception> error) throws RegistryNotFoundException, RegistryStorageConflictException, SubscriptionNotFoundServiceException, AccountManagementServiceException, TenantManagerServiceException {
 
         ProvisionRegistryTenantTask task = (ProvisionRegistryTenantTask) aTask;

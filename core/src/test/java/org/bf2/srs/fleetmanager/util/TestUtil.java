@@ -4,7 +4,6 @@ import org.awaitility.Awaitility;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.Registry;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValue;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeployment;
-import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentStatus;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentStatusValue;
 import org.bf2.srs.fleetmanager.spi.tenants.TenantManagerService;
 import org.bf2.srs.fleetmanager.spi.tenants.TenantManagerServiceException;
@@ -24,12 +23,13 @@ import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.bf2.srs.fleetmanager.rest.RegistriesResourceV1Test.BASE;
-import static org.bf2.srs.fleetmanager.rest.RegistriesResourceV1Test.BASE_DEPLOYMENTS;
 
 /**
  * @author Jakub Senko <jsenko@redhat.com>
  */
 public class TestUtil {
+
+    private static final String BASE_DEPLOYMENTS = "/api/serviceregistry_mgmt/v1/admin/registryDeployments";
 
     public static void delay(long millis) {
         long diff = millis;
