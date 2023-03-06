@@ -3,6 +3,9 @@ package org.bf2.srs.fleetmanager.util;
 import org.awaitility.Awaitility;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.Registry;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValue;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeployment;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentStatus;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentStatusValue;
 import org.bf2.srs.fleetmanager.spi.tenants.TenantManagerService;
 import org.bf2.srs.fleetmanager.spi.tenants.TenantManagerServiceException;
 import org.bf2.srs.fleetmanager.spi.tenants.model.Tenant;
@@ -21,6 +24,7 @@ import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.bf2.srs.fleetmanager.rest.RegistriesResourceV1Test.BASE;
+import static org.bf2.srs.fleetmanager.rest.RegistriesResourceV1Test.BASE_DEPLOYMENTS;
 
 /**
  * @author Jakub Senko <jsenko@redhat.com>
@@ -91,10 +95,33 @@ public class TestUtil {
                             .extract().as(Registry.class);
                     return RegistryStatusValue.ready.equals(reg.getStatus());
                 }));
+
         return registries.stream().map(r -> given().log().all()
                 .when().get(BASE + "/" + r.getId())
                 .then().statusCode(HTTP_OK)
                 .extract().as(Registry.class)).collect(Collectors.toList());
+    }
+
+    public static List<RegistryDeployment> waitForDeploymentAvailable(List<Integer> deployments, int seconds) {
+        Awaitility.await("Registry ready").atMost(seconds, SECONDS).pollInterval(1, SECONDS)
+                .until(() -> deployments.stream().allMatch(r -> {
+
+                    var reg = given().log().all()
+                            .when().get(BASE_DEPLOYMENTS + "/" + r)
+                            .then().statusCode(HTTP_OK)
+                            .extract().as(RegistryDeployment.class);
+
+                    return RegistryDeploymentStatusValue.AVAILABLE.equals(reg.getStatus().getValue());
+                }));
+
+        return deployments.stream().map(r -> given().log().all()
+                .when().get(BASE_DEPLOYMENTS + "/" + r)
+                .then().statusCode(HTTP_OK)
+                .extract().as(RegistryDeployment.class)).collect(Collectors.toList());
+    }
+
+    public static List<RegistryDeployment> waitForDeploymentAvailable(List<Integer> deployments) {
+        return waitForDeploymentAvailable(deployments, 5);
     }
 
     public static List<Registry> waitForReady(List<Registry> registries) {

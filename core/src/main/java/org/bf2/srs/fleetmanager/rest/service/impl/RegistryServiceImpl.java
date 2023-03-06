@@ -46,7 +46,6 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
-import javax.transaction.Transactional;
 import javax.validation.ValidationException;
 
 import static org.bf2.srs.fleetmanager.common.operation.auditing.AuditingConstants.KEY_REGISTRY_ID;

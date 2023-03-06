@@ -108,6 +108,10 @@ public class ScheduleRegistryWorker extends AbstractWorker {
         if (registryOpt.isPresent() && registryOpt.get().getRegistryDeployment() != null && registryOpt.get().getStatus().equals(RegistryStatusValueDto.PROVISIONING.value()))
             return;
 
+        if (registryOpt.isPresent()) {
+            log.info("Registry data {} to be deleted", registryOpt);
+        }
+
         // The only thing to handle is if we were able to schedule but storage does not work
         // In that case, the only thing to do is to just try deleting the registry.
         storage.deleteRegistry(task.getRegistryId());

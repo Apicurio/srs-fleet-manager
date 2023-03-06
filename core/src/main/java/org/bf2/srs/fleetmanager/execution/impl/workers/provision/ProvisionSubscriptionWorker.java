@@ -1,22 +1,16 @@
 package org.bf2.srs.fleetmanager.execution.impl.workers.provision;
 
-import org.bf2.srs.fleetmanager.common.storage.RegistryStorageConflictException;
 import org.bf2.srs.fleetmanager.common.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.common.storage.model.RegistryData;
-import org.bf2.srs.fleetmanager.execution.impl.tasks.provision.ProvisionRegistryTenantTask;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.provision.ProvisionSubscriptionTask;
 import org.bf2.srs.fleetmanager.execution.impl.tasks.provision.ScheduleRegistryTask;
 import org.bf2.srs.fleetmanager.execution.impl.workers.AbstractWorker;
 import org.bf2.srs.fleetmanager.execution.manager.Task;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
-import org.bf2.srs.fleetmanager.rest.service.convert.ConvertRegistry;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryInstanceTypeValueDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
 import org.bf2.srs.fleetmanager.spi.ams.AccountManagementService;
-import org.bf2.srs.fleetmanager.spi.ams.AccountManagementServiceException;
-import org.bf2.srs.fleetmanager.spi.ams.ResourceLimitReachedException;
-import org.bf2.srs.fleetmanager.spi.ams.TermsRequiredException;
 import org.bf2.srs.fleetmanager.spi.common.EvalInstancesNotAllowedException;
 import org.bf2.srs.fleetmanager.spi.common.TooManyEvalInstancesForUserException;
 import org.bf2.srs.fleetmanager.spi.common.model.AccountInfo;
@@ -34,7 +28,6 @@ import static org.bf2.srs.fleetmanager.execution.impl.workers.WorkerType.PROVISI
 
 /**
  * This class MUST be thread safe. It should not contain state and inject thread safe beans only.
- *
  */
 @ApplicationScoped
 public class ProvisionSubscriptionWorker extends AbstractWorker {
@@ -84,22 +77,7 @@ public class ProvisionSubscriptionWorker extends AbstractWorker {
                 ResourceType.REGISTRY_INSTANCE_EVAL : accountManagementService.determineAllowedResourceType(accountInfo);
 
         if (resourceType == ResourceType.REGISTRY_INSTANCE_EVAL) {
-            // Are eval instances allowed?
-            if (!evalInstancesEnabled) {
-                throw new EvalInstancesNotAllowedException();
-            }
-
-            // Limit the # of eval instances per user.  Need to check storage for list of eval registry instances.
-            List<RegistryData> registriesByOwner = storage.getRegistriesByOwner(accountInfo.getAccountUsername());
-            int evalInstanceCount = 0;
-            for (RegistryData ownedRegistry : registriesByOwner) { // TODO Perform a dedicated query
-                if (RegistryInstanceTypeValueDto.EVAL.value().equals(ownedRegistry.getInstanceType())) {
-                    evalInstanceCount++;
-                }
-            }
-            if (evalInstanceCount >= maxEvalInstancesPerUser) {
-                throw new TooManyEvalInstancesForUserException();
-            }
+            checkEvalInstancesPermission(accountInfo);
         }
 
         // Try to consume some quota from AMS for the appropriate resource type (standard or eval).  If successful
@@ -116,6 +94,25 @@ public class ProvisionSubscriptionWorker extends AbstractWorker {
         storage.createOrUpdateRegistry(registry);
 
         ctl.delay(() -> tasks.submit(ScheduleRegistryTask.builder().registryId(registry.getId()).build()));
+    }
+
+    private void checkEvalInstancesPermission(AccountInfo accountInfo) throws EvalInstancesNotAllowedException, TooManyEvalInstancesForUserException {
+        // Are eval instances allowed?
+        if (!evalInstancesEnabled) {
+            throw new EvalInstancesNotAllowedException();
+        }
+
+        // Limit the # of eval instances per user.  Need to check storage for list of eval registry instances.
+        List<RegistryData> registriesByOwner = storage.getRegistriesByOwner(accountInfo.getAccountUsername());
+        int evalInstanceCount = 0;
+        for (RegistryData ownedRegistry : registriesByOwner) { // TODO Perform a dedicated query
+            if (RegistryInstanceTypeValueDto.EVAL.value().equals(ownedRegistry.getInstanceType())) {
+                evalInstanceCount++;
+            }
+        }
+        if (evalInstanceCount >= maxEvalInstancesPerUser) {
+            throw new TooManyEvalInstancesForUserException();
+        }
     }
 
     @Override
