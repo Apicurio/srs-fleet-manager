@@ -87,10 +87,11 @@ public class ScheduleRegistryWorker extends AbstractWorker {
         // NOTE: Failure point 3
         storage.createOrUpdateRegistry(registry);
 
-        ctl.delay(() -> tasks.submit(ProvisionRegistryTenantTask.builder().registryId(registry.getId()).build()));
+        tasks.submit(ProvisionRegistryTenantTask.builder().registryId(registry.getId()).build());
     }
 
     @Override
+    @Transactional
     public void finallyExecute(Task aTask, WorkerContext ctl, Optional<Exception> error) throws RegistryNotFoundException, RegistryStorageConflictException {
         ScheduleRegistryTask task = (ScheduleRegistryTask) aTask;
 
@@ -101,6 +102,9 @@ public class ScheduleRegistryWorker extends AbstractWorker {
 
         // The only thing to handle is if we were able to schedule but storage does not work
         // In that case, the only thing to do is to just try deleting the registry.
-        storage.deleteRegistry(task.getRegistryId());
+        // Remove registry entity
+        if (registryOpt.isPresent()) {
+            storage.deleteRegistry(registryOpt.get().getId());
+        }
     }
 }

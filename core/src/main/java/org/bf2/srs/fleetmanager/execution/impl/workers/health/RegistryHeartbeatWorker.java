@@ -57,13 +57,14 @@ public class RegistryHeartbeatWorker extends AbstractWorker {
             var registry = registryOptional.get();
             var status = RegistryStatusValueDto.of(registry.getStatus());
             switch (status) {
-                case ACCEPTED: {
+                case ACCEPTED:
+                case PREPARING:
+                {
                     log.warn("Unexpected status '{}'. Stopping.", status);
                     ctl.stop();
                     return; // Unreachable
                 }
                 case PROVISIONING:
-                case PREPARING:
                 case READY: {
                     var tmc = Utils.createTenantManagerConfig(registry.getRegistryDeployment());
                     boolean isAvailable = tms.pingTenant(tmc, registry.getId());
