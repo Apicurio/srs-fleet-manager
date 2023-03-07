@@ -26,6 +26,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.List;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -33,7 +34,7 @@ import javax.transaction.Transactional;
 import static io.restassured.RestAssured.given;
 import static java.net.HttpURLConnection.*;
 import static java.util.stream.Collectors.toList;
-import static org.bf2.srs.fleetmanager.util.TestUtil.delay;
+import static org.bf2.srs.fleetmanager.util.TestUtil.waitForDeploymentAvailable;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
@@ -95,6 +96,8 @@ public class RegistriesResourceV1Test {
                 .when().contentType(ContentType.JSON).body(deployment).post("/api/serviceregistry_mgmt/v1/admin/registryDeployments")
                 .then().statusCode(HTTP_OK)
                 .extract().as(RegistryDeploymentRest.class).getId();
+
+        waitForDeploymentAvailable(Collections.singletonList(deploymentId));
 
         var valid1 = new RegistryCreate();
         valid1.setName("a");
@@ -180,6 +183,8 @@ public class RegistriesResourceV1Test {
                 .then().statusCode(HTTP_OK)
                 .extract().as(RegistryDeploymentRest.class).getId();
 
+        waitForDeploymentAvailable(Collections.singletonList(deploymentId));
+
         var valid1 = new RegistryCreate();
         valid1.setName("a");
 
@@ -245,6 +250,8 @@ public class RegistriesResourceV1Test {
                 .then().statusCode(HTTP_OK)
                 .extract().as(RegistryDeploymentRest.class).getId();
 
+        waitForDeploymentAvailable(Collections.singletonList(deploymentId));
+
         var valid1 = new RegistryCreate();
         valid1.setName("a");
         valid1.setDescription("foo");
@@ -262,7 +269,7 @@ public class RegistriesResourceV1Test {
                     .extract().as(Registry.class);
         }).collect(toList());
 
-        delay(3 * 1000);
+        regs = TestUtil.waitForReady(regs);
 
         regs.forEach(reg -> {
 
@@ -324,8 +331,6 @@ public class RegistriesResourceV1Test {
                 assertTrue(list.getItems().get(0).getRegistryUrl().startsWith(deployment.getRegistryDeploymentUrl()));
             }
         });
-
-        regs = TestUtil.waitForReady(regs);
 
         // Delete
         regs.forEach(reg -> {
