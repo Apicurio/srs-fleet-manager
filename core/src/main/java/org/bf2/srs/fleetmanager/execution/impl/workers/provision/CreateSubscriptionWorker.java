@@ -92,13 +92,12 @@ public class CreateSubscriptionWorker extends AbstractWorker {
             RegistryInstanceTypeValueDto instanceType = resourceTypeToInstanceType(resourceType);
             registry.setSubscriptionId(subscriptionId);
             registry.setInstanceType(instanceType.value());
-
-            // NOTE: Failure point 2
-            storage.createOrUpdateRegistry(registry);
         }
 
+        // NOTE: Failure point 2
         registry.setStatus(RegistryStatusValueDto.ACCEPTED.value());
-        tasks.submit(ScheduleRegistryTask.builder().registryId(registry.getId()).build());
+        storage.createOrUpdateRegistry(registry);
+        ctl.delay(() -> tasks.submit(ScheduleRegistryTask.builder().registryId(registry.getId()).build()));
     }
 
     private ResourceType determineResourceType(AccountInfo accountInfo) throws AccountManagementServiceException, EvalInstancesNotAllowedException, TooManyEvalInstancesForUserException {
