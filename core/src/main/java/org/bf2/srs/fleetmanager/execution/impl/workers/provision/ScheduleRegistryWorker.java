@@ -13,6 +13,9 @@ import org.bf2.srs.fleetmanager.common.storage.ResourceStorage;
 import org.bf2.srs.fleetmanager.common.storage.RegistryStorageConflictException;
 import org.bf2.srs.fleetmanager.common.storage.model.RegistryData;
 import org.bf2.srs.fleetmanager.common.storage.model.RegistryDeploymentData;
+import org.bf2.srs.fleetmanager.spi.ams.AccountManagementService;
+import org.bf2.srs.fleetmanager.spi.ams.AccountManagementServiceException;
+import org.bf2.srs.fleetmanager.spi.ams.SubscriptionNotFoundServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +45,9 @@ public class ScheduleRegistryWorker extends AbstractWorker {
 
     @Inject
     TaskManager tasks;
+
+    @Inject
+    AccountManagementService accountManagementService;
 
     public ScheduleRegistryWorker() {
         super(SCHEDULE_REGISTRY_W);
@@ -87,24 +93,33 @@ public class ScheduleRegistryWorker extends AbstractWorker {
         // NOTE: Failure point 3
         storage.createOrUpdateRegistry(registry);
 
-        tasks.submit(ProvisionRegistryTenantTask.builder().registryId(registry.getId()).build());
+        ctl.delay(() -> tasks.submit(ProvisionRegistryTenantTask.builder().registryId(registry.getId()).build()));
     }
 
     @Override
     @Transactional
-    public void finallyExecute(Task aTask, WorkerContext ctl, Optional<Exception> error) throws RegistryNotFoundException, RegistryStorageConflictException {
+    public void finallyExecute(Task aTask, WorkerContext ctl, Optional<Exception> error) throws RegistryNotFoundException, RegistryStorageConflictException, SubscriptionNotFoundServiceException, AccountManagementServiceException {
         ScheduleRegistryTask task = (ScheduleRegistryTask) aTask;
 
+        RegistryData registry = storage.getRegistryById(task.getRegistryId()).orElse(null);
+        RegistryDeploymentData registryDeployment = null;
+
+        if (registry != null)
+            registryDeployment = registry.getRegistryDeployment();
+
         // SUCCESS STATE
-        Optional<RegistryData> registryOpt = storage.getRegistryById(task.getRegistryId());
-        if (registryOpt.isPresent() && registryOpt.get().getRegistryDeployment() != null)
+        if (registry != null && registry.getRegistryDeployment() != null)
             return;
 
-        // The only thing to handle is if we were able to schedule but storage does not work
-        // In that case, the only thing to do is to just try deleting the registry.
+        //Cleanup orphan susbcription, if it's null, it's not needed since it will likely be an eval instance
+        if (registry != null && registryDeployment != null && registry.getSubscriptionId() != null) {
+            accountManagementService.deleteSubscription(registry.getSubscriptionId());
+        }
+
         // Remove registry entity
-        if (registryOpt.isPresent()) {
-            storage.deleteRegistry(registryOpt.get().getId());
+        if (registry != null) {
+            log.warn("Deleting registry data with registry {} and registry deployment {}", registry, registryDeployment);
+            storage.deleteRegistry(registry.getId());
         }
     }
 }

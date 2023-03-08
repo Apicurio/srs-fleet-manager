@@ -98,7 +98,7 @@ public class CreateSubscriptionWorker extends AbstractWorker {
         }
 
         registry.setStatus(RegistryStatusValueDto.ACCEPTED.value());
-        tasks.submit(ScheduleRegistryTask.builder().registryId(registry.getId()).build());
+        ctl.delay(() -> tasks.submit(ScheduleRegistryTask.builder().registryId(registry.getId()).build()));
     }
 
     private ResourceType determineResourceType(AccountInfo accountInfo) throws AccountManagementServiceException, EvalInstancesNotAllowedException, TooManyEvalInstancesForUserException {
@@ -127,6 +127,7 @@ public class CreateSubscriptionWorker extends AbstractWorker {
                 accountManagementService.deleteSubscription(registryOpt.get().getSubscriptionId());
                 log.warn("Returned subscription {} since something wen wrong during provisioning phase:", registryOpt.get().getSubscriptionId());
             }
+            log.warn("Deleting registry data with registry {}", registryOpt.get());
             storage.deleteRegistry(task.getRegistryId());
         }
     }

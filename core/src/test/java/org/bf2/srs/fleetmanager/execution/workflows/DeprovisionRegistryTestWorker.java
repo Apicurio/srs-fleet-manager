@@ -61,6 +61,7 @@ public class DeprovisionRegistryTestWorker extends AbstractWorker {
 
         if (registryOptional.isPresent()) {
             var registry = registryOptional.get();
+            log.warn("Deleting registry data with registry {}", registry);
             storage.deleteRegistry(registry.getId());
         } else {
             ctl.stop();

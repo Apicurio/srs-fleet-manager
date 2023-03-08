@@ -181,6 +181,7 @@ public class ProvisionRegistryTenantWorker extends AbstractWorker {
 
         // Remove registry entity
         if (registry != null) {
+            log.warn("Deleting registry data with registry {} and registry deployment {}", registry, registryDeployment);
             storage.deleteRegistry(registry.getId());
         }
     }
