@@ -90,18 +90,16 @@ public class RegistryDto extends ObjectReferenceDto {
      */
     private String subscriptionId;
 
-    /**
-     * (Required)
-     */
-    @NotNull
     @Pattern(regexp = "standard|eval")
     private RegistryInstanceTypeValueDto instanceType;
+
+    private String failedReason;
 
     @Builder
     public RegistryDto(@NotNull String id,
                        @NotNull RegistryStatusValueDto status, @NotEmpty String registryUrl, String name, @NotNull String owner,
                        Long registryDeploymentId, Instant createdAt, Instant updatedAt, String description, @NotNull String orgId,
-                       String subscriptionId, @NotNull RegistryInstanceTypeValueDto instanceType) {
+                       String subscriptionId, RegistryInstanceTypeValueDto instanceType, String failedReason) {
         super(id, Kind.REGISTRY);
         this.status = status;
         this.registryUrl = registryUrl;
@@ -114,6 +112,7 @@ public class RegistryDto extends ObjectReferenceDto {
         this.orgId = orgId;
         this.subscriptionId = subscriptionId;
         this.instanceType = instanceType;
+        this.failedReason = failedReason;
     }
 
     @Override

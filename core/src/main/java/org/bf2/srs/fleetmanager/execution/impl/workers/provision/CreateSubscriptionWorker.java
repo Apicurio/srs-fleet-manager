@@ -82,6 +82,7 @@ public class CreateSubscriptionWorker extends AbstractWorker {
 
         //Only try create a subscription if there is account information attached to the task.
         boolean failedProvisioning = false;
+        String provisioningError = null;
         if (task.getAccountInfo() != null) {
 
             // Figure out if we are going to create a standard or eval instance.
@@ -95,7 +96,8 @@ public class CreateSubscriptionWorker extends AbstractWorker {
                 registry.setSubscriptionId(subscriptionId);
             } catch (ResourceLimitReachedException rlre) {
                 log.warn("Resource limit reached:", rlre);
-                 failedProvisioning = true;
+                failedProvisioning = true;
+                provisioningError = rlre.getMessage();
             }
 
             // Convert to registry data
@@ -106,6 +108,7 @@ public class CreateSubscriptionWorker extends AbstractWorker {
         // NOTE: Failure point 2
         if (failedProvisioning) {
             registry.setStatus(RegistryStatusValueDto.FAILED.value());
+            registry.setFailedReason(provisioningError);
             storage.createOrUpdateRegistry(registry);
         } else {
             //We only try to schedule the instance if the subscription has been successfully created.

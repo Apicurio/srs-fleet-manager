@@ -97,4 +97,7 @@ public class RegistryData {
 
     @Column(name = "instance_type")
     private String instanceType;
+
+    @Column(name = "failed_reason")
+    private String failedReason;
 }
