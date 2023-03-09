@@ -68,7 +68,8 @@ public class Registry {
      * 
      * "failed": Registry status when the provisioning failed. When removing a Registry instance in this state,
      * the status transitions directly to "deleting".
-     * 
+     *
+     *
      * 
      * "deprovision": Registry status when accepted for deprovisioning.
      * 

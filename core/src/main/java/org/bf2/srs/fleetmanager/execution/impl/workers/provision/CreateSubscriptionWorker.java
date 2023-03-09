@@ -8,10 +8,12 @@ import org.bf2.srs.fleetmanager.execution.impl.workers.AbstractWorker;
 import org.bf2.srs.fleetmanager.execution.manager.Task;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
+import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValue;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryInstanceTypeValueDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
 import org.bf2.srs.fleetmanager.spi.ams.AccountManagementService;
 import org.bf2.srs.fleetmanager.spi.ams.AccountManagementServiceException;
+import org.bf2.srs.fleetmanager.spi.ams.ResourceLimitReachedException;
 import org.bf2.srs.fleetmanager.spi.common.EvalInstancesNotAllowedException;
 import org.bf2.srs.fleetmanager.spi.common.TooManyEvalInstancesForUserException;
 import org.bf2.srs.fleetmanager.spi.common.model.AccountInfo;
@@ -78,7 +80,8 @@ public class CreateSubscriptionWorker extends AbstractWorker {
         AccountInfo accountInfo = task.getAccountInfo();
         RegistryData registry = registryOptional.get();
 
-        //Only create a subscription if there is account information attached to the task.
+        //Only try create a subscription if there is account information attached to the task.
+        boolean failedProvisioning = false;
         if (task.getAccountInfo() != null) {
 
             // Figure out if we are going to create a standard or eval instance.
@@ -86,18 +89,30 @@ public class CreateSubscriptionWorker extends AbstractWorker {
 
             // Try to consume some quota from AMS for the appropriate resource type (standard or eval).  If successful
             // we'll get back a subscriptionId - if not we'll throw an exception.
-            String subscriptionId = accountManagementService.createResource(accountInfo, resourceType);
+
+            try {
+                String subscriptionId = accountManagementService.createResource(accountInfo, resourceType);
+                registry.setSubscriptionId(subscriptionId);
+            } catch (ResourceLimitReachedException rlre) {
+                log.warn("Resource limit reached:", rlre);
+                 failedProvisioning = true;
+            }
 
             // Convert to registry data
             RegistryInstanceTypeValueDto instanceType = resourceTypeToInstanceType(resourceType);
-            registry.setSubscriptionId(subscriptionId);
             registry.setInstanceType(instanceType.value());
         }
 
         // NOTE: Failure point 2
-        registry.setStatus(RegistryStatusValueDto.ACCEPTED.value());
-        storage.createOrUpdateRegistry(registry);
-        ctl.delay(() -> tasks.submit(ScheduleRegistryTask.builder().registryId(registry.getId()).build()));
+        if (failedProvisioning) {
+            registry.setStatus(RegistryStatusValueDto.FAILED.value());
+            storage.createOrUpdateRegistry(registry);
+        } else {
+            //We only try to schedule the instance if the subscription has been successfully created.
+            registry.setStatus(RegistryStatusValueDto.ACCEPTED.value());
+            storage.createOrUpdateRegistry(registry);
+            ctl.delay(() -> tasks.submit(ScheduleRegistryTask.builder().registryId(registry.getId()).build()));
+        }
     }
 
     private ResourceType determineResourceType(AccountInfo accountInfo) throws AccountManagementServiceException, EvalInstancesNotAllowedException, TooManyEvalInstancesForUserException {

@@ -83,7 +83,7 @@ public class RegistryHeartbeatWorker extends AbstractWorker {
                     }
                     return;
                 }
-                case FAILED: // TODO Decide based on failed_reason
+                case FAILED:
                 case REQUESTED_DEPROVISIONING:
                 case DEPROVISIONING_DELETING:
                     log.debug("Registry has '{}' status. Stopping.", status);
