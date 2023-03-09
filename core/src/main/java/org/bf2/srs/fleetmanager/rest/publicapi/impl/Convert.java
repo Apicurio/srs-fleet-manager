@@ -79,6 +79,7 @@ public class Convert {
         res.setDescription(data.getDescription());
         res.setInstanceType(convert(data.getInstanceType()));
         res.setBrowserUrl(browserUrl.replace("TENANT_ID", res.getId()));
+        res.setFailedReason(data.getFailedReason());
         return res;
     }
 

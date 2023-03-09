@@ -954,6 +954,10 @@
               },
               "instance_type": {
                 "$ref": "#/components/schemas/RegistryInstanceTypeValue"
+              },
+              "reason_failed": {
+                "description": "If the Registry instance is on a failed state, the reason why it failed.",
+                "type": "string"
               }
             }
           }
@@ -968,7 +972,8 @@
           "browserUrl": "http://localhost:8081/t/5d8e5e39-6399-4273-9db5-7c0766aeb422",
           "created_at": "2020-01-01T00:00:00Z",
           "updated_at": "2022-01-01T00:00:00Z",
-          "instance_type": "standard"
+          "instance_type": "standard",
+          "reason_failed": "ResourceLimitExceeded"
         }
       },
       "Empty": {
