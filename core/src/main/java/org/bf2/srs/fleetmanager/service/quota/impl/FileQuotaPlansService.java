@@ -26,8 +26,6 @@ import org.bf2.srs.fleetmanager.service.quota.model.OrganizationAssignment;
 import org.bf2.srs.fleetmanager.service.quota.model.QuotaPlan;
 import org.bf2.srs.fleetmanager.service.quota.model.QuotaPlansConfigList;
 import org.bf2.srs.fleetmanager.spi.tenants.TenantManagerService;
-import org.bf2.srs.fleetmanager.spi.tenants.TenantManagerServiceException;
-import org.bf2.srs.fleetmanager.spi.tenants.TenantNotFoundServiceException;
 import org.bf2.srs.fleetmanager.spi.tenants.model.TenantLimit;
 import org.bf2.srs.fleetmanager.spi.tenants.model.UpdateTenantRequest;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -41,7 +39,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -147,6 +144,7 @@ public class FileQuotaPlansService implements QuotaPlansService {
         log.info("Performing quota plan reconciliation");
         var allRegistries = storage.getAllRegistries();
         var updatedCount = 0;
+        var errorCount = 0;
         for (RegistryData registry : allRegistries) {
             var tid = registry.getId();
             var tmc = Utils.createTenantManagerConfig(registry.getRegistryDeployment());
@@ -178,12 +176,18 @@ public class FileQuotaPlansService implements QuotaPlansService {
                     updatedCount++;
                 }
 
-            } catch (TenantManagerServiceException | NoSuchElementException | TenantNotFoundServiceException e) {
-                log.warn("Could not get or update tenant " + tid + " during quota plan reconciliation", e);
+            } catch (Exception e) {
+                errorCount++;
+                log.error("Could not get or update tenant " + tid + " during quota plan reconciliation", e);
             }
         }
-        log.info("Quota plan reconciliation successful. Updated {} out of {} tenants",
-                updatedCount, allRegistries.size());
+        if (errorCount == 0) {
+            log.info("Quota plan reconciliation successful. Updated {} out of {} tenants",
+                    updatedCount, allRegistries.size());
+        } else {
+            log.warn("Quota plan reconciliation finished with {} error(s). Updated {} out of {} tenants",
+                    errorCount, updatedCount, allRegistries.size());
+        }
     }
 
     @Override
