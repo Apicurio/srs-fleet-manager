@@ -9,6 +9,7 @@ import org.bf2.srs.fleetmanager.execution.manager.Task;
 import org.bf2.srs.fleetmanager.execution.manager.TaskManager;
 import org.bf2.srs.fleetmanager.execution.manager.WorkerContext;
 import org.bf2.srs.fleetmanager.rest.publicapi.beans.RegistryStatusValue;
+import org.bf2.srs.fleetmanager.rest.service.model.RegistryDeploymentStatusValue;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryInstanceTypeValueDto;
 import org.bf2.srs.fleetmanager.rest.service.model.RegistryStatusValueDto;
 import org.bf2.srs.fleetmanager.spi.ams.AccountManagementService;
@@ -97,7 +98,7 @@ public class CreateSubscriptionWorker extends AbstractWorker {
             } catch (ResourceLimitReachedException rlre) {
                 log.warn("Resource limit reached:", rlre);
                 failedProvisioning = true;
-                provisioningError = rlre.getMessage();
+                provisioningError = rlre.getUserErrorInfo().getReason();
             }
 
             // Convert to registry data
@@ -139,13 +140,12 @@ public class CreateSubscriptionWorker extends AbstractWorker {
         if (registryOpt.isPresent() && registryOpt.get().getInstanceType() != null)
             return;
 
-        if (registryOpt.isPresent()) {
+        if (registryOpt.isPresent() && RegistryStatusValueDto.FAILED.value().equals(registryOpt.get().getStatus())) {
             if (registryOpt.get().getSubscriptionId() != null) {
                 accountManagementService.deleteSubscription(registryOpt.get().getSubscriptionId());
                 log.warn("Returned subscription {} since something wen wrong during provisioning phase:", registryOpt.get().getSubscriptionId());
             }
-            log.warn("Deleting registry data with registry {}", registryOpt.get());
-            storage.deleteRegistry(task.getRegistryId());
+            log.warn("The Registry instance is in delete status after creating the subscription, check the failed reason {}", registryOpt.get());
         }
     }
 
