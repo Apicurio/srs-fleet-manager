@@ -5,7 +5,7 @@ WORKDIR /workspace
 COPY --chown=185:0 / /workspace/
 
 RUN mvn clean install -Dmaven.javadoc.skip=true --no-transfer-progress -DtrimStackTrace=false -DskipTests=true
-q
+
 FROM registry.access.redhat.com/ubi8/openjdk-11:latest
 
 USER 185
