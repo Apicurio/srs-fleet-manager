@@ -333,13 +333,14 @@ objects:
           - name: REGISTRY_INSTANCES_EVAL_LIFETIME_SECONDS
             value: ${REGISTRY_INSTANCES_EVAL_LIFETIME_SECONDS}
 
+          # Sentry/GlitchTip
           - name: ENABLE_SENTRY
             value: ${ENABLE_SENTRY}
           - name: SENTRY_DSN
             valueFrom:
               secretKeyRef:
-                name:  ${SENTRY_DSN_SECRET_NAME}
-                key:  sentry-dsn
+                name: ${SENTRY_CONFIG_SECRET_NAME}
+                key: ${SENTRY_CONFIG_SECRET_KEY_DSN}
 
           - name: REGISTRY_BROWSER_URL
             value: ${REGISTRY_BROWSER_URL}
@@ -576,11 +577,15 @@ parameters:
 - name: REGISTRY_INSTANCES_EVAL_LIFETIME_SECONDS
   value: "172800" # 48 hours
 
+# Sentry/GlitchTip
 - name: ENABLE_SENTRY
-  value: "false"
-- name: SENTRY_DSN_SECRET_NAME
-  description: Secret name containing dsn for connecting to sentry
-  value: sentry-dsn-secret
+  value: "true"
+- name: SENTRY_CONFIG_SECRET_NAME
+  description: Name of the secret containing configuration for connecting to Sentry/GlitchTip
+  value: "sentry-dsn-secret"
+- name: SENTRY_CONFIG_SECRET_KEY_DSN
+  description: Name of the key in the secret above, containing Sentry/GlitchTip `dsn`
+  value: "sentry-dsn"
 
 - name: REGISTRY_BROWSER_URL
   value: "https://console.redhat.com/beta/application-services/service-registry/t/TENANT_ID"
