@@ -44,6 +44,9 @@ public class App {
     @Current
     QuotaPlansService quotaPlansService;
 
+    @Inject
+    TemporaryOnReadySentryEventEmitter temporary;
+
     void onStart(@Observes StartupEvent ev) throws Exception {
         try {
             ctx.loadNewContextData();
@@ -54,6 +57,7 @@ public class App {
             deploymentLoader.run();
             quotaPlansService.start();
             taskManager.start();
+            temporary.onReady();
         } catch (Exception e) {
             log.error("Error starting fleet manager app", e);
             throw e;
