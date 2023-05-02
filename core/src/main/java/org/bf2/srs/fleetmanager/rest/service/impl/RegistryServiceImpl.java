@@ -86,12 +86,22 @@ public class RegistryServiceImpl implements RegistryService {
     @ConfigProperty(name = "srs-fleet-manager.registry.instances.max-count")
     int maxInstances;
 
+    @ConfigProperty(name = "srs-fleet-manager.sunsetting", defaultValue = "false")
+    boolean sunsetting;
+
     @Audited
     @Override
     public RegistryDto createRegistry(RegistryCreateDto registryCreate)
             throws RegistryStorageConflictException, TermsRequiredException, ResourceLimitReachedException,
             EvalInstancesNotAllowedException, TooManyEvalInstancesForUserException, TooManyInstancesException,
             AccountManagementServiceException {
+
+        // Sunsetting the project :(
+        if (sunsetting) {
+            throw new TooManyInstancesException();
+        }
+
+
         final AccountInfo accountInfo = authService.extractAccountInfo();
 
         // Make sure we have more instances available (max capacity not yet reached).
@@ -229,7 +239,11 @@ public class RegistryServiceImpl implements RegistryService {
         long total = storage.getRegistryCountTotal();
 
         ServiceStatusDto status = new ServiceStatusDto();
-        status.setMaxInstancesReached(total >= maxInstances);
+        if (sunsetting) {
+            status.setMaxInstancesReached(true);
+        } else {
+            status.setMaxInstancesReached(total >= maxInstances);
+        }
         return status;
     }
 

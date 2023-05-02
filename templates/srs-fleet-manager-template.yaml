@@ -353,6 +353,9 @@ objects:
           - name: METRICS_CACHE_EXPIRATION_PERIOD_SECONDS
             value: ${METRICS_CACHE_EXPIRATION_PERIOD_SECONDS}
 
+          - name: SUNSETTING
+            value: ${SUNSETTING}
+
           livenessProbe:
             failureThreshold: 3
             httpGet:
@@ -602,3 +605,6 @@ parameters:
     but *some* metrics will report stale values (with the given delay).
     Keep in mind that multiple pods may compute the same metrics.
   value: "300"
+
+- name: SUNSETTING
+  value: "true"
