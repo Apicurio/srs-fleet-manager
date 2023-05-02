@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - main
+      - mas-sr
     paths:
       - core/src/main/resources/srs-fleet-manager.json
 
