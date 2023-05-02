@@ -5,606 +5,606 @@ metadata:
 labels:
   template: srs-fleet-manager-template
 objects:
-- kind: ConfigMap
-  apiVersion: v1
-  metadata:
-    name: registry-deployments-config-file
-    annotations:
-      qontract.recycle: "true"
-  data:
-    registry-deployments.yaml: |-
-      deployments: ${REGISTRY_DEPLOYMENTS_LIST}
-- kind: ConfigMap
-  apiVersion: v1
-  metadata:
-    name: registry-quota-plans-config
-    annotations:
-      qontract.recycle: "true"
-  data:
-    quota-plans.yaml: |-
-      reconcile: true # Enable this if you make changes to the plans configuration
-      plans:
-        - name: basic
-          resources:
-            - type: MAX_TOTAL_SCHEMAS_COUNT
-              limit: 10000
-            - type: MAX_SCHEMA_SIZE_BYTES
-              limit: 262144 # 256 KiB
-            - type: MAX_ARTIFACTS_COUNT
-              limit: -1
-            - type: MAX_VERSIONS_PER_ARTIFACT_COUNT
-              limit: -1
-            - type: MAX_ARTIFACT_PROPERTIES_COUNT
-              limit: 50
-            - type: MAX_PROPERTY_KEY_SIZE_BYTES
-              limit: 256
-            - type: MAX_PROPERTY_VALUE_SIZE_BYTES
-              limit: 1024
-            - type: MAX_ARTIFACT_LABELS_COUNT
-              limit: 50
-            - type: MAX_LABEL_SIZE_BYTES
-              limit: 256
-            - type: MAX_ARTIFACT_NAME_LENGTH_CHARS
-              limit: -1
-            - type: MAX_ARTIFACT_DESCRIPTION_LENGTH_CHARS
-              limit: -1
-            - type: MAX_REQUESTS_PER_SECOND_COUNT
-              limit: 10
-        - name: alpha
-          resources:
-            - type: MAX_TOTAL_SCHEMAS_COUNT
-              limit: 100000
-            - type: MAX_SCHEMA_SIZE_BYTES
-              limit: 524288 # 512 KiB
-            - type: MAX_ARTIFACTS_COUNT
-              limit: -1
-            - type: MAX_VERSIONS_PER_ARTIFACT_COUNT
-              limit: -1
-            - type: MAX_ARTIFACT_PROPERTIES_COUNT
-              limit: 50
-            - type: MAX_PROPERTY_KEY_SIZE_BYTES
-              limit: 256
-            - type: MAX_PROPERTY_VALUE_SIZE_BYTES
-              limit: 1024
-            - type: MAX_ARTIFACT_LABELS_COUNT
-              limit: 50
-            - type: MAX_LABEL_SIZE_BYTES
-              limit: 256
-            - type: MAX_ARTIFACT_NAME_LENGTH_CHARS
-              limit: -1
-            - type: MAX_ARTIFACT_DESCRIPTION_LENGTH_CHARS
-              limit: -1
-            - type: MAX_REQUESTS_PER_SECOND_COUNT
-              limit: 100
-      organizations:
-        - orgId: 14221005 # jsenko_srs et al. (testing)
-          plan: alpha
-- apiVersion: v1
-  kind: Service
-  metadata:
-    labels:
-      app: srs-fleet-manager
-      template: srs-fleet-manager-template
-      component: srs-fleet-manager
-    name: srs-fleet-manager
-  spec:
-    ports:
-    - port: 8080
-      protocol: TCP
-      targetPort: 8080
-    selector:
-      app: srs-fleet-manager
-      template: srs-fleet-manager-template
-- apiVersion: v1
-  kind: Service
-  metadata:
-    labels:
-      app: srs-fleet-manager
-      template: srs-fleet-manager-template
-      component: srs-fleet-manager-envoy
-    annotations:
-      description: Exposes and load balances the srs-fleet-manager pods going through envoy beforehand
-      service.alpha.openshift.io/serving-cert-secret-name: srs-fleet-manager-envoy-tls
-    name: srs-fleet-manager-envoy
-  spec:
-    ports:
-    - port: 9001
-      protocol: TCP
-      targetPort: 9001
-    selector:
-      app: srs-fleet-manager
-      template: srs-fleet-manager-template
-- apiVersion: v1
-  kind: Service
-  metadata:
-    labels:
-      app: srs-fleet-manager
-      template: srs-fleet-manager-template
-      component: srs-fleet-manager-envoy-metrics
-    name: srs-fleet-manager-envoy-metrics
-  spec:
-    ports:
-    - port: 9000
-      protocol: TCP
-      targetPort: 9000
-      name: metrics
-    selector:
-      app: srs-fleet-manager
-      template: srs-fleet-manager-template
-- apiVersion: v1
-  kind: Service
-  metadata:
-    labels:
-      app: srs-fleet-manager
-      template: srs-fleet-manager-template
-      component: srs-fleet-manager-metrics
-    name: srs-fleet-manager-metrics
-  spec:
-    ports:
-    - port: 8080
-      protocol: TCP
-      targetPort: 8080
-      name: metrics
-    selector:
-      app: srs-fleet-manager
-      template: srs-fleet-manager-template
-- apiVersion: apps/v1
-  kind: Deployment
-  metadata:
-    labels:
-      app: srs-fleet-manager
-      template: srs-fleet-manager-template
-    name: srs-fleet-manager-mt
-  spec:
-    selector:
-      matchLabels:
+  - kind: ConfigMap
+    apiVersion: v1
+    metadata:
+      name: registry-deployments-config-file
+      annotations:
+        qontract.recycle: "true"
+    data:
+      registry-deployments.yaml: |-
+        deployments: ${REGISTRY_DEPLOYMENTS_LIST}
+  - kind: ConfigMap
+    apiVersion: v1
+    metadata:
+      name: registry-quota-plans-config
+      annotations:
+        qontract.recycle: "true"
+    data:
+      quota-plans.yaml: |-
+        reconcile: true # Enable this if you make changes to the plans configuration
+        plans:
+          - name: basic
+            resources:
+              - type: MAX_TOTAL_SCHEMAS_COUNT
+                limit: 10000
+              - type: MAX_SCHEMA_SIZE_BYTES
+                limit: 262144 # 256 KiB
+              - type: MAX_ARTIFACTS_COUNT
+                limit: -1
+              - type: MAX_VERSIONS_PER_ARTIFACT_COUNT
+                limit: -1
+              - type: MAX_ARTIFACT_PROPERTIES_COUNT
+                limit: 50
+              - type: MAX_PROPERTY_KEY_SIZE_BYTES
+                limit: 256
+              - type: MAX_PROPERTY_VALUE_SIZE_BYTES
+                limit: 1024
+              - type: MAX_ARTIFACT_LABELS_COUNT
+                limit: 50
+              - type: MAX_LABEL_SIZE_BYTES
+                limit: 256
+              - type: MAX_ARTIFACT_NAME_LENGTH_CHARS
+                limit: -1
+              - type: MAX_ARTIFACT_DESCRIPTION_LENGTH_CHARS
+                limit: -1
+              - type: MAX_REQUESTS_PER_SECOND_COUNT
+                limit: 10
+          - name: alpha
+            resources:
+              - type: MAX_TOTAL_SCHEMAS_COUNT
+                limit: 100000
+              - type: MAX_SCHEMA_SIZE_BYTES
+                limit: 524288 # 512 KiB
+              - type: MAX_ARTIFACTS_COUNT
+                limit: -1
+              - type: MAX_VERSIONS_PER_ARTIFACT_COUNT
+                limit: -1
+              - type: MAX_ARTIFACT_PROPERTIES_COUNT
+                limit: 50
+              - type: MAX_PROPERTY_KEY_SIZE_BYTES
+                limit: 256
+              - type: MAX_PROPERTY_VALUE_SIZE_BYTES
+                limit: 1024
+              - type: MAX_ARTIFACT_LABELS_COUNT
+                limit: 50
+              - type: MAX_LABEL_SIZE_BYTES
+                limit: 256
+              - type: MAX_ARTIFACT_NAME_LENGTH_CHARS
+                limit: -1
+              - type: MAX_ARTIFACT_DESCRIPTION_LENGTH_CHARS
+                limit: -1
+              - type: MAX_REQUESTS_PER_SECOND_COUNT
+                limit: 100
+        organizations:
+          - orgId: 14221005 # jsenko_srs et al. (testing)
+            plan: alpha
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
         app: srs-fleet-manager
         template: srs-fleet-manager-template
-    replicas: ${{REPLICAS}}
-    strategy:
-      rollingUpdate:
-        maxSurge: 25%
-        maxUnavailable: 25%
-      type: RollingUpdate
-    template:
-      metadata:
-        labels:
+        component: srs-fleet-manager
+      name: srs-fleet-manager
+    spec:
+      ports:
+        - port: 8080
+          protocol: TCP
+          targetPort: 8080
+      selector:
+        app: srs-fleet-manager
+        template: srs-fleet-manager-template
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app: srs-fleet-manager
+        template: srs-fleet-manager-template
+        component: srs-fleet-manager-envoy
+      annotations:
+        description: Exposes and load balances the srs-fleet-manager pods going through envoy beforehand
+        service.alpha.openshift.io/serving-cert-secret-name: srs-fleet-manager-envoy-tls
+      name: srs-fleet-manager-envoy
+    spec:
+      ports:
+        - port: 9001
+          protocol: TCP
+          targetPort: 9001
+      selector:
+        app: srs-fleet-manager
+        template: srs-fleet-manager-template
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app: srs-fleet-manager
+        template: srs-fleet-manager-template
+        component: srs-fleet-manager-envoy-metrics
+      name: srs-fleet-manager-envoy-metrics
+    spec:
+      ports:
+        - port: 9000
+          protocol: TCP
+          targetPort: 9000
+          name: metrics
+      selector:
+        app: srs-fleet-manager
+        template: srs-fleet-manager-template
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app: srs-fleet-manager
+        template: srs-fleet-manager-template
+        component: srs-fleet-manager-metrics
+      name: srs-fleet-manager-metrics
+    spec:
+      ports:
+        - port: 8080
+          protocol: TCP
+          targetPort: 8080
+          name: metrics
+      selector:
+        app: srs-fleet-manager
+        template: srs-fleet-manager-template
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app: srs-fleet-manager
+        template: srs-fleet-manager-template
+      name: srs-fleet-manager-mt
+    spec:
+      selector:
+        matchLabels:
           app: srs-fleet-manager
           template: srs-fleet-manager-template
-      spec:
-        affinity:
-          podAntiAffinity:
-            preferredDuringSchedulingIgnoredDuringExecution:
-            - podAffinityTerm:
-                labelSelector:
-                  matchExpressions:
-                  - key: app
-                    operator: In
-                    values:
-                    - srs-fleet-manager
-                  - key: template
-                    operator: In
-                    values:
-                    - srs-fleet-manager-template
-                topologyKey: failure-domain.beta.kubernetes.io/zone
-              weight: 100
-        serviceAccount: ${SERVICE_ACCOUNT_NAME}
-        serviceAccountName: ${SERVICE_ACCOUNT_NAME}
-        volumes:
-        - name: registry-deployments-config-file
-          configMap:
-            name: registry-deployments-config-file
-        - name: quota-plans-config-file
-          configMap:
-            name: ${REGISTRY_QUOTA_PLANS_CM_NAME}
-        - name: envoy-config
-          configMap:
-            name: ${ENVOY_CONFIG_CM_NAME}
-        - name: envoy-unix-sockets
-          emptyDir:
-            medium: Memory
-        - name: db-ssl-ca
-          secret:
-            secretName: ${DATABASE_SSL_CA_SECRET_NAME}
-        - name: envoy-tls
-          secret:
-            secretName: srs-fleet-manager-envoy-tls
-        containers:
-        - name: srs-fleet-manager
-          image: ${IMAGE_REGISTRY}/${IMAGE_REPOSITORY}:${IMAGE_TAG}
-          imagePullPolicy: IfNotPresent
-          volumeMounts:
-          - name: registry-deployments-config-file
-            mountPath: /config/registry-deployments.yaml
-            subPath: registry-deployments.yaml
-          - name: quota-plans-config-file
-            mountPath: /config/quota-plans.yaml
-            subPath: quota-plans.yaml
-          - name: db-ssl-ca
-            mountPath: /config/db-ssl-ca.pem
-            subPath: ca.pem
-          env:
-          - name: SRS_LOG_LEVEL
-            value: ${SRS_LOG_LEVEL}
-          - name: LOG_LEVEL
-            value: ${LOG_LEVEL}
+      replicas: ${{REPLICAS}}
+      strategy:
+        rollingUpdate:
+          maxSurge: 25%
+          maxUnavailable: 25%
+        type: RollingUpdate
+      template:
+        metadata:
+          labels:
+            app: srs-fleet-manager
+            template: srs-fleet-manager-template
+        spec:
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+                - podAffinityTerm:
+                    labelSelector:
+                      matchExpressions:
+                        - key: app
+                          operator: In
+                          values:
+                            - srs-fleet-manager
+                        - key: template
+                          operator: In
+                          values:
+                            - srs-fleet-manager-template
+                    topologyKey: failure-domain.beta.kubernetes.io/zone
+                  weight: 100
+          serviceAccount: ${SERVICE_ACCOUNT_NAME}
+          serviceAccountName: ${SERVICE_ACCOUNT_NAME}
+          volumes:
+            - name: registry-deployments-config-file
+              configMap:
+                name: registry-deployments-config-file
+            - name: quota-plans-config-file
+              configMap:
+                name: ${REGISTRY_QUOTA_PLANS_CM_NAME}
+            - name: envoy-config
+              configMap:
+                name: ${ENVOY_CONFIG_CM_NAME}
+            - name: envoy-unix-sockets
+              emptyDir:
+                medium: Memory
+            - name: db-ssl-ca
+              secret:
+                secretName: ${DATABASE_SSL_CA_SECRET_NAME}
+            - name: envoy-tls
+              secret:
+                secretName: srs-fleet-manager-envoy-tls
+          containers:
+            - name: srs-fleet-manager
+              image: ${IMAGE_REGISTRY}/${IMAGE_REPOSITORY}:${IMAGE_TAG}
+              imagePullPolicy: IfNotPresent
+              volumeMounts:
+                - name: registry-deployments-config-file
+                  mountPath: /config/registry-deployments.yaml
+                  subPath: registry-deployments.yaml
+                - name: quota-plans-config-file
+                  mountPath: /config/quota-plans.yaml
+                  subPath: quota-plans.yaml
+                - name: db-ssl-ca
+                  mountPath: /config/db-ssl-ca.pem
+                  subPath: ca.pem
+              env:
+                - name: SRS_LOG_LEVEL
+                  value: ${SRS_LOG_LEVEL}
+                - name: LOG_LEVEL
+                  value: ${LOG_LEVEL}
 
-          - name: DB_HOST
-            valueFrom:
-              secretKeyRef:
-                name:  ${DATABASE_SECRET_NAME}
-                key:  db.host
-          - name: DB_PORT
-            valueFrom:
-              secretKeyRef:
-                name:  ${DATABASE_SECRET_NAME}
-                key:  db.port
-          - name: DB_NAME
-            valueFrom:
-              secretKeyRef:
-                name:  ${DATABASE_SECRET_NAME}
-                key:  db.name
-          - name: SERVICE_API_DATASOURCE_URL
-            value: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=require&sslrootcert=/config/db-ssl-ca.pem
-          - name: SERVICE_API_DATASOURCE_USERNAME
-            valueFrom:
-              secretKeyRef:
-                name:  ${DATABASE_SECRET_NAME}
-                key:  db.user
-          - name: SERVICE_API_DATASOURCE_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name:  ${DATABASE_SECRET_NAME}
-                key:  db.password
+                - name: DB_HOST
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${DATABASE_SECRET_NAME}
+                      key: db.host
+                - name: DB_PORT
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${DATABASE_SECRET_NAME}
+                      key: db.port
+                - name: DB_NAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${DATABASE_SECRET_NAME}
+                      key: db.name
+                - name: SERVICE_API_DATASOURCE_URL
+                  value: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=require&sslrootcert=/config/db-ssl-ca.pem
+                - name: SERVICE_API_DATASOURCE_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${DATABASE_SECRET_NAME}
+                      key: db.user
+                - name: SERVICE_API_DATASOURCE_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${DATABASE_SECRET_NAME}
+                      key: db.password
 
-          - name: AUTH_ENABLED
-            value: ${AUTH_ENABLED}
-          - name: KEYCLOAK_URL
-            value: ${KEYCLOAK_URL}
-          - name: KEYCLOAK_REALM
-            value: ${KEYCLOAK_REALM}
-          - name: KEYCLOAK_API_CLIENT_ID
-            value: ${KEYCLOAK_API_CLIENT_ID}
-          - name: TENANT_MANAGER_AUTH_SERVER_URL
-            value: ${TENANT_MANAGER_AUTH_SERVER_URL}
-          - name: TENANT_MANAGER_AUTH_SERVER_REALM
-            value: ${TENANT_MANAGER_AUTH_SERVER_REALM}
-          - name: TENANT_MANAGER_AUTH_CLIENT_ID
-            valueFrom:
-              secretKeyRef:
-                name: ${TENANT_MANAGER_AUTH_SECRET_NAME}
-                key: client-id
-          - name: TENANT_MANAGER_AUTH_SECRET
-            valueFrom:
-              secretKeyRef:
-                name: ${TENANT_MANAGER_AUTH_SECRET_NAME}
-                key: client-secret
-          - name: TENANT_MANAGER_CA_BUNDLE
-            value: ${TENANT_MANAGER_CA_BUNDLE}
-          - name: FLEET_MANAGER_AUTH_CLIENT_ID
-            valueFrom:
-              secretKeyRef:
-                name: ${FLEET_MANAGER_AUTH_SECRET_NAME}
-                key: client-id
-          - name: FLEET_MANAGER_AUTH_SECRET
-            valueFrom:
-              secretKeyRef:
-                name: ${FLEET_MANAGER_AUTH_SECRET_NAME}
-                key: client-secret
-          - name: REGISTRY_DEPLOYMENTS_CONFIG_FILE
-            value: /config/registry-deployments.yaml
-            #workaround for schema updates
-          - name: SRS_FLEET_MANAGER_DELETE_ALL
-            value: ${SRS_FLEET_MANAGER_DELETE_ALL}
+                - name: AUTH_ENABLED
+                  value: ${AUTH_ENABLED}
+                - name: KEYCLOAK_URL
+                  value: ${KEYCLOAK_URL}
+                - name: KEYCLOAK_REALM
+                  value: ${KEYCLOAK_REALM}
+                - name: KEYCLOAK_API_CLIENT_ID
+                  value: ${KEYCLOAK_API_CLIENT_ID}
+                - name: TENANT_MANAGER_AUTH_SERVER_URL
+                  value: ${TENANT_MANAGER_AUTH_SERVER_URL}
+                - name: TENANT_MANAGER_AUTH_SERVER_REALM
+                  value: ${TENANT_MANAGER_AUTH_SERVER_REALM}
+                - name: TENANT_MANAGER_AUTH_CLIENT_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${TENANT_MANAGER_AUTH_SECRET_NAME}
+                      key: client-id
+                - name: TENANT_MANAGER_AUTH_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${TENANT_MANAGER_AUTH_SECRET_NAME}
+                      key: client-secret
+                - name: TENANT_MANAGER_CA_BUNDLE
+                  value: ${TENANT_MANAGER_CA_BUNDLE}
+                - name: FLEET_MANAGER_AUTH_CLIENT_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${FLEET_MANAGER_AUTH_SECRET_NAME}
+                      key: client-id
+                - name: FLEET_MANAGER_AUTH_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${FLEET_MANAGER_AUTH_SECRET_NAME}
+                      key: client-secret
+                - name: REGISTRY_DEPLOYMENTS_CONFIG_FILE
+                  value: /config/registry-deployments.yaml
+                  #workaround for schema updates
+                - name: SRS_FLEET_MANAGER_DELETE_ALL
+                  value: ${SRS_FLEET_MANAGER_DELETE_ALL}
 
-          - name: REGISTRY_QUOTA_PLANS_CONFIG_FILE
-            value: /config/quota-plans.yaml
-          - name: REGISTRY_QUOTA_PLANS_DEFAULT
-            value: ${REGISTRY_QUOTA_PLANS_DEFAULT}
-          - name: FM_AMS_TYPE
-            value: ${FM_AMS_TYPE}
-          - name: AMS_URL
-            value: ${AMS_URL}
-          - name: SSO_TOKEN_ENDPOINT
-            value: ${SSO_TOKEN_ENDPOINT}
-          - name: AMS_TERMS_SITE_CODE
-            value: ${AMS_TERMS_SITE_CODE}
-          - name: AMS_TERMS_EVENT_CODE
-            value: ${AMS_TERMS_EVENT_CODE}
-          - name: RESOURCE_TYPE
-            value: ${RESOURCE_TYPE}
-          - name: RESOURCE_NAME
-            value: ${RESOURCE_NAME}
-          - name: PRODUCT_ID
-            value: ${PRODUCT_ID}
-          # Eval instances
-          - name: EVAL_RESOURCE_NAME
-            value: ${EVAL_RESOURCE_NAME}
-          - name: EVAL_PRODUCT_ID
-            value: ${EVAL_PRODUCT_ID}
-          - name: REGISTRY_INSTANCES_MAX_COUNT
-            value: ${REGISTRY_INSTANCES_MAX_COUNT}
-          - name: REGISTRY_INSTANCES_EVAL_ENABLED
-            value: ${REGISTRY_INSTANCES_EVAL_ENABLED}
-          - name: REGISTRY_INSTANCES_EVAL_ONLY
-            value: ${REGISTRY_INSTANCES_EVAL_ONLY}
-          - name: REGISTRY_INSTANCES_EVAL_MAX_COUNT_PER_USER
-            value: ${REGISTRY_INSTANCES_EVAL_MAX_COUNT_PER_USER}
-          - name: REGISTRY_INSTANCES_EVAL_LIFETIME_SECONDS
-            value: ${REGISTRY_INSTANCES_EVAL_LIFETIME_SECONDS}
+                - name: REGISTRY_QUOTA_PLANS_CONFIG_FILE
+                  value: /config/quota-plans.yaml
+                - name: REGISTRY_QUOTA_PLANS_DEFAULT
+                  value: ${REGISTRY_QUOTA_PLANS_DEFAULT}
+                - name: FM_AMS_TYPE
+                  value: ${FM_AMS_TYPE}
+                - name: AMS_URL
+                  value: ${AMS_URL}
+                - name: SSO_TOKEN_ENDPOINT
+                  value: ${SSO_TOKEN_ENDPOINT}
+                - name: AMS_TERMS_SITE_CODE
+                  value: ${AMS_TERMS_SITE_CODE}
+                - name: AMS_TERMS_EVENT_CODE
+                  value: ${AMS_TERMS_EVENT_CODE}
+                - name: RESOURCE_TYPE
+                  value: ${RESOURCE_TYPE}
+                - name: RESOURCE_NAME
+                  value: ${RESOURCE_NAME}
+                - name: PRODUCT_ID
+                  value: ${PRODUCT_ID}
+                # Eval instances
+                - name: EVAL_RESOURCE_NAME
+                  value: ${EVAL_RESOURCE_NAME}
+                - name: EVAL_PRODUCT_ID
+                  value: ${EVAL_PRODUCT_ID}
+                - name: REGISTRY_INSTANCES_MAX_COUNT
+                  value: ${REGISTRY_INSTANCES_MAX_COUNT}
+                - name: REGISTRY_INSTANCES_EVAL_ENABLED
+                  value: ${REGISTRY_INSTANCES_EVAL_ENABLED}
+                - name: REGISTRY_INSTANCES_EVAL_ONLY
+                  value: ${REGISTRY_INSTANCES_EVAL_ONLY}
+                - name: REGISTRY_INSTANCES_EVAL_MAX_COUNT_PER_USER
+                  value: ${REGISTRY_INSTANCES_EVAL_MAX_COUNT_PER_USER}
+                - name: REGISTRY_INSTANCES_EVAL_LIFETIME_SECONDS
+                  value: ${REGISTRY_INSTANCES_EVAL_LIFETIME_SECONDS}
 
-          # Sentry/GlitchTip
-          - name: ENABLE_SENTRY
-            value: ${ENABLE_SENTRY}
-          - name: SENTRY_DSN
-            valueFrom:
-              secretKeyRef:
-                name: ${SENTRY_CONFIG_SECRET_NAME}
-                key: ${SENTRY_CONFIG_SECRET_KEY_DSN}
+                # Sentry/GlitchTip
+                - name: ENABLE_SENTRY
+                  value: ${ENABLE_SENTRY}
+                - name: SENTRY_DSN
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${SENTRY_CONFIG_SECRET_NAME}
+                      key: ${SENTRY_CONFIG_SECRET_KEY_DSN}
 
-          - name: REGISTRY_BROWSER_URL
-            value: ${REGISTRY_BROWSER_URL}
-          - name: REST_API_DISABLED_PATHS_PATTERNS
-            value: ${REST_API_DISABLED_PATHS_PATTERNS}
+                - name: REGISTRY_BROWSER_URL
+                  value: ${REGISTRY_BROWSER_URL}
+                - name: REST_API_DISABLED_PATHS_PATTERNS
+                  value: ${REST_API_DISABLED_PATHS_PATTERNS}
 
-          - name: CORS_ALLOWED_ORIGINS
-            value: ${CORS_ALLOWED_ORIGINS}
+                - name: CORS_ALLOWED_ORIGINS
+                  value: ${CORS_ALLOWED_ORIGINS}
 
-          - name: METRICS_CACHE_EXPIRATION_PERIOD_SECONDS
-            value: ${METRICS_CACHE_EXPIRATION_PERIOD_SECONDS}
+                - name: METRICS_CACHE_EXPIRATION_PERIOD_SECONDS
+                  value: ${METRICS_CACHE_EXPIRATION_PERIOD_SECONDS}
 
-          - name: SUNSETTING
-            value: ${SUNSETTING}
+                - name: SUNSETTING
+                  value: ${SUNSETTING}
 
-          livenessProbe:
-            failureThreshold: 3
-            httpGet:
-              path: /q/health/live
-              port: 8080
-              scheme: HTTP
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            successThreshold: 1
-            timeoutSeconds: 5
-          ports:
-          - containerPort: 8080
-            name: web
-            protocol: TCP
-          readinessProbe:
-            failureThreshold: 3
-            httpGet:
-              path: /q/health/ready
-              port: 8080
-              scheme: HTTP
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            successThreshold: 1
-            timeoutSeconds: 5
-          resources:
-            limits:
-              cpu: ${CPU_LIMIT}
-              memory: ${MEMORY_LIMIT}
-            requests:
-              cpu: ${CPU_REQUEST}
-              memory: ${MEMORY_REQUEST}
-          terminationMessagePath: /dev/termination-log
-        - name: envoy
-          image: ${ENVOY_IMAGE}
-          imagePullPolicy: IfNotPresent
-          volumeMounts:
-          - name: envoy-tls
-            mountPath: /secrets/tls
-          - name: envoy-config
-            mountPath: /configs/envoy
-          - name: envoy-unix-sockets
-            mountPath: /sockets
-          command:
-          - envoy
-          - --config-path
-          - /configs/envoy/main.yaml
-          ports:
-          - name: api-envoy
-            protocol: TCP
-            containerPort: 9001
-          - name: metrics-envoy
-            protocol: TCP
-            containerPort: 9000
-          livenessProbe:
-            httpGet:
-              path: /ready
-              port: 9000
-            initialDelaySeconds: 10
-            timeoutSeconds: 1
-            periodSeconds: 10
-            successThreshold: 1
-            failureThreshold: 10
-          readinessProbe:
-            httpGet:
-              path: /ready
-              port: 9000
-            initialDelaySeconds: 10
-            timeoutSeconds: 1
-            periodSeconds: 10
-            successThreshold: 1
-            failureThreshold: 10
-          resources:
-            requests:
-              memory: 256Mi
-              cpu: 250m
-            limits:
-              memory: 512Mi
-              cpu: 500m
+              livenessProbe:
+                failureThreshold: 3
+                httpGet:
+                  path: /q/health/live
+                  port: 8080
+                  scheme: HTTP
+                initialDelaySeconds: 5
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 5
+              ports:
+                - containerPort: 8080
+                  name: web
+                  protocol: TCP
+              readinessProbe:
+                failureThreshold: 3
+                httpGet:
+                  path: /q/health/ready
+                  port: 8080
+                  scheme: HTTP
+                initialDelaySeconds: 5
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 5
+              resources:
+                limits:
+                  cpu: ${CPU_LIMIT}
+                  memory: ${MEMORY_LIMIT}
+                requests:
+                  cpu: ${CPU_REQUEST}
+                  memory: ${MEMORY_REQUEST}
+              terminationMessagePath: /dev/termination-log
+            - name: envoy
+              image: ${ENVOY_IMAGE}
+              imagePullPolicy: IfNotPresent
+              volumeMounts:
+                - name: envoy-tls
+                  mountPath: /secrets/tls
+                - name: envoy-config
+                  mountPath: /configs/envoy
+                - name: envoy-unix-sockets
+                  mountPath: /sockets
+              command:
+                - envoy
+                - --config-path
+                - /configs/envoy/main.yaml
+              ports:
+                - name: api-envoy
+                  protocol: TCP
+                  containerPort: 9001
+                - name: metrics-envoy
+                  protocol: TCP
+                  containerPort: 9000
+              livenessProbe:
+                httpGet:
+                  path: /ready
+                  port: 9000
+                initialDelaySeconds: 10
+                timeoutSeconds: 1
+                periodSeconds: 10
+                successThreshold: 1
+                failureThreshold: 10
+              readinessProbe:
+                httpGet:
+                  path: /ready
+                  port: 9000
+                initialDelaySeconds: 10
+                timeoutSeconds: 1
+                periodSeconds: 10
+                successThreshold: 1
+                failureThreshold: 10
+              resources:
+                requests:
+                  memory: 256Mi
+                  cpu: 250m
+                limits:
+                  memory: 512Mi
+                  cpu: 500m
 
 
-- kind: PodDisruptionBudget
-  apiVersion: policy/v1
-  metadata:
-    name: srs-fleet-manager-pdb
-  spec:
-    maxUnavailabe: "50%"
-    selector:
-      matchLabels:
-        app: srs-fleet-manager
-        template: srs-fleet-manager-template
+  - kind: PodDisruptionBudget
+    apiVersion: policy/v1
+    metadata:
+      name: srs-fleet-manager-pdb
+    spec:
+      maxUnavailabe: "50%"
+      selector:
+        matchLabels:
+          app: srs-fleet-manager
+          template: srs-fleet-manager-template
 
 parameters:
 
-- name: LOG_LEVEL
-  value: INFO
+  - name: LOG_LEVEL
+    value: INFO
 
-- name: SRS_LOG_LEVEL
-  value: DEBUG
+  - name: SRS_LOG_LEVEL
+    value: DEBUG
 
-- name: SERVICE_ACCOUNT_NAME
-  displayName: Service Account to use for the deployment
-  required: true
+  - name: SERVICE_ACCOUNT_NAME
+    displayName: Service Account to use for the deployment
+    required: true
 
-- name: REPLICAS
-  description: Number of replicas of the service to run.
-  value: "3"
+  - name: REPLICAS
+    description: Number of replicas of the service to run.
+    value: "3"
 
-- name: IMAGE_REGISTRY
-  displayName: Image Registry
-  required: true
+  - name: IMAGE_REGISTRY
+    displayName: Image Registry
+    required: true
 
-- name: IMAGE_REPOSITORY
-  displayName: SRS Fleet Manager Image Repository
-  required: true
+  - name: IMAGE_REPOSITORY
+    displayName: SRS Fleet Manager Image Repository
+    required: true
 
-- name: IMAGE_TAG
-  displayName: SRS Fleet Manager Image tag
-  value: latest
-
-
-- name: MEMORY_REQUEST
-  description: Memory request.
-  value: "600Mi"
-
-- name: MEMORY_LIMIT
-  description: Memory limit.
-  value: "1300Mi"
-
-- name: CPU_REQUEST
-  description: CPU request.
-  value: "200m"
-
-- name: CPU_LIMIT
-  description: CPU limit.
-  value: "1000m"
+  - name: IMAGE_TAG
+    displayName: SRS Fleet Manager Image tag
+    value: latest
 
 
-- name: DATABASE_SECRET_NAME
-  description: Secret name with database connection details
-  required: true
-- name: DATABASE_SSL_CA_SECRET_NAME
-  description: Secret name with database SSL CA
-  required: true
+  - name: MEMORY_REQUEST
+    description: Memory request.
+    value: "600Mi"
 
-- name: AUTH_ENABLED
-  value: "false"
-- name: KEYCLOAK_URL
-  description: Keycloak base url
-  value: "http://localhost:8090"
-- name: KEYCLOAK_REALM
-  description: Keycloak realm
-  value: srs-fleet-manager
-- name: KEYCLOAK_API_CLIENT_ID
-  description: client id for srs-fleet-manager API
-  value: srs-fleet-manager
-- name: TENANT_MANAGER_AUTH_SERVER_URL
-  description: Keycloak base url used for Tenant Manager Access
-  value: "http://localhost:8090"
-- name: TENANT_MANAGER_AUTH_SERVER_REALM
-  description: Realm used for Tenant Manager Access
-  value: tenant-manager
-- name: TENANT_MANAGER_AUTH_SECRET_NAME
-  description: k8s secret name with client-id and client-secret to access tenant-manager
-  value: srs-tenant-manager-credentials
-- name: TENANT_MANAGER_CA_BUNDLE
-  description: path to tenant-manager service CA bundle
-- name: FLEET_MANAGER_AUTH_SECRET_NAME
-  description: k8s secret name with client-id and client-secret that the fleet manager will use to connect to SSO
-  value: srs-fleet-manager-credentials
+  - name: MEMORY_LIMIT
+    description: Memory limit.
+    value: "1300Mi"
 
-- name: ENVOY_IMAGE
-  description: Envoy image.
-  value: envoyproxy/envoy:v1.16.1
-- name: ENVOY_CONFIG_CM_NAME
-  description: ConfigMap containing Envoy config file
-  value: srs-fleet-manager-envoy-config
+  - name: CPU_REQUEST
+    description: CPU request.
+    value: "200m"
 
-- name: REGISTRY_DEPLOYMENTS_LIST
-  description: List of static service-registry deployments, will be used as target to provision registry tenants
-  value: "[]"
-- name: SRS_FLEET_MANAGER_DELETE_ALL
-  value: "false"
+  - name: CPU_LIMIT
+    description: CPU limit.
+    value: "1000m"
 
-- name: REGISTRY_QUOTA_PLANS_CM_NAME
-  description: Name for configmap containg plans config file
-  value: registry-quota-plans-config
-- name: REGISTRY_QUOTA_PLANS_DEFAULT
-  description: Default quota plan to apply registries
-  value: basic
 
-- name: FM_AMS_TYPE
-  value: "REMOTE"
-- name: AMS_URL
-  value: "http://localhost:8091"
-- name: SSO_TOKEN_ENDPOINT
-  value: "http://localhost:8090"
-- name: AMS_TERMS_SITE_CODE
-  value: ocm
-- name: AMS_TERMS_EVENT_CODE
-  value: onlineService
-- name: RESOURCE_TYPE
-  value: "cluster.aws"
-- name: RESOURCE_NAME
-  value: rhosr
-- name: PRODUCT_ID
-  value: RHOSR
+  - name: DATABASE_SECRET_NAME
+    description: Secret name with database connection details
+    required: true
+  - name: DATABASE_SSL_CA_SECRET_NAME
+    description: Secret name with database SSL CA
+    required: true
 
-# === Eval Instances
+  - name: AUTH_ENABLED
+    value: "false"
+  - name: KEYCLOAK_URL
+    description: Keycloak base url
+    value: "http://localhost:8090"
+  - name: KEYCLOAK_REALM
+    description: Keycloak realm
+    value: srs-fleet-manager
+  - name: KEYCLOAK_API_CLIENT_ID
+    description: client id for srs-fleet-manager API
+    value: srs-fleet-manager
+  - name: TENANT_MANAGER_AUTH_SERVER_URL
+    description: Keycloak base url used for Tenant Manager Access
+    value: "http://localhost:8090"
+  - name: TENANT_MANAGER_AUTH_SERVER_REALM
+    description: Realm used for Tenant Manager Access
+    value: tenant-manager
+  - name: TENANT_MANAGER_AUTH_SECRET_NAME
+    description: k8s secret name with client-id and client-secret to access tenant-manager
+    value: srs-tenant-manager-credentials
+  - name: TENANT_MANAGER_CA_BUNDLE
+    description: path to tenant-manager service CA bundle
+  - name: FLEET_MANAGER_AUTH_SECRET_NAME
+    description: k8s secret name with client-id and client-secret that the fleet manager will use to connect to SSO
+    value: srs-fleet-manager-credentials
 
-- name: EVAL_RESOURCE_NAME
-  value: "rhosrtrial"
-- name: EVAL_PRODUCT_ID
-  value: "RHOSRTrial"
-- name: REGISTRY_INSTANCES_MAX_COUNT
-  value: "1000"
-- name: REGISTRY_INSTANCES_EVAL_ENABLED
-  value: "true"
-- name: REGISTRY_INSTANCES_EVAL_ONLY
-  value: "false"
-- name: REGISTRY_INSTANCES_EVAL_MAX_COUNT_PER_USER
-  value: "1"
-- name: REGISTRY_INSTANCES_EVAL_LIFETIME_SECONDS
-  value: "172800" # 48 hours
+  - name: ENVOY_IMAGE
+    description: Envoy image.
+    value: envoyproxy/envoy:v1.16.1
+  - name: ENVOY_CONFIG_CM_NAME
+    description: ConfigMap containing Envoy config file
+    value: srs-fleet-manager-envoy-config
 
-# Sentry/GlitchTip
-- name: ENABLE_SENTRY
-  value: "true"
-- name: SENTRY_CONFIG_SECRET_NAME
-  description: Name of the secret containing configuration for connecting to Sentry/GlitchTip
-  value: "sentry-dsn-secret"
-- name: SENTRY_CONFIG_SECRET_KEY_DSN
-  description: Name of the key in the secret above, containing Sentry/GlitchTip `dsn`
-  value: "sentry-dsn"
+  - name: REGISTRY_DEPLOYMENTS_LIST
+    description: List of static service-registry deployments, will be used as target to provision registry tenants
+    value: "[]"
+  - name: SRS_FLEET_MANAGER_DELETE_ALL
+    value: "false"
 
-- name: REGISTRY_BROWSER_URL
-  value: "https://console.redhat.com/beta/application-services/service-registry/t/TENANT_ID"
-- name: REST_API_DISABLED_PATHS_PATTERNS
-  value: ""
+  - name: REGISTRY_QUOTA_PLANS_CM_NAME
+    description: Name for configmap containg plans config file
+    value: registry-quota-plans-config
+  - name: REGISTRY_QUOTA_PLANS_DEFAULT
+    description: Default quota plan to apply registries
+    value: basic
 
-- name: CORS_ALLOWED_ORIGINS
-  description: Allowed origins for cors. The expected value is a regex to be used as pattern.
-  value: ""
+  - name: FM_AMS_TYPE
+    value: "REMOTE"
+  - name: AMS_URL
+    value: "http://localhost:8091"
+  - name: SSO_TOKEN_ENDPOINT
+    value: "http://localhost:8090"
+  - name: AMS_TERMS_SITE_CODE
+    value: ocm
+  - name: AMS_TERMS_EVENT_CODE
+    value: onlineService
+  - name: RESOURCE_TYPE
+    value: "cluster.aws"
+  - name: RESOURCE_NAME
+    value: rhosr
+  - name: PRODUCT_ID
+    value: RHOSR
 
-- name: METRICS_CACHE_EXPIRATION_PERIOD_SECONDS
-  description: >-
-    Expiration period for the metrics cache. Higher values may reduce database load,
-    but *some* metrics will report stale values (with the given delay).
-    Keep in mind that multiple pods may compute the same metrics.
-  value: "300"
+  # === Eval Instances
 
-- name: SUNSETTING
-  value: "true"
+  - name: EVAL_RESOURCE_NAME
+    value: "rhosrtrial"
+  - name: EVAL_PRODUCT_ID
+    value: "RHOSRTrial"
+  - name: REGISTRY_INSTANCES_MAX_COUNT
+    value: "1000"
+  - name: REGISTRY_INSTANCES_EVAL_ENABLED
+    value: "true"
+  - name: REGISTRY_INSTANCES_EVAL_ONLY
+    value: "false"
+  - name: REGISTRY_INSTANCES_EVAL_MAX_COUNT_PER_USER
+    value: "1"
+  - name: REGISTRY_INSTANCES_EVAL_LIFETIME_SECONDS
+    value: "172800" # 48 hours
+
+  # Sentry/GlitchTip
+  - name: ENABLE_SENTRY
+    value: "true"
+  - name: SENTRY_CONFIG_SECRET_NAME
+    description: Name of the secret containing configuration for connecting to Sentry/GlitchTip
+    value: "sentry-dsn-secret"
+  - name: SENTRY_CONFIG_SECRET_KEY_DSN
+    description: Name of the key in the secret above, containing Sentry/GlitchTip `dsn`
+    value: "sentry-dsn"
+
+  - name: REGISTRY_BROWSER_URL
+    value: "https://console.redhat.com/beta/application-services/service-registry/t/TENANT_ID"
+  - name: REST_API_DISABLED_PATHS_PATTERNS
+    value: ""
+
+  - name: CORS_ALLOWED_ORIGINS
+    description: Allowed origins for cors. The expected value is a regex to be used as pattern.
+    value: ""
+
+  - name: METRICS_CACHE_EXPIRATION_PERIOD_SECONDS
+    description: >-
+      Expiration period for the metrics cache. Higher values may reduce database load,
+      but *some* metrics will report stale values (with the given delay).
+      Keep in mind that multiple pods may compute the same metrics.
+    value: "300"
+
+  - name: SUNSETTING
+    value: "true"
